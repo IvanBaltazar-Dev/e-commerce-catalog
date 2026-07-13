@@ -1,0 +1,34 @@
+﻿.next/
+node_modules/
+out/
+dist/
+coverage/
+.npm-cache/
+
+.env
+.env*.local
+!.env.example
+
+*.log
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+# Local assistant/tool metadata
+.serena/
+.codex/
+.agents/
+.claude/
+
+# Private Bellaroshe catalog source material copied locally only
+# Source of truth lives outside this repo: F:\products\Bella Roshe\Catalogo
+Catalogo/
+imagenes_productos/
+metodos_pago/
+output/
+tmp/
+BRIEF_CATALOGO_BELLAROSHE.md
+requerimientos_*_catalogo_bellaroshe_mvp.md
+datos.txt
+link.txt
+ChatGPT Image*.png
+
