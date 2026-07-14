@@ -441,9 +441,9 @@ button:disabled {
 
 .filters {
   display: flex;
+  flex-direction: column;
   gap: 10px;
   margin-top: 16px;
-  flex-wrap: wrap;
 }
 
 .searchbox {
@@ -490,6 +490,208 @@ button:disabled {
   border-color: transparent;
   background: var(--br-grad);
   color: #fff;
+}
+
+.admin-filterbar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 14px;
+  border: 1px solid rgba(240, 220, 227, 0.86);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.64);
+  box-shadow: 0 8px 24px rgba(102, 48, 76, 0.035);
+  overflow: visible;
+}
+
+.admin-filtergroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: none;
+}
+
+.admin-filtergroup--brands {
+  flex: 1;
+}
+
+.admin-filterlabel {
+  flex: none;
+  color: var(--br-label);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.35px;
+  text-transform: uppercase;
+}
+
+.admin-filteroptions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.admin-filteroptions .chip {
+  flex: none;
+  padding: 8px 14px;
+  font-size: 12px;
+}
+
+.admin-filterdivider {
+  width: 1px;
+  height: 29px;
+  flex: none;
+  background: var(--br-input-line);
+}
+
+.admin-filtermore-wrap {
+  position: relative;
+  flex: none;
+}
+
+.admin-filtermore {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #e7cda2;
+  border-radius: 999px;
+  background: #f8f0e3;
+  color: #8b6229;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.admin-filtermore:hover,
+.admin-filtermore--selected {
+  border-color: #cfaa6b;
+  background: #f3e5cf;
+  box-shadow: 0 6px 14px rgba(155, 111, 48, 0.13);
+}
+
+.admin-filtermore-menu {
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  z-index: 70;
+  min-width: 190px;
+  padding: 7px;
+  border: 1px solid var(--br-input-line);
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 20px 44px rgba(82, 35, 62, 0.18);
+  animation: br-fade 0.18s ease;
+}
+
+.admin-filtermore-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 11px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--br-ink);
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-filtermore-item:hover,
+.admin-filtermore-item--active {
+  background: var(--br-pink-soft);
+  color: var(--br-pink-deep);
+}
+
+@media (max-width: 980px) {
+  .admin-filterbar {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .admin-filterbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .admin-filtergroup--brands {
+    flex: none;
+  }
+}
+
+.premium-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: fit-content;
+  margin: 18px auto 4px;
+  padding: 5px;
+  border: 1px solid var(--br-pink-line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 10px 26px rgba(116, 49, 84, 0.08);
+}
+
+.premium-pagination--public {
+  margin-top: -4px;
+  margin-bottom: 26px;
+}
+
+.premium-page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--br-nav-idle);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.premium-page:hover:not(:disabled):not(.premium-page--active) {
+  background: var(--br-pink-soft);
+  color: var(--br-pink-deep);
+}
+
+.premium-page--active {
+  background: var(--br-grad);
+  color: #fff;
+  box-shadow: 0 5px 13px rgba(196, 43, 126, 0.27);
+}
+
+.premium-page--arrow {
+  color: var(--br-pink-deep);
+  font-size: 14px;
+}
+
+.premium-page:disabled {
+  color: #d4c4cc;
+  cursor: default;
+}
+
+.premium-page-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  color: var(--br-muted-soft);
+  font-size: 11px;
+  letter-spacing: -1px;
 }
 
 .rows {

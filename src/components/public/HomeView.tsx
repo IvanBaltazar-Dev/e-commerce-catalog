@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { PremiumPagination } from "@/components/PremiumPagination";
 import { BagIcon, SearchIcon } from "@/components/public/icons";
 import { useSelection } from "@/components/public/SelectionProvider";
 import { useTaxonomy } from "@/components/public/PublicShell";
@@ -17,6 +18,7 @@ import {
 } from "@/lib/public/catalog";
 
 const CATEGORIES = ["Todas", "Tradicional", "Gel sin lámpara", "Semipermanente"];
+const PUBLIC_PAGE_SIZE = 15;
 
 const PAGOS = [
   { src: "/pagos/yape.jpg", alt: "Yape" },
@@ -38,8 +40,10 @@ export function HomeView() {
   const [category, setCategory] = useState("Todas");
   const [brandOpen, setBrandOpen] = useState(false);
   const [favs, setFavs] = useState<string[]>([]);
+  const [page, setPage] = useState(1);
   const searchRef = useRef<HTMLInputElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -111,6 +115,24 @@ export function HomeView() {
       return haystack.includes(query);
     });
   }, [products, search, brand, category]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, brand, category]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PUBLIC_PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedProducts = filtered.slice(
+    (currentPage - 1) * PUBLIC_PAGE_SIZE,
+    currentPage * PUBLIC_PAGE_SIZE
+  );
+
+  function changePage(nextPage: number) {
+    setPage(nextPage);
+    requestAnimationFrame(() => {
+      listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
 
   const brandActive = brand !== "Todas";
   const waConsulta = waLink(waNum, "Hola Bellaroshé, quisiera hacer una consulta.");
@@ -261,7 +283,7 @@ export function HomeView() {
         </div>
       </div>
 
-      <div className="pub-listhead">
+      <div className="pub-listhead" ref={listRef}>
         <div className="pub-listhead-left">
           <div className="pub-listhead-title">Esmaltes</div>
           <div className="pub-listhead-count">
@@ -307,7 +329,7 @@ export function HomeView() {
       ) : null}
 
       <div className="pub-grid">
-        {filtered.map((product) => {
+        {paginatedProducts.map((product) => {
           const soldOut = product.availability === "sold_out";
           const fav = favs.includes(product.id);
 
@@ -381,6 +403,13 @@ export function HomeView() {
           );
         })}
       </div>
+
+      <PremiumPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={changePage}
+        tone="public"
+      />
 
       <div className="pub-tienda">
         <div className="pub-tienda-icon">

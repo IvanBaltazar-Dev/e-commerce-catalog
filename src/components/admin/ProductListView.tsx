@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { PremiumPagination } from "@/components/PremiumPagination";
 import { useToast } from "@/components/admin/ToastProvider";
 import { useApiError } from "@/components/admin/useApiError";
 import { adminApi, formatPrice, publicAssetUrl } from "@/lib/admin/api";
 import type { ApiProduct } from "@/lib/admin/types";
 
 const STATE_CHIPS = ["Todos", "Publicado", "Oculto"] as const;
+const ADMIN_PAGE_SIZE = 8;
+const VISIBLE_BRAND_FILTERS = 4;
 
 export function ProductListView() {
   const showToast = useToast();
@@ -16,7 +19,10 @@ export function ProductListView() {
   const [search, setSearch] = useState("");
   const [brandFilter, setBrandFilter] = useState("Todas");
   const [stateFilter, setStateFilter] = useState<(typeof STATE_CHIPS)[number]>("Todos");
+  const [brandMenuOpen, setBrandMenuOpen] = useState(false);
+  const [page, setPage] = useState(1);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const rowsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -78,6 +84,26 @@ export function ProductListView() {
       return haystack.includes(query);
     });
   }, [products, search, brandFilter, stateFilter]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, brandFilter, stateFilter]);
+
+  const visibleBrandChips = brandChips.slice(0, VISIBLE_BRAND_FILTERS);
+  const overflowBrandChips = brandChips.slice(VISIBLE_BRAND_FILTERS);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ADMIN_PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedProducts = filtered.slice(
+    (currentPage - 1) * ADMIN_PAGE_SIZE,
+    currentPage * ADMIN_PAGE_SIZE
+  );
+
+  function changePage(nextPage: number) {
+    setPage(nextPage);
+    requestAnimationFrame(() => {
+      rowsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
 
   async function togglePublished(product: ApiProduct) {
     if (togglingId) {
@@ -155,32 +181,86 @@ export function ProductListView() {
             placeholder="Buscar producto…"
           />
         </div>
-        <div className="chip-row">
-          {brandChips.map((brand) => (
-            <button
-              key={brand}
-              type="button"
-              className={brandFilter === brand ? "chip chip--active" : "chip"}
-              onClick={() => setBrandFilter(brand)}
-            >
-              {brand}
-            </button>
-          ))}
-          {STATE_CHIPS.map((state) => (
-            <button
-              key={state}
-              type="button"
-              className={stateFilter === state ? "chip chip--active" : "chip"}
-              onClick={() => setStateFilter(state)}
-            >
-              {state}
-            </button>
-          ))}
+        <div className="admin-filterbar">
+          <div className="admin-filtergroup admin-filtergroup--brands">
+            <span className="admin-filterlabel">Marca</span>
+            <div className="admin-filteroptions">
+              {visibleBrandChips.map((brand) => (
+                <button
+                  key={brand}
+                  type="button"
+                  className={brandFilter === brand ? "chip chip--active" : "chip"}
+                  onClick={() => {
+                    setBrandFilter(brand);
+                    setBrandMenuOpen(false);
+                  }}
+                >
+                  {brand}
+                </button>
+              ))}
+              {overflowBrandChips.length > 0 ? (
+                <div className="admin-filtermore-wrap">
+                  <button
+                    type="button"
+                    className={
+                      overflowBrandChips.includes(brandFilter)
+                        ? "admin-filtermore admin-filtermore--selected"
+                        : "admin-filtermore"
+                    }
+                    onClick={() => setBrandMenuOpen((open) => !open)}
+                    aria-expanded={brandMenuOpen}
+                  >
+                    Ver más <span aria-hidden="true">⌄</span>
+                  </button>
+                  {brandMenuOpen ? (
+                    <div className="admin-filtermore-menu">
+                      {overflowBrandChips.map((brand) => (
+                        <button
+                          key={brand}
+                          type="button"
+                          className={
+                            brandFilter === brand
+                              ? "admin-filtermore-item admin-filtermore-item--active"
+                              : "admin-filtermore-item"
+                          }
+                          onClick={() => {
+                            setBrandFilter(brand);
+                            setBrandMenuOpen(false);
+                          }}
+                        >
+                          <span>{brand}</span>
+                          {brandFilter === brand ? <span aria-hidden="true">✓</span> : null}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <span className="admin-filterdivider" aria-hidden="true" />
+
+          <div className="admin-filtergroup admin-filtergroup--status">
+            <span className="admin-filterlabel">Publicación</span>
+            <div className="admin-filteroptions">
+              {STATE_CHIPS.map((state) => (
+                <button
+                  key={state}
+                  type="button"
+                  className={stateFilter === state ? "chip chip--active" : "chip"}
+                  onClick={() => setStateFilter(state)}
+                >
+                  {state}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="rows">
-        {filtered.map((product) => (
+      <div className="rows" ref={rowsRef}>
+        {paginatedProducts.map((product) => (
           <div key={product.id} className="row">
             <div className="row-thumb">
               {product.main_image_path ? (
@@ -243,6 +323,12 @@ export function ProductListView() {
           </div>
         ))}
       </div>
+
+      <PremiumPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={changePage}
+      />
 
       {filtered.length === 0 ? (
         <div className="empty-card">
