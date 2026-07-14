@@ -7,7 +7,11 @@ const nextConfig = {
   // función. El PDF embebe el logo y los medios de pago como data URI leyéndolos con fs,
   // así que hay que incluirlos explícitamente en el trazado de la función de generación.
   outputFileTracingIncludes: {
-    "/api/admin/pdf/generate": ["./public/brand/**", "./public/pagos/**"]
+    "/api/admin/pdf/generate": [
+      "./public/brand/**",
+      "./public/pagos/**",
+      "./node_modules/@sparticuz/chromium/bin/**"
+    ]
   },
   experimental: {
     serverActions: {
