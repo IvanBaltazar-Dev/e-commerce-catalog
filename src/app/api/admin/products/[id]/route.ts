@@ -15,8 +15,8 @@ async function productId(context: RouteContext) {
 
 export async function GET(_request: Request, context: RouteContext) {
   try {
-    const id = await productId(context);
     const { supabase } = await requireAdmin();
+    const id = await productId(context);
     const product = await getProductById(supabase, id);
 
     return ok(product);
@@ -27,9 +27,9 @@ export async function GET(_request: Request, context: RouteContext) {
 
 export async function PATCH(request: Request, context: RouteContext) {
   try {
+    const { supabase } = await requireAdmin();
     const id = await productId(context);
     const input = await readJson(request, productUpdateSchema);
-    const { supabase } = await requireAdmin();
     const product = await updateProduct(supabase, id, input);
 
     return ok(product);
@@ -40,8 +40,8 @@ export async function PATCH(request: Request, context: RouteContext) {
 
 export async function DELETE(_request: Request, context: RouteContext) {
   try {
-    const id = await productId(context);
     const { supabase } = await requireAdmin();
+    const id = await productId(context);
     const product = await hideProduct(supabase, id);
 
     return ok(product);

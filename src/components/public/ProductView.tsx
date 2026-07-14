@@ -174,8 +174,16 @@ export function ProductView({ slug }: { slug: string }) {
           <div className="pub-gallery">
             <div className="pub-gallery-frame">
               {currentSlide?.path ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={publicAssetUrl(currentSlide.path)} alt={`${product.name} — ${currentSlide.label}`} />
+                  // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={publicAssetUrl(currentSlide.path)}
+                  alt={`${product.name} — ${currentSlide.label}`}
+                  style={{ cursor: "zoom-in" }}
+                  onClick={() => {
+                    setLbIx(gix);
+                    setLbOpen(true);
+                  }}
+                />
               ) : (
                 <span>{currentSlide?.label ?? "Foto"} — foto en camino</span>
               )}

@@ -27,8 +27,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const input = await readJson(request, taxonomyCreateSchema);
     const { supabase } = await requireAdmin();
+    const input = await readJson(request, taxonomyCreateSchema);
     const category = await createTaxonomy(supabase, "categories", input);
 
     return created(category);

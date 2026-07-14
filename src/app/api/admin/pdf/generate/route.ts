@@ -4,17 +4,19 @@ import { renderCatalogPdf } from "@/lib/catalog/pdf";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// El render con Chromium puede tardar varios segundos (fotos remotas + webfonts).
+export const maxDuration = 60;
 
 function pdfPath(date: Date) {
   return `generated/catalog-${date.toISOString().replace(/[:.]/g, "-")}.pdf`;
 }
 
 export async function POST() {
-  const generatedAt = new Date();
   let exportId: string | null = null;
 
   try {
     const { supabase, user } = await requireAdmin();
+    const generatedAt = new Date();
     const [metadataResult, productsResult, settingsResult] = await Promise.all([
       supabase
         .from("catalog_metadata")
@@ -30,14 +32,18 @@ export async function POST() {
             presentation,
             product_type,
             requires_lamp,
+            lamp_type,
             description,
             unit_price,
             wholesale_price,
             wholesale_min_quantity,
             availability,
             color_chart_status,
+            main_image_path,
+            color_chart_image_path,
             brand:brands(name),
-            category:categories(name)
+            category:categories(name),
+            gallery:product_images(path, sort_order)
           `
         )
         .eq("is_active", true)

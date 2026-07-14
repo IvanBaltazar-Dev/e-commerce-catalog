@@ -15,9 +15,9 @@ async function categoryId(context: RouteContext) {
 
 export async function PATCH(request: Request, context: RouteContext) {
   try {
+    const { supabase } = await requireAdmin();
     const id = await categoryId(context);
     const input = await readJson(request, taxonomyUpdateSchema);
-    const { supabase } = await requireAdmin();
     const category = await updateTaxonomy(supabase, "categories", id, input);
 
     return ok(category);
@@ -28,8 +28,8 @@ export async function PATCH(request: Request, context: RouteContext) {
 
 export async function DELETE(_request: Request, context: RouteContext) {
   try {
-    const id = await categoryId(context);
     const { supabase } = await requireAdmin();
+    const id = await categoryId(context);
     const category = await hideTaxonomy(supabase, "categories", id);
 
     return ok(category);

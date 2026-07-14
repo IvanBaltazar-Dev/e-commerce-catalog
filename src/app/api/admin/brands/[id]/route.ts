@@ -15,9 +15,9 @@ async function brandId(context: RouteContext) {
 
 export async function PATCH(request: Request, context: RouteContext) {
   try {
+    const { supabase } = await requireAdmin();
     const id = await brandId(context);
     const input = await readJson(request, taxonomyUpdateSchema);
-    const { supabase } = await requireAdmin();
     const brand = await updateTaxonomy(supabase, "brands", id, input);
 
     return ok(brand);
@@ -28,8 +28,8 @@ export async function PATCH(request: Request, context: RouteContext) {
 
 export async function DELETE(_request: Request, context: RouteContext) {
   try {
-    const id = await brandId(context);
     const { supabase } = await requireAdmin();
+    const id = await brandId(context);
     const brand = await hideTaxonomy(supabase, "brands", id);
 
     return ok(brand);

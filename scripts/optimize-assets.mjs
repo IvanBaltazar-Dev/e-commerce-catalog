@@ -75,26 +75,30 @@ async function optimizeProducts() {
 
     console.log(`\n${p.folder}  (${fotos.length} fotos${cartaFile ? " + carta" : " · SIN carta"})`);
 
+    // JPEG (mozjpeg): Chromium lo incrusta como JPEG directo -> PDF liviano.
     let i = 0;
     for (const f of fotos) {
       i += 1;
       const info = await sharp(path.join(dir, f))
-        .resize({ width: 1100, height: 1100, fit: "inside", withoutEnlargement: true })
-        .webp({ quality: 82 })
-        .toFile(path.join(outDir, `foto-${i}.webp`));
-      console.log(`  foto-${i}.webp  ${sizeKb(info)}KB`);
+        .resize({ width: 950, height: 950, fit: "inside", withoutEnlargement: true })
+        .flatten({ background: "#ffffff" })
+        .jpeg({ quality: 82, mozjpeg: true })
+        .toFile(path.join(outDir, `foto-${i}.jpg`));
+      console.log(`  foto-${i}.jpg  ${sizeKb(info)}KB`);
     }
 
     if (cartaFile) {
       const carta = await sharp(path.join(dir, cartaFile))
         .resize({ width: 2000, height: 2000, fit: "inside", withoutEnlargement: true })
-        .webp({ quality: 80 })
-        .toFile(path.join(outDir, "carta.webp"));
+        .flatten({ background: "#ffffff" })
+        .jpeg({ quality: 80, mozjpeg: true })
+        .toFile(path.join(outDir, "carta.jpg"));
       const thumb = await sharp(path.join(dir, cartaFile))
-        .resize({ width: 640, height: 640, fit: "inside", withoutEnlargement: true })
-        .webp({ quality: 80 })
-        .toFile(path.join(outDir, "carta-thumb.webp"));
-      console.log(`  carta.webp  ${sizeKb(carta)}KB · carta-thumb.webp ${sizeKb(thumb)}KB`);
+        .resize({ width: 520, height: 520, fit: "inside", withoutEnlargement: true })
+        .flatten({ background: "#ffffff" })
+        .jpeg({ quality: 80, mozjpeg: true })
+        .toFile(path.join(outDir, "carta-thumb.jpg"));
+      console.log(`  carta.jpg  ${sizeKb(carta)}KB · carta-thumb.jpg ${sizeKb(thumb)}KB`);
     }
   }
 }

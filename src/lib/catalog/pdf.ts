@@ -1,147 +1,60 @@
 import "server-only";
 
-import PDFDocument from "pdfkit";
+import { launchBrowser } from "@/lib/catalog/browser";
+import { buildCatalogHtml, type PdfProduct, type PdfSettings } from "@/lib/catalog/pdf-html";
 
-type PdfProduct = {
-  code: string;
-  name: string;
-  presentation: string | null;
-  product_type: string | null;
-  requires_lamp: boolean;
-  description: string | null;
-  unit_price: number | string;
-  wholesale_price: number | string;
-  wholesale_min_quantity: number;
-  availability: "available" | "sold_out" | "consult";
-  color_chart_status: "available" | "consult_advisor";
-  brand?: { name?: string | null } | { name?: string | null }[] | null;
-  category?: { name?: string | null } | { name?: string | null }[] | null;
-};
+export type { PdfProduct, PdfSettings };
 
-type PdfSettings = {
-  business_name?: string | null;
-  whatsapp_number?: string | null;
-  stock_notice?: string | null;
-};
-
-function nestedName(value: PdfProduct["brand"]) {
-  if (Array.isArray(value)) {
-    return value[0]?.name ?? "";
-  }
-
-  return value?.name ?? "";
-}
-
-function money(value: number | string) {
-  return new Intl.NumberFormat("es-PE", {
-    style: "currency",
-    currency: "PEN"
-  }).format(Number(value));
-}
-
-function availabilityText(value: PdfProduct["availability"]) {
-  if (value === "sold_out") {
-    return "Agotado";
-  }
-
-  if (value === "consult") {
-    return "Consultar disponibilidad";
-  }
-
-  return "Disponible";
-}
-
-function chartText(value: PdfProduct["color_chart_status"]) {
-  return value === "available"
-    ? "Carta de colores disponible"
-    : "Amplia variedad de tonos. Consultar colores disponibles con asesor.";
-}
-
+/**
+ * Renderiza el catálogo premium (portada + fichas + cartas de color + cierre) a PDF A4
+ * usando Chromium (HTML/CSS → PDF). Reemplaza al generador de texto plano de PDFKit.
+ */
 export async function renderCatalogPdf(params: {
   products: PdfProduct[];
   settings: PdfSettings | null;
   generatedAt: Date;
-}) {
-  return new Promise<Buffer>((resolve, reject) => {
-    const doc = new PDFDocument({
-      size: "A4",
-      margin: 48,
-      info: {
-        Title: "Catalogo Bellaroshe",
-        Author: params.settings?.business_name ?? "Bellaroshe"
-      }
-    });
+}): Promise<Buffer> {
+  const html = await buildCatalogHtml(params);
+  const browser = await launchBrowser();
 
-    const chunks: Buffer[] = [];
+  try {
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "load", timeout: 90000 });
 
-    doc.on("data", (chunk: Buffer) => chunks.push(chunk));
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
-    doc.on("error", reject);
+    // Espera a que las fotos remotas (Storage) y las webfonts terminen de cargar para
+    // que el PDF no salga con imágenes en blanco ni el tipo de letra del sistema.
+    try {
+      await page.evaluate(async () => {
+        await Promise.all(
+          Array.from(document.images).map((img) =>
+            img.complete
+              ? Promise.resolve()
+              : new Promise<void>((resolve) => {
+                  img.addEventListener("load", () => resolve(), { once: true });
+                  img.addEventListener("error", () => resolve(), { once: true });
+                })
+          )
+        );
 
-    doc.fontSize(28).text(params.settings?.business_name ?? "Bellaroshe", {
-      align: "center"
-    });
-    doc.moveDown(0.5);
-    doc.fontSize(14).text("Catalogo de productos", { align: "center" });
-    doc.moveDown(0.5);
-    doc
-      .fontSize(10)
-      .text(`Actualizado: ${params.generatedAt.toLocaleString("es-PE")}`, {
-        align: "center"
+        const fonts = (document as unknown as { fonts?: { ready?: Promise<unknown> } }).fonts;
+        if (fonts?.ready) {
+          await fonts.ready;
+        }
       });
-    doc.moveDown(1.5);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    } catch {
+      // Si algún recurso no carga seguimos igualmente; no bloquea el PDF.
+    }
 
-    doc
-      .fontSize(10)
-      .text(
-        params.settings?.stock_notice ??
-          "Precios y stock son referenciales hasta confirmar por WhatsApp."
-      );
-    doc.moveDown();
-    doc.text(`WhatsApp: ${params.settings?.whatsapp_number ?? "+51 963 463 550"}`);
-    doc.addPage();
-
-    params.products.forEach((product, index) => {
-      const title = [nestedName(product.brand), product.name].filter(Boolean).join(" ");
-      const category = nestedName(product.category);
-
-      if (index > 0) {
-        doc.moveDown(0.8);
-      }
-
-      if (doc.y > 690) {
-        doc.addPage();
-      }
-
-      doc.fontSize(15).text(title || product.name, { continued: false });
-      doc.fontSize(9).fillColor("#555555").text(product.code);
-      doc.fillColor("#000000");
-      doc.fontSize(10).text(`Categoria: ${category || "Sin categoria"}`);
-      doc.text(`Presentacion: ${product.presentation ?? "No especificada"}`);
-      doc.text(`Tipo: ${product.product_type ?? "No especificado"}`);
-      doc.text(`Requiere lampara: ${product.requires_lamp ? "Si" : "No"}`);
-      doc.text(`Disponibilidad: ${availabilityText(product.availability)}`);
-      doc.text(`Precio unitario: ${money(product.unit_price)}`);
-      doc.text(
-        `Precio mayorista: ${money(product.wholesale_price)} desde ${
-          product.wholesale_min_quantity
-        } unidades`
-      );
-      doc.text(chartText(product.color_chart_status));
-
-      if (product.description) {
-        doc.moveDown(0.2);
-        doc.text(product.description, { width: 480 });
-      }
+    await page.emulateMediaType("print");
+    const pdf = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      preferCSSPageSize: true
     });
 
-    doc.moveDown(1.5);
-    doc
-      .fontSize(9)
-      .text("La disponibilidad de tonos, stock y precio final se confirma con un asesor.", {
-        align: "center"
-      });
-
-    doc.end();
-  });
+    return Buffer.from(pdf);
+  } finally {
+    await browser.close();
+  }
 }

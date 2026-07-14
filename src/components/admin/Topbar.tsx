@@ -24,7 +24,7 @@ export function Topbar() {
     <div className="topbar">
       <div className="topbar-inner">
         <Image
-          src="/logo.png"
+          src="/brand/logo-sm.png"
           alt="Bellaroshé"
           width={72}
           height={44}

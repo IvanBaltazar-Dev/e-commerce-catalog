@@ -9,9 +9,9 @@ type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
   try {
+    const { supabase } = await requireAdmin();
     const { id } = await context.params;
     const exportId = uuidSchema.parse(id);
-    const { supabase } = await requireAdmin();
     const { data: item, error } = await supabase
       .from("pdf_exports")
       .select("id, status, storage_path")

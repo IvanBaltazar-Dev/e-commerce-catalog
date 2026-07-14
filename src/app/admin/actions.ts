@@ -25,58 +25,58 @@ function revalidateAdmin() {
 }
 
 export async function createProductAction(input: unknown) {
-  const payload = productCreateSchema.parse(input);
   const { supabase } = await requireAdmin();
+  const payload = productCreateSchema.parse(input);
   const product = await createProduct(supabase, payload);
   revalidateAdmin();
   return { data: product };
 }
 
 export async function updateProductAction(productId: string, input: unknown) {
+  const { supabase } = await requireAdmin();
   const id = uuidSchema.parse(productId);
   const payload = productUpdateSchema.parse(input);
-  const { supabase } = await requireAdmin();
   const product = await updateProduct(supabase, id, payload);
   revalidateAdmin();
   return { data: product };
 }
 
 export async function hideProductAction(productId: string) {
-  const id = uuidSchema.parse(productId);
   const { supabase } = await requireAdmin();
+  const id = uuidSchema.parse(productId);
   const product = await hideProduct(supabase, id);
   revalidateAdmin();
   return { data: product };
 }
 
 export async function createTaxonomyAction(table: TaxonomyTable, input: unknown) {
-  const payload = taxonomyCreateSchema.parse(input);
   const { supabase } = await requireAdmin();
+  const payload = taxonomyCreateSchema.parse(input);
   const item = await createTaxonomy(supabase, table, payload);
   revalidateAdmin();
   return { data: item };
 }
 
 export async function updateTaxonomyAction(table: TaxonomyTable, id: string, input: unknown) {
+  const { supabase } = await requireAdmin();
   const safeId = uuidSchema.parse(id);
   const payload = taxonomyUpdateSchema.parse(input);
-  const { supabase } = await requireAdmin();
   const item = await updateTaxonomy(supabase, table, safeId, payload);
   revalidateAdmin();
   return { data: item };
 }
 
 export async function hideTaxonomyAction(table: TaxonomyTable, id: string) {
-  const safeId = uuidSchema.parse(id);
   const { supabase } = await requireAdmin();
+  const safeId = uuidSchema.parse(id);
   const item = await hideTaxonomy(supabase, table, safeId);
   revalidateAdmin();
   return { data: item };
 }
 
 export async function updateContactSettingsAction(input: unknown) {
-  const payload = contactSettingsSchema.parse(input);
   const { supabase } = await requireAdmin();
+  const payload = contactSettingsSchema.parse(input);
   const { data, error } = await supabase
     .from("store_settings")
     .upsert({

@@ -26,8 +26,8 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
   try {
-    const input = await readJson(request, contactSettingsSchema);
     const { supabase } = await requireAdmin();
+    const input = await readJson(request, contactSettingsSchema);
     const { data, error } = await supabase
       .from("store_settings")
       .upsert({

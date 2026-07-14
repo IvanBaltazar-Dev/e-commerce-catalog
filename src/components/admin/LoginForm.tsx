@@ -78,7 +78,7 @@ export function LoginForm({ initialError }: { initialError?: string }) {
     <div className="login-wrap">
       <form className="login-card" onSubmit={handleSubmit}>
         <Image
-          src="/logo.png"
+          src="/brand/logo.png"
           alt="Importaciones Bellaroshé"
           width={190}
           height={116}

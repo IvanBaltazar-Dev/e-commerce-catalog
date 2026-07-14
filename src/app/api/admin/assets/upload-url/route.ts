@@ -32,8 +32,8 @@ function folderForKind(kind: "product-image" | "color-chart" | "catalog-pdf") {
 
 export async function POST(request: Request) {
   try {
-    const input = await readJson(request, assetUploadSchema);
     const { supabase } = await requireAdmin();
+    const input = await readJson(request, assetUploadSchema);
     const bucket = input.kind === "catalog-pdf" ? "catalog-pdfs" : "catalog-assets";
     const path = `${folderForKind(input.kind)}/${new Date().toISOString().slice(0, 10)}/${randomUUID()}.${extensionFromContentType(input.contentType)}`;
     const { data, error } = await supabase.storage.from(bucket).createSignedUploadUrl(path, {

@@ -28,7 +28,7 @@ function DesktopHeader() {
     <div className="pub-header">
       <div className="pub-header-inner">
         <Image
-          src="/logo.png"
+          src="/brand/logo-sm.png"
           alt="Importaciones Bellaroshé"
           width={85}
           height={52}

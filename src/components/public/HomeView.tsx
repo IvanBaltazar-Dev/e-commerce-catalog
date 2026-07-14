@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { BagIcon, SearchIcon, WaIcon } from "@/components/public/icons";
+import { BagIcon, SearchIcon } from "@/components/public/icons";
 import { useSelection } from "@/components/public/SelectionProvider";
 import { useTaxonomy } from "@/components/public/PublicShell";
 import { publicAssetUrl } from "@/lib/admin/api";
@@ -128,7 +128,7 @@ export function HomeView() {
           {units > 0 ? <span className="pub-count">{units}</span> : null}
         </button>
         <Image
-          src="/logo.png"
+          src="/brand/logo-hero.png"
           alt="Importaciones Bellaroshé"
           width={228}
           height={139}

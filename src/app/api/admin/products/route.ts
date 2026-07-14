@@ -21,8 +21,8 @@ function parseSearchParams(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const params = parseSearchParams(request);
     const { supabase } = await requireAdmin();
+    const params = parseSearchParams(request);
     let query = supabase
       .from("products")
       .select(PRODUCT_SELECT)
@@ -57,8 +57,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: Request) {
   try {
-    const input = await readJson(request, productCreateSchema);
     const { supabase } = await requireAdmin();
+    const input = await readJson(request, productCreateSchema);
     const product = await createProduct(supabase, input);
 
     return created(product);
