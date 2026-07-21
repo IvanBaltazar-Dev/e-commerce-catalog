@@ -33,6 +33,15 @@
     "eslint": "^9.22.0",
     "eslint-config-next": "^15.2.4",
     "puppeteer": "24.43.1",
+    "supabase": "^2.109.1",
     "typescript": "^5.8.2"
+  },
+  "overrides": {
+    "postcss": "8.5.10"
+  },
+  "allowScripts": {
+    "puppeteer@24.43.1": true,
+    "sharp@0.34.5": true,
+    "unrs-resolver@1.12.2": true
   }
 }

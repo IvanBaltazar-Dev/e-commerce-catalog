@@ -1,3 +1,10 @@
+-- Bellaroshe Catalog v1.0
+--
+-- Esquema base completo de PostgreSQL/Supabase. Este archivo consolida el
+-- modelo de catálogo, los permisos de API, Storage y las políticas RLS.
+-- Consultar README.md en este mismo directorio antes de aplicarlo a una base
+-- que ya tenga historial de migraciones.
+
 begin;
 
 create extension if not exists pgcrypto;
@@ -84,6 +91,9 @@ create table public.products (
   presentation text not null,
   product_type text not null,
   requires_lamp boolean not null default false,
+  -- Preserva la opción exacta que se muestra en el panel. `requires_lamp`
+  -- se mantiene para la API pública y se deriva de este valor en la app.
+  lamp_type text not null default 'No',
   description text,
   unit_price numeric(12, 2) not null,
   wholesale_price numeric(12, 2) not null,
@@ -92,6 +102,7 @@ create table public.products (
   color_chart_status public.color_chart_status not null default 'consult_advisor',
   main_image_path text,
   color_chart_image_path text,
+  color_chart_pdf_path text,
   is_active boolean not null default true,
   sort_order integer not null default 0,
   created_at timestamptz not null default now(),
@@ -99,6 +110,7 @@ create table public.products (
   constraint products_code_not_blank check (length(trim(code)) > 0),
   constraint products_name_not_blank check (length(trim(name)) > 0),
   constraint products_slug_format check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
+  constraint products_lamp_type_allowed check (lamp_type in ('No', 'Sí', 'UV/LED')),
   constraint products_prices_non_negative check (unit_price >= 0 and wholesale_price >= 0),
   constraint products_wholesale_min_positive check (wholesale_min_quantity > 0)
 );
@@ -340,8 +352,14 @@ using (
   exists (
     select 1
     from public.products
+    join public.brands
+      on brands.id = products.brand_id
+    join public.categories
+      on categories.id = products.category_id
     where products.id = product_images.product_id
       and products.is_active = true
+      and brands.is_active = true
+      and categories.is_active = true
   )
 );
 
@@ -385,6 +403,29 @@ to authenticated
 using (public.is_admin())
 with check (public.is_admin());
 
+-- Privilegios de los roles que usa la Data API. RLS continúa siendo la capa
+-- que decide qué filas puede leer o modificar cada usuario.
+grant usage on schema public to anon, authenticated, service_role;
+grant select on all tables in schema public to anon, authenticated;
+
+grant insert, update, delete on
+  public.products,
+  public.product_images,
+  public.brands,
+  public.categories,
+  public.store_settings,
+  public.pdf_exports
+to authenticated;
+
+grant all on all tables in schema public to service_role;
+grant all on all sequences in schema public to anon, authenticated, service_role;
+grant execute on all functions in schema public to anon, authenticated, service_role;
+
+alter default privileges in schema public grant select on tables to anon, authenticated;
+alter default privileges in schema public grant all on tables to service_role;
+alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+alter default privileges in schema public grant execute on functions to anon, authenticated, service_role;
+
 insert into public.store_settings (id)
 values (true)
 on conflict (id) do nothing;
@@ -399,7 +440,7 @@ values (
   'catalog-assets',
   true,
   10485760,
-  array['image/png', 'image/jpeg', 'image/webp', 'image/gif']
+  array['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'application/pdf']
 )
 on conflict (id) do update
 set public = excluded.public,
