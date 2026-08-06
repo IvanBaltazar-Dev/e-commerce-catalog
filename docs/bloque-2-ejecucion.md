@@ -76,3 +76,68 @@ Se corrigió con ramas explícitas y se cerró el hueco en las dos direcciones: 
 | Flujo administrativo completo | `npm run test:admin-flow` |
 
 `npm run seed:demo-operation` deja el entorno local con propietaria, vendedora, sede asignada y existencia inicial cargada por el contrato oficial —no por `INSERT` directo—, que es lo que permite que la verificación visual signifique algo.
+
+---
+
+## Nota sobre la numeración
+
+§9 del modelo asignaba `0030` a las anulaciones y `0031` a las compras. Se aplicaron al revés —`0030_purchasing_core`, `0031_returns_and_cancellations`— porque las dos se escribieron en paralelo y dos migraciones con el mismo número rompen el reset con `duplicate key` sobre `schema_migrations_pkey`. El orden no importa funcionalmente: las devoluciones dependen de las ventas (`0029`) y las compras de proveedores (`0027`) e inventario (`0028`), y ninguna de las dos depende de la otra.
+
+---
+
+## 0030 — compras, recepciones, obligaciones y pagos a proveedor
+
+### Defecto encontrado y corregido
+
+Los tres contratos —`issue_purchase_order`, `register_goods_receipt`, `register_supplier_payment`— nacieron `SECURITY INVOKER`, escritos contra el estado del repositorio anterior a `0029`. Desde `0029` el punto único de escritura de inventario dejó de ser alcanzable por `authenticated`, así que una recepción invocada desde PostgREST abortaba con:
+
+```
+ERROR: permission denied for function apply_inventory_movement
+CONTEXT: SQL statement "SELECT public.apply_inventory_movement(…)" 
+         PL/pgSQL function public.register_goods_receipt(…) line 118 at PERFORM
+```
+
+Ninguna recepción podía entrar al sistema. Se corrigió pasando los tres a `DEFINER` —su guarda `is_admin()` ya era explícita, así que el cambio no amplía a quién alcanzan— y revocándolos también a `anon`, por el mismo agujero del ACL por defecto de Supabase que `0029` cerró para el inventario.
+
+La aserción 8 de `0030_purchasing.test.sql` recorre `pg_proc` y falla si alguno vuelve a quedar `INVOKER`.
+
+### Cómo se verifica
+
+30 aserciones: la orden de compra no mueve inventario ni deja asiento; la recepción parcial aumenta solo lo recibido y deja la orden en `partially_received`; el promedio ponderado se recalcula con el costo real; la bonificación del mismo artículo baja el costo efectivo a 8,0000 en lugar de fabricar un promedio falso; una recepción en moneda extranjera sin tipo de cambio falla con error explícito y con él se incorpora convertida a soles; la deuda se reporta por moneda; el pago sin asignar queda como anticipo; la sobre-asignación se rechaza; y la vendedora obtiene cero filas de todo el frente.
+
+---
+
+## 0031 — anulaciones, devoluciones y reembolsos
+
+### Decisiones tomadas al escribirla
+
+**A · La reversión del costo vive en el kardex, no en una tabla nueva.**
+
+§12/0030-5 exige reponer valor con el costo capturado en `sale_line_costs` y «revertir esas filas de COGS». Revertirlas reescribiendo `sale_line_costs` destruiría la captura, que es justo lo que esa tabla existe para conservar. El asiento contrario se escribe donde `0028` puso las columnas monetarias precisamente para esto: `inventory_movements`, con `unit_cost` y `value_delta`. El COGS neto es una resta —la calcula `sale_margin()`—, no una segunda fuente de verdad.
+
+**B · Lo devuelto se repone valorado primero.**
+
+Una salida consume antes las unidades sin valorar (regla de `0028`). Al volver, se restituyen antes las valoradas, hasta agotar las que esa línea llevaba. Es la única forma de que devolver todo lo vendido deje la valoración exactamente como estaba.
+
+**C · Una línea mixta genera dos asientos.**
+
+`apply_inventory_movement` valora una entrada entera o ninguna. Reponer 10 unidades de las que 6 tenían costo y 4 no, con un solo asiento, obligaría a inventar un costo medio para las 4 o a perder el de las 6.
+
+**D · Una reserva vencida o liberada sí puede cancelarse.**
+
+No tiene nada comprometido que devolver, pero su adelanto sigue en caja: `cancel_reservation` conserva el estado y registra la salida de dinero. Solo se rechaza sobre una reserva ya convertida, donde lo que corresponde es anular la venta.
+
+### Verificación numérica que da sentido a todo esto
+
+Recibir 10 @ 10,00 · vender 10 · recibir 10 @ 30,00 · anular:
+
+| | Al promedio vigente | Al costo capturado |
+|---|---|---|
+| Valor del inventario tras anular | 600,00 | **400,00** |
+| Dinero realmente desembolsado | 400,00 | 400,00 |
+
+La aserción 13 fija el resultado correcto y falla con 200,00 de diferencia si alguien vuelve a leer el promedio del día.
+
+### Cómo se verifica
+
+32 aserciones: la venta anulada sobrevive con sus líneas; el stock y el valor vuelven al costo capturado; el dinero se registra devuelto por el importe exacto cobrado; la segunda anulación se rechaza; lo vendible vuelve al stock y lo dañado no; devolver todo reparte el subtotal al céntimo sin residuo; no se devuelve más de lo vendido; el reintento de una devolución no repone de más; las dos direcciones prohibidas —anular lo devuelto y devolver lo anulado— se rechazan; el adelanto de una reserva cancelada se reembolsa con origen propio; y la vendedora no puede calcular márgenes.
