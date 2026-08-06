@@ -53,8 +53,14 @@ try {
   const page = await browser.newPage();
   page.setDefaultTimeout(90000);
   page.setDefaultNavigationTimeout(90000);
-  await page.goto(`${baseUrl}/admin/login`, { waitUntil: "domcontentloaded", timeout: 90000 });
+  // networkidle0 y una espera corta: el formulario es un componente cliente y,
+  // si se pulsa Enviar antes de que React hidrate, el navegador envía el form de
+  // forma NATIVA —se ve como un GET /admin/login? en el log— y la redirección
+  // nunca ocurre. Con el servidor de desarrollo frío la compilación tarda más
+  // que el tiempo de espera y la prueba fallaba de forma intermitente.
+  await page.goto(`${baseUrl}/admin/login`, { waitUntil: "networkidle0", timeout: 90000 });
   await page.waitForSelector('input[type="email"]');
+  await new Promise((resolve) => setTimeout(resolve, 1200));
   await page.type('input[type="email"]', email);
   await page.type('input[type="password"]', password);
   await Promise.all([
