@@ -14,6 +14,7 @@ import puppeteer from "puppeteer";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadSupabaseScriptEnv } from "./lib/supabase-script-env.mjs";
+import { signInToPanel } from "./lib/admin-login.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const { env, isLocal } = loadSupabaseScriptEnv({ rootDir: ROOT, scriptName: "test-sales-ui" });
@@ -78,19 +79,12 @@ try {
 
   console.log("\n1. La vendedora entra al panel y aterriza en su caja");
 
-  await page.goto(`${baseUrl}/admin/login`, { waitUntil: "networkidle0", timeout: 90000 });
-  await page.waitForSelector('input[type="email"]');
-  // El formulario es un componente cliente: sin esperar a la hidratación, el
-  // click envía el form de forma nativa y la navegación nunca ocurre.
-  await page.waitForFunction(() => !document.querySelector("form")?.hasAttribute("data-pending"), { timeout: 5000 })
-    .catch(() => undefined);
-  await new Promise((resolve) => setTimeout(resolve, 1200));
-  await page.type('input[type="email"]', SELLER.email);
-  await page.type('input[type="password"]', SELLER.password);
-  await Promise.all([
-    page.waitForFunction(() => window.location.pathname === "/admin/ventas", { timeout: 90000 }),
-    page.click('button[type="submit"]')
-  ]);
+  await signInToPanel(page, {
+    baseUrl,
+    email: SELLER.email,
+    password: SELLER.password,
+    expectedPath: "/admin/ventas"
+  });
 
   check("la vendedora aterriza en /admin/ventas", true);
 

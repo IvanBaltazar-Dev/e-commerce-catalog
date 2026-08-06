@@ -21,11 +21,18 @@ insert into public.admin_profiles(id, role, full_name) values
   ('e0000000-0000-4000-8000-000000000001','admin','Propietaria devoluciones'),
   ('e0000000-0000-4000-8000-000000000002','seller','Vendedora devoluciones');
 
+-- Sede propia: las aserciones declaran existencias y valores absolutos, y
+-- sobre la sede principal dependerían de lo que dejaran antes el seed de
+-- demostración o cualquier otra prueba.
+insert into public.branches (company_id, code, name, district, is_default, sort_order)
+select c.id, 'RETTEST', 'Sede de devoluciones de prueba', 'Lima', false, 937
+from public.companies c limit 1;
+
 create temporary table fx on commit drop as
 select
   (select id from public.product_variants where sku = 'DEMO-ESM-ROJO') as v_costo,
   (select id from public.product_variants where sku = 'DEMO-ESM-NUDE') as v_libre,
-  (select id from public.branches where is_default and is_active)      as b1,
+  (select id from public.branches where code = 'RETTEST')              as b1,
   'e0000000-0000-4000-8000-000000000001'::uuid                         as admin_id,
   'e0000000-0000-4000-8000-000000000002'::uuid                         as seller_id;
 

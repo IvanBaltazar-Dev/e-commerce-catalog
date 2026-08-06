@@ -56,7 +56,12 @@ select seller2, b2, true from fx;
 set local request.jwt.claims = '{"sub":"d0000000-0000-4000-8000-000000000001","role":"authenticated"}';
 
 -- La variante seguida arranca con 20 unidades a 10,00 en la sede principal.
+-- Precondición DECLARADA, no heredada: una de las dos variantes lleva
+-- seguimiento y la otra no, porque el bloque prueba las dos ramas. Dar por
+-- bueno el estado que dejó el seed o una prueba anterior hacía fallar las
+-- aserciones sin que nada del producto hubiera cambiado.
 update public.product_variants set tracks_inventory = true where id = (select v_seguida from fx);
+update public.product_variants set tracks_inventory = false where id = (select v_libre from fx);
 select public.apply_inventory_movement(v_seguida, b1, 'initial_load', 20, 10.00,
   'test', null, 'fixture', 'existencia inicial', admin_id) from fx;
 
@@ -339,9 +344,11 @@ select is(
 -- Sin esta regla ninguna venta sería registrable hasta terminar la carga
 -- inicial, que el modelo declara gradual por diseño.
 
+-- Acotado a la sede de la prueba: esa variante puede tener historia en otras
+-- sedes, y lo que se comprueba es que ESTA venta no dejó asiento.
 select is(
   (select count(*)::integer from public.inventory_movements
-   where variant_id = (select v_libre from fx)),
+   where variant_id = (select v_libre from fx) and branch_id = (select b1 from fx)),
   0,
   '33 · Una variante sin seguimiento no genera asiento de kardex al venderse'
 );

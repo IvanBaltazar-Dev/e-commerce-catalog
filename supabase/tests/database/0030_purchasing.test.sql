@@ -27,11 +27,18 @@ select c.id, 'BUYTEST1', 'Proveedor de prueba SAC', 'Prueba PEN', 'PEN', 30 from
 insert into public.suppliers (company_id, code, legal_name, trade_name, default_currency, payment_terms_days)
 select c.id, 'BUYTEST2', 'Importadora de prueba', 'Prueba USD', 'USD', 0 from public.companies c limit 1;
 
+-- Sede propia: las aserciones declaran existencias absolutas («la recepción
+-- parcial deja 60») y sobre la sede principal dependerían de lo que dejaran
+-- antes el seed de demostración o cualquier otra prueba.
+insert into public.branches (company_id, code, name, district, is_default, sort_order)
+select c.id, 'BUYTEST', 'Sede de compras de prueba', 'Lima', false, 938
+from public.companies c limit 1;
+
 create temporary table fx on commit drop as
 select
   (select id from public.product_variants where sku = 'DEMO-ESM-ROJO')  as v1,
   (select id from public.product_variants where sku = 'DEMO-ESM-NUDE')  as v2,
-  (select id from public.branches where is_default and is_active)       as b1,
+  (select id from public.branches where code = 'BUYTEST')               as b1,
   (select id from public.suppliers where code = 'BUYTEST1')             as s_pen,
   (select id from public.suppliers where code = 'BUYTEST2')             as s_usd,
   'f0000000-0000-4000-8000-000000000001'::uuid                          as admin_id,
@@ -42,7 +49,10 @@ select seller_id, b1, true from fx;
 
 set local request.jwt.claims = '{"sub":"f0000000-0000-4000-8000-000000000001","role":"authenticated"}';
 
-update public.product_variants set tracks_inventory = true where id in (select v1 from fx);
+-- Precondición declarada: las dos variantes llevan seguimiento, porque la
+-- recepción y la bonificación se comprueban sobre existencias reales.
+update public.product_variants set tracks_inventory = true
+where id in (select v1 from fx union all select v2 from fx);
 
 -- ---------------------------------------------------------------------------
 -- Estructura

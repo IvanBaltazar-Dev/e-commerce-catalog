@@ -174,3 +174,48 @@ Y el adelanto se cuenta una sola vez: el efectivo del día sale de `reservation_
 `test-sales-concurrency` apagaba `tracks_inventory` de su variante en la teardown en lugar de restaurar el valor previo. Tras `seed:demo-operation` esa variante llega con seguimiento activo, así que la prueba siguiente vendía una presentación sin existencias que descontar y su fallo parecía un defecto del producto. Ahora la teardown restaura el estado que encontró.
 
 En la misma línea, `0029_sales.test.sql` usa una sede propia en vez de la principal: sus aserciones declaran números de nota absolutos («la primera de la sede es `NV-000001`») y sobre la sede compartida dependían de cuántas ventas dejara antes cualquier otra prueba. La numeración es contigua **por sede**, así que aislarla es la forma correcta de comprobarla.
+
+---
+
+## 0034 — el cajón se alimenta del dinero
+
+### Defecto encontrado por la prueba integral
+
+`record_cash_movement` (0032) declara en su propio comentario que «se invoca desde los contratos de venta, reembolso, pago a proveedor y gasto», y el enumerado `cash_movement_kind` ya reservaba los cuatro valores. Pero solo `register_expense` y `void_expense` lo llamaban: **ninguna venta, ningún reembolso y ningún pago a proveedor llegaba nunca al cajón**.
+
+No es cosmético. `close_cash_session` calcula el efectivo esperado sumando `cash_movements` de la sesión, así que cerraba una caja con 60,00 esperados cuando el cajón tenía 131,25 de ventas reales, y declaraba una diferencia de **71,25**. Ese descuadre se atribuye a quien atendió, que es exactamente lo que el modelo repite que no puede pasar.
+
+### Por qué un trigger y no una llamada en cada contrato
+
+Colgar el aviso de cada RPC lo deja a merced de que nadie lo olvide en el siguiente, y ya se olvidó en tres. El cajón se alimenta de las **tablas** de dinero —`sale_payments`, `reservation_payments`, `refunds`, `supplier_payments`—, que están cerradas a escritura directa: cualquier contrato futuro que cobre o pague queda registrado sin hacer nada.
+
+Dos exclusiones explícitas: el adelanto **trasladado** a una venta (`method = 'reservation_advance'`), porque ese dinero entró el día de la reserva y ya se contó entonces; y el dinero cuya fecha propia es anterior a la apertura de la sesión, que es captura de una operación pasada y no un billete que entre hoy al cajón.
+
+---
+
+## Prueba integral del Bloque 2
+
+`npm run test:block2` ejecuta el circuito económico completo por los **contratos reales**, con una sesión de administración autenticada —no con `service_role`, que se salta las guardas—:
+
+orden de compra → recepción parcial → recepción con bonificación → obligación → pago parcial al proveedor → apertura de caja → venta con descuento y pago mixto → reserva con adelanto → conversión → venta anulada → devolución parcial → gasto → traslado entre sedes → arqueo → cierre de caja.
+
+Y después **concilia**, que es lo que el modelo pedía en «Mejoras posteriores» y ninguna prueba anterior hacía:
+
+| Invariante | Qué descarta |
+|---|---|
+| `on_hand` y `total_value` de toda fila reconstruidos desde el kardex | Que la valoración derive de la existencia sin dejar rastro |
+| Costo capturado en las ventas = valor que salió del kardex | Un COGS inventado o perdido |
+| Valor de la sede = suma de su kardex | Valor creado o destruido por una operación |
+| Ninguna venta descuadrada, ningún descuento inventado, ninguna línea sobre-devuelta | Que una sola operación rompa una invariante que las demás mantienen |
+
+La prueba **limpia lo que dejó la ejecución anterior** antes de empezar: declara importes absolutos, y acumular ejecuciones producía tres obligaciones idénticas y una asignación que superaba lo exigible.
+
+## Las pruebas ya no dependen del estado que encuentran
+
+Toda la batería corre ahora sobre una base recién reiniciada **o** sobre una base ya operada, y dos veces seguidas, con el mismo resultado. Las suites que fallaban al segundo intento lo hacían por tres motivos, todos corregidos:
+
+- **Sede compartida.** Las aserciones declaran existencias y correlativos absolutos («la primera nota de la sede es `NV-000001`»). Cada suite usa ahora su propia sede: la numeración es contigua *por sede*, así que aislarla es la forma correcta de comprobarla.
+- **Precondición heredada.** Varias suites daban por hecho que una variante llegaba sin seguimiento de inventario, cosa que deja de ser cierta en cuanto alguien carga su existencia inicial. Ahora cada fixture **declara** la precondición que necesita.
+- **Recuento global.** `0028` comprobaba la prueba crítica 14 contando variantes con seguimiento activo, lo que solo vale sobre una base virgen. Pasa a comprobar el **defecto de la columna**, que es donde vive de verdad esa garantía.
+
+El acceso al panel en las pruebas de navegador se reintenta en lugar de esperar un tiempo fijo: el formulario es un componente cliente y, si se pulsa Enviar antes de que React hidrate, el navegador envía el `form` de forma nativa —`GET /admin/login?` en el log— y la redirección no ocurre. Con el servidor de desarrollo frío ninguna espera fija es suficiente; el segundo intento corre sobre una ruta ya compilada.

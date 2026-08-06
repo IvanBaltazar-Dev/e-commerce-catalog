@@ -21,6 +21,13 @@ insert into public.admin_profiles(id, role, full_name) values
   ('a1000000-0000-4000-8000-000000000001','admin','Propietaria de caja diaria'),
   ('a1000000-0000-4000-8000-000000000002','seller','Vendedora de caja diaria');
 
+-- Dos sedes propias: el traslado necesita origen y destino, y las aserciones
+-- declaran existencias absolutas que sobre la sede principal dependerían del
+-- seed de demostración.
+insert into public.branches (company_id, code, name, district, is_default, sort_order)
+select c.id, 'CASHTEST1', 'Sede origen de traslados', 'Lima', false, 929
+from public.companies c limit 1;
+
 insert into public.branches (company_id, code, name, district, is_default, sort_order)
 select c.id, 'CASHTEST2', 'Sede destino de traslados', 'Lima', false, 930
 from public.companies c limit 1;
@@ -29,7 +36,7 @@ create temporary table fx on commit drop as
 select
   (select id from public.product_variants where sku = 'DEMO-ESM-ROJO') as v1,
   (select id from public.product_variants where sku = 'DEMO-ESM-NUDE') as v2,
-  (select id from public.branches where is_default and is_active)      as b1,
+  (select id from public.branches where code = 'CASHTEST1')            as b1,
   (select id from public.branches where code = 'CASHTEST2')            as b2,
   'a1000000-0000-4000-8000-000000000001'::uuid                         as admin_id,
   'a1000000-0000-4000-8000-000000000002'::uuid                         as seller_id;
@@ -38,6 +45,11 @@ insert into public.staff_branches (staff_id, branch_id, is_primary)
 select seller_id, b1, true from fx;
 
 set local request.jwt.claims = '{"sub":"a1000000-0000-4000-8000-000000000001","role":"authenticated"}';
+
+-- Precondición DECLARADA: la carga inicial solo acepta variantes sin
+-- seguimiento —esa invariante es su guarda de idempotencia—, así que el estado
+-- que dejara el seed de demostración no puede decidir si esta prueba corre.
+update public.product_variants set tracks_inventory = false where id = (select v1 from fx);
 
 -- ---------------------------------------------------------------------------
 -- Estructura
@@ -104,7 +116,7 @@ create temporary table batch1 on commit drop as
 select public.commit_initial_load_batch(
   (select b1 from fx),
   jsonb_build_array(
-    jsonb_build_object('sku', 'DEMO-ESM-ROJO', 'branchCode', 'PRINCIPAL', 'quantity', 40, 'unitCost', 9.00)
+    jsonb_build_object('sku', 'DEMO-ESM-ROJO', 'branchCode', 'CASHTEST1', 'quantity', 40, 'unitCost', 9.00)
   ),
   gen_random_uuid(),
   current_date,
@@ -135,7 +147,7 @@ select is(
 select is(
   (select public.commit_initial_load_batch(
      (select b1 from fx),
-     jsonb_build_array(jsonb_build_object('sku', 'DEMO-ESM-ROJO', 'branchCode', 'PRINCIPAL', 'quantity', 40)),
+     jsonb_build_array(jsonb_build_object('sku', 'DEMO-ESM-ROJO', 'branchCode', 'CASHTEST1', 'quantity', 40)),
      (select client_operation_id from public.initial_load_batches
       where id = ((select detail ->> 'id' from batch1))::uuid)
    ) ->> 'id'),
@@ -175,7 +187,8 @@ select results_eq(
 -- Un traslado no crea ni destruye valor: 40 × 9,00 = 360,00 repartidos.
 select is(
   (select round(sum(total_value), 2) from public.inventory_valuation
-   where variant_id = (select v1 from fx)),
+   where variant_id = (select v1 from fx)
+     and branch_id in (select b1 from fx union all select b2 from fx)),
   360.00::numeric,
   '18 · Y conserva el valor total, entrando al destino al mismo costo'
 );

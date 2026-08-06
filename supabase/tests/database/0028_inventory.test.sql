@@ -24,18 +24,27 @@ insert into public.admin_profiles(id, role, full_name) values
   ('a0000000-0000-4000-8000-000000000002','seller','Vendedora sede 1'),
   ('a0000000-0000-4000-8000-000000000003','seller','Vendedora sede 2');
 
--- Segunda sede, para probar la agregación y el alcance por sede.
+-- Dos sedes propias, para probar la agregación y el alcance por sede sin
+-- heredar existencias de la principal: las aserciones de valoración declaran
+-- importes absolutos y el seed de demostración opera sobre la sede real.
+insert into public.branches (company_id, code, name, district, is_default, sort_order)
+select c.id, 'INVTEST1', 'Sede de inventario de prueba', 'Lima', false, 899
+from public.companies c limit 1;
+
 insert into public.branches (company_id, code, name, district, is_default, sort_order)
 select c.id, 'INVTEST2', 'Sede de prueba de inventario', 'Lima', false, 900
 from public.companies c limit 1;
 
+-- Variantes que ningún seed toca: la disponibilidad efectiva AGREGA sobre todas
+-- las sedes activas, así que una variante con existencia sembrada en la sede
+-- principal nunca saldría agotada por más que se vacíe la sede de prueba.
 create temporary table fx on commit drop as
 select
-  (select id from public.product_variants where sku = 'DEMO-ESM-ROJO')  as v_seguida,
-  (select id from public.product_variants where sku = 'DEMO-ESM-NUDE')  as v_libre,
-  (select id from public.product_variants where sku = 'DEMO-ESM-ROSA')  as v_agotada_editorial,
-  (select id from public.branches where is_default and is_active)        as b1,
-  (select id from public.branches where code = 'INVTEST2')               as b2,
+  (select id from public.product_variants where sku = 'DEMO-EXT-ALM-S-NAT') as v_seguida,
+  (select id from public.product_variants where sku = 'DEMO-TOR-001-UNICA') as v_libre,
+  (select id from public.product_variants where sku = 'DEMO-EXT-COF-M-CLR') as v_agotada_editorial,
+  (select id from public.branches where code = 'INVTEST1')                as b1,
+  (select id from public.branches where code = 'INVTEST2')                as b2,
   'a0000000-0000-4000-8000-000000000001'::uuid                           as admin_id,
   'a0000000-0000-4000-8000-000000000002'::uuid                           as seller1,
   'a0000000-0000-4000-8000-000000000003'::uuid                           as seller2;
@@ -83,10 +92,17 @@ select is(
 -- La migración no agota el catálogo existente
 -- ---------------------------------------------------------------------------
 
+-- La prueba crítica 14 del modelo —«aplicar 0028 no convierte ninguna variante
+-- en agotada»— se sostiene sobre el DEFECTO de la columna, no sobre el recuento
+-- del momento: una base ya operada tiene variantes con seguimiento activo
+-- porque alguien cargó su existencia inicial, que es justo lo que debe pasar.
+-- Contar filas hacía fallar la aserción por haber usado el sistema.
 select is(
-  (select count(*)::integer from public.product_variants where tracks_inventory),
-  0,
-  '9 · Ninguna variante previa queda con seguimiento activo'
+  (select column_default from information_schema.columns
+   where table_schema = 'public' and table_name = 'product_variants'
+     and column_name = 'tracks_inventory'),
+  'false',
+  '9 · El seguimiento nace desactivado: aplicar 0028 no agota ninguna variante'
 );
 
 select is(

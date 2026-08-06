@@ -3,6 +3,7 @@ import puppeteer from "puppeteer";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadSupabaseScriptEnv } from "./lib/supabase-script-env.mjs";
+import { signInToPanel } from "./lib/admin-login.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const { env } = loadSupabaseScriptEnv({ rootDir: ROOT, scriptName: "test-v2-admin-flow" });
@@ -53,20 +54,12 @@ try {
   const page = await browser.newPage();
   page.setDefaultTimeout(90000);
   page.setDefaultNavigationTimeout(90000);
-  // networkidle0 y una espera corta: el formulario es un componente cliente y,
-  // si se pulsa Enviar antes de que React hidrate, el navegador envía el form de
-  // forma NATIVA —se ve como un GET /admin/login? en el log— y la redirección
-  // nunca ocurre. Con el servidor de desarrollo frío la compilación tarda más
-  // que el tiempo de espera y la prueba fallaba de forma intermitente.
-  await page.goto(`${baseUrl}/admin/login`, { waitUntil: "networkidle0", timeout: 90000 });
-  await page.waitForSelector('input[type="email"]');
-  await new Promise((resolve) => setTimeout(resolve, 1200));
-  await page.type('input[type="email"]', email);
-  await page.type('input[type="password"]', password);
-  await Promise.all([
-    page.waitForFunction(() => window.location.pathname === "/admin/productos/nuevo", { timeout: 90000 }),
-    page.click('button[type="submit"]')
-  ]);
+  await signInToPanel(page, {
+    baseUrl,
+    email,
+    password,
+    expectedPath: "/admin/productos/nuevo"
+  });
 
   let response = await browserRequest(page, "/api/admin/catalog-v2/structure", {
     method: "POST", headers: { "content-type": "application/json" },
