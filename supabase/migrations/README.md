@@ -20,10 +20,21 @@ inmutables. El modelo V2 comienza en `0005_catalog_v2.sql`.
 - `0013_enamel_content_and_finishes.sql`: contenido numérico con unidad para esmaltes y diccionario ampliable de acabados.
 - `0014_conditional_attribute_rules.sql`: reglas condicionales tipadas y validación de coherencia entre atributos.
 - `0015_product_form_attribute_coherence.sql`: limpieza de atributos retirados, reglas numéricas y de rangos, dependencias por alimentación y asociaciones deterministas de potencia/voltaje.
+- `0016_add_developer_role.sql`: agrega el rol `developer` a `app_role`. Va aislada y sin transacción: PostgreSQL no permite usar un valor de enum en la misma transacción que lo crea.
+- `0017_developer_permissions_and_import_audit.sql`: permisos del perfil técnico y trazabilidad del cargador de catálogo (SHA-256, reporte de seguridad, confirmación).
+- `0018_catalog_assets_pdf_media.sql`: medios de catálogo para la exportación PDF.
 - `0019_json_attribute_values.sql`: incorpora valores JSON tipados para atributos estructurados.
 - `0020_enamel_catalog_details.sql`: agrega detalles comerciales y por tono reutilizables para la familia de esmaltes, incluido el par fotocromático.
 - `0021_contextual_product_relations.sql`: uso y alcance de marca de adhesivos para recomendaciones contextuales seguras.
 - `0022_accessory_relation_domain.sql`: clasifica accesorios por área de uso para evitar relaciones incoherentes entre pestañas, uñas, barbería y equipos.
+
+### Vertical 1 — Organización, sede y rol de vendedora (Bloque 1 del plan)
+
+- `0023_add_seller_role.sql`: agrega el rol `seller` a `app_role`. Aislada y sin transacción, por la misma razón que `0016`.
+- `0024_organization_and_branches.sql`: empresa, sedes con predeterminada garantizada, activación de perfiles, asignación de personal a sedes, predicados de alcance y `orders.branch_id`.
+- `0025_audit_log.sql`: bitácora de solo adición sobre catálogo, pedidos y organización.
+
+Ver [docs/vertical-1-organizacion.md](../../docs/vertical-1-organizacion.md).
 
 La fuente de datos inicial de marcas, categorías y configuración está en
 `../seed.sql`. Los productos se cargan mediante el panel o

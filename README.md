@@ -36,6 +36,16 @@ npm run dev
 - `/admin/estructura` — compatibilidad; redirige al alta guiada de productos.
 - `/admin/pdf` — exportación PDF V2.
 
+## Organización y roles
+
+La plataforma modela empresa, sedes y personal desde la primera migración del Bloque 1. Toda operación guarda su `branch_id`; `orders` es el primer caso. Los roles disponibles son `admin` (propietaria), `developer` (perfil técnico) y `seller` (vendedora), y todo cambio sobre catálogo, pedidos y organización queda en una bitácora de solo adición. Detalle en [docs/vertical-1-organizacion.md](docs/vertical-1-organizacion.md).
+
+Para entrar al panel hace falta un usuario de Supabase Auth. Créalo en Studio (`http://127.0.0.1:55323` → Authentication → Users, con *Auto Confirm*) y después:
+
+```bash
+node scripts/grant-admin.mjs tu-correo@dominio.pe admin --env .env.supabase.local
+```
+
 ## Verificación
 
 ```bash

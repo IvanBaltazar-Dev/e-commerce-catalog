@@ -65,27 +65,25 @@ La guarda de `scripts/lib/supabase-script-env.mjs` dejó de comparar contra un p
 
 ---
 
-### R-03 · Sin auditoría de cambios — **Alto**
+### R-03 · Sin auditoría de cambios — **Resuelto (2026-08-06)**
 
-**Situación.** No existe tabla de auditoría. En 32 tablas hay tres columnas de autoría: `orders.created_by`, `import_batches.created_by`, `pdf_exports.generated_by`. No se registra quién modificó un producto, un precio o una disponibilidad.
+**Situación.** No existía tabla de auditoría. En 32 tablas había tres columnas de autoría: `orders.created_by`, `import_batches.created_by`, `pdf_exports.generated_by`. No se registraba quién modificó un producto, un precio o una disponibilidad.
 
-**Consecuencia.** El Bloque 2 exige que las vendedoras registren anulaciones y devoluciones sin aprobación previa, con trazabilidad completa (reglas 7 y 8). Sin auditoría eso es inauditable. Añadirla después, con datos reales, es mucho más caro.
+**Resolución.** `0025_audit_log.sql` crea una bitácora de solo adición sobre 10 tablas de catálogo, pedidos y organización. Cada asiento guarda momento, actor, rol, sede, tabla, registro, acción, campos modificados y valores anterior y nuevo. Un trigger `BEFORE UPDATE OR DELETE` rechaza cualquier mutación; no existe política RLS de escritura. Solo administración lee.
 
-**Mitigación.** Modelar la auditoría en el Bloque 1, antes de la primera venta registrada.
-
-**Estado.** Abierto.
+**Verificado.** 8 aserciones pgTAP y comprobación con sesión de vendedora: 0 filas visibles.
 
 ---
 
-### R-04 · La organización no está modelada — **Alto**
+### R-04 · La organización no está modelada — **Resuelto (2026-08-06)**
 
-**Situación.** No existe `branch_id` en ninguna tabla; `app_role` solo admite `admin` y `developer`.
+**Situación.** No existía `branch_id` en ninguna tabla; `app_role` solo admitía `admin` y `developer`.
 
-**Consecuencia.** El plan es explícito: *"aunque inicialmente exista una sede, toda venta, compra, reserva y disponibilidad debe guardar `branch_id`"*. Introducirlo después obliga a migrar cada tabla transaccional y a rehacer las políticas RLS.
+**Resolución.** `0023` añade el rol `seller`. `0024` crea `companies`, `branches` —con sede predeterminada garantizada por índice único parcial y trigger diferido—, `staff_branches`, los predicados `is_staff`, `is_seller`, `staff_branch_ids` y `default_branch_id`, y aplica la regla por primera vez con `orders.branch_id` obligatorio. `is_admin()` e `is_developer()` pasan a exigir `is_active`, de modo que un perfil desactivado pierde el acceso sin perder su historial.
 
-**Mitigación.** Crear sedes y roles en la primera migración del Bloque 1, antes de cualquier tabla de operación.
+**Verificado.** 18 aserciones pgTAP y alta de pedido resolviendo la sede automáticamente. Detalle en `docs/vertical-1-organizacion.md`.
 
-**Estado.** Abierto.
+> Queda pendiente para el Bloque 2 abrir el registro de ventas a las vendedoras: el rol y su alcance por sede ya existen, pero `create_admin_order` sigue exigiendo `is_admin()`.
 
 ---
 
@@ -205,7 +203,7 @@ La guarda de `scripts/lib/supabase-script-env.mjs` dejó de comparar contra un p
 1. ~~**R-00** — commitear y empujar~~ · **Resuelto** el 2026-08-06: `11cf0ee` en `audit/bellaroshe-v2` y `feature/bellaroshe-platform-v2`, ambas en `origin`.
 2. ~~**R-01** — desbloquear el entorno local~~ · **Resuelto** el 2026-08-06 con la banda `55320-55329`.
 3. **R-12** — sacar las credenciales de producción de `.env` y rotar la `service_role`. **Lo más urgente que queda.**
-4. **R-04** y **R-03** — sedes, roles y auditoría en la primera migración del Bloque 1.
+4. ~~**R-04** y **R-03** — sedes, roles y auditoría~~ · **Resueltos** el 2026-08-06 con las migraciones `0023`–`0025`.
 5. **R-13** y **R-06** — que `db reset` forme parte de la verificación, no de la buena voluntad.
 6. **R-02** — retirar V1 antes de construir la operación comercial encima.
 7. **R-07**, **R-05** — durante el Bloque 1.

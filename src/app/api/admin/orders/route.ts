@@ -8,6 +8,10 @@ export const dynamic = "force-dynamic";
 type OrderRow = {
   id: string;
   order_number: number;
+  branch_id: string;
+  // PostgREST devuelve un objeto para una relación a-uno, pero supabase-js la
+  // infiere como arreglo. Se aceptan ambas formas y se normaliza al mapear.
+  branch: { name: string } | { name: string }[] | null;
   status: AdminOrder["status"];
   customer_name: string;
   customer_phone: string | null;
@@ -35,10 +39,17 @@ type OrderRow = {
   }> | null;
 };
 
+function branchName(branch: OrderRow["branch"]): string | undefined {
+  if (!branch) return undefined;
+  return Array.isArray(branch) ? branch[0]?.name : branch.name;
+}
+
 function mapOrder(row: OrderRow): AdminOrder {
   return {
     id: row.id,
     orderNumber: Number(row.order_number),
+    branchId: row.branch_id,
+    branchName: branchName(row.branch),
     status: row.status,
     customerName: row.customer_name,
     customerPhone: row.customer_phone,
@@ -72,7 +83,7 @@ export async function GET() {
     const { supabase } = await requireAdmin();
     const { data, error } = await supabase
       .from("orders")
-      .select("id, order_number, status, customer_name, customer_phone, delivery_method, delivery_address, customer_note, total_units, subtotal, unresolved_lines, created_at, updated_at, lines:order_items(id, product_id, variant_id, sku, product_name, variant_name, brand_name, quantity, unit_price, subtotal, purchase_mode, availability)")
+      .select("id, order_number, branch_id, branch:branches(name), status, customer_name, customer_phone, delivery_method, delivery_address, customer_note, total_units, subtotal, unresolved_lines, created_at, updated_at, lines:order_items(id, product_id, variant_id, sku, product_name, variant_name, brand_name, quantity, unit_price, subtotal, purchase_mode, availability)")
       .order("created_at", { ascending: false })
       .limit(30);
 
@@ -93,7 +104,8 @@ export async function POST(request: Request) {
       p_delivery_method: input.deliveryMethod,
       p_delivery_address: input.deliveryAddress || null,
       p_customer_note: input.customerNote || null,
-      p_lines: input.lines
+      p_lines: input.lines,
+      p_branch_id: input.branchId || null
     });
 
     if (error) throw new HttpError(400, "order_create_failed", error.message);

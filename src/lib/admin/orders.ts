@@ -9,6 +9,10 @@ export const createAdminOrderSchema = z.object({
   deliveryMethod: z.enum(["shipping", "pickup"]),
   deliveryAddress: z.string().trim().max(300).optional().nullable(),
   customerNote: z.string().trim().max(500).optional().nullable(),
+  // Sede donde se registra la operación. Si no se envía, la base resuelve la
+  // principal de la persona y, en su defecto, la predeterminada de la empresa.
+  // Nunca queda nula: `orders.branch_id` es obligatorio.
+  branchId: z.string().uuid().optional().nullable(),
   lines: z.array(z.object({
     variantId: z.string().uuid(),
     quantity: z.coerce.number().int().min(1).max(999)
@@ -37,9 +41,19 @@ export type AdminOrderLine = {
   availability: AvailabilityStatus;
 };
 
+export type AdminBranch = {
+  id: string;
+  code: string;
+  name: string;
+  district: string | null;
+  isDefault: boolean;
+};
+
 export type AdminOrder = {
   id: string;
   orderNumber: number;
+  branchId: string;
+  branchName?: string;
   status: AdminOrderStatus;
   customerName: string;
   customerPhone: string | null;

@@ -1,0 +1,11 @@
+-- Vertical 1 · Organización, sede y rol de vendedora (1 de 3).
+--
+-- Debe ejecutarse en una migración separada y SIN transacción explícita:
+-- PostgreSQL no permite usar un valor nuevo de enum dentro de la misma
+-- transacción que lo agrega. Mismo criterio que 0016_add_developer_role.sql.
+--
+-- Roles resultantes de public.app_role:
+--   admin      propietaria y personal con control total del negocio
+--   developer  perfil técnico; además de admin, habilita el cargador de catálogo
+--   seller     vendedora; opera ventas en su sede, sin administrar el catálogo
+alter type public.app_role add value if not exists 'seller';
