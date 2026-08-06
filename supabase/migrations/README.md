@@ -33,8 +33,15 @@ inmutables. El modelo V2 comienza en `0005_catalog_v2.sql`.
 - `0023_add_seller_role.sql`: agrega el rol `seller` a `app_role`. Aislada y sin transacción, por la misma razón que `0016`.
 - `0024_organization_and_branches.sql`: empresa, sedes con predeterminada garantizada, activación de perfiles, asignación de personal a sedes, predicados de alcance y `orders.branch_id`.
 - `0025_audit_log.sql`: bitácora de solo adición sobre catálogo, pedidos y organización.
+- `0026_audit_log_survives_deletions.sql`: corrige `0025`. Las claves foráneas `on delete set null` de la bitácora chocaban con su propio trigger de solo-adición e impedían borrar un usuario o una sede con historial. Regla derivada: ninguna tabla de solo adición lleva claves foráneas.
 
 Ver [docs/vertical-1-organizacion.md](../../docs/vertical-1-organizacion.md).
+
+### Vertical 2 — Proveedores, costos y escalas (Bloque 1 del plan)
+
+- `0027_supplier_domain.sql`: proveedores, contactos, condiciones por sede, ofertas producto/variante, acuerdos de costo con escalera contigua garantizada, bonificaciones y tipo de cambio. Cierra la pregunta 9 de la auditoría.
+
+Ver [docs/vertical-2-proveedores.md](../../docs/vertical-2-proveedores.md).
 
 La fuente de datos inicial de marcas, categorías y configuración está en
 `../seed.sql`. Los productos se cargan mediante el panel o

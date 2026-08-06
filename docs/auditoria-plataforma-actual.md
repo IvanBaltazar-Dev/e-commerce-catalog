@@ -58,7 +58,7 @@ Detalle completo en `docs/arquitectura-actual.md`, `docs/inventario-rutas-y-modu
 | 6 | ¿Los atributos están escritos como columnas fijas? | **No en V2; sí residualmente en V1** | V2 usa `attribute_definitions` tipadas (10 tipos de dato, alcance producto/variante/ambos, reglas en `jsonb`). V1 conserva columnas fijas vivas: `requires_lamp`, `presentation`, `product_type`, `color_chart_status` |
 | 7 | ¿El código depende de nombres como `color`, `tono` o `esmalte`? | **Sí, en presentación; no en estructura** | `CatalogV2ProductForm.tsx:869-887` deriva 8 etiquetas de `isEnamel = template.code === "ESMALTE_TONOS"`. El `<title>` de la portada dice "Esmaltes de marca" (`app/(public)/page.tsx:6`). Ninguna tabla, contrato ni consulta depende del dominio esmalte |
 | 8 | ¿Puede una variante tener hasta cinco fotografías? | **Sí, sin límite superior** | `product_media` N:N contra `media_assets`, con `product_id XOR variant_id`, `sort_order` e `is_primary`. No hay constraint que tope en 5 —si el tope es un requisito, hay que añadirlo |
-| 9 | ¿Puede un producto relacionarse con varios proveedores? | **No** | Búsqueda exhaustiva sobre las 21 migraciones: **cero** ocurrencias de `supplier`/`proveedor`. No existe el dominio |
+| 9 | ¿Puede un producto relacionarse con varios proveedores? | **No lo permitía. Resuelto el 2026-08-06** | Al auditar: **cero** ocurrencias de `supplier`/`proveedor` en las 21 migraciones. `0027_supplier_domain.sql` crea el dominio completo —proveedores, contactos, ofertas por producto o variante, acuerdos de costo con escalera, bonificaciones, condiciones por sede y tipo de cambio— y `resolve_variant_supply()` compara todas las opciones de una variante en soles netos. Ver `docs/vertical-2-proveedores.md` |
 | 10 | ¿El carrito apunta a productos o a variantes vendibles? | **A variantes** | `SelectionProvider.tsx` descarta toda línea sin `variantId`; `STORAGE_VERSION = 2` invalida el estado V1 por ser inmigrable |
 
 ### Seguridad
@@ -184,7 +184,7 @@ Queda **sin reverificar** la medición de escala de 1.500 registros (P30) y **si
 | Despliegue | | ✔ | | Vercel + Supabase operativos, pero sin configuración versionada, sin entorno de prueba, sin procedimiento de reversión ni respaldos documentados |
 | Seguridad | ✔ | ✔ | | RLS completa, secretos fuera de Git, `service_role` sin uso en `src/`. No hay auditoría transversal de cambios |
 | Pruebas | ✔ | ✔ | | 32 aserciones pgTAP + 24 scripts de integración. Ninguna prueba ejecutable sin Docker; cero pruebas unitarias |
-| **Proveedores** | | | ✔ | **No existe.** Cero tablas |
+| **Proveedores** | | | ✔ | **No existía.** Reemplazo construido el 2026-08-06: `0027_supplier_domain.sql`, 8 tablas |
 | **Operación comercial** (ventas, pagos, compras, gastos, reservas, devoluciones, inventario) | | | ✔ | **No existe.** `orders` es un pedido administrativo sin pagos |
 | **Canales y omnicanalidad** | | | ✔ | **No existe.** Cero tablas de canal, conversación o atribución |
 | **Sedes / `branch_id`** | | | ✔ | **No existe** en ninguna tabla |
