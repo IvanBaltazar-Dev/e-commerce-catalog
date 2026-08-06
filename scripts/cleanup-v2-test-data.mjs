@@ -25,6 +25,24 @@ async function deleteProducts(pattern) {
     check(await client.from("product_relations").delete().in("source_product_id", ids).select("id"), "eliminar relaciones origen");
     check(await client.from("product_relations").delete().in("target_product_id", ids).select("id"), "eliminar relaciones destino");
     if (variantIds.length) {
+      // Caja (0029). `sale_lines.variant_id` y `reservation_lines.variant_id`
+      // son RESTRICTIVAS, así que una variante vendida en una prueba bloquea el
+      // borrado del producto. Se retiran los documentos completos: la cabecera
+      // cascadea a líneas, costos y pagos, y hacerlo al revés es imposible
+      // —quitar los pagos primero dejaría la venta con total y cobranza cero, y
+      // el trigger diferido lo rechaza—.
+      const saleLines = check(await client.from("sale_lines").select("sale_id").in("variant_id", variantIds), "listar líneas de venta de prueba");
+      const saleIds = [...new Set(saleLines.map((row) => row.sale_id))];
+      const reservationLines = check(await client.from("reservation_lines").select("reservation_id").in("variant_id", variantIds), "listar líneas de reserva de prueba");
+      const reservationIds = [...new Set(reservationLines.map((row) => row.reservation_id))];
+
+      if (saleIds.length) {
+        check(await client.from("sales").delete().in("id", saleIds).select("id"), "eliminar ventas de prueba");
+      }
+      if (reservationIds.length) {
+        check(await client.from("reservations").delete().in("id", reservationIds).select("id"), "eliminar reservas de prueba");
+      }
+
       check(await client.from("wholesale_rules").delete().in("variant_id", variantIds).select("id"), "eliminar reglas mayoristas de variante");
       check(await client.from("product_relations").delete().in("source_variant_id", variantIds).select("id"), "eliminar relaciones origen variante");
       check(await client.from("product_relations").delete().in("target_variant_id", variantIds).select("id"), "eliminar relaciones destino variante");

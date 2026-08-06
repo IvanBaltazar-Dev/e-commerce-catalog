@@ -5087,3 +5087,149 @@ a.pub-tab--wa:hover {
     display: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Caja — venta, cobro y reservas (Bloque 2)
+   Reutiliza el lenguaje visual del registro de pedidos: mismas tarjetas, mismo
+   espaciado. Solo añade lo que la caja necesita y el pedido no tenía.
+--------------------------------------------------------------------------- */
+
+.sale-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+  color: var(--br-label);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.order-draft .order-customer-fields {
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+}
+
+.sale-totals {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 6px 12px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 13px;
+  background: var(--br-pink-soft);
+}
+
+.sale-totals > div {
+  display: contents;
+}
+
+.sale-totals span {
+  color: var(--br-muted);
+  font-size: 12px;
+}
+
+.sale-totals b {
+  color: var(--br-ink-strong);
+  font-size: 14px;
+  text-align: right;
+}
+
+.sale-totals-final b {
+  color: var(--br-pink-deep);
+  font-family: "Poppins", sans-serif;
+  font-size: 20px;
+}
+
+.sale-totals small {
+  grid-column: 1 / -1;
+  color: var(--br-muted);
+  font-size: 10.5px;
+}
+
+.sale-inline-input {
+  max-width: 110px;
+  padding: 5px 8px;
+  font-size: 12.5px;
+  text-align: right;
+}
+
+.sale-payments {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.sale-payment {
+  display: grid;
+  grid-template-columns: 1.1fr 0.8fr 1fr auto auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.sale-payment .input {
+  padding: 7px 9px;
+  font-size: 12.5px;
+}
+
+.sale-balance {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 9px 12px;
+  border-radius: 11px;
+  background: #fbfbfc;
+  color: var(--br-muted);
+  font-size: 12px;
+}
+
+.sale-balance b {
+  color: var(--br-ink-strong);
+}
+
+.sale-balance--ok {
+  color: var(--br-green);
+  font-weight: 600;
+}
+
+.sale-balance--warn {
+  color: #9d6415;
+  font-weight: 600;
+}
+
+.sale-reservation {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--br-input-line);
+  border-radius: 12px;
+  background: #fff;
+  font-size: 12.5px;
+}
+
+.sale-reservation span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sale-reservation small {
+  color: var(--br-muted);
+  font-size: 10.5px;
+}
+
+.sale-reservation-actions {
+  flex-direction: row !important;
+  gap: 6px !important;
+}
+
+@media (max-width: 720px) {
+  .sale-payment,
+  .sale-reservation {
+    grid-template-columns: 1fr 1fr;
+  }
+}

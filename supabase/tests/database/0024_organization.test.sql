@@ -24,8 +24,11 @@ select ok(
 select has_table('public', 'companies', 'Existe la empresa');
 select has_table('public', 'branches', 'Existen las sedes');
 select has_table('public', 'staff_branches', 'Existe la asignación de personal a sedes');
-select has_column('public', 'orders', 'branch_id', 'Todo pedido guarda su sede');
-select col_not_null('public', 'orders', 'branch_id', 'La sede del pedido es obligatoria');
+-- `orders` se retiró en 0029 y `sales` heredó el concepto de operación de venta
+-- con su sede obligatoria: la aserción de 0024 se mantiene, apuntando a la
+-- tabla que hoy la sostiene.
+select has_column('public', 'sales', 'branch_id', 'Toda venta guarda su sede');
+select col_not_null('public', 'sales', 'branch_id', 'La sede de la venta es obligatoria');
 select has_function('public', 'staff_branch_ids', array['uuid'], 'Existe la resolución de sedes por persona');
 select has_function('public', 'default_branch_id', array['uuid'], 'Existe la sede por defecto');
 

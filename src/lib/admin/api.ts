@@ -4,7 +4,14 @@ import { publicEnv } from "@/lib/env/public";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { ApiPdfExport, ApiProduct, ApiTaxonomy, ProductPayload } from "@/lib/admin/types";
 import type { AdminV2Bootstrap, AdminV2Product, AdminV2ProductInput } from "@/lib/admin/catalog-v2";
-import type { AdminOrder, AdminOrderStatus, CreateAdminOrderInput } from "@/lib/admin/orders";
+import type {
+  CreateReservationInput,
+  RegisterSaleInput,
+  Reservation,
+  Sale,
+  TaxDocumentKind
+} from "@/lib/admin/sales";
+
 import type {
   CatalogImportCommitResult,
   CatalogImportProductLineApproval,
@@ -12,6 +19,21 @@ import type {
   CatalogMediaPackageCommitResult,
   CatalogMediaPackagePreview
 } from "@/lib/admin/catalog-import-types";
+
+/** Fila de listado: la venta completa, sin líneas ni pagos. */
+export type SaleSummary = Omit<Sale, "lines" | "payments" | "taxDocument"> & { branchName?: string };
+export type ReservationSummary = Omit<Reservation, "lines" | "payments" | "advanceTotal" | "balance"> & {
+  createdAt: string;
+};
+
+/** Sede en la que la persona puede operar, resuelta con el predicado de la RLS. */
+export type OperableBranch = {
+  id: string;
+  code: string;
+  name: string;
+  district: string | null;
+  isDefault: boolean;
+};
 
 export class AdminApiError extends Error {
   constructor(
@@ -177,16 +199,26 @@ export const adminApi = {
     body.set("confirmation", "SUBIR MEDIOS");
     return request<CatalogMediaPackageCommitResult>("/api/admin/importaciones/media/commit", { method: "POST", body });
   },
-  listOrders: () => request<{ items: AdminOrder[] }>("/api/admin/orders").then((result) => result.items),
-  createOrder: (payload: CreateAdminOrderInput) =>
-    request<AdminOrder>("/api/admin/orders", {
+  listOperableBranches: () =>
+    request<{ items: OperableBranch[] }>("/api/admin/branches").then((result) => result.items),
+  listSales: () =>
+    request<{ items: SaleSummary[] }>("/api/admin/sales").then((result) => result.items),
+  getSale: (id: string) => request<Sale>(`/api/admin/sales/${id}`),
+  registerSale: (payload: RegisterSaleInput) =>
+    request<Sale>("/api/admin/sales", { method: "POST", body: JSON.stringify(payload) }),
+  requestTaxDocument: (id: string, payload: { kind: TaxDocumentKind; receiver?: unknown }) =>
+    request<Sale>(`/api/admin/sales/${id}`, { method: "POST", body: JSON.stringify(payload) }),
+  listReservations: (status?: string) =>
+    request<{ items: ReservationSummary[] }>(
+      status ? `/api/admin/reservations?status=${status}` : "/api/admin/reservations"
+    ).then((result) => result.items),
+  getReservation: (id: string) => request<Reservation>(`/api/admin/reservations/${id}`),
+  createReservation: (payload: CreateReservationInput) =>
+    request<Reservation>("/api/admin/reservations", { method: "POST", body: JSON.stringify(payload) }),
+  releaseReservation: (id: string, reason: string, status: "released" | "cancelled" = "released") =>
+    request<Reservation>(`/api/admin/reservations/${id}`, {
       method: "POST",
-      body: JSON.stringify(payload)
-    }),
-  updateOrderStatus: (id: string, status: AdminOrderStatus) =>
-    request<{ id: string; status: AdminOrderStatus; updatedAt: string }>(`/api/admin/orders/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify({ status })
+      body: JSON.stringify({ reason, status })
     })
 };
 

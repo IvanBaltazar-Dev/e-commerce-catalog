@@ -6,7 +6,7 @@ import { loadSupabaseScriptEnv } from "./lib/supabase-script-env.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const { env } = loadSupabaseScriptEnv({ rootDir: ROOT, scriptName: "test-v2-admin-flow" });
-const baseUrl = "http://127.0.0.1:3000";
+const baseUrl = process.env.E2E_BASE_URL ?? "http://127.0.0.1:3000";
 const stamp = Date.now().toString(36);
 const email = `codex-v2-${stamp}@local.invalid`;
 const password = `Local-V2-${stamp}-Only!`;
@@ -17,7 +17,7 @@ let productId;
 let categoryId;
 let templateId;
 let attributeId;
-let orderId;
+let saleId;
 let pdfExportId;
 let pdfStoragePath;
 
@@ -144,23 +144,53 @@ try {
   assert(evaluation.status === 200, "No se evaluó el carrito V2.");
   assert(evaluation.body.data.lines[0].purchaseMode === "wholesale", "No se aplicó mayorista en el flujo admin.");
 
-  const order = await browserRequest(page, "/api/admin/orders", {
+  const branches = await browserRequest(page, "/api/admin/branches");
+  assert(branches.status === 200, "No se pudieron consultar las sedes operables.");
+  assert(branches.body.data.items.length > 0, "El perfil no alcanza ninguna sede.");
+  const branchId = branches.body.data.items[0].id;
+
+  // El importe lo resuelve PostgreSQL: el cobro se arma con el subtotal que
+  // devolvió la evaluación, nunca con un número calculado en el script.
+  const saleTotal = Number(evaluation.body.data.subtotal);
+  const saleOperationId = crypto.randomUUID();
+  const sale = await browserRequest(page, "/api/admin/sales", {
     method: "POST", headers: { "content-type": "application/json" },
     body: JSON.stringify({
-      customerName: "Cliente prueba V2",
-      customerPhone: "999999999",
-      deliveryMethod: "pickup",
-      customerNote: "Pedido temporal E2E",
-      lines: [{ variantId: response.body.data.variants[0].id, quantity: 3 }]
+      branchId,
+      clientOperationId: saleOperationId,
+      sourceChannel: "in_store",
+      fulfillmentMethod: "pickup",
+      customer: { name: "Cliente prueba V2", phone: "999999999" },
+      discountTotal: 0,
+      notes: "Venta temporal E2E",
+      lines: [{ variantId: response.body.data.variants[0].id, quantity: 3 }],
+      payments: [{ method: "cash", amount: saleTotal }]
     })
   });
-  assert(order.status === 201, `No se registró el pedido: ${JSON.stringify(order.body)}`);
-  orderId = order.body.data.id;
-  assert(order.body.data.lines[0].purchaseMode === "wholesale", "El pedido no conservó el precio mayorista canónico.");
+  assert(sale.status === 201, `No se registró la venta: ${JSON.stringify(sale.body)}`);
+  saleId = sale.body.data.id;
+  assert(sale.body.data.lines[0].purchaseMode === "wholesale", "La venta no conservó el precio mayorista canónico.");
+  assert(Number(sale.body.data.total) === saleTotal, "La venta no cobró el total resuelto en PostgreSQL.");
 
-  const orderList = await browserRequest(page, "/api/admin/orders");
-  assert(orderList.status === 200, "No se pudo consultar el historial de pedidos.");
-  assert(orderList.body.data.items.some((item) => item.id === orderId), "El pedido registrado no aparece en el historial.");
+  // Idempotencia (prueba crítica 1): el mismo identificador de operación
+  // devuelve la venta ya creada en lugar de duplicarla.
+  const retry = await browserRequest(page, "/api/admin/sales", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      branchId,
+      clientOperationId: saleOperationId,
+      sourceChannel: "in_store",
+      fulfillmentMethod: "pickup",
+      lines: [{ variantId: response.body.data.variants[0].id, quantity: 3 }],
+      payments: [{ method: "cash", amount: saleTotal }]
+    })
+  });
+  assert(retry.body?.data?.id === saleId,
+    `El reintento no fue idempotente: ${retry.status} ${JSON.stringify(retry.body)}`);
+
+  const saleList = await browserRequest(page, "/api/admin/sales");
+  assert(saleList.status === 200, "No se pudo consultar el historial de ventas.");
+  assert(saleList.body.data.items.some((item) => item.id === saleId), "La venta registrada no aparece en el historial.");
 
   await page.goto(`${baseUrl}/admin/estructura`, { waitUntil: "domcontentloaded", timeout: 90000 });
   await page.waitForFunction(() => window.location.pathname === "/admin/productos/nuevo", { timeout: 90000 });
@@ -175,12 +205,12 @@ try {
   pdfExportId = pdf.body.data.id;
   pdfStoragePath = pdf.body.data.storage_path;
 
-  console.log("Flujo admin V2 verificado: login, producto, carrito, pedido administrativo y PDF.");
+  console.log("Flujo admin V2 verificado: login, producto, carrito, venta y PDF.");
 } finally {
   if (browser) await browser.close().catch(() => undefined);
   if (pdfStoragePath) assertClean(await admin.storage.from("catalog-pdfs").remove([pdfStoragePath]), "archivo PDF");
   if (pdfExportId) assertClean(await admin.from("pdf_exports").delete().eq("id", pdfExportId), "registro PDF");
-  if (orderId) assertClean(await admin.from("orders").delete().eq("id", orderId), "pedido");
+  if (saleId) assertClean(await admin.from("sales").delete().eq("id", saleId), "venta");
   if (productId) {
     const variants = await admin.from("product_variants").select("id").eq("product_id", productId);
     assertClean(variants, "consulta de variantes");

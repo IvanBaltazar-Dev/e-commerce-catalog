@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CatalogV2ProductForm } from "@/components/admin/CatalogV2ProductForm";
+import { requirePanelRole } from "@/lib/auth/panel";
 
 export const metadata: Metadata = {
   title: "Admin · Nuevo producto — Bellaroshé"
@@ -10,6 +11,7 @@ type NuevoProductoPageProps = {
 };
 
 export default async function NuevoProductoPage({ searchParams }: NuevoProductoPageProps) {
+  await requirePanelRole(["admin", "developer"]);
   const params = await searchParams;
   return (
     <CatalogV2ProductForm

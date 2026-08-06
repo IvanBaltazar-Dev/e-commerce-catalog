@@ -26,6 +26,7 @@
     "test:relation-recommendations": "node --experimental-transform-types scripts/test-relation-recommendations.mjs",
     "test:relation-context": "node --experimental-transform-types scripts/test-relation-context.mjs",
     "test:inventory-concurrency": "node scripts/test-inventory-concurrency.mjs",
+    "test:sales-concurrency": "node scripts/test-sales-concurrency.mjs",
     "test:cleanup": "node scripts/cleanup-v2-test-data.mjs --env .env.supabase.local"
   },
   "dependencies": {

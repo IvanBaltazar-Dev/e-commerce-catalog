@@ -56,11 +56,13 @@ export function LoginForm({ initialError }: { initialError?: string }) {
       return;
     }
 
+    // Desde el Bloque 2 la vendedora también entra al panel: la caja es suya.
+    // Cada rol aterriza donde trabaja.
     const { data: profile } = await supabase
       .from("admin_profiles")
-      .select("id")
+      .select("id, role")
       .eq("id", data.user.id)
-      .in("role", ["admin", "developer"])
+      .in("role", ["admin", "developer", "seller"])
       .maybeSingle();
 
     if (!profile) {
@@ -70,7 +72,7 @@ export function LoginForm({ initialError }: { initialError?: string }) {
       return;
     }
 
-    router.replace("/admin/productos/nuevo");
+    router.replace(profile.role === "seller" ? "/admin/ventas" : "/admin/productos/nuevo");
     router.refresh();
   }
 
@@ -86,7 +88,7 @@ export function LoginForm({ initialError }: { initialError?: string }) {
           priority
         />
         <div className="login-title">Panel de administración</div>
-        <div className="login-sub">Registra pedidos y gestiona tu catálogo</div>
+        <div className="login-sub">Registra ventas y gestiona tu catálogo</div>
         <div className="login-fields">
           <div>
             <div className="field-label">Correo</div>

@@ -5,18 +5,29 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
+const SALES_ITEM = { href: "/admin/ventas", label: "Ventas" };
+
 const NAV_ITEMS = [
-  { href: "/admin/pedidos", label: "Pedidos" },
+  SALES_ITEM,
   { href: "/admin/productos", label: "Productos" },
   { href: "/admin/pdf", label: "Catálogo PDF" }
 ];
 
-export function Topbar({ role, importsEnabled }: { role: "admin" | "developer"; importsEnabled: boolean }) {
+export function Topbar({
+  role,
+  importsEnabled
+}: {
+  role: "admin" | "developer" | "seller";
+  importsEnabled: boolean;
+}) {
   const pathname = usePathname();
   const router = useRouter();
-  const navItems = role === "developer" && importsEnabled
-    ? [...NAV_ITEMS, { href: "/admin/importaciones", label: "Importaciones" }]
-    : NAV_ITEMS;
+  // La vendedora solo tiene caja: el catálogo y el PDF no son suyos.
+  const navItems = role === "seller"
+    ? [SALES_ITEM]
+    : role === "developer" && importsEnabled
+      ? [...NAV_ITEMS, { href: "/admin/importaciones", label: "Importaciones" }]
+      : NAV_ITEMS;
 
   async function handleLogout() {
     await getSupabaseBrowserClient().auth.signOut();
