@@ -22,15 +22,34 @@ Escala de impacto: **Crítico** (detiene o destruye trabajo) · **Alto** (compro
 
 ---
 
-### R-01 · El entorno local no arranca en esta máquina — **Alto**
+### R-12 · `.env` contiene credenciales de producción y Next.js lo carga siempre — **Crítico**
 
-**Situación.** `npx supabase start` falla porque Windows reserva el rango 54234–54333, que contiene los puertos 54320, 54321 y 54322 exigidos por Supabase. Confirmado con `netsh int ipv4 show excludedportrange` y con una prueba de bind directa.
+**Situación.** El archivo `.env` del directorio de trabajo apunta a un proyecto **remoto** de Supabase (`https://<project-ref>.supabase.co`) e incluye su `SUPABASE_SERVICE_ROLE_KEY` real. `next dev` lo carga en cada arranque: la propia consola lo anuncia con `Environments: .env.local, .env`.
 
-**Consecuencia.** Nada verificable empíricamente: ni `db reset`, ni pgTAP, ni pruebas de contrato, ni la prueba de extensión del Bloque 0, ni la medición de escala.
+Hoy no rompe nada porque `.env.local` tiene precedencia y define las tres variables de conexión. La protección es **el orden de precedencia, no una barrera**.
 
-**Mitigación.** Liberar el rango con `net stop winnat` / `net start winnat` en consola de administrador. Alternativa desaconsejada: reasignar puertos en `supabase/config.toml`, lo que obliga a alterar la guarda de seguridad `url.port === "54321"` de `scripts/lib/supabase-script-env.mjs`.
+**Consecuencia si se materializa.** Basta con que falte una línea en `.env.local` —o que alguien lo borre, lo renombre o clone el repo sin recrearlo— para que el servidor de desarrollo, el `build` y cualquier ruta administrativa escriban en **producción con service_role**, que ignora RLS. Contradice directamente la regla 1 del plan y el diseño de seguridad del propio proyecto, que en scripts sí exige `--allow-remote` y `--confirm-project`.
 
-**Estado.** Abierto. Bloquea el cierre del Bloque 0.
+Atenuante: `.env` está en `.gitignore` y no se filtró al repositorio. El riesgo es operativo, no de exposición pública.
+
+**Mitigación.**
+1. Renombrar `.env` a `.env.remote` —ya está en `.gitignore` y Next.js no lo carga— o vaciarlo dejando solo `PUPPETEER_EXECUTABLE_PATH`, que es lo único de esa lista que no es un secreto.
+2. **Rotar la `service_role` del proyecto remoto**, porque estuvo en texto plano en una ruta de desarrollo durante semanas.
+3. Considerar extender a la aplicación la misma guarda que ya protege a los scripts: fallar el arranque en desarrollo si `NEXT_PUBLIC_SUPABASE_URL` no es loopback.
+
+**Estado.** Abierto. **Máxima prioridad.**
+
+---
+
+### R-01 · El entorno local no arranca en esta máquina — **Resuelto (2026-08-06)**
+
+**Situación.** `npx supabase start` fallaba porque Windows reserva el rango 54234–54333, que contiene los puertos 54320, 54321 y 54322 que Supabase traía por defecto. Confirmado con `netsh int ipv4 show excludedportrange` y con una prueba de bind directa.
+
+**Resolución.** Se reasignó el stack local a la banda libre `55320-55329` en `supabase/config.toml`: api `55321`, db `55322`, shadow `55320`, studio `55323`, mailpit `55324`, analytics `55328`, pooler `55329`. Se actualizaron `.env.local`, `.env.supabase.local`, `.env.example` y el README.
+
+La guarda de `scripts/lib/supabase-script-env.mjs` dejó de comparar contra un puerto fijo, sin perder fuerza: ahora exige host loopback exacto, protocolo HTTP y ausencia de `SUPABASE_PROJECT_REF` —condición nueva que cierra el caso de un túnel que termina en loopback pero apunta a un proyecto remoto—. `--allow-remote` y `--confirm-project` siguen intactos.
+
+**Verificado.** `db:reset:local`, `typecheck`, `lint` y `test:db` (32 aserciones, PASS) sobre el stack nuevo.
 
 ---
 
@@ -79,6 +98,18 @@ Escala de impacto: **Crítico** (detiene o destruye trabajo) · **Alto** (compro
 **Mitigación.** Generar tipos con `supabase gen types typescript`, o validar la respuesta con Zod en el borde (Zod ya es dependencia). El riesgo crece con cada contrato nuevo de los Bloques 1–3.
 
 **Estado.** Abierto.
+
+---
+
+### R-13 · Los seeds se desincronizan de las migraciones sin que nada lo detecte — **Alto**
+
+**Situación.** Al ejecutar por primera vez `supabase db reset` se comprobó que **la base no se recreaba desde cero**: `supabase/seeds/0002_v2_demo.sql` fallaba con `No se puede publicar: faltan atributos obligatorios del producto` (SQLSTATE 23514). El seed se escribió el 21 de julio; las migraciones `0013` y `0015` añadieron después tres atributos obligatorios a la plantilla de esmalte (`net_content_amount`, `net_content_unit`, `requires_lamp_v2`) y `0014` sumó la dependencia que vuelve obligatoria `lamp_technology` cuando la lámpara se requiere. El producto demo de esmalte nunca los cargó.
+
+**Consecuencia.** Durante aproximadamente dos semanas el entorno local fue irreproducible y nadie lo notó, porque ninguna verificación ejecuta `db reset`. La documentación afirmaba que el comando reconstruía la base; no lo hacía.
+
+**Mitigación.** Corregido en el seed. La causa de fondo persiste: no hay ninguna comprobación que ejecute `db reset` y falle visiblemente. Debe ser el primer paso de cualquier verificación previa a un despliegue, y idealmente parte de CI. Se relaciona con [R-06](#r-06--ninguna-prueba-corre-sin-docker--medio).
+
+**Estado.** Defecto corregido; la brecha de proceso sigue abierta.
 
 ---
 
@@ -171,11 +202,13 @@ Escala de impacto: **Crítico** (detiene o destruye trabajo) · **Alto** (compro
 
 ## Orden de atención sugerido
 
-1. **R-00** — commitear y empujar. Hoy.
-2. **R-01** — liberar puertos y ejecutar la batería de pruebas.
-3. **R-04** y **R-03** — sedes, roles y auditoría en la primera migración del Bloque 1.
-4. **R-02** — retirar V1 antes de construir la operación comercial encima.
-5. **R-07**, **R-05**, **R-06** — durante el Bloque 1.
-6. **R-09**, **R-10** — antes del primer despliegue remoto.
-7. **R-08** — antes de publicar el catálogo completo.
-8. **R-11** — vigilar en cada revisión de alcance.
+1. ~~**R-00** — commitear y empujar~~ · **Resuelto** el 2026-08-06: `11cf0ee` en `audit/bellaroshe-v2` y `feature/bellaroshe-platform-v2`, ambas en `origin`.
+2. ~~**R-01** — desbloquear el entorno local~~ · **Resuelto** el 2026-08-06 con la banda `55320-55329`.
+3. **R-12** — sacar las credenciales de producción de `.env` y rotar la `service_role`. **Lo más urgente que queda.**
+4. **R-04** y **R-03** — sedes, roles y auditoría en la primera migración del Bloque 1.
+5. **R-13** y **R-06** — que `db reset` forme parte de la verificación, no de la buena voluntad.
+6. **R-02** — retirar V1 antes de construir la operación comercial encima.
+7. **R-07**, **R-05** — durante el Bloque 1.
+8. **R-09**, **R-10** — antes del primer despliegue remoto.
+9. **R-08** — antes de publicar el catálogo completo.
+10. **R-11** — vigilar en cada revisión de alcance.

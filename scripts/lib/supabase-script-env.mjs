@@ -1,7 +1,23 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
+// Únicos destinos aceptados como locales. Coincidencia exacta: cualquier dominio
+// remoto (incluido *.supabase.co) y cualquier dirección pública quedan fuera.
 const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost"]);
+
+// La guarda comprueba que el destino sea verdaderamente local, no que use un puerto
+// fijo: los puertos del stack local son configurables en supabase/config.toml.
+// Ver docs/riesgos-v2.md, R-01.
+function isLocalTarget(url, env) {
+  // Un host que no sea loopback exacto es remoto por definición.
+  if (!LOCAL_HOSTS.has(url.hostname.toLowerCase())) return false;
+  // El stack local de Supabase se sirve por HTTP plano; HTTPS implica un extremo externo.
+  if (url.protocol !== "http:") return false;
+  // Un entorno local no declara project ref: si lo trae, apunta a un proyecto remoto
+  // (por ejemplo a través de un túnel que termina en loopback).
+  if (env.SUPABASE_PROJECT_REF?.trim()) return false;
+  return true;
+}
 
 function parseEnvFile(filePath) {
   return Object.fromEntries(
@@ -128,10 +144,7 @@ export function loadSupabaseScriptEnv({ rootDir, scriptName }) {
     throw new Error("NEXT_PUBLIC_SUPABASE_URL no es una URL válida.");
   }
 
-  const local =
-    LOCAL_HOSTS.has(url.hostname.toLowerCase()) &&
-    url.protocol === "http:" &&
-    url.port === "54321";
+  const local = isLocalTarget(url, env);
   const ref = projectRef(url, env);
 
   if (!local) {

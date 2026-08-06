@@ -80,8 +80,8 @@ Detalle completo en `docs/arquitectura-actual.md`, `docs/inventario-rutas-y-modu
 | 18 | ¿Las reglas comerciales están concentradas o duplicadas? | **Concentradas** | Precio, mayorista y disponibilidad se resuelven en `evaluate_cart_v2` y se invocan desde carrito, WhatsApp y pedidos. El mensaje de WhatsApp se genera en un único módulo (`lib/catalog/whatsapp.ts`) |
 | 19 | ¿Los precios están codificados en el frontend? | **No** | El navegador solo formatea (`formatSoles`, `lib/public/catalog.ts:97`). Todo importe proviene de `variant_prices` vía contrato, y se revalida en servidor antes de cualquier acción |
 | 20 | ¿Existen servicios o repositorios reutilizables? | **Sí** | `lib/catalog/contracts.ts` como frontera explícita entre modelo crudo y aplicación; servicios en `lib/admin/*` y `lib/catalog/*` |
-| 21 | ¿Las migraciones permiten recrear la base localmente? | **Sí por diseño; no verificado** | `npm run db:reset:local` reconstruye de `0001` a `0022` más seeds. **No pudo ejecutarse** en esta auditoría (§4) |
-| 22 | ¿El proyecto puede ejecutarse desde cero siguiendo el README? | **No en esta máquina** | `npx supabase start` falla: Windows tiene reservados los puertos 54234–54333, que incluyen 54320, 54321 y 54322. Verificado con `netsh` y con una prueba de bind. El README no contempla el caso |
+| 21 | ¿Las migraciones permiten recrear la base localmente? | **No lo permitían. Corregido el 2026-08-06** | Las 21 migraciones aplican limpias de `0001` a `0022`, pero `supabase/seeds/0002_v2_demo.sql` abortaba el reset con `No se puede publicar: faltan atributos obligatorios del producto` (23514): el seed no siguió a las migraciones `0013`/`0014`/`0015`. Corregido y verificado; ver `docs/riesgos-v2.md`, R-13 |
+| 22 | ¿El proyecto puede ejecutarse desde cero siguiendo el README? | **No lo permitía. Corregido el 2026-08-06** | Dos fallos encadenados: los puertos por defecto caían en el rango reservado por Windows (54234–54333) y el seed estaba roto. Resueltos con la banda `55320-55329` y la corrección del seed. README actualizado |
 | 23 | ¿Existen pruebas de carrito, productos y autenticación? | **Sí, de integración; ninguna unitaria** | `test:contracts` (carrito, mayorista, consulta), `test:admin-flow` (login real → producto → pedido → PDF), `test:db` (32 aserciones pgTAP). No hay Vitest/Jest: **ninguna prueba corre sin Docker** |
 | 24 | ¿La aplicación tiene estructura modular? | **Sí** | Separación clara `app/` · `components/` · `lib/{catalog,admin,auth,supabase,env,api}`. `typecheck` y `lint` pasan limpios |
 
@@ -96,7 +96,9 @@ Detalle completo en `docs/arquitectura-actual.md`, `docs/inventario-rutas-y-modu
 | 29 | ¿Existen consultas repetidas? | **No detectadas** | El PDF carga productos, variantes, precios y medios en consultas agrupadas por `in (…)`, no una por producto (`api/admin/pdf/generate/route.ts:54`) |
 | 30 | ¿Puede manejar 1.500 registros y su crecimiento? | **Sí según medición previa; no reverificado** | `docs/CATALOG_V2_IMPLEMENTATION.md` §13 registra 1.505 productos, 16 páginas y 867 ms en la última página. Esta auditoría **no pudo reproducir** la medición (§4) |
 
-**Marcador global:** 21 respuestas favorables · 6 parciales · 3 desfavorables (9, 15, 17) · 2 no verificadas empíricamente (21, 30).
+**Marcador global:** 21 respuestas favorables · 6 parciales · 3 desfavorables (9, 15, 17) · 2 defectos encontrados y corregidos el 2026-08-06 (21, 22) · 1 sin reverificar (30).
+
+> **Hallazgo posterior al cierre del inventario.** Al levantar el entorno local se descubrió que `.env` —cargado por `next dev` en cada arranque— contiene la URL y la **`service_role` de un proyecto Supabase remoto**. Solo la precedencia de `.env.local` impide que el desarrollo escriba en producción. Esto **no invalida la respuesta 13** (nada se filtró al repositorio: `.env` está en `.gitignore`), pero sí es un riesgo operativo crítico. Ver `docs/riesgos-v2.md`, R-12.
 
 ---
 
@@ -135,9 +137,9 @@ Aplicado literalmente:
 
 ---
 
-## 4. Limitación de esta auditoría
+## 4. Entorno local: bloqueo encontrado y resuelto
 
-`npx supabase start` falla en esta máquina:
+La primera redacción de esta auditoría se entregó sin poder levantar el entorno local. `npx supabase start` fallaba:
 
 ```
 failed to start docker container "supabase_db_e-commerce-catalog":
@@ -146,19 +148,25 @@ listen tcp 0.0.0.0:54322: bind: An attempt was made to access a socket
 in a way forbidden by its access permissions.
 ```
 
-Causa verificada: Windows mantiene reservado el rango **54234–54333** (`netsh int ipv4 show excludedportrange protocol=tcp`), que contiene los tres puertos que Supabase necesita —54320 (shadow), 54321 (API) y 54322 (base)—. Una prueba de bind directa confirma que los tres están bloqueados. No es un defecto del proyecto: es una reserva dinámica de Hyper-V/WSL en el host.
+Causa: Windows mantiene reservado el rango **54234–54333** (`netsh int ipv4 show excludedportrange protocol=tcp`), que contiene los tres puertos que Supabase traía por defecto —54320 (shadow), 54321 (API) y 54322 (base)—. Una prueba de bind directa confirmó que los tres estaban bloqueados. No era un defecto del proyecto: es una reserva dinámica de Hyper-V/WSL en el host.
 
-Quedan **sin verificar empíricamente**: la reconstrucción `db reset` (P21), la medición de 1.500 registros (P30) y la ejecución de la prueba de extensión (§3).
+**Resuelto el 2026-08-06** reasignando el stack local a la banda libre `55320-55329` y corrigiendo el seed demo (§2, P21 y P22). Detalle en `docs/riesgos-v2.md`, R-01 y R-13.
 
-Cómo desbloquearlo, en orden de preferencia:
+Verificado sobre el entorno nuevo:
 
-1. Liberar el rango reservado, en una consola **como administrador**:
-   ```
-   net stop winnat
-   net start winnat
-   ```
-   Deja el proyecto intacto. Es la vía recomendada.
-2. Reasignar los puertos locales en `supabase/config.toml` a la banda libre 54740–56131. Obliga a tocar además `.env.local`, `.env.supabase.local` y la guarda `url.port === "54321"` de `scripts/lib/supabase-script-env.mjs`, que es un control de seguridad. **No recomendado.**
+| Comando | Resultado |
+|---|---|
+| `npm run db:reset:local` | 21 migraciones + `seed.sql` + `seeds/0002_v2_demo.sql` sin intervención manual |
+| `npm run typecheck` | Sin errores |
+| `npm run lint` | Sin errores |
+| `npm run test:db` | 32 aserciones pgTAP · **PASS** |
+| `GET /` · `/producto/:slug` · `/admin/login` · `/api/health` | 200 |
+| `GET /api/catalog` | 5 productos, paginación y conteos desde PostgreSQL |
+| `GET /api/catalog/demo-masglo-gel-evolution` | 3 variantes con precio minorista/mayorista y disponibilidad |
+| `/api/admin/products` · `/orders` · `/importaciones/template` sin sesión | **401** — las guardas responden |
+| Supabase Studio `http://127.0.0.1:55323` | Responde |
+
+Queda **sin reverificar** la medición de escala de 1.500 registros (P30) y **sin ejecutar** la prueba de extensión (§3), reservadas para el cierre de una vertical según la instrucción vigente de priorizar el desarrollo.
 
 ---
 
@@ -201,8 +209,10 @@ El fundamento detallado y el plan de ejecución están en `docs/decision-reutili
 
 ## 7. Condiciones para cerrar el Bloque 0
 
-1. **Respaldar en Git las 115 rutas sin commitear.** Bloqueante y urgente.
-2. Desbloquear los puertos y ejecutar realmente: `db:reset:local`, `test:db`, `test:contracts`, `test:admin-flow`, `test:scale`.
-3. Ejecutar la prueba de extensión (§3) con las diez muestras, creando cera, maquillaje y polygel **solo con datos**, para confirmar empíricamente que no hace falta `ALTER TABLE`.
-4. Documentar el estado real de la infraestructura remota: proyecto de Vercel, proyecto de Supabase, dominios, respaldos y procedimiento de reversión.
-5. Aprobar la recomendación y abrir `feature/bellaroshe-platform-v2`.
+1. ~~Respaldar en Git las 115 rutas sin commitear.~~ **Hecho** (`11cf0ee`, en `origin`).
+2. ~~Desbloquear el entorno local y ejecutar `db:reset:local` y `test:db`.~~ **Hecho** (§4).
+3. ~~Aprobar la recomendación y abrir `feature/bellaroshe-platform-v2`.~~ **Hecho**; el desarrollo continúa en esa rama.
+4. **Sacar las credenciales de producción de `.env` y rotar la `service_role`** (R-12). Pendiente y urgente.
+5. Ejecutar la prueba de extensión (§3) con las diez muestras, creando cera, maquillaje y polygel **solo con datos**, para confirmar empíricamente que no hace falta `ALTER TABLE`. Reservado para el cierre de la primera vertical.
+6. Ejecutar la batería completa —`test:contracts`, `test:admin-flow`, `test:scale`— en el mismo hito.
+7. Documentar el estado real de la infraestructura remota: proyecto de Vercel, proyecto de Supabase, dominios, respaldos y procedimiento de reversión (R-09). Requiere acceso a las consolas.

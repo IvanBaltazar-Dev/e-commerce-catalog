@@ -200,6 +200,32 @@ begin
   product_id := (result ->> 'productId')::uuid;
   variant_id := (result ->> 'variantId')::uuid;
 
+  -- Atributos obligatorios de la plantilla de esmalte. `net_content_amount` y
+  -- `net_content_unit` llegaron en 0013; `requires_lamp_v2` en 0015. Al declararlo
+  -- verdadero, la condición de 0014 vuelve obligatoria `lamp_technology`.
+  insert into public.product_attribute_values (
+    product_id, attribute_definition_id, value_number
+  )
+  select product_id, id, 13.5
+  from public.attribute_definitions
+  where code = 'net_content_amount';
+
+  insert into public.product_attribute_values (
+    product_id, attribute_definition_id, value_boolean
+  )
+  select product_id, id, true
+  from public.attribute_definitions
+  where code = 'requires_lamp_v2';
+
+  insert into public.product_attribute_values (
+    product_id, attribute_definition_id, option_id
+  )
+  select product_id, definition.id, option.id
+  from public.attribute_definitions definition
+  join public.attribute_options option on option.attribute_definition_id = definition.id
+  where (definition.code = 'net_content_unit' and option.value = 'ml')
+     or (definition.code = 'lamp_technology' and option.value = 'dual');
+
   insert into public.variant_attribute_values (variant_id, attribute_definition_id, option_id)
   select variant_id, definition.id, option.id
   from public.attribute_definitions definition

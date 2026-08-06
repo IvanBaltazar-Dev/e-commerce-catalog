@@ -6,14 +6,16 @@ La fuente técnica de verdad es [docs/CATALOG_V2_IMPLEMENTATION.md](docs/CATALOG
 
 ## Ejecución local segura
 
-La aplicación usa `.env.local` y los scripts administrativos usan `.env.supabase.local`. Ambos archivos deben apuntar únicamente a:
+La aplicación usa `.env.local` y los scripts administrativos usan `.env.supabase.local`. Ambos archivos deben apuntar únicamente a un host loopback:
 
 ```text
-http://127.0.0.1:54321
-http://localhost:54321
+http://127.0.0.1:55321
+http://localhost:55321
 ```
 
-Los scripts bloquean remoto por defecto. No copies secretos reales a archivos versionados.
+El stack local usa la banda `55320-55329` (`supabase/config.toml`) en lugar de los puertos por defecto de Supabase: Windows reserva el rango TCP `54234-54333`, que contenía `54320`, `54321` y `54322`. Detalle en [docs/riesgos-v2.md](docs/riesgos-v2.md) (R-01).
+
+Los scripts bloquean remoto por defecto: aceptan únicamente `127.0.0.1` o `localhost` sobre HTTP y sin `SUPABASE_PROJECT_REF`. Cualquier otro destino exige `--allow-remote` y `--confirm-project=<PROJECT_REF>`. No copies secretos reales a archivos versionados.
 
 ```bash
 npm install
