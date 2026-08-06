@@ -18,8 +18,8 @@ export type PdfProduct = {
   requires_lamp: boolean;
   lamp_type: "No" | "Sí" | "UV/LED" | null;
   description: string | null;
-  unit_price: number | string;
-  wholesale_price: number | string;
+  unit_price: number | string | null;
+  wholesale_price: number | string | null;
   wholesale_min_quantity: number;
   availability: "available" | "sold_out" | "consult";
   color_chart_status: "available" | "consult_advisor";
@@ -28,6 +28,12 @@ export type PdfProduct = {
   brand?: NestedName;
   category?: NestedName;
   gallery?: { path: string; sort_order: number | null }[] | null;
+  variants?: Array<{
+    sku: string | null;
+    name: string;
+    availability: "available" | "sold_out" | "consult";
+    price: number | null;
+  }>;
 };
 
 export type PdfSettings = {
@@ -60,7 +66,8 @@ const esc = (value: unknown) =>
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
-function money(value: number | string) {
+function money(value: number | string | null) {
+  if (value === null) return "Consultar";
   return `S/ ${Number(value).toFixed(2).replace(/\.00$/, "")}`;
 }
 
@@ -345,6 +352,9 @@ function productPage(ctx: RenderContext, product: PdfProduct, order: number, tot
   const msg = `Hola ${store.brand}, me interesa ${brand} ${product.name} ${product.presentation ?? ""}. ¿Me envías colores disponibles y precio por mayor desde ${wholesaleFrom} unidades?`;
   const lamp = lampInfo(product);
   const availability = availabilityInfo(product);
+  const variantSummary = (product.variants ?? []).length > 1
+    ? `<div class="variant-summary"><strong>Variantes disponibles</strong>${(product.variants ?? []).slice(0, 8).map((variant) => `<span>${esc(variant.name)} · ${esc(variant.sku ?? "Sin SKU")} · ${variant.availability === "available" ? money(variant.price) : variant.availability === "consult" ? "Consultar" : "Agotado"}</span>`).join("")}</div>`
+    : "";
   return `
   <section class="page product">
     <header class="p-head">
@@ -365,6 +375,7 @@ function productPage(ctx: RenderContext, product: PdfProduct, order: number, tot
           ${chip(checkIcon, availability.label, availability.tone)}
         </div>
         <p class="p-desc">${esc(product.description ?? "")}</p>
+        ${variantSummary}
         <div class="price-card">
           <div class="price-col">
             <span class="price-k">Precio unidad</span>
@@ -641,6 +652,9 @@ img{display:block;max-width:100%}
 .chip-gold{color:#8a6a1f;border-color:rgba(184,154,97,.6);background:linear-gradient(180deg,#fff,var(--gold-soft))}
 .chip-gold svg{color:var(--gold)}
 .p-desc{margin-top:16px;font-size:14.5px;line-height:1.65;color:var(--plum-soft);font-weight:300}
+.variant-summary{margin-top:12px;padding:10px 12px;border:1px solid rgba(184,154,97,.3);border-radius:12px;background:#fff;display:grid;gap:3px}
+.variant-summary strong{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--berry)}
+.variant-summary span{font-size:10.5px;color:var(--plum-soft);line-height:1.3}
 
 .price-card{
   margin-top:20px;display:grid;grid-template-columns:.82fr 1.18fr;gap:10px;

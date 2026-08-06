@@ -1,26 +1,18 @@
 // Verifica la conexión a Supabase: llaves, tablas (schema aplicado), seed y buckets.
-// Uso: node scripts/check-supabase.mjs
+// Uso local: node scripts/check-supabase.mjs --env .env.supabase.local
 import { createClient } from "@supabase/supabase-js";
-import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadSupabaseScriptEnv } from "./lib/supabase-script-env.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const env = Object.fromEntries(
-  readFileSync(path.join(ROOT, ".env"), "utf8")
-    .split(/\r?\n/)
-    .filter((l) => l && !l.startsWith("#") && l.includes("="))
-    .map((l) => {
-      const i = l.indexOf("=");
-      return [l.slice(0, i).trim(), l.slice(i + 1).trim()];
-    })
-);
+const { env } = loadSupabaseScriptEnv({ rootDir: ROOT, scriptName: "check-supabase" });
 
 const url = env.NEXT_PUBLIC_SUPABASE_URL;
 const anon = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const svc = env.SUPABASE_SERVICE_ROLE_KEY;
 
-const pref = (k) => (k ? k.split("_").slice(0, 2).join("_") : "(vacío)");
+const pref = (key) => (key ? `${key.slice(0, 12)}…` : "(vacío)");
 console.log("URL:", url);
 console.log("anon prefix:", pref(anon));
 console.log("service prefix:", pref(svc), svc === anon ? "  ⚠️ IGUAL A ANON" : "  ✓ distinto de anon");

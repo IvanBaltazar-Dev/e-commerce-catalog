@@ -161,22 +161,80 @@ export async function getProductById(supabase: Supabase, productId: string) {
 
 export async function createProduct(supabase: Supabase, input: ProductCreateInput) {
   const { gallery = [] } = input;
-  const { data, error } = await supabase
-    .from("products")
-    .insert(toProductInsert(input))
-    .select(PRODUCT_SELECT)
+  const categoryResult = await supabase
+    .from("categories")
+    .select("template_id")
+    .eq("id", input.categoryId)
     .single();
+
+  if (categoryResult.error) {
+    throw new HttpError(400, "product_category_lookup_failed", categoryResult.error.message);
+  }
+
+  let templateId = categoryResult.data.template_id as string | null;
+
+  if (!templateId) {
+    const legacyTemplate = await supabase
+      .from("attribute_templates")
+      .select("id")
+      .eq("code", "LEGACY_V1")
+      .single();
+
+    if (legacyTemplate.error) {
+      throw new HttpError(400, "product_template_lookup_failed", legacyTemplate.error.message);
+    }
+
+    templateId = legacyTemplate.data.id;
+  }
+
+  const { data: atomicResult, error } = await supabase.rpc(
+    "create_product_with_default_variant",
+    {
+      p_product: {
+        code: input.code,
+        slug: input.slug ?? slugify(`${input.code}-${input.name}`),
+        brandId: input.brandId,
+        categoryId: input.categoryId,
+        templateId,
+        name: input.name,
+        description: cleanNullableText(input.description),
+        productType: input.productType,
+        requiresLamp: input.requiresLamp,
+        lampType: input.lampType,
+        editorialStatus: input.isActive ? "published" : "hidden",
+        isActive: true
+      },
+      p_variant: {
+        sku: input.code,
+        name: input.presentation,
+        variantKey: "presentation=default",
+        availability: input.availability,
+        retailPrice: input.unitPrice,
+        wholesalePrice: input.wholesalePrice,
+        wholesaleMinimum: input.wholesaleMinQuantity
+      }
+    }
+  );
 
   if (error) {
     throw new HttpError(400, "product_create_failed", error.message);
   }
 
-  if (gallery.length > 0) {
-    await replaceProductGallery(supabase, data.id, gallery);
-    return getProductById(supabase, data.id);
+  const productId = String((atomicResult as { productId: string }).productId);
+  const compatibilityUpdate = await supabase
+    .from("products")
+    .update(toProductInsert(input))
+    .eq("id", productId);
+
+  if (compatibilityUpdate.error) {
+    throw new HttpError(400, "product_compatibility_update_failed", compatibilityUpdate.error.message);
   }
 
-  return data;
+  if (gallery.length > 0) {
+    await replaceProductGallery(supabase, productId, gallery);
+  }
+
+  return getProductById(supabase, productId);
 }
 
 export async function updateProduct(

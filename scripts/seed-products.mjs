@@ -1,25 +1,18 @@
 // Siembra los 11 productos + sube imágenes optimizadas al Storage (catalog-assets).
 // Idempotente (upsert por code/slug). Requiere SUPABASE_SERVICE_ROLE_KEY (secret) y GRANTs aplicados.
-// Uso: node scripts/seed-products.mjs
+// Uso local: node scripts/seed-products.mjs --env .env.supabase.local
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PRODUCTS, STORE, lampLabel } from "./catalog-data.mjs";
+import { loadSupabaseScriptEnv } from "./lib/supabase-script-env.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ASSETS = path.join(ROOT, "catalog-preview", "assets", "products");
 const BUCKET = "catalog-assets";
 
-const env = Object.fromEntries(
-  readFileSync(path.join(ROOT, ".env"), "utf8")
-    .split(/\r?\n/)
-    .filter((l) => l && !l.startsWith("#") && l.includes("="))
-    .map((l) => {
-      const i = l.indexOf("=");
-      return [l.slice(0, i).trim(), l.slice(i + 1).trim()];
-    })
-);
+const { env } = loadSupabaseScriptEnv({ rootDir: ROOT, scriptName: "seed-products" });
 
 const admin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },

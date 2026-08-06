@@ -1,10 +1,24 @@
 "use client";
 
-import type { ApiProduct } from "@/lib/admin/types";
+import type {
+  CartEvaluation,
+  CatalogListResponse,
+  CatalogProductDetail,
+  PurchasableVariant
+} from "@/lib/catalog/contracts";
 
 export type PublicTaxonomy = {
   brands: { id: string; name: string; slug: string; sort_order: number }[];
-  categories: { id: string; name: string; slug: string; sort_order: number }[];
+  categories: {
+    id: string;
+    parent_id: string | null;
+    template_id: string | null;
+    name: string;
+    slug: string;
+    path: string;
+    depth: number;
+    sort_order: number;
+  }[];
   contact: {
     business_name: string;
     whatsapp_number: string;
@@ -12,39 +26,24 @@ export type PublicTaxonomy = {
   } | null;
 };
 
-export type ToneMode = "surtidos" | "set" | "codigos" | "confirmar";
-
-export type SelectionItem = {
-  productId: string;
-  slug: string;
-  brand: string;
-  name: string;
-  presentation: string;
-  unitPrice: number;
-  wholesalePrice: number;
-  wholesaleMin: number;
-  imagePath: string | null;
-  qty: number;
-  mode: ToneMode;
-  codes: string;
+type CatalogListParameters = {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  brand?: string;
+  category?: string;
+  availability?: "available" | "sold_out" | "consult";
+  attributes?: Record<string, string[]>;
+  sort?: "featured" | "name_asc" | "name_desc" | "price_asc" | "price_desc";
 };
 
-export const MODE_LABEL: Record<ToneMode, string> = {
-  surtidos: "Tonos surtidos",
-  set: "Set completo",
-  codigos: "Códigos de la carta",
-  confirmar: "Tonos por confirmar con asesor"
-};
-
-const FALLBACK_WHATSAPP = "51963463550";
-
-async function getJson<T>(path: string): Promise<T> {
-  const response = await fetch(path, { cache: "no-store" });
+async function getJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(path, { cache: "no-store", ...init });
   const body = (await response.json().catch(() => null)) as
     | { data?: T; error?: { message?: string } }
     | null;
 
-  if (!response.ok || !body?.data) {
+  if (!response.ok || body?.data === undefined) {
     throw new Error(body?.error?.message ?? `La solicitud falló (${response.status}).`);
   }
 
@@ -52,106 +51,59 @@ async function getJson<T>(path: string): Promise<T> {
 }
 
 export const publicApi = {
-  listProducts: () =>
-    getJson<{ items: ApiProduct[] }>("/api/catalog?limit=100").then((r) => r.items),
-  getProduct: (slug: string) => getJson<ApiProduct>(`/api/catalog/${slug}`),
-  taxonomy: () => getJson<PublicTaxonomy>("/api/catalog/taxonomy")
+  listProducts: (parameters: CatalogListParameters = {}) => {
+    const query = new URLSearchParams();
+
+    if (parameters.page) query.set("page", String(parameters.page));
+    if (parameters.pageSize) query.set("page_size", String(parameters.pageSize));
+    if (parameters.search) query.set("search", parameters.search);
+    if (parameters.brand) query.set("brand", parameters.brand);
+    if (parameters.category) query.set("category", parameters.category);
+    if (parameters.availability) query.set("availability", parameters.availability);
+    if (parameters.attributes) query.set("attributes", JSON.stringify(parameters.attributes));
+    if (parameters.sort) query.set("sort", parameters.sort);
+
+    return getJson<CatalogListResponse>(`/api/catalog?${query.toString()}`);
+  },
+  getProduct: (slug: string) => getJson<CatalogProductDetail>(`/api/catalog/${slug}`),
+  taxonomy: () => getJson<PublicTaxonomy>("/api/catalog/taxonomy"),
+  evaluateCart: (lines: { variantId: string; quantity: number }[]) =>
+    getJson<CartEvaluation>("/api/catalog/cart/evaluate", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ lines })
+    }),
+  whatsapp: (input: {
+    lines: { variantId: string; quantity: number }[];
+    intent: "order" | "advice";
+    deliveryMethod?: "shipping" | "pickup";
+    customerNote?: string;
+  }) =>
+    getJson<{ url: string; text: string; evaluation: CartEvaluation }>("/api/catalog/whatsapp", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(input)
+    })
 };
 
 export function waNumber(taxonomy: PublicTaxonomy | null) {
-  const raw = taxonomy?.contact?.whatsapp_number ?? FALLBACK_WHATSAPP;
-  return raw.replace(/\D/g, "");
+  return (taxonomy?.contact?.whatsapp_number ?? "51963463550").replace(/\D/g, "");
 }
 
 export function waLink(number: string, message: string) {
   return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
 
-export function formatSoles(value: number) {
+export function formatSoles(value: number | null) {
+  if (value === null) return "Consultar";
   const rounded = Math.round(value * 100) / 100;
   return `S/ ${Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2)}`;
 }
 
-export function appliedPrice(item: Pick<SelectionItem, "unitPrice" | "wholesalePrice" | "wholesaleMin">, qty: number) {
-  return qty >= item.wholesaleMin ? item.wholesalePrice : item.unitPrice;
+export function retailPrice(variant: PurchasableVariant) {
+  return variant.prices.find((price) => price.type === "retail")?.amount ?? null;
 }
 
-export function lampShort(product: ApiProduct) {
-  const lamp = product.lamp_type ?? (product.requires_lamp ? "Sí" : "No");
-
-  if (lamp === "No") {
-    return "Sin lámpara";
-  }
-
-  return lamp === "UV/LED" ? "Lámpara UV/LED" : "Requiere lámpara";
-}
-
-export function lampText(product: ApiProduct) {
-  const lamp = product.lamp_type ?? (product.requires_lamp ? "Sí" : "No");
-
-  if (lamp === "No") {
-    return "No requiere lámpara";
-  }
-
-  return lamp === "UV/LED" ? "Requiere lámpara UV/LED" : "Requiere lámpara";
-}
-
-export function productCategory(product: ApiProduct) {
-  if (product.product_type === "Esmalte tradicional") {
-    return "Tradicional";
-  }
-
-  if (product.product_type === "Efecto gel sin lámpara") {
-    return "Gel sin lámpara";
-  }
-
-  return "Semipermanente";
-}
-
-export function codesSummary(codes: string) {
-  const parts = String(codes || "")
-    .split(/[,;]+/)
-    .map((part) => part.trim())
-    .filter(Boolean);
-  let units = 0;
-
-  for (const part of parts) {
-    const match = part.match(/x\s*(\d+)/i);
-    units += match ? Number.parseInt(match[1], 10) : 1;
-  }
-
-  return { count: parts.length, units };
-}
-
-export function orderLines(items: SelectionItem[]) {
-  return items.map((item) => {
-    let tail = "tonos por confirmar";
-
-    if (item.mode === "codigos" && item.codes) {
-      tail = `códigos: ${item.codes}`;
-    } else if (item.mode === "set") {
-      tail = "set completo";
-    } else if (item.mode === "surtidos") {
-      tail = "tonos surtidos";
-    }
-
-    return `• ${item.brand} ${item.name} ${item.presentation} ×${item.qty} — ${tail}`;
-  });
-}
-
-export function orderMessage(
-  prefix: string,
-  items: SelectionItem[],
-  delivery: "envio" | "recojo",
-  district: string
-) {
-  const units = items.reduce((acc, item) => acc + item.qty, 0);
-  const total = items.reduce((acc, item) => acc + item.qty * appliedPrice(item, item.qty), 0);
-  const entrega =
-    delivery === "envio" ? `envío${district ? ` a ${district}` : ""}` : "recojo en tienda";
-
-  return [prefix]
-    .concat(orderLines(items))
-    .concat([`Entrega: ${entrega}`, `Total: ${units} unidades · Referencial: ${formatSoles(total)}`])
-    .join("\n");
+export function variantImage(variant: PurchasableVariant) {
+  return variant.media.find((media) => media.isPrimary)?.path ?? variant.media[0]?.path ?? null;
 }

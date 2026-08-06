@@ -1,5 +1,5 @@
 import { handleApiError, HttpError, ok } from "@/lib/api/http";
-import { PRODUCT_SELECT } from "@/lib/catalog/product-service";
+import type { CatalogProductDetail } from "@/lib/catalog/contracts";
 import { slugSchema } from "@/lib/catalog/validation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -14,12 +14,9 @@ export async function GET(
     const { slug } = await context.params;
     const safeSlug = slugSchema.parse(slug);
     const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase
-      .from("products")
-      .select(PRODUCT_SELECT)
-      .eq("slug", safeSlug)
-      .eq("is_active", true)
-      .maybeSingle();
+    const { data, error } = await supabase.rpc("catalog_product_detail_v2", {
+      p_slug: safeSlug
+    });
 
     if (error) {
       throw error;
@@ -29,7 +26,7 @@ export async function GET(
       throw new HttpError(404, "product_not_found", "Product not found.");
     }
 
-    return ok(data);
+    return ok(data as CatalogProductDetail);
   } catch (error) {
     return handleApiError(error);
   }

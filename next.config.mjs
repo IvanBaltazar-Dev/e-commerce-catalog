@@ -11,6 +11,9 @@ const nextConfig = {
       "./public/brand/**",
       "./public/pagos/**",
       "./node_modules/@sparticuz/chromium/bin/**"
+    ],
+    "/api/admin/importaciones/template": [
+      "./assets/import/plantilla_importacion_productos.xlsx"
     ]
   },
   experimental: {

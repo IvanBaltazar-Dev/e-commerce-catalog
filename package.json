@@ -10,7 +10,22 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:reset:local": "supabase db reset --local",
+    "test:db": "supabase test db --local",
+    "test:backfill": "powershell -ExecutionPolicy Bypass -File scripts/test-v1-backfill.ps1",
+    "test:contracts": "node scripts/test-v2-contracts.mjs --env .env.supabase.local",
+    "test:admin-flow": "node scripts/test-v2-admin-flow.mjs --env .env.supabase.local",
+    "test:product-registration": "node scripts/test-product-registration-ui.mjs --env .env.supabase.local",
+    "test:scale": "node scripts/test-v2-scale.mjs --env .env.supabase.local",
+    "test:catalog-import-xlsx": "node --conditions=react-server --experimental-transform-types scripts/test-catalog-import-xlsx.mjs",
+    "test:catalog-media-zip": "node --conditions=react-server --experimental-transform-types scripts/test-catalog-media-zip.mjs",
+    "test:catalog-media-flow": "node --conditions=react-server --experimental-transform-types scripts/test-catalog-media-flow.mjs --env .env.supabase.local",
+    "test:catalog-import-flow": "node --conditions=react-server --experimental-transform-types scripts/test-catalog-import-flow.mjs --env .env.supabase.local",
+    "test:catalog-import-access": "node scripts/test-catalog-import-access.mjs --env .env.supabase.local",
+    "test:relation-recommendations": "node --experimental-transform-types scripts/test-relation-recommendations.mjs",
+    "test:relation-context": "node --experimental-transform-types scripts/test-relation-context.mjs",
+    "test:cleanup": "node scripts/cleanup-v2-test-data.mjs --env .env.supabase.local"
   },
   "dependencies": {
     "@sparticuz/chromium": "148.0.0",
@@ -21,7 +36,10 @@
     "puppeteer-core": "24.43.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "saxes": "^6.0.0",
     "server-only": "^0.0.1",
+    "sharp": "0.35.3",
+    "yauzl": "^3.4.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -30,6 +48,7 @@
     "@types/pdfkit": "^0.13.9",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
+    "@types/yauzl": "^3.4.0",
     "eslint": "^9.22.0",
     "eslint-config-next": "^15.2.4",
     "puppeteer": "24.43.1",
@@ -37,7 +56,8 @@
     "typescript": "^5.8.2"
   },
   "overrides": {
-    "postcss": "8.5.10"
+    "postcss": "8.5.10",
+    "sharp": "$sharp"
   },
   "allowScripts": {
     "puppeteer@24.43.1": true,

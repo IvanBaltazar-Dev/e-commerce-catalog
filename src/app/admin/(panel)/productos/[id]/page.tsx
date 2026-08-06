@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ProductForm } from "@/components/admin/ProductForm";
+import { CatalogV2ProductForm } from "@/components/admin/CatalogV2ProductForm";
 
 export const metadata: Metadata = {
   title: "Admin · Editar producto — Bellaroshé"
@@ -12,5 +12,5 @@ type EditarProductoPageProps = {
 export default async function EditarProductoPage({ params }: EditarProductoPageProps) {
   const { id } = await params;
 
-  return <ProductForm productId={id} />;
+  return <CatalogV2ProductForm productId={id} />;
 }

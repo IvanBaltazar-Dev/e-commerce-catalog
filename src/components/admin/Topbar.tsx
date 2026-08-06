@@ -6,13 +6,17 @@ import { usePathname, useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 const NAV_ITEMS = [
+  { href: "/admin/pedidos", label: "Pedidos" },
   { href: "/admin/productos", label: "Productos" },
   { href: "/admin/pdf", label: "Catálogo PDF" }
 ];
 
-export function Topbar() {
+export function Topbar({ role, importsEnabled }: { role: "admin" | "developer"; importsEnabled: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
+  const navItems = role === "developer" && importsEnabled
+    ? [...NAV_ITEMS, { href: "/admin/importaciones", label: "Importaciones" }]
+    : NAV_ITEMS;
 
   async function handleLogout() {
     await getSupabaseBrowserClient().auth.signOut();
@@ -33,7 +37,7 @@ export function Topbar() {
         />
         <div className="topbar-title">Administración</div>
         <nav className="topbar-nav">
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const active = pathname.startsWith(item.href);
 
             return (

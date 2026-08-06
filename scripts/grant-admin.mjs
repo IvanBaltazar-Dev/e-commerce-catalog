@@ -1,23 +1,22 @@
-// Registra un usuario de Supabase Auth como administrador en admin_profiles.
+// Registra un usuario de Supabase Auth en admin_profiles.
 // El usuario debe existir ya en Authentication → Users (lo creas tú en el dashboard).
-// Uso: node scripts/grant-admin.mjs [email]   (por defecto admin@bellaroshe.pe)
+// Uso local: node scripts/grant-admin.mjs [email] [admin|developer] --env .env.supabase.local
 import { createClient } from "@supabase/supabase-js";
-import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadSupabaseScriptEnv } from "./lib/supabase-script-env.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const env = Object.fromEntries(
-  readFileSync(path.join(ROOT, ".env"), "utf8")
-    .split(/\r?\n/)
-    .filter((l) => l && !l.startsWith("#") && l.includes("="))
-    .map((l) => {
-      const i = l.indexOf("=");
-      return [l.slice(0, i).trim(), l.slice(i + 1).trim()];
-    })
-);
+const { env, positionals } = loadSupabaseScriptEnv({
+  rootDir: ROOT,
+  scriptName: "grant-admin"
+});
+const email = (positionals[0] || "admin@bellaroshe.pe").toLowerCase();
+const role = (positionals[1] || "admin").toLowerCase();
 
-const email = (process.argv[2] || "admin@bellaroshe.pe").toLowerCase();
+if (!new Set(["admin", "developer"]).has(role)) {
+  throw new Error("El rol debe ser admin o developer.");
+}
 const admin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
 });
@@ -43,14 +42,14 @@ if (!user) {
 
 const { error: upErr } = await admin
   .from("admin_profiles")
-  .upsert({ id: user.id, role: "admin", full_name: "Admin Bellaroshé" }, { onConflict: "id" });
+  .upsert({ id: user.id, role, full_name: role === "developer" ? "Developer Bellaroshé" : "Admin Bellaroshé" }, { onConflict: "id" });
 
 if (upErr) {
   console.error("Error registrando admin_profiles:", upErr.message);
   process.exit(1);
 }
 
-console.log(`\n✅ ${email} ahora es ADMIN.`);
+console.log(`\n✅ ${email} ahora tiene el rol ${role.toUpperCase()}.`);
 console.log(`   UUID: ${user.id}`);
 console.log(`   Confirmado: ${user.email_confirmed_at ? "sí" : "NO — actívalo con Auto Confirm o email"}`);
 console.log(`   Entra en http://localhost:3000/admin/login\n`);

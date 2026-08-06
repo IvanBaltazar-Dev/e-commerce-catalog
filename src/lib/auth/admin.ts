@@ -3,7 +3,9 @@ import "server-only";
 import { HttpError } from "@/lib/api/http";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export async function requireAdmin() {
+export type BackofficeRole = "admin" | "developer";
+
+async function requireBackofficeRole(allowedRoles: BackofficeRole[]) {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -18,7 +20,7 @@ export async function requireAdmin() {
     .from("admin_profiles")
     .select("id, role, full_name")
     .eq("id", user.id)
-    .eq("role", "admin")
+    .in("role", allowedRoles)
     .maybeSingle();
 
   if (profileError) {
@@ -26,7 +28,7 @@ export async function requireAdmin() {
   }
 
   if (!profile) {
-    throw new HttpError(403, "forbidden", "The current user is not an admin.");
+    throw new HttpError(403, "forbidden", "El usuario actual no tiene el rol requerido.");
   }
 
   return {
@@ -34,4 +36,12 @@ export async function requireAdmin() {
     user,
     profile
   };
+}
+
+export function requireAdmin() {
+  return requireBackofficeRole(["admin", "developer"]);
+}
+
+export function requireDeveloper() {
+  return requireBackofficeRole(["developer"]);
 }

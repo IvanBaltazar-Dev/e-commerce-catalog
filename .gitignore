@@ -7,6 +7,7 @@ coverage/
 
 .env
 .env*.local
+.env.remote
 !.env.example
 
 *.log
@@ -25,7 +26,11 @@ Catalogo/
 imagenes_productos/
 metodos_pago/
 output/
+outputs/
 tmp/
+
+# Scratch de Supabase Studio: consultas locales con ids de la máquina
+supabase/snippets/
 BRIEF_CATALOGO_BELLAROSHE.md
 requerimientos_*_catalogo_bellaroshe_mvp.md
 datos.txt

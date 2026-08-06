@@ -3,6 +3,15 @@
 import { publicEnv } from "@/lib/env/public";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { ApiPdfExport, ApiProduct, ApiTaxonomy, ProductPayload } from "@/lib/admin/types";
+import type { AdminV2Bootstrap, AdminV2Product, AdminV2ProductInput } from "@/lib/admin/catalog-v2";
+import type { AdminOrder, AdminOrderStatus, CreateAdminOrderInput } from "@/lib/admin/orders";
+import type {
+  CatalogImportCommitResult,
+  CatalogImportProductLineApproval,
+  CatalogImportPreview,
+  CatalogMediaPackageCommitResult,
+  CatalogMediaPackagePreview
+} from "@/lib/admin/catalog-import-types";
 
 export class AdminApiError extends Error {
   constructor(
@@ -15,11 +24,12 @@ export class AdminApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const bodyIsFormData = typeof FormData !== "undefined" && init?.body instanceof FormData;
   const response = await fetch(path, {
     cache: "no-store",
     ...init,
     headers: {
-      ...(init?.body ? { "content-type": "application/json" } : {}),
+      ...(init?.body && !bodyIsFormData ? { "content-type": "application/json" } : {}),
       ...init?.headers
     }
   });
@@ -83,7 +93,101 @@ export const adminApi = {
         method: "POST",
         body: JSON.stringify({ kind, fileName, contentType })
       }
-    )
+    ),
+  catalogV2Bootstrap: () => request<AdminV2Bootstrap>("/api/admin/catalog-v2/bootstrap"),
+  getCatalogV2Product: (id: string) =>
+    request<AdminV2Product>(`/api/admin/catalog-v2/products/${id}`),
+  createCatalogV2Product: (payload: AdminV2ProductInput) =>
+    request<AdminV2Product>("/api/admin/catalog-v2/products", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  updateCatalogV2Product: (id: string, payload: AdminV2ProductInput) =>
+    request<AdminV2Product>(`/api/admin/catalog-v2/products/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(payload)
+    }),
+  searchCatalogV2Relations: (query: string, excludeId?: string, context?: {
+    purpose?: "strip_lash_adhesive";
+    brandId?: string;
+    scope?: "same_type" | "compatible" | "all";
+    sourceTemplateCode?: string;
+    accessoryDomain?: string;
+    adhesiveApplication?: string;
+    adhesiveBrandScope?: string;
+  }) => {
+    const parameters = new URLSearchParams({ q: query });
+    if (excludeId) parameters.set("exclude", excludeId);
+    if (context?.purpose) parameters.set("purpose", context.purpose);
+    if (context?.brandId) parameters.set("brand", context.brandId);
+    if (context?.scope) parameters.set("scope", context.scope);
+    if (context?.sourceTemplateCode) parameters.set("source_template", context.sourceTemplateCode);
+    if (context?.accessoryDomain) parameters.set("accessory_domain", context.accessoryDomain);
+    if (context?.adhesiveApplication) parameters.set("adhesive_application", context.adhesiveApplication);
+    if (context?.adhesiveBrandScope) parameters.set("adhesive_brand_scope", context.adhesiveBrandScope);
+    return request<AdminV2Bootstrap["relationCandidates"]>(`/api/admin/catalog-v2/relations?${parameters.toString()}`);
+  },
+  mutateCatalogV2Structure: (payload: Record<string, unknown>) =>
+    request<unknown>("/api/admin/catalog-v2/structure", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  createCatalogV2ProductLine: (brandId: string, templateId: string, name: string, slug: string) =>
+    request<{ id: string; brand_id: string; name: string; slug: string }>("/api/admin/catalog-v2/structure", {
+      method: "POST",
+      body: JSON.stringify({ action: "create_product_line", brandId, templateId, name, slug })
+    }),
+  assignCatalogV2BrandFamily: (brandId: string, templateId: string) =>
+    request<{ brand_id: string; template_id: string }>("/api/admin/catalog-v2/structure", {
+      method: "POST",
+      body: JSON.stringify({ action: "assign_brand_family", brandId, templateId })
+    }),
+  createCatalogV2AttributeOption: (attributeDefinitionId: string, value: string, label: string) =>
+    request<{ id: string; attribute_definition_id: string; value: string; label: string }>("/api/admin/catalog-v2/structure", {
+      method: "POST",
+      body: JSON.stringify({ action: "create_attribute_option", attributeDefinitionId, value, label })
+    }),
+  createCatalogV2ColorShade: (payload: { brandId: string; productLineId?: string | null; name: string; code: string; colorFamilyOptionId: string; referenceColor?: string | null }) =>
+    request<{ id: string; brand_id: string; product_line_id: string | null; name: string; code: string; tone_option_id: string; color_family_option_id: string; reference_color: string | null }>("/api/admin/catalog-v2/structure", {
+      method: "POST",
+      body: JSON.stringify({ action: "create_color_shade", ...payload })
+    }),
+  previewCatalogImport: (file: File) => {
+    const body = new FormData();
+    body.set("file", file);
+    return request<CatalogImportPreview>("/api/admin/importaciones/preview", { method: "POST", body });
+  },
+  commitCatalogImport: (file: File, expectedSha256: string, productLineApprovals: CatalogImportProductLineApproval[] = []) => {
+    const body = new FormData();
+    body.set("file", file);
+    body.set("expectedSha256", expectedSha256);
+    body.set("confirmation", productLineApprovals.length ? "AUTORIZAR E IMPORTAR" : "IMPORTAR");
+    body.set("productLineApprovals", JSON.stringify(productLineApprovals));
+    return request<CatalogImportCommitResult>("/api/admin/importaciones/commit", { method: "POST", body });
+  },
+  previewCatalogMediaPackage: (file: File) => {
+    const body = new FormData();
+    body.set("file", file);
+    return request<CatalogMediaPackagePreview>("/api/admin/importaciones/media/preview", { method: "POST", body });
+  },
+  commitCatalogMediaPackage: (file: File, expectedSha256: string) => {
+    const body = new FormData();
+    body.set("file", file);
+    body.set("expectedSha256", expectedSha256);
+    body.set("confirmation", "SUBIR MEDIOS");
+    return request<CatalogMediaPackageCommitResult>("/api/admin/importaciones/media/commit", { method: "POST", body });
+  },
+  listOrders: () => request<{ items: AdminOrder[] }>("/api/admin/orders").then((result) => result.items),
+  createOrder: (payload: CreateAdminOrderInput) =>
+    request<AdminOrder>("/api/admin/orders", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  updateOrderStatus: (id: string, status: AdminOrderStatus) =>
+    request<{ id: string; status: AdminOrderStatus; updatedAt: string }>(`/api/admin/orders/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status })
+    })
 };
 
 export async function uploadCatalogImage(kind: "product-image" | "color-chart", file: File) {

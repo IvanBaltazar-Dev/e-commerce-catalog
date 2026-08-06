@@ -23,18 +23,18 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       .from("admin_profiles")
       .select("id")
       .eq("id", user.id)
-      .eq("role", "admin")
+      .in("role", ["admin", "developer"])
       .maybeSingle();
 
     if (profile) {
-      redirect("/admin/productos");
+      redirect("/admin/productos/nuevo");
     }
   }
 
   return (
     <LoginForm
       initialError={
-        params.error === "forbidden" ? "Tu usuario no tiene permisos de administrador." : ""
+        params.error === "forbidden" ? "Tu usuario no tiene acceso al panel interno." : ""
       }
     />
   );

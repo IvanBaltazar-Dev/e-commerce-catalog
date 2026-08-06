@@ -60,17 +60,17 @@ export function LoginForm({ initialError }: { initialError?: string }) {
       .from("admin_profiles")
       .select("id")
       .eq("id", data.user.id)
-      .eq("role", "admin")
+      .in("role", ["admin", "developer"])
       .maybeSingle();
 
     if (!profile) {
       await supabase.auth.signOut();
-      setError("Tu usuario no tiene permisos de administrador.");
+      setError("Tu usuario no tiene acceso al panel interno.");
       setLoading(false);
       return;
     }
 
-    router.replace("/admin/productos");
+    router.replace("/admin/productos/nuevo");
     router.refresh();
   }
 
@@ -86,7 +86,7 @@ export function LoginForm({ initialError }: { initialError?: string }) {
           priority
         />
         <div className="login-title">Panel de administración</div>
-        <div className="login-sub">Gestiona tu catálogo, precios y PDF</div>
+        <div className="login-sub">Registra pedidos y gestiona tu catálogo</div>
         <div className="login-fields">
           <div>
             <div className="field-label">Correo</div>
@@ -123,7 +123,7 @@ export function LoginForm({ initialError }: { initialError?: string }) {
           {loading ? "Ingresando…" : "Iniciar sesión"}
         </button>
         <div className="login-note">
-          Acceso restringido — solo administradores de Bellaroshé. Si necesitas una cuenta,
+          Acceso restringido — solo personal autorizado de Bellaroshé. Si necesitas una cuenta,
           contacta a la persona encargada del negocio.
         </div>
         <div className="login-back">

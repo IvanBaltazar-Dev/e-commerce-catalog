@@ -8,7 +8,7 @@ export async function GET() {
   try {
     const supabase = await createSupabaseServerClient();
 
-    const [brandsResult, categoriesResult, settingsResult] = await Promise.all([
+    const [brandsResult, categoriesResult, pathsResult, settingsResult] = await Promise.all([
       supabase
         .from("brands")
         .select("id, name, slug, description, sort_order")
@@ -17,10 +17,11 @@ export async function GET() {
         .order("name", { ascending: true }),
       supabase
         .from("categories")
-        .select("id, name, slug, description, sort_order")
+        .select("id, parent_id, template_id, name, slug, description, sort_order")
         .eq("is_active", true)
         .order("sort_order", { ascending: true })
         .order("name", { ascending: true }),
+      supabase.from("category_paths").select("id, canonical_path, depth"),
       supabase
         .from("store_settings")
         .select("business_name, whatsapp_number, stock_notice")
@@ -36,13 +37,23 @@ export async function GET() {
       throw categoriesResult.error;
     }
 
+    if (pathsResult.error) {
+      throw pathsResult.error;
+    }
+
     if (settingsResult.error) {
       throw settingsResult.error;
     }
 
+    const paths = new Map((pathsResult.data ?? []).map((path) => [path.id, path]));
+
     return ok({
       brands: brandsResult.data ?? [],
-      categories: categoriesResult.data ?? [],
+      categories: (categoriesResult.data ?? []).map((category) => ({
+        ...category,
+        path: paths.get(category.id)?.canonical_path ?? category.slug,
+        depth: paths.get(category.id)?.depth ?? 0
+      })),
       contact: settingsResult.data
     });
   } catch (error) {
