@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   SALES_ITEM,
   CASH_ITEM,
   { href: "/admin/inventario", label: "Inventario" },
+  { href: "/admin/compras", label: "Compras" },
   { href: "/admin/gastos", label: "Gastos" },
   { href: "/admin/productos", label: "Productos" },
   { href: "/admin/pdf", label: "Catálogo PDF" }

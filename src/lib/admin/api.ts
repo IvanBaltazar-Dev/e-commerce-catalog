@@ -20,10 +20,23 @@ import type {
   KardexEntry
 } from "@/lib/admin/operations";
 import type { adjustInventorySchema, registerExpenseSchema } from "@/lib/admin/operations";
+import type {
+  GoodsReceipt,
+  PurchaseOrder,
+  SupplierBalance,
+  SupplierObligation,
+  SupplierPayment,
+  issuePurchaseOrderSchema,
+  registerGoodsReceiptSchema,
+  registerSupplierPaymentSchema
+} from "@/lib/admin/purchasing";
 import type { z } from "zod";
 
 type AdjustInventoryInput = z.infer<typeof adjustInventorySchema>;
 type RegisterExpenseInput = z.infer<typeof registerExpenseSchema>;
+type IssuePurchaseOrderInput = z.infer<typeof issuePurchaseOrderSchema>;
+type RegisterGoodsReceiptInput = z.infer<typeof registerGoodsReceiptSchema>;
+type RegisterSupplierPaymentInput = z.infer<typeof registerSupplierPaymentSchema>;
 
 import type {
   CatalogImportCommitResult,
@@ -37,6 +50,33 @@ import type {
 export type SaleSummary = Omit<Sale, "lines" | "payments" | "taxDocument"> & { branchName?: string };
 export type ReservationSummary = Omit<Reservation, "lines" | "payments" | "advanceTotal" | "balance"> & {
   createdAt: string;
+};
+
+/** Proveedor habilitado para comprar. */
+export type SupplierOption = {
+  id: string;
+  code: string;
+  name: string;
+  status: string;
+  defaultCurrency: string;
+  paymentTermsDays: number;
+};
+
+/** Fila de listado: la orden sin sus líneas. */
+export type PurchaseOrderSummary = Omit<PurchaseOrder, "lines"> & { supplierName: string };
+export type GoodsReceiptSummary = Omit<GoodsReceipt, "lines"> & { supplierName?: string };
+
+export type SupplierDebt = {
+  balances: SupplierBalance[];
+  obligations: SupplierObligation[];
+  advances: {
+    paymentId: string;
+    supplierId: string;
+    currency: string;
+    amount: number;
+    unallocated: number;
+    paidAt: string;
+  }[];
 };
 
 /** Sede en la que la persona puede operar, resuelta con el predicado de la RLS. */
@@ -283,6 +323,35 @@ export const adminApi = {
     request<Reservation>(`/api/admin/reservations/${id}`, {
       method: "POST",
       body: JSON.stringify({ reason, status })
+    }),
+
+  // --- Abastecimiento ------------------------------------------------------
+  listSuppliers: () =>
+    request<{ items: SupplierOption[] }>("/api/admin/suppliers").then((result) => result.items),
+  listPurchaseOrders: (status?: string) =>
+    request<{ items: PurchaseOrderSummary[] }>(
+      status ? `/api/admin/purchase-orders?status=${status}` : "/api/admin/purchase-orders"
+    ).then((result) => result.items),
+  getPurchaseOrder: (id: string) => request<PurchaseOrder>(`/api/admin/purchase-orders/${id}`),
+  issuePurchaseOrder: (payload: IssuePurchaseOrderInput) =>
+    request<PurchaseOrder>("/api/admin/purchase-orders", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  listReceipts: (supplierId?: string) =>
+    request<{ items: GoodsReceiptSummary[] }>(
+      supplierId ? `/api/admin/receipts?supplier=${supplierId}` : "/api/admin/receipts"
+    ).then((result) => result.items),
+  registerGoodsReceipt: (payload: RegisterGoodsReceiptInput) =>
+    request<GoodsReceipt>("/api/admin/receipts", { method: "POST", body: JSON.stringify(payload) }),
+  supplierDebt: (supplierId?: string) =>
+    request<SupplierDebt>(
+      supplierId ? `/api/admin/suppliers/debt?supplier=${supplierId}` : "/api/admin/suppliers/debt"
+    ),
+  registerSupplierPayment: (payload: RegisterSupplierPaymentInput) =>
+    request<SupplierPayment>("/api/admin/suppliers/payments", {
+      method: "POST",
+      body: JSON.stringify(payload)
     })
 };
 

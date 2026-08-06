@@ -219,3 +219,23 @@ Toda la batería corre ahora sobre una base recién reiniciada **o** sobre una b
 - **Recuento global.** `0028` comprobaba la prueba crítica 14 contando variantes con seguimiento activo, lo que solo vale sobre una base virgen. Pasa a comprobar el **defecto de la columna**, que es donde vive de verdad esa garantía.
 
 El acceso al panel en las pruebas de navegador se reintenta en lugar de esperar un tiempo fijo: el formulario es un componente cliente y, si se pulsa Enviar antes de que React hidrate, el navegador envía el `form` de forma nativa —`GET /admin/login?` en el log— y la redirección no ocurre. Con el servidor de desarrollo frío ninguna espera fija es suficiente; el segundo intento corre sobre una ruta ya compilada.
+
+---
+
+## La aplicación web del Bloque 2
+
+Cinco secciones del panel, recortadas por rol:
+
+| Sección | Quién entra | Qué resuelve |
+|---|---|---|
+| **Ventas** `/admin/ventas` | vendedora y administración | Venta con descuento, pago mixto y vuelto derivado; reserva con adelanto; conversión y liberación |
+| **Caja** `/admin/caja` | vendedora y administración | Apertura, movimientos y cierre con arqueo |
+| **Inventario** `/admin/inventario` | vendedora y administración | Existencias por sede y kardex; la vendedora lo ve **sin una sola cifra de costo** |
+| **Compras** `/admin/compras` | solo administración | Orden de compra, recepción con bonificación y dañadas, deuda por moneda y pago a obligaciones |
+| **Gastos** `/admin/gastos` | solo administración | Gasto con imputación y anulación registrada |
+
+La vendedora entra al panel desde el Bloque 2 —la caja es suya— y la barra le ofrece solo lo que puede operar. Las pantallas administrativas se cortan además en el servidor con `requirePanelRole`, para que escribir la URL a mano lleve a su sección y no a un error.
+
+**Ningún importe se calcula en el navegador.** Precio, modalidad mayorista, descuento prorrateado, costo capturado, promedio ponderado, deuda y arqueo los resuelve PostgreSQL; la pantalla declara qué pasó y muestra lo que la base decidió.
+
+Verificado sobre el build de producción con sesión real: las cinco secciones renderizan y cargan sus datos, la vendedora ve su kardex sin costos, y la pantalla de compras emite una orden real (`OC-2026-00001`, S/ 90,00, estado `sent`) que queda en la base.
