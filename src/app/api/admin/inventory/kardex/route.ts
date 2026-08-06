@@ -5,28 +5,38 @@ import type { KardexEntry } from "@/lib/admin/operations";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type MovementRow = {
+type LedgerEntry = {
   id: number;
-  movement_type: string;
+  movementType: string;
   quantity: number;
-  balance_after: number;
-  unit_cost: number | null;
-  value_delta: number | null;
-  value_after: number | null;
-  cost_basis: KardexEntry["costBasis"];
-  source_type: string | null;
-  source_label: string | null;
-  actor_label: string | null;
+  balanceAfter: number;
+  sourceType: string | null;
+  sourceLabel: string | null;
+  actorLabel: string | null;
   reason: string | null;
-  occurred_at: string;
+  occurredAt: string;
+  cost: {
+    unitCost: number | null;
+    valueDelta: number | null;
+    valueAfter: number | null;
+    costBasis: KardexEntry["costBasis"];
+  } | null;
 };
 
 /**
- * Kardex por variante y sede. Se ordena por `id` y no por `occurred_at`: dentro
- * de un mismo RPC varios asientos comparten instante, y leerlos por fecha
- * mostraría saldos fuera de secuencia.
+ * Kardex por variante y sede, servido por `inventory_ledger`.
  *
- * Las columnas monetarias llegan nulas a la vendedora por la RLS de la tabla.
+ * NO se lee la tabla directamente. `inventory_movements` lleva unit_cost,
+ * value_delta y value_after, y su política concede lectura de fila completa al
+ * personal de la sede —que necesita ver su propio stock—: consultarla desde
+ * aquí publicaba el costo de cada asiento a cualquier vendedora, justo lo que
+ * el modelo declara en cero filas para ella. La RLS no recorta columnas y un
+ * GRANT por columna no distingue roles, así que el recorte vive en el objeto
+ * DEFINER, que sí sabe quién pregunta.
+ *
+ * El orden es por `id` y no por `occurred_at`: dentro de un mismo RPC varios
+ * asientos comparten instante, y leerlos por fecha mostraría saldos fuera de
+ * secuencia.
  */
 export async function GET(request: Request) {
   try {
@@ -39,35 +49,44 @@ export async function GET(request: Request) {
       throw new HttpError(400, "variant_required", "Indica la presentación a consultar.");
     }
 
-    let query = supabase
-      .from("inventory_movements")
-      .select("id, movement_type, quantity, balance_after, unit_cost, value_delta, value_after, cost_basis, source_type, source_label, actor_label, reason, occurred_at")
-      .eq("variant_id", variantId)
-      .order("id", { ascending: false })
-      .limit(300);
+    if (!branchId) {
+      throw new HttpError(400, "branch_required", "Indica la sede: el kardex es por variante y sede.");
+    }
 
-    if (branchId) query = query.eq("branch_id", branchId);
+    const { data, error } = await supabase.rpc("inventory_ledger", {
+      p_variant_id: variantId,
+      p_branch_id: branchId,
+      p_from: null,
+      p_to: null,
+      p_limit: 300
+    });
 
-    const { data, error } = await query;
     if (error) throw new HttpError(400, "kardex_failed", error.message);
 
-    const items: KardexEntry[] = (data as MovementRow[]).map((row) => ({
-      id: Number(row.id),
-      movementType: row.movement_type,
-      quantity: row.quantity,
-      balanceAfter: row.balance_after,
-      unitCost: row.unit_cost === null ? null : Number(row.unit_cost),
-      valueDelta: row.value_delta === null ? null : Number(row.value_delta),
-      valueAfter: row.value_after === null ? null : Number(row.value_after),
-      costBasis: row.cost_basis,
-      sourceType: row.source_type,
-      sourceLabel: row.source_label,
-      actorLabel: row.actor_label,
-      reason: row.reason,
-      occurredAt: row.occurred_at
+    const ledger = data as { entries: LedgerEntry[]; onHand: number; reserved: number } | null;
+
+    const items: KardexEntry[] = (ledger?.entries ?? []).map((entry) => ({
+      id: Number(entry.id),
+      movementType: entry.movementType,
+      quantity: entry.quantity,
+      balanceAfter: entry.balanceAfter,
+      // Nulos para la vendedora: el objeto DEFINER omite el bloque entero.
+      unitCost: entry.cost?.unitCost == null ? null : Number(entry.cost.unitCost),
+      valueDelta: entry.cost?.valueDelta == null ? null : Number(entry.cost.valueDelta),
+      valueAfter: entry.cost?.valueAfter == null ? null : Number(entry.cost.valueAfter),
+      costBasis: entry.cost?.costBasis ?? null,
+      sourceType: entry.sourceType,
+      sourceLabel: entry.sourceLabel,
+      actorLabel: entry.actorLabel,
+      reason: entry.reason,
+      occurredAt: entry.occurredAt
     }));
 
-    return ok({ items });
+    return ok({
+      items,
+      onHand: ledger?.onHand ?? 0,
+      reserved: ledger?.reserved ?? 0
+    });
   } catch (error) {
     return handleApiError(error);
   }

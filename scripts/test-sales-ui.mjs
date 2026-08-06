@@ -92,9 +92,17 @@ try {
   check("la vendedora aterriza en /admin/ventas", true);
 
   await page.waitForSelector(".order-page");
+  // La vendedora opera venta, caja e inventario de sus sedes. El catálogo, los
+  // gastos y el PDF no son suyos: la RLS ya se lo impide y la barra no debe
+  // ofrecerle pantallas donde solo encontraría cero filas.
   const navLabels = await page.$$eval(".topbar-nav .nav-pill", (nodes) => nodes.map((node) => node.textContent?.trim()));
-  check("solo ve la sección de ventas", navLabels.length === 1 && navLabels[0] === "Ventas",
-    `navegación = ${JSON.stringify(navLabels)}`);
+  const forbiddenSections = ["Productos", "Catálogo PDF", "Gastos", "Compras", "Importaciones"];
+  check(
+    "ve su caja y su inventario, y ninguna sección administrativa",
+    ["Ventas", "Caja", "Inventario"].every((label) => navLabels.includes(label))
+      && forbiddenSections.every((label) => !navLabels.includes(label)),
+    `navegación = ${JSON.stringify(navLabels)}`
+  );
 
   console.log("\n2. Arma la venta desde el catálogo");
 

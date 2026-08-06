@@ -227,9 +227,10 @@ export const adminApi = {
       `/api/admin/inventory?${parameters.toString()}`
     ).then((result) => result.items);
   },
-  getKardex: (variantId: string, branchId?: string) => {
-    const parameters = new URLSearchParams({ variant: variantId });
-    if (branchId) parameters.set("branch", branchId);
+  // El kardex es por variante Y sede: la sede es obligatoria porque el saldo lo
+  // es, y `inventory_ledger` revalida el permiso sobre esa sede.
+  getKardex: (variantId: string, branchId: string) => {
+    const parameters = new URLSearchParams({ variant: variantId, branch: branchId });
     return request<{ items: KardexEntry[] }>(
       `/api/admin/inventory/kardex?${parameters.toString()}`
     ).then((result) => result.items);
