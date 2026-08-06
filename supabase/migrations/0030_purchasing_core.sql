@@ -457,6 +457,13 @@ create or replace function public.issue_purchase_order(
 )
 returns jsonb
 language plpgsql
+-- SECURITY DEFINER con guarda explícita `is_admin()`, por la misma razón que los
+-- RPC de caja en 0029: el punto único de escritura de inventario dejó de ser
+-- alcanzable por `authenticated` y solo se llega a él desde un contrato de
+-- dominio. Sin esto, `register_goods_receipt` aborta con «permission denied for
+-- function apply_inventory_movement» en cuanto lo invoca PostgREST —comprobado
+-- contra la base local—, y ninguna recepción entraría al sistema.
+security definer
 set search_path = ''
 as $$
 declare
@@ -590,6 +597,7 @@ create or replace function public.register_goods_receipt(
 )
 returns jsonb
 language plpgsql
+security definer
 set search_path = ''
 as $$
 declare
@@ -800,6 +808,7 @@ create or replace function public.register_supplier_payment(
 )
 returns jsonb
 language plpgsql
+security definer
 set search_path = ''
 as $$
 declare
@@ -1031,12 +1040,16 @@ revoke truncate on public.purchase_orders, public.purchase_order_lines,
   public.supplier_payment_allocations
 from anon, authenticated, service_role;
 
-revoke all on function public.issue_purchase_order(uuid, uuid, jsonb, uuid, char, public.purchase_terms, integer, date, text) from public;
-revoke all on function public.register_goods_receipt(uuid, uuid, jsonb, uuid, uuid, char, numeric, jsonb, public.purchase_terms, text) from public;
-revoke all on function public.register_supplier_payment(uuid, uuid, public.payment_method, numeric, uuid, char, jsonb, text, text, timestamptz, text) from public;
-revoke all on function public.purchase_order_detail(uuid) from public;
-revoke all on function public.goods_receipt_detail(uuid) from public;
-revoke all on function public.supplier_payment_detail(uuid) from public;
+-- Se revoca también a anon: el `revoke … from public` no retira nada del ACL por
+-- defecto de Supabase, que concede EXECUTE a anon sobre toda función nueva del
+-- esquema public. La guarda `is_admin()` ya lo frenaría, pero un contrato de
+-- compras no tiene por qué ser siquiera invocable desde el catálogo público.
+revoke all on function public.issue_purchase_order(uuid, uuid, jsonb, uuid, char, public.purchase_terms, integer, date, text) from public, anon;
+revoke all on function public.register_goods_receipt(uuid, uuid, jsonb, uuid, uuid, char, numeric, jsonb, public.purchase_terms, text) from public, anon;
+revoke all on function public.register_supplier_payment(uuid, uuid, public.payment_method, numeric, uuid, char, jsonb, text, text, timestamptz, text) from public, anon;
+revoke all on function public.purchase_order_detail(uuid) from public, anon;
+revoke all on function public.goods_receipt_detail(uuid) from public, anon;
+revoke all on function public.supplier_payment_detail(uuid) from public, anon;
 
 grant execute on function public.issue_purchase_order(uuid, uuid, jsonb, uuid, char, public.purchase_terms, integer, date, text) to authenticated, service_role;
 grant execute on function public.register_goods_receipt(uuid, uuid, jsonb, uuid, uuid, char, numeric, jsonb, public.purchase_terms, text) to authenticated, service_role;
