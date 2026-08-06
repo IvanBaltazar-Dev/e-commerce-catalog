@@ -52,7 +52,10 @@ export async function POST(request: Request) {
     const [metadataResult, productsResult, variantsResult, mediaResult, settingsResult] = await Promise.all([
       supabase.from("catalog_metadata").select("content_updated_at").eq("id", true).maybeSingle(),
       supabase.from("products").select("id, code, name, description, requires_lamp, lamp_type, brand:brands(name), category:categories(name)").in("id", productIds),
-      supabase.from("product_variants").select("id, product_id, sku, name, availability_status, sort_order").in("product_id", productIds).eq("is_active", true).order("sort_order"),
+      // Vista y no tabla: `availability_status` es el estado editorial crudo y el
+      // PDF habría listado como disponible una variante que el catálogo público
+      // ya da por agotada al resolver contra existencias.
+      supabase.from("variant_public_availability").select("id, product_id, sku, name, availability, sort_order").in("product_id", productIds).eq("is_active", true).order("sort_order"),
       supabase.from("product_media").select("product_id, media_role, sort_order, media_assets!inner(storage_path)").in("product_id", productIds).order("sort_order"),
       supabase.from("store_settings").select("business_name, whatsapp_number, stock_notice").eq("id", true).maybeSingle()
     ]);
@@ -95,7 +98,7 @@ export async function POST(request: Request) {
         gallery: productMedia.filter((item) => item.media_role === "gallery" || item.media_role === "detail").map((item) => ({ path: (item.media_assets as unknown as { storage_path: string }).storage_path, sort_order: item.sort_order })),
         variants: productVariants.map((variant) => {
           const retail = productPrices.find((price) => price.variant_id === variant.id && (price.price_lists as unknown as { price_type: string }).price_type === "retail");
-          return { sku: variant.sku, name: variant.name, availability: variant.availability_status, price: retail ? Number(retail.amount) : null };
+          return { sku: variant.sku, name: variant.name, availability: variant.availability, price: retail ? Number(retail.amount) : null };
         })
       };
     });

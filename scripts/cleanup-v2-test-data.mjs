@@ -28,6 +28,21 @@ async function deleteProducts(pattern) {
       check(await client.from("wholesale_rules").delete().in("variant_id", variantIds).select("id"), "eliminar reglas mayoristas de variante");
       check(await client.from("product_relations").delete().in("source_variant_id", variantIds).select("id"), "eliminar relaciones origen variante");
       check(await client.from("product_relations").delete().in("target_variant_id", variantIds).select("id"), "eliminar relaciones destino variante");
+
+      // Inventario (0028). El kardex tiene clave foránea RESTRICTIVA hacia la
+      // variante y un trigger que rechaza el borrado con historia, así que sin
+      // este bloque el borrado de productos fallaría. El orden importa: primero
+      // los movimientos, que son lo que el trigger comprueba, y después el saldo
+      // y la valoración, que dependen del mismo par (variante, sede).
+      //
+      // El kardex acepta DELETE aunque rechace UPDATE, siguiendo el precedente
+      // de supplier_cost_agreements: reescribir un importe es silencioso y
+      // corrompe la historia; borrar es explícito y queda en la bitácora. Es lo
+      // que mantiene limpiable el entorno de prueba sin aflojar la inmutabilidad
+      // que protege a producción.
+      check(await client.from("inventory_movements").delete().in("variant_id", variantIds).select("id"), "eliminar movimientos de inventario de prueba");
+      check(await client.from("inventory_valuation").delete().in("variant_id", variantIds).select("variant_id"), "eliminar valoración de prueba");
+      check(await client.from("inventory_stock").delete().in("variant_id", variantIds).select("variant_id"), "eliminar existencias de prueba");
     }
     check(await client.from("products").delete().in("id", ids).select("id"), "eliminar productos de prueba");
     removed += rows.length;

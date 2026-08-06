@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ImageSlot } from "@/components/admin/ImageSlot";
@@ -398,25 +399,23 @@ export function ProductForm({ productId }: { productId?: string }) {
               ))}
             </div>
           </div>
+          {/*
+            La disponibilidad ya no se decide aquí. Desde 0028 el catálogo público
+            la resuelve por presentación: estado editorial de la variante y, cuando
+            tiene seguimiento de existencias activo, su saldo real. Este control
+            escribía `products.availability`, una columna que ningún consumidor
+            lee, así que podía anunciar «Disponible» mientras el público veía
+            «Agotado». Se deja informativo hasta que se retire la ruta V1.
+          */}
           <div>
             <div className="field-label" style={{ marginBottom: 7 }}>
               Disponibilidad
             </div>
-            <div className="opt-tiles">
-              <button
-                type="button"
-                className={form.disp ? "opt-tile opt-tile--active" : "opt-tile"}
-                onClick={() => patch({ disp: true })}
-              >
-                Disponible
-              </button>
-              <button
-                type="button"
-                className={!form.disp ? "opt-tile opt-tile--active" : "opt-tile"}
-                onClick={() => patch({ disp: false })}
-              >
-                Agotado
-              </button>
+            <div className="carta-note">
+              Se administra por presentación en{" "}
+              <Link href="/admin/productos/nuevo">el alta guiada</Link>. Cuando la
+              presentación tiene seguimiento de existencias, el catálogo la marca
+              agotada automáticamente al llegar a cero.
             </div>
           </div>
         </div>
