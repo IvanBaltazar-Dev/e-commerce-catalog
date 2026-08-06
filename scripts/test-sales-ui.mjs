@@ -25,6 +25,7 @@ if (!isLocal) {
 
 const baseUrl = process.env.E2E_BASE_URL ?? "http://127.0.0.1:3000";
 const SELLER = { email: "demo-seller@local.invalid", password: "Demo-Seller-2026!" };
+const ADMIN = { email: "demo-admin@local.invalid", password: "Demo-Admin-2026!" };
 const admin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false }
 });
@@ -54,6 +55,55 @@ function must(result, label) {
  * la primera presentación disponible del producto, y cuál sea depende del
  * catálogo del día.
  */
+/**
+ * Garantiza que la sede de la vendedora tenga con qué vender. Cada ejecución
+ * consume unidades, así que sin esto la prueba acaba fallando por «agotado» —un
+ * fallo legítimo del producto que aquí solo significa que se corrió muchas
+ * veces—. Se repone por el CONTRATO de ajuste, con su motivo, no con un INSERT.
+ */
+async function ensureStock(minimum = 12, topUp = 60) {
+  const asAdmin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+    auth: { persistSession: false }
+  });
+
+  const signIn = await asAdmin.auth.signInWithPassword(ADMIN);
+  if (signIn.error) throw new Error(`No se pudo abrir sesión de administración: ${signIn.error.message}`);
+
+  const branches = must(
+    await admin.from("staff_branches").select("branch_id, admin_profiles!inner(full_name)")
+      .eq("admin_profiles.full_name", "Vendedora demo"),
+    "sedes de la vendedora"
+  );
+  const branchId = branches[0]?.branch_id;
+  if (!branchId) throw new Error("La vendedora demo no tiene sede asignada: corre seed:demo-operation.");
+
+  const variants = must(
+    await admin.from("product_variants").select("id, sku").eq("tracks_inventory", true),
+    "variantes con seguimiento"
+  );
+
+  for (const variant of variants) {
+    const rows = must(
+      await admin.from("inventory_stock").select("on_hand")
+        .eq("variant_id", variant.id).eq("branch_id", branchId),
+      "existencias"
+    );
+    const onHand = rows[0]?.on_hand ?? 0;
+    if (onHand >= minimum) continue;
+
+    const { error } = await asAdmin.rpc("adjust_inventory", {
+      p_variant_id: variant.id,
+      p_branch_id: branchId,
+      p_quantity: topUp,
+      p_reason: "Reposición para la prueba de pantalla",
+      p_unit_cost: 9.5
+    });
+    if (error) throw new Error(`reposición de ${variant.sku}: ${error.message}`);
+  }
+
+  await asAdmin.auth.signOut().catch(() => undefined);
+}
+
 async function stockSnapshot() {
   const rows = must(
     await admin.from("inventory_stock").select("variant_id, branch_id, on_hand"),
@@ -63,8 +113,18 @@ async function stockSnapshot() {
 }
 
 try {
+  await ensureStock();
+
   const before = await stockSnapshot();
   if (before.size === 0) throw new Error("Falta la existencia inicial: corre scripts/seed-demo-operation.mjs.");
+
+  // Identidad de las ventas que YA existían. La venta de esta prueba se
+  // reconoce por diferencia, no por «la más reciente»: sobre una base con
+  // historial —y varias ventas en el mismo segundo— ordenar por issued_at
+  // devuelve otra, y las aserciones pasan o fallan por la venta equivocada.
+  const salesBefore = new Set(
+    must(await admin.from("sales").select("id"), "ventas previas").map((row) => row.id)
+  );
 
   browser = await puppeteer.launch({
     headless: true,
@@ -134,14 +194,39 @@ try {
 
   console.log("\n3. Cobra y registra");
 
-  await page.$$eval(".sale-payment .btn-soft", (nodes) => nodes[0].click());
-  await page.waitForFunction(
-    () => document.querySelector(".sale-balance--ok") !== null,
-    { timeout: 15000 }
-  );
-  check("el botón de completar cuadra el cobro al céntimo", true);
+  // «Completar» reparte lo que falta sobre el pago. Si se pulsa mientras la
+  // pantalla aún recalcula, el importe pendiente todavía es nulo y el botón no
+  // hace nada: se REINTENTA hasta que la cobranza cuadre, en lugar de esperar
+  // un tiempo fijo y dar por hecho que fue suficiente.
+  let balanced = false;
+  for (let attempt = 1; attempt <= 8 && !balanced; attempt += 1) {
+    await page.$$eval(".sale-payment .btn-soft", (nodes) => nodes[0]?.click());
+    balanced = await page
+      .waitForFunction(() => document.querySelector(".sale-balance--ok") !== null, { timeout: 4000 })
+      .then(() => true)
+      .catch(() => false);
+  }
 
-  await page.click(".order-actions .btn-save");
+  check("el botón de completar cuadra el cobro al céntimo", balanced,
+    await page.$eval(".sale-balance", (node) => node.textContent).catch(() => "sin balance"));
+
+  // Se espera a que el botón esté HABILITADO, no a que el total aparezca. La
+  // pantalla lo deshabilita mientras recalcula precios, y hay un instante en
+  // que el total ya está pintado y el recálculo aún no ha terminado: pulsarlo
+  // ahí no hace nada, no sale ningún aviso, y la prueba pasaba o fallaba según
+  // lo rápido que fuera la máquina.
+  await page.waitForFunction(
+    () => {
+      const button = [...document.querySelectorAll(".order-actions button")]
+        .find((node) => node.textContent?.includes("Registrar venta"));
+      return Boolean(button) && !button.disabled;
+    },
+    { timeout: 60000 }
+  );
+
+  await page.$$eval(".order-actions button", (nodes) => {
+    nodes.find((node) => node.textContent?.includes("Registrar venta")).click();
+  });
   // Se espera el TEXTO, no el elemento: el aviso de «producto agregado» sigue en
   // pantalla y un waitForSelector lo daría por bueno sin haber cobrado nada.
   const toast = await page
@@ -164,14 +249,19 @@ try {
   console.log("\n4. Lo que la base debe haber hecho");
 
   const sales = must(
-    await admin.from("sales").select("id, sale_number, branch_id, total, seller_label, status").order("issued_at", { ascending: false }).limit(1),
-    "venta registrada"
-  );
+    await admin.from("sales").select("id, sale_number, branch_id, total, seller_label, status"),
+    "ventas"
+  ).filter((row) => !salesBefore.has(row.id));
+
+  if (sales.length !== 1) {
+    throw new Error(`La pantalla debía dejar exactamente una venta nueva y dejó ${sales.length}.`);
+  }
+
   const sale = sales[0];
-  createdSaleId = sale?.id;
+  createdSaleId = sale.id;
 
   check("queda una venta confirmada con vendedora identificada",
-    Boolean(sale) && sale.status === "confirmed" && sale.seller_label === "Vendedora demo",
+    sale.status === "confirmed" && sale.seller_label === "Vendedora demo",
     JSON.stringify(sale));
 
   const payments = must(
