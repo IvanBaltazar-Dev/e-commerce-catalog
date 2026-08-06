@@ -23,6 +23,15 @@ insert into public.admin_profiles(id, role, full_name, max_discount_percent) val
   ('d0000000-0000-4000-8000-000000000002','seller','Vendedora sede 1', 10.00),
   ('d0000000-0000-4000-8000-000000000003','seller','Vendedora sede 2', null);
 
+-- Sede PROPIA, no la principal: las aserciones sobre el correlativo declaran
+-- números absolutos («la primera nota de la sede es NV-000001») y sobre la
+-- sede compartida dependerían de cuántas ventas dejara antes cualquier otra
+-- prueba o el seed de demostración. La numeración es contigua POR SEDE, así
+-- que aislarla es la forma correcta de comprobarla.
+insert into public.branches (company_id, code, name, district, is_default, sort_order)
+select c.id, 'SALETEST1', 'Sede de caja de prueba', 'Lima', false, 939
+from public.companies c limit 1;
+
 insert into public.branches (company_id, code, name, district, is_default, sort_order)
 select c.id, 'SALETEST2', 'Sede de prueba de ventas', 'Lima', false, 940
 from public.companies c limit 1;
@@ -33,7 +42,7 @@ select
   (select id from public.product_variants where sku = 'DEMO-ESM-NUDE')  as v_libre,
   (select id from public.product_variants where sku = 'DEMO-ESM-ROSA')  as v_agotada,
   (select id from public.product_variants where sku = 'DEMO-ACC-001-UNICA') as v_accesorio,
-  (select id from public.branches where is_default and is_active)        as b1,
+  (select id from public.branches where code = 'SALETEST1')              as b1,
   (select id from public.branches where code = 'SALETEST2')              as b2,
   'd0000000-0000-4000-8000-000000000001'::uuid                           as admin_id,
   'd0000000-0000-4000-8000-000000000002'::uuid                           as seller1,

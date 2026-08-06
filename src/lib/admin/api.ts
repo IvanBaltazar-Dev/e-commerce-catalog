@@ -11,6 +11,19 @@ import type {
   Sale,
   TaxDocumentKind
 } from "@/lib/admin/sales";
+import type {
+  CashMovement,
+  CashSession,
+  Expense,
+  ExpenseCategory,
+  InventoryPosition,
+  KardexEntry
+} from "@/lib/admin/operations";
+import type { adjustInventorySchema, registerExpenseSchema } from "@/lib/admin/operations";
+import type { z } from "zod";
+
+type AdjustInventoryInput = z.infer<typeof adjustInventorySchema>;
+type RegisterExpenseInput = z.infer<typeof registerExpenseSchema>;
 
 import type {
   CatalogImportCommitResult,
@@ -201,6 +214,56 @@ export const adminApi = {
   },
   listOperableBranches: () =>
     request<{ items: OperableBranch[] }>("/api/admin/branches").then((result) => result.items),
+  listBranches: () =>
+    request<{ items: OperableBranch[] }>("/api/admin/branches").then((result) => result.items),
+
+  // --- Operación diaria: inventario, caja y gastos -------------------------
+  listInventory: (filters: { branchId?: string; search?: string; onlyLow?: boolean } = {}) => {
+    const parameters = new URLSearchParams();
+    if (filters.branchId) parameters.set("branch", filters.branchId);
+    if (filters.search) parameters.set("search", filters.search);
+    if (filters.onlyLow) parameters.set("low", "true");
+    return request<{ items: InventoryPosition[] }>(
+      `/api/admin/inventory?${parameters.toString()}`
+    ).then((result) => result.items);
+  },
+  getKardex: (variantId: string, branchId?: string) => {
+    const parameters = new URLSearchParams({ variant: variantId });
+    if (branchId) parameters.set("branch", branchId);
+    return request<{ items: KardexEntry[] }>(
+      `/api/admin/inventory/kardex?${parameters.toString()}`
+    ).then((result) => result.items);
+  },
+  adjustInventory: (payload: AdjustInventoryInput) =>
+    request<unknown>("/api/admin/inventory", { method: "POST", body: JSON.stringify(payload) }),
+
+  listCashSessions: (status?: string) =>
+    request<{ items: CashSession[] }>(
+      status ? `/api/admin/cash?status=${status}` : "/api/admin/cash"
+    ).then((result) => result.items),
+  getCashSession: (id: string) =>
+    request<{ session: CashSession; movements: CashMovement[] }>(`/api/admin/cash/${id}`),
+  openCashSession: (payload: { branchId: string; openingFloat: number; note?: string | null }) =>
+    request<CashSession>("/api/admin/cash", { method: "POST", body: JSON.stringify(payload) }),
+  closeCashSession: (id: string, payload: { countedCash: number; note?: string | null }) =>
+    request<CashSession>(`/api/admin/cash/${id}`, { method: "POST", body: JSON.stringify(payload) }),
+
+  listExpenses: (filters: { from?: string; to?: string; includeVoided?: boolean } = {}) => {
+    const parameters = new URLSearchParams();
+    if (filters.from) parameters.set("from", filters.from);
+    if (filters.to) parameters.set("to", filters.to);
+    if (filters.includeVoided) parameters.set("voided", "true");
+    return request<{ categories: ExpenseCategory[]; items: Expense[] }>(
+      `/api/admin/expenses?${parameters.toString()}`
+    );
+  },
+  registerExpense: (payload: RegisterExpenseInput) =>
+    request<Expense>("/api/admin/expenses", { method: "POST", body: JSON.stringify(payload) }),
+  voidExpense: (id: string, reason: string) =>
+    request<Expense>(`/api/admin/expenses/${id}`, {
+      method: "POST",
+      body: JSON.stringify({ reason })
+    }),
   listSales: () =>
     request<{ items: SaleSummary[] }>("/api/admin/sales").then((result) => result.items),
   getSale: (id: string) => request<Sale>(`/api/admin/sales/${id}`),

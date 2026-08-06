@@ -5233,3 +5233,76 @@ a.pub-tab--wa:hover {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Operación diaria: inventario, caja y gastos.
+   Comparten estructura para que las tres se lean igual: cabecera con la acción
+   principal, filtros, totales, y una tabla con cajón lateral para el detalle.
+   --------------------------------------------------------------------------- */
+
+.ops-page { display: flex; flex-direction: column; gap: 18px; }
+
+.ops-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.ops-head h1 { margin: 0 0 4px; font-size: 22px; letter-spacing: -0.01em; }
+.ops-head p { margin: 0; color: var(--muted, #7a6d74); font-size: 13px; }
+
+.ops-filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.ops-filters .input { max-width: 320px; }
+
+.ops-totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.ops-totals > div {
+  background: var(--surface, #fff); border: 1px solid var(--line, #efe6ea);
+  border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px;
+}
+.ops-totals span { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted, #7a6d74); }
+.ops-totals b { font-size: 19px; font-variant-numeric: tabular-nums; }
+.ops-totals small { font-size: 11px; color: var(--muted, #7a6d74); }
+.ops-totals .total-alert b { color: #b3261e; }
+
+.ops-section { display: flex; flex-direction: column; gap: 10px; }
+.ops-section h2 { margin: 0; font-size: 15px; }
+
+.ops-empty {
+  margin: 0; padding: 24px; text-align: center; color: var(--muted, #7a6d74);
+  background: var(--surface, #fff); border: 1px dashed var(--line, #efe6ea); border-radius: 12px;
+}
+
+/* La tabla desborda en su propio contenedor: la página nunca scrollea en horizontal. */
+.ops-table-wrap { overflow-x: auto; border: 1px solid var(--line, #efe6ea); border-radius: 12px; background: var(--surface, #fff); }
+.ops-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 720px; }
+.ops-table th, .ops-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line, #efe6ea); vertical-align: top; }
+.ops-table th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted, #7a6d74); font-weight: 600; }
+.ops-table tbody tr:last-child td { border-bottom: none; }
+.ops-table td small { display: block; color: var(--muted, #7a6d74); font-size: 11px; margin-top: 2px; }
+.ops-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.ops-table .actions { text-align: right; white-space: nowrap; }
+.ops-table .actions button {
+  border: 1px solid var(--line, #efe6ea); background: transparent; border-radius: 8px;
+  padding: 5px 10px; margin-left: 6px; cursor: pointer; font-size: 12px;
+}
+.ops-table .actions button:hover { background: var(--surface-2, #faf5f7); }
+.ops-table .row-alert td { background: rgba(179, 38, 30, 0.04); }
+.ops-table .row-void td { opacity: 0.55; }
+.ops-table .tag-warn { color: #8a5a00; }
+
+.ops-drawer {
+  position: fixed; inset: 0; background: rgba(28, 20, 24, 0.35);
+  display: flex; justify-content: flex-end; z-index: 40;
+}
+.ops-drawer-body {
+  background: var(--bg, #fdfbfc); width: min(760px, 100%); height: 100%;
+  overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px;
+}
+.ops-drawer-body--narrow { width: min(460px, 100%); }
+.ops-drawer-body > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.ops-drawer-body > header small { display: block; color: var(--muted, #7a6d74); font-size: 12px; margin-top: 2px; }
+.ops-drawer-body > header button {
+  border: 1px solid var(--line, #efe6ea); background: transparent; border-radius: 8px;
+  padding: 6px 12px; cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .ops-head { flex-direction: column; align-items: stretch; }
+  .ops-filters .input { max-width: none; }
+  .ops-drawer-body { width: 100%; }
+}

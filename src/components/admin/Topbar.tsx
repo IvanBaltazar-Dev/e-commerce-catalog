@@ -6,9 +6,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 const SALES_ITEM = { href: "/admin/ventas", label: "Ventas" };
+// La caja es de la vendedora: es su cajón y ella lo abre, lo arquea y lo cierra.
+const CASH_ITEM = { href: "/admin/caja", label: "Caja" };
 
 const NAV_ITEMS = [
   SALES_ITEM,
+  CASH_ITEM,
+  { href: "/admin/inventario", label: "Inventario" },
+  { href: "/admin/gastos", label: "Gastos" },
   { href: "/admin/productos", label: "Productos" },
   { href: "/admin/pdf", label: "Catálogo PDF" }
 ];
@@ -22,9 +27,11 @@ export function Topbar({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  // La vendedora solo tiene caja: el catálogo y el PDF no son suyos.
+  // La vendedora opera venta, caja e inventario de sus sedes. El catálogo, los
+  // gastos y el PDF no son suyos: la RLS ya se lo impide, y la barra no le
+  // ofrece pantallas donde solo encontraría cero filas.
   const navItems = role === "seller"
-    ? [SALES_ITEM]
+    ? [SALES_ITEM, CASH_ITEM, { href: "/admin/inventario", label: "Inventario" }]
     : role === "developer" && importsEnabled
       ? [...NAV_ITEMS, { href: "/admin/importaciones", label: "Importaciones" }]
       : NAV_ITEMS;
