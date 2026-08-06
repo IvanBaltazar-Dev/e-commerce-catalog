@@ -141,3 +141,36 @@ La aserción 13 fija el resultado correcto y falla con 200,00 de diferencia si a
 ### Cómo se verifica
 
 32 aserciones: la venta anulada sobrevive con sus líneas; el stock y el valor vuelven al costo capturado; el dinero se registra devuelto por el importe exacto cobrado; la segunda anulación se rechaza; lo vendible vuelve al stock y lo dañado no; devolver todo reparte el subtotal al céntimo sin residuo; no se devuelve más de lo vendido; el reintento de una devolución no repone de más; las dos direcciones prohibidas —anular lo devuelto y devolver lo anulado— se rechazan; el adelanto de una reserva cancelada se reembolsa con origen propio; y la vendedora no puede calcular márgenes.
+
+---
+
+## 0032 — gastos, arqueo, traslados y lote de carga inicial
+
+28 aserciones. Lo que la suite fija por escrito:
+
+- **La caja no bloquea la venta.** `record_cash_movement` devuelve nulo cuando no hay sesión abierta en lugar de abortar. Obligar a abrir caja para poder vender rompería la operación, y el arqueo del día no depende de que alguien recordara abrirla.
+- **El gasto en efectivo sale del cajón, y su anulación lo devuelve.** Un gasto se corrige anulándolo con motivo, nunca con un `UPDATE`.
+- **El traslado entre sedes conserva el valor.** Es la única operación que toca dos filas del mismo `variant_id`, y por eso el orden de candados es `(variant_id, branch_id)` y no solo la variante: 40 unidades a 9,00 repartidas entre dos sedes siguen valiendo 360,00, porque la entrada al destino usa el costo con el que salió del origen.
+- **El lote de carga inicial es idempotente** y activa `tracks_inventory` solo de lo cargado, con asiento `initial_load` —no simulando una recepción, que falsearía el historial—.
+
+## 0033 — las dos lecturas operativas que faltaban
+
+§7 lista cinco lecturas. Tres ya existían: `variant_effective_availability` (0028), `sale_detail` (0029) y `supplier_balances` (0030). Faltaban `daily_cash_summary` e `inventory_ledger`, y no eran cosméticas: sin ellas el arqueo diario y el kardex consultable solo existían como texto.
+
+### Hueco de seguridad que esta migración cierra
+
+`0028` concede a `authenticated` `select` de **tabla completa** sobre `inventory_movements` —el personal necesita ver el historial de su propio stock—, y esa tabla lleva `unit_cost`, `value_delta` y `value_after`. Una vendedora podía leer el costo de cada asiento con una sola consulta a PostgREST: exactamente lo que §8 declara en cero filas para ella.
+
+La RLS no recorta columnas, y un `GRANT` por columna tampoco sirve porque no distingue a la administradora de la vendedora —las dos son `authenticated`—. La única forma correcta es cerrar las columnas monetarias a la tabla y servirlas por un objeto `DEFINER` que sí sabe quién pregunta. Eso hace `inventory_ledger`, y la ruta `/api/admin/inventory/kardex` pasa a consumirlo en lugar de leer la tabla.
+
+### El arqueo se deriva de los documentos, no del cajón
+
+`cash_movements` solo se escribe cuando hay caja abierta. Un arqueo construido sobre esa tabla reportaría cero en cualquier día en que nadie la abrió, con el dinero realmente cobrado. `daily_cash_summary` se deriva de los documentos de dinero y **reconcilia** contra el cajón, que es lo que vuelve visible el descuadre en lugar de esconderlo.
+
+Y el adelanto se cuenta una sola vez: el efectivo del día sale de `reservation_payments` más `sale_payments` con `method <> 'reservation_advance'`; las filas de adelanto trasladado se listan aparte por `applied_at`. Las aserciones 8, 9 y 10 fijan las tres mitades: hoy entran 20,00 de saldo, el adelanto de 10,00 se lista como conciliación y no como ingreso, y el arqueo de ayer sí lo cuenta.
+
+## Interferencia entre pruebas, corregida
+
+`test-sales-concurrency` apagaba `tracks_inventory` de su variante en la teardown en lugar de restaurar el valor previo. Tras `seed:demo-operation` esa variante llega con seguimiento activo, así que la prueba siguiente vendía una presentación sin existencias que descontar y su fallo parecía un defecto del producto. Ahora la teardown restaura el estado que encontró.
+
+En la misma línea, `0029_sales.test.sql` usa una sede propia en vez de la principal: sus aserciones declaran números de nota absolutos («la primera de la sede es `NV-000001`») y sobre la sede compartida dependían de cuántas ventas dejara antes cualquier otra prueba. La numeración es contigua **por sede**, así que aislarla es la forma correcta de comprobarla.

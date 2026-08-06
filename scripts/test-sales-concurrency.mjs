@@ -43,6 +43,12 @@ function psql(sql) {
 }
 
 let failures = 0;
+// Estado previo del seguimiento de inventario de la variante de prueba. La
+// teardown lo RESTAURA en lugar de forzarlo a falso: si el entorno ya la tenía
+// con seguimiento —lo normal tras seed-demo-operation—, apagarlo dejaba la
+// siguiente prueba vendiendo una variante sin existencias que descontar, y su
+// fallo parecía un defecto del producto.
+let trackedBefore = false;
 
 function check(label, condition, detail) {
   if (condition) {
@@ -75,6 +81,11 @@ function saleSql({ operationId, quantity, amount, sleepSeconds = 0 }) {
 }
 
 async function setup() {
+  const previous = await psql(
+    `select tracks_inventory from public.product_variants where sku = '${SKU}';`
+  );
+  trackedBefore = previous.out.trim() === "t";
+
   const { code, err } = await psql(`
     delete from public.admin_profiles where id = '${ACTOR}';
     delete from auth.users where id = '${ACTOR}';
@@ -302,7 +313,8 @@ async function teardown() {
     delete from public.branches where code = '${BRANCH_CODE}';
     delete from public.admin_profiles where id = '${ACTOR}';
     delete from auth.users where id = '${ACTOR}';
-    update public.product_variants set tracks_inventory = false where sku = '${SKU}';
+    update public.product_variants set tracks_inventory = ${trackedBefore}
+     where sku = '${SKU}';
   `);
 }
 

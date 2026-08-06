@@ -47,20 +47,23 @@ function must(result, label) {
   return result.data;
 }
 
-async function stockOf(sku) {
+/**
+ * Foto de las existencias por variante. Se compara contra las LÍNEAS de la
+ * venta que quedó registrada, no contra un SKU fijado a mano: la pantalla elige
+ * la primera presentación disponible del producto, y cuál sea depende del
+ * catálogo del día.
+ */
+async function stockSnapshot() {
   const rows = must(
-    await admin
-      .from("inventory_stock")
-      .select("on_hand, reserved, product_variants!inner(sku)")
-      .eq("product_variants.sku", sku),
-    `existencias de ${sku}`
+    await admin.from("inventory_stock").select("variant_id, branch_id, on_hand"),
+    "existencias"
   );
-  return rows[0] ?? null;
+  return new Map(rows.map((row) => [`${row.variant_id}|${row.branch_id}`, row.on_hand]));
 }
 
 try {
-  const before = await stockOf("DEMO-ESM-ROJO");
-  if (!before) throw new Error("Falta la existencia inicial: corre scripts/seed-demo-operation.mjs.");
+  const before = await stockSnapshot();
+  if (before.size === 0) throw new Error("Falta la existencia inicial: corre scripts/seed-demo-operation.mjs.");
 
   browser = await puppeteer.launch({
     headless: true,
@@ -167,7 +170,7 @@ try {
   console.log("\n4. Lo que la base debe haber hecho");
 
   const sales = must(
-    await admin.from("sales").select("id, sale_number, total, seller_label, status").order("issued_at", { ascending: false }).limit(1),
+    await admin.from("sales").select("id, sale_number, branch_id, total, seller_label, status").order("issued_at", { ascending: false }).limit(1),
     "venta registrada"
   );
   const sale = sales[0];
@@ -185,9 +188,25 @@ try {
   check("la cobranza suma exactamente el total", Math.abs(paid - Number(sale.total)) < 0.0001,
     `cobrado ${paid} · total ${sale.total}`);
 
-  const after = await stockOf("DEMO-ESM-ROJO");
-  check("la existencia bajó en las unidades vendidas", after.on_hand === before.on_hand - 2,
-    `antes ${before.on_hand} · después ${after.on_hand}`);
+  const after = await stockSnapshot();
+  const soldLines = must(
+    await admin.from("sale_lines").select("variant_id, quantity, sku").eq("sale_id", sale.id),
+    "líneas de la venta"
+  );
+  const stockDrops = soldLines.map((line) => {
+    const key = `${line.variant_id}|${sale.branch_id}`;
+    return {
+      sku: line.sku,
+      expected: (before.get(key) ?? 0) - line.quantity,
+      actual: after.get(key) ?? 0
+    };
+  });
+
+  check(
+    "la existencia bajó exactamente en las unidades vendidas",
+    stockDrops.length > 0 && stockDrops.every((drop) => drop.actual === drop.expected),
+    JSON.stringify(stockDrops)
+  );
 
   const costs = must(
     await admin.from("sale_line_costs").select("unit_cost, cost_basis").eq("sale_id", sale.id),
@@ -213,6 +232,34 @@ try {
     return response?.status ?? 0;
   });
   check("y el panel de catálogo no le abre ninguna ruta", forbidden !== 200, `status = ${forbidden}`);
+
+  // El kardex es el hueco menos evidente: inventory_movements lleva unit_cost,
+  // value_delta y value_after, y su política concede lectura de fila completa
+  // al personal de la sede. Sin el recorte por rol del objeto DEFINER, la
+  // vendedora leía el costo de cada asiento con una sola consulta.
+  const kardex = await page.evaluate(async ({ variantId, branchId }) => {
+    const response = await fetch(`/api/admin/inventory/kardex?variant=${variantId}&branch=${branchId}`);
+    return { status: response.status, body: await response.json().catch(() => null) };
+  }, { variantId: soldLines[0].variant_id, branchId: sale.branch_id });
+
+  const entries = kardex.body?.data?.items ?? [];
+
+  check("el kardex de su sede sí le llega, con sus asientos", kardex.status === 200 && entries.length > 0,
+    `status ${kardex.status} · ${entries.length} asiento(s)`);
+
+  check(
+    "pero sin una sola cifra de costo",
+    entries.every((entry) => entry.unitCost === null && entry.valueDelta === null && entry.valueAfter === null),
+    JSON.stringify(entries.slice(0, 2).map((entry) => ({ unitCost: entry.unitCost, valueAfter: entry.valueAfter })))
+  );
+
+  const rawCost = await page.evaluate(async () => {
+    // Ruta directa a PostgREST con la sesión de la vendedora: la RLS no recorta
+    // columnas, así que el cierre tiene que estar en el privilegio de columna.
+    const response = await fetch("/api/admin/inventory/kardex?variant=00000000-0000-4000-8000-000000000000&branch=00000000-0000-4000-8000-000000000000");
+    return response.status;
+  });
+  check("y una consulta con sede ajena no devuelve 200", rawCost !== 200, `status = ${rawCost}`);
 } finally {
   if (browser) await browser.close().catch(() => undefined);
   if (createdSaleId) {
