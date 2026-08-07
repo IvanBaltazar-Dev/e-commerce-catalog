@@ -31,6 +31,7 @@ import type {
   createCampaignSchema,
   createChannelAccountSchema
 } from "@/lib/admin/omnichannel";
+import type { BusinessDashboard } from "@/lib/admin/analytics";
 import type {
   GoodsReceipt,
   PurchaseOrder,
@@ -404,7 +405,17 @@ export const adminApi = {
         firstSource: string | null; lastSource: string | null; campaign: string | null;
         hasConversation: boolean; hasCart: boolean; hasSale: boolean;
       }[];
-    }>("/api/admin/attribution")
+    }>("/api/admin/attribution"),
+  getDashboard: (params: { desde?: string; hasta?: string; sede?: string }) => {
+    const query = new URLSearchParams();
+    if (params.desde) query.set("desde", params.desde);
+    if (params.hasta) query.set("hasta", params.hasta);
+    if (params.sede) query.set("sede", params.sede);
+    const suffix = query.toString();
+    return request<{ dashboard: BusinessDashboard }>(
+      suffix ? `/api/admin/analytics?${suffix}` : "/api/admin/analytics"
+    ).then((result) => result.dashboard);
+  }
 };
 
 export async function uploadCatalogImage(kind: "product-image" | "color-chart", file: File) {

@@ -5560,6 +5560,41 @@ a.pub-tab--wa:hover {
 .metric-tile b { font-family: "Poppins", sans-serif; font-size: 18px; color: var(--br-ink-strong); }
 .metric-tile span { color: var(--br-muted); font-size: 10.5px; }
 
+/* Rankings del tablero comercial (Bloque 4) */
+.rank-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.rank-card {
+  border: 1px solid var(--br-input-line);
+  border-radius: 12px;
+  padding: 12px;
+  min-width: 0;
+}
+
+.rank-title {
+  font-family: "Poppins", sans-serif;
+  font-size: 12px;
+  color: var(--br-ink-strong);
+  margin-bottom: 8px;
+}
+
+.rank-table { width: 100%; border-collapse: collapse; }
+.rank-table td {
+  padding: 5px 4px;
+  font-size: 12px;
+  color: var(--br-ink);
+  border-top: 1px solid var(--br-input-line);
+  vertical-align: top;
+}
+.rank-table tr:first-child td { border-top: none; }
+.rank-table td small { display: block; color: var(--br-muted); font-size: 10px; }
+.rank-pos { width: 20px; color: var(--br-muted); font-size: 11px; }
+.rank-num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
 @media (max-width: 1000px) {
   .conv-columns { grid-template-columns: 1fr; }
   .conv-row { grid-template-columns: 80px 1fr auto; }

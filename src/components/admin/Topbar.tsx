@@ -21,6 +21,7 @@ const NAV_ITEMS = [
   { href: "/admin/compras", label: "Compras" },
   { href: "/admin/gastos", label: "Gastos" },
   { href: "/admin/productos", label: "Productos" },
+  { href: "/admin/analitica", label: "Analítica" },
   { href: "/admin/atribucion", label: "Marketing" },
   { href: "/admin/pdf", label: "Catálogo PDF" }
 ];
