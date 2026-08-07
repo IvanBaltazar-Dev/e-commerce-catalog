@@ -11,7 +11,7 @@ import { formatSoles, publicApi } from "@/lib/public/catalog";
 
 export function SelectionView() {
   const router = useRouter();
-  const { items, units, delivery, district, updateQty, removeItem, setDelivery, setDistrict, showToast } =
+  const { items, units, delivery, district, updateQty, removeItem, setDelivery, setDistrict, showToast, shareUrl } =
     useSelection();
   const [evaluation, setEvaluation] = useState<CartEvaluation | null>(null);
   const [evaluating, setEvaluating] = useState(false);
@@ -155,6 +155,22 @@ export function SelectionView() {
             <button type="button" className="pub-sendwa-asesor" disabled={evaluating || Boolean(sending)} onClick={() => sendWhatsapp("advice")}>
               {sending === "advice" ? "Generando…" : "Primero quiero hablar con un asesor"}
             </button>
+            {shareUrl ? (
+              <button
+                type="button"
+                className="pub-sharelink"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    showToast("Enlace copiado: ábrelo en otro dispositivo ✓");
+                  } catch {
+                    showToast(shareUrl);
+                  }
+                }}
+              >
+                Copiar enlace de mi selección
+              </button>
+            ) : null}
           </div>
         </>
       )}

@@ -5338,3 +5338,35 @@ a.pub-tab--wa:hover {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* Bloque 3 · superficie pública nueva */
+.pub-recovery {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 80px 20px;
+  color: var(--br-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+.pub-recovery-link {
+  color: var(--br-pink-deep);
+  font-weight: 600;
+}
+
+.pub-sharelink {
+  border: 1px dashed var(--br-input-line);
+  border-radius: 11px;
+  padding: 9px;
+  background: transparent;
+  color: var(--br-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.pub-sharelink:hover {
+  color: var(--br-pink-deep);
+  border-color: var(--br-pink);
+}
