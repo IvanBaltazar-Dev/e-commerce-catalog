@@ -12,7 +12,21 @@ import {
 } from "@/lib/admin/omnichannel";
 import { formatSoles } from "@/lib/public/catalog";
 
-type Tab = "atribucion" | "campanas" | "canales";
+type Tab = "atribucion" | "campanas" | "canales" | "tendencias";
+
+const TAB_LABELS: Record<Tab, string> = {
+  atribucion: "Atribución",
+  campanas: "Campañas",
+  canales: "Canales",
+  tendencias: "Tendencias"
+};
+
+const PROPOSAL_STATUS_LABELS: Record<string, string> = {
+  draft: "Borrador",
+  approved: "Aprobada",
+  rejected: "Rechazada",
+  published: "Publicada"
+};
 
 /**
  * Marketing operativo en una pantalla con tres pestañas: qué produjo cada
@@ -36,6 +50,9 @@ export function MarketingView({ initialTab = "atribucion" }: { initialTab?: Tab 
   const [campaignCode, setCampaignCode] = useState("");
   const [campaignSource, setCampaignSource] = useState("instagram");
 
+  const [proposals, setProposals] = useState<Awaited<ReturnType<typeof adminApi.listTrendProposals>>>([]);
+  const [generating, setGenerating] = useState(false);
+
   const [accountChannel, setAccountChannel] = useState("");
   const [accountName, setAccountName] = useState("");
   const [accountExternal, setAccountExternal] = useState("");
@@ -44,17 +61,19 @@ export function MarketingView({ initialTab = "atribucion" }: { initialTab?: Tab 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [attribution, campaignItems, channelItems, branchItems] = await Promise.all([
+      const [attribution, campaignItems, channelItems, branchItems, proposalItems] = await Promise.all([
         adminApi.getAttribution(),
         adminApi.listCampaigns(),
         adminApi.listChannels(),
-        adminApi.listOperableBranches()
+        adminApi.listOperableBranches(),
+        adminApi.listTrendProposals()
       ]);
       setMetrics(attribution.metrics);
       setChains(attribution.chains);
       setCampaigns(campaignItems);
       setChannels(channelItems);
       setBranches(branchItems);
+      setProposals(proposalItems);
     } catch (error) {
       handleApiError(error, "No se pudo cargar marketing.");
     } finally {
@@ -89,6 +108,42 @@ export function MarketingView({ initialTab = "atribucion" }: { initialTab?: Tab 
     }
   }
 
+  async function generateProposal() {
+    if (generating) return;
+    setGenerating(true);
+    try {
+      const result = await adminApi.generateTrendProposal();
+      showToast(`Borrador creado: «${result.titulo}»`);
+      setProposals(await adminApi.listTrendProposals());
+    } catch (error) {
+      handleApiError(error, "No se pudo generar la propuesta.");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  async function actOnProposal(proposalId: string, accion: "approved" | "rejected" | "published") {
+    if (saving) return;
+    setSaving(true);
+    try {
+      const nota =
+        accion === "published"
+          ? window.prompt("¿Dónde la publicaste? (opcional)", "Instagram") ?? undefined
+          : undefined;
+      await adminApi.actOnTrendProposal({ proposalId, accion, nota: nota ?? null });
+      showToast(
+        accion === "approved" ? "Propuesta aprobada ✓"
+          : accion === "rejected" ? "Propuesta rechazada"
+            : "Registrado: la publicaste tú ✓"
+      );
+      setProposals(await adminApi.listTrendProposals());
+    } catch (error) {
+      handleApiError(error, "No se pudo actualizar la propuesta.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function createAccount() {
     if (saving || !accountChannel) return;
     setSaving(true);
@@ -117,12 +172,12 @@ export function MarketingView({ initialTab = "atribucion" }: { initialTab?: Tab 
           <div className="form-title">Marketing y canales</div>
           <div className="field-hint">Todo importe nace de ventas reales del Bloque 2.</div>
         </div>
-        <div className="order-delivery" style={{ margin: 0, minWidth: 340, gridTemplateColumns: "1fr 1fr 1fr" }}>
-          {(["atribucion", "campanas", "canales"] as Tab[]).map((option) => (
+        <div className="order-delivery" style={{ margin: 0, minWidth: 440, gridTemplateColumns: "repeat(4, 1fr)" }}>
+          {(["atribucion", "campanas", "canales", "tendencias"] as Tab[]).map((option) => (
             <button key={option} type="button"
               className={tab === option ? "order-delivery-option order-delivery-option--active" : "order-delivery-option"}
               onClick={() => setTab(option)}>
-              {option === "atribucion" ? "Atribución" : option === "campanas" ? "Campañas" : "Canales"}
+              {TAB_LABELS[option]}
             </button>
           ))}
         </div>
@@ -315,6 +370,73 @@ export function MarketingView({ initialTab = "atribucion" }: { initialTab?: Tab 
                 </div>
               ))}
             </div>
+          </section>
+        </>
+      ) : null}
+
+      {!loading && tab === "tendencias" ? (
+        <>
+          <section className="form-card">
+            <div className="order-section-title">Propuestas de contenido</div>
+            <div className="field-hint">
+              El sistema propone desde tus ventas reales; aprobar, rechazar y publicar es SIEMPRE decisión tuya.
+              Nada se publica solo.
+            </div>
+            <div className="order-actions" style={{ marginTop: 10 }}>
+              <button type="button" className="btn-save" disabled={generating} onClick={generateProposal}>
+                {generating ? "Leyendo señales…" : "Generar propuesta desde mis ventas"}
+              </button>
+            </div>
+          </section>
+
+          <section className="form-card order-history">
+            {proposals.length === 0 ? (
+              <div className="order-empty">Aún no hay propuestas. Genera la primera desde tus señales.</div>
+            ) : (
+              <div className="trend-list">
+                {proposals.map((proposal) => (
+                  <div key={proposal.id} className="trend-card">
+                    <div className="trend-head">
+                      <b>{proposal.titulo}</b>
+                      <span className={`order-status order-status--${proposal.estado === "rejected" ? "cancelled" : "confirmed"}`}>
+                        {PROPOSAL_STATUS_LABELS[proposal.estado] ?? proposal.estado}
+                      </span>
+                    </div>
+                    <p className="trend-body">{proposal.cuerpo}</p>
+                    <div className="trend-actions">
+                      {proposal.estado === "draft" ? (
+                        <>
+                          <button type="button" className="btn-save" disabled={saving}
+                            onClick={() => actOnProposal(proposal.id, "approved")}>
+                            Aprobar
+                          </button>
+                          <button type="button" className="btn-cancel" disabled={saving}
+                            onClick={() => actOnProposal(proposal.id, "rejected")}>
+                            Rechazar
+                          </button>
+                        </>
+                      ) : null}
+                      {proposal.estado === "approved" ? (
+                        <>
+                          <button type="button" className="btn-soft"
+                            onClick={() => {
+                              void navigator.clipboard.writeText(`${proposal.titulo}\n\n${proposal.cuerpo}`);
+                              showToast("Contenido copiado ✓");
+                            }}>
+                            Copiar contenido
+                          </button>
+                          <button type="button" className="btn-save" disabled={saving}
+                            onClick={() => actOnProposal(proposal.id, "published")}>
+                            Ya la publiqué yo
+                          </button>
+                        </>
+                      ) : null}
+                      {proposal.notaRevision ? <small className="field-hint">Nota: {proposal.notaRevision}</small> : null}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
         </>
       ) : null}

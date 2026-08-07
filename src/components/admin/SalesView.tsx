@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useToast } from "@/components/admin/ToastProvider";
 import { useApiError } from "@/components/admin/useApiError";
 import { adminApi, type OperableBranch, type ReservationSummary, type SaleSummary } from "@/lib/admin/api";
+import { ASSISTANT_HANDOFF_KEY, type AssistantHandoff } from "@/components/admin/AssistantView";
 import {
   FULFILLMENT_LABELS,
   PAYMENT_METHOD_LABELS,
@@ -100,6 +101,12 @@ export function SalesView() {
   const [expiresAt, setExpiresAt] = useState(inTwoDays);
   const [reservationMode, setReservationMode] = useState(false);
 
+  // Propuesta llegada del Asistente (Bloque 4). Se guarda quiénes fueron las
+  // interacciones para CERRAR el ciclo con honestidad: al registrar la venta,
+  // cada asistencia queda confirmada y enlazada a la venta que la persona
+  // ejecutó aquí — la IA propuso, el humano vendió (regla 9).
+  const assistantInteractionsRef = useRef<string[]>([]);
+
   const [sales, setSales] = useState<SaleSummary[]>([]);
   const [loadingSales, setLoadingSales] = useState(true);
   const [openSale, setOpenSale] = useState<Sale | null>(null);
@@ -144,6 +151,56 @@ export function SalesView() {
     loadSales();
     loadReservations();
   }, [loadBranches, loadSales, loadReservations]);
+
+  // Si el Asistente dejó una propuesta, se carga como borrador. El precio NO
+  // viene con ella: lo evalúa PostgreSQL aquí, como con cualquier borrador.
+  useEffect(() => {
+    const raw = window.sessionStorage.getItem(ASSISTANT_HANDOFF_KEY);
+    if (!raw) return;
+    window.sessionStorage.removeItem(ASSISTANT_HANDOFF_KEY);
+    try {
+      const handoff = JSON.parse(raw) as AssistantHandoff;
+      if (!Array.isArray(handoff.lineas) || handoff.lineas.length === 0) return;
+      assistantInteractionsRef.current = handoff.interactionIds ?? [];
+      setLines(handoff.lineas.map((linea) => {
+        const [productName, variantName] = linea.nombre.split(" · ");
+        return {
+          variantId: linea.variantId,
+          sku: linea.sku ?? "",
+          productName: productName ?? linea.nombre,
+          variantName: variantName ?? "",
+          quantity: linea.cantidad,
+          referencePrice: null
+        };
+      }));
+      showToast("Propuesta del asistente cargada: revisa y registra.");
+    } catch {
+      // Un handoff corrupto no debe romper la pantalla de ventas.
+    }
+    // Solo al montar: el asistente navega hacia acá con el dato ya puesto.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // El cierre honesto del ciclo del asistente: la venta o reserva que la
+  // persona registró queda enlazada en cada interacción propuesta.
+  async function resolveAssistantInteractions(link: { saleId?: string; reservationId?: string }) {
+    const ids = assistantInteractionsRef.current;
+    if (ids.length === 0) return;
+    assistantInteractionsRef.current = [];
+    for (const id of ids) {
+      try {
+        await adminApi.resolveAssist({
+          interactionId: id,
+          estado: "confirmed",
+          saleId: link.saleId ?? null,
+          reservationId: link.reservationId ?? null,
+          nota: "Registrada desde Ventas"
+        });
+      } catch {
+        // Una interacción ya resuelta o ajena no interrumpe el registro real.
+      }
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -310,6 +367,7 @@ export function SalesView() {
       });
 
       showToast(`Venta ${sale.saleNumber} registrada ✓`);
+      await resolveAssistantInteractions({ saleId: sale.id });
       clearDraft();
       await Promise.all([loadSales(), loadReservations()]);
     } catch (error) {
@@ -354,6 +412,7 @@ export function SalesView() {
       });
 
       showToast(`Reserva ${reservation.reservationNumber} registrada ✓`);
+      await resolveAssistantInteractions({ reservationId: reservation.id });
       clearDraft();
       await loadReservations();
     } catch (error) {

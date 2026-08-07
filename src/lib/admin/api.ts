@@ -32,6 +32,9 @@ import type {
   createChannelAccountSchema
 } from "@/lib/admin/omnichannel";
 import type { BusinessDashboard } from "@/lib/admin/analytics";
+import type { OrderProposal } from "@/lib/ai/matching";
+import type { AiProviderInfo, ContentProposalRow } from "@/lib/ai/contracts";
+import type { VisionResult } from "@/lib/ai/vision";
 import type {
   GoodsReceipt,
   PurchaseOrder,
@@ -415,7 +418,47 @@ export const adminApi = {
     return request<{ dashboard: BusinessDashboard }>(
       suffix ? `/api/admin/analytics?${suffix}` : "/api/admin/analytics"
     ).then((result) => result.dashboard);
-  }
+  },
+  interpretOrderAssist: (payload: { texto: string; sedeId?: string | null }) =>
+    request<{ interactionId: string; propuesta: OrderProposal; proveedor: AiProviderInfo }>(
+      "/api/admin/assistant/interpret",
+      { method: "POST", body: JSON.stringify(payload) }
+    ),
+  photoAssist: (payload: { imagenBase64: string; mediaType: string; etapa: "single" | "small_group" }) =>
+    request<{ interactionId: string; resultado: VisionResult }>(
+      "/api/admin/assistant/photo",
+      { method: "POST", body: JSON.stringify(payload) }
+    ),
+  adviseAssist: (payload: { pregunta: string; conversacionId?: string | null; contexto?: string | null }) =>
+    request<{
+      interactionId: string;
+      respuesta: string;
+      recomendaciones: { variantId: string; sku: string | null; nombre: string; razon: string }[];
+      proveedor: AiProviderInfo;
+    }>("/api/admin/assistant/advise", { method: "POST", body: JSON.stringify(payload) }),
+  resolveAssist: (payload: {
+    interactionId: string;
+    estado: "confirmed" | "discarded";
+    saleId?: string | null;
+    reservationId?: string | null;
+    nota?: string | null;
+  }) =>
+    request<{ id: string; status: string }>("/api/admin/assistant/resolve", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  listTrendProposals: () =>
+    request<{ items: ContentProposalRow[] }>("/api/admin/assistant/trends").then((result) => result.items),
+  generateTrendProposal: () =>
+    request<{ proposalId: string; titulo: string; proveedor: { estado: string; detalle: string | null } }>(
+      "/api/admin/assistant/trends",
+      { method: "POST" }
+    ),
+  actOnTrendProposal: (payload: { proposalId: string; accion: "approved" | "rejected" | "published"; nota?: string | null }) =>
+    request<{ id: string; status: string }>("/api/admin/assistant/trends", {
+      method: "PATCH",
+      body: JSON.stringify(payload)
+    })
 };
 
 export async function uploadCatalogImage(kind: "product-image" | "color-chart", file: File) {

@@ -30,7 +30,37 @@ export function ConversationDetailView({ conversationId }: { conversationId: str
   const [detail, setDetail] = useState<ConversationDetail | null>(null);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
   const threadRef = useRef<HTMLDivElement | null>(null);
+
+  // El Asesor propone un BORRADOR en el compositor; la vendedora lo edita y
+  // decide enviarlo. La IA jamás escribe directo a la clienta (regla 9).
+  async function suggestReply() {
+    if (suggesting || !detail) return;
+    setSuggesting(true);
+    try {
+      const recent = detail.messages.slice(-6)
+        .map((message) => `${message.direction === "inbound" ? "Clienta" : "Tienda"}: ${message.body ?? `[${message.messageType}]`}`)
+        .join("\n");
+      const lastInbound = [...detail.messages].reverse().find((message) => message.direction === "inbound");
+
+      const result = await adminApi.adviseAssist({
+        pregunta: lastInbound?.body ?? "Sugiere cómo continuar la atención de esta clienta.",
+        conversacionId: conversationId,
+        contexto: recent || null
+      });
+      setDraft(result.respuesta);
+      showToast(
+        result.proveedor.estado === "ok"
+          ? "Borrador sugerido: revísalo antes de enviar."
+          : "Sugerencia en modo determinista: revísala bien."
+      );
+    } catch (error) {
+      handleApiError(error, "No se pudo sugerir una respuesta.");
+    } finally {
+      setSuggesting(false);
+    }
+  }
 
   const load = useCallback(async () => {
     try {
@@ -173,6 +203,11 @@ export function ConversationDetailView({ conversationId }: { conversationId: str
               }}
               disabled={busy || conversation.status === "closed" || conversation.status === "archived"}
             />
+            <button type="button" className="btn-soft" disabled={busy || suggesting}
+              title="El asesor propone un borrador; tú decides si lo envías."
+              onClick={suggestReply}>
+              {suggesting ? "Pensando…" : "✨ Sugerir"}
+            </button>
             <button type="button" className="btn-save" disabled={busy || !draft.trim()} onClick={send}>
               Enviar
             </button>
