@@ -8,14 +8,20 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 const SALES_ITEM = { href: "/admin/ventas", label: "Ventas" };
 // La caja es de la vendedora: es su cajón y ella lo abre, lo arquea y lo cierra.
 const CASH_ITEM = { href: "/admin/caja", label: "Caja" };
+// La bandeja omnicanal también es suya: atiende WhatsApp, Instagram y Facebook
+// desde el mismo hilo, con su alcance recortado por la RLS.
+const CONVERSATIONS_ITEM = { href: "/admin/conversaciones", label: "Conversaciones" };
 
 const NAV_ITEMS = [
   SALES_ITEM,
+  CONVERSATIONS_ITEM,
   CASH_ITEM,
   { href: "/admin/inventario", label: "Inventario" },
+  { href: "/admin/carritos", label: "Carritos" },
   { href: "/admin/compras", label: "Compras" },
   { href: "/admin/gastos", label: "Gastos" },
   { href: "/admin/productos", label: "Productos" },
+  { href: "/admin/atribucion", label: "Marketing" },
   { href: "/admin/pdf", label: "Catálogo PDF" }
 ];
 
@@ -32,7 +38,7 @@ export function Topbar({
   // gastos y el PDF no son suyos: la RLS ya se lo impide, y la barra no le
   // ofrece pantallas donde solo encontraría cero filas.
   const navItems = role === "seller"
-    ? [SALES_ITEM, CASH_ITEM, { href: "/admin/inventario", label: "Inventario" }]
+    ? [SALES_ITEM, CONVERSATIONS_ITEM, CASH_ITEM, { href: "/admin/inventario", label: "Inventario" }]
     : role === "developer" && importsEnabled
       ? [...NAV_ITEMS, { href: "/admin/importaciones", label: "Importaciones" }]
       : NAV_ITEMS;

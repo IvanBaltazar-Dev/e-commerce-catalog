@@ -21,6 +21,17 @@ import type {
 } from "@/lib/admin/operations";
 import type { adjustInventorySchema, registerExpenseSchema } from "@/lib/admin/operations";
 import type {
+  AdminCartSummary,
+  CampaignInfo,
+  ChannelInfo,
+  ConversationAction,
+  ConversationDetail,
+  ConversationSummary,
+  OmnichannelMetrics,
+  createCampaignSchema,
+  createChannelAccountSchema
+} from "@/lib/admin/omnichannel";
+import type {
   GoodsReceipt,
   PurchaseOrder,
   SupplierBalance,
@@ -352,7 +363,48 @@ export const adminApi = {
     request<SupplierPayment>("/api/admin/suppliers/payments", {
       method: "POST",
       body: JSON.stringify(payload)
-    })
+    }),
+
+  // --- Omnicanal (Bloque 3) ------------------------------------------------
+  listConversations: (filters?: { status?: string; channel?: string; assigned?: string }) => {
+    const parameters = new URLSearchParams();
+    if (filters?.status) parameters.set("status", filters.status);
+    if (filters?.channel) parameters.set("channel", filters.channel);
+    if (filters?.assigned) parameters.set("assigned", filters.assigned);
+    const suffix = parameters.size ? `?${parameters.toString()}` : "";
+    return request<{ items: ConversationSummary[] }>(`/api/admin/conversations${suffix}`)
+      .then((result) => result.items);
+  },
+  getConversation: (id: string) => request<ConversationDetail>(`/api/admin/conversations/${id}`),
+  actOnConversation: (id: string, action: ConversationAction) =>
+    request<ConversationDetail>(`/api/admin/conversations/${id}`, {
+      method: "POST",
+      body: JSON.stringify(action)
+    }),
+  listAdminCarts: (status?: string) =>
+    request<{ items: AdminCartSummary[] }>(
+      status ? `/api/admin/carts?status=${status}` : "/api/admin/carts"
+    ).then((result) => result.items),
+  listChannels: () =>
+    request<{ items: ChannelInfo[] }>("/api/admin/channels").then((result) => result.items),
+  createChannelAccount: (payload: z.infer<typeof createChannelAccountSchema>) =>
+    request<{ id: string }>("/api/admin/channels", { method: "POST", body: JSON.stringify(payload) }),
+  listCampaigns: () =>
+    request<{ items: CampaignInfo[] }>("/api/admin/campaigns").then((result) => result.items),
+  createCampaign: (payload: z.infer<typeof createCampaignSchema>) =>
+    request<{ id: string; code: string }>("/api/admin/campaigns", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  getAttribution: () =>
+    request<{
+      metrics: OmnichannelMetrics;
+      chains: {
+        id: string; firstTouchAt: string; lastTouchAt: string;
+        firstSource: string | null; lastSource: string | null; campaign: string | null;
+        hasConversation: boolean; hasCart: boolean; hasSale: boolean;
+      }[];
+    }>("/api/admin/attribution")
 };
 
 export async function uploadCatalogImage(kind: "product-image" | "color-chart", file: File) {
