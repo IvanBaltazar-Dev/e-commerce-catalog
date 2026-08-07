@@ -31,10 +31,12 @@
     "test:block2": "node scripts/test-block2-integral.mjs --env .env.supabase.local",
     "test:block3": "node scripts/test-block3-integral.mjs --env .env.supabase.local",
     "test:omnichannel-concurrency": "node scripts/test-omnichannel-concurrency.mjs",
+    "test:ai-matching": "node scripts/test-ai-matching.mjs",
     "seed:demo-operation": "node scripts/seed-demo-operation.mjs --env .env.supabase.local",
     "test:cleanup": "node scripts/cleanup-v2-test-data.mjs --env .env.supabase.local"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.116.0",
     "@sparticuz/chromium": "148.0.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.4",
@@ -47,7 +49,7 @@
     "server-only": "^0.0.1",
     "sharp": "0.35.3",
     "yauzl": "^3.4.0",
-    "zod": "^3.24.2"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",

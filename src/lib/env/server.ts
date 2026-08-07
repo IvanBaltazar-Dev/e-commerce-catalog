@@ -17,7 +17,11 @@ const serverEnvSchema = z.object({
   META_VERIFY_TOKEN: z.string().min(8).optional(),
   META_APP_SECRET: z.string().min(8).optional(),
   META_PAGE_ACCESS_TOKEN: z.string().min(8).optional(),
-  TIKTOK_WEBHOOK_SECRET: z.string().min(8).optional()
+  TIKTOK_WEBHOOK_SECRET: z.string().min(8).optional(),
+  // Credencial de la asistencia IA (Bloque 4). Opcional a propósito: sin ella
+  // el intérprete y el asesor degradan al camino determinista y la visión
+  // responde «no disponible» — la operación manual jamás depende de esto.
+  ANTHROPIC_API_KEY: z.string().min(20).optional()
 });
 
 export const serverEnv = {
@@ -33,6 +37,7 @@ export const serverEnv = {
     META_VERIFY_TOKEN: process.env.META_VERIFY_TOKEN,
     META_APP_SECRET: process.env.META_APP_SECRET,
     META_PAGE_ACCESS_TOKEN: process.env.META_PAGE_ACCESS_TOKEN,
-    TIKTOK_WEBHOOK_SECRET: process.env.TIKTOK_WEBHOOK_SECRET
+    TIKTOK_WEBHOOK_SECRET: process.env.TIKTOK_WEBHOOK_SECRET,
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY
   })
 };
