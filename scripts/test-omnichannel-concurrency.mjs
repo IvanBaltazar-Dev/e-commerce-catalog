@@ -61,6 +61,45 @@ async function setup() {
     delete from public.admin_profiles where id in ('${ACTOR_ADMIN}','${SELLER_A}','${SELLER_B}');
     delete from auth.users where id in ('${ACTOR_ADMIN}','${SELLER_A}','${SELLER_B}');
 
+    -- Re-entrante: una corrida interrumpida deja la sede y su rastro; sin
+    -- esta purga previa el fixture choca contra branches_company_code_unique.
+    do $$
+    declare
+      branch uuid;
+    begin
+      select id into branch from public.branches where code = '${BRANCH_CODE}';
+      if branch is null then return; end if;
+
+      delete from public.channel_attributions where cart_id in
+        (select id from public.public_carts where branch_id = branch);
+      delete from public.public_carts where branch_id = branch;
+      delete from public.conversation_assignments where conversation_id in
+        (select id from public.channel_conversations where branch_id = branch);
+      delete from public.channel_events where conversation_id in
+        (select id from public.channel_conversations where branch_id = branch);
+      delete from public.integration_delivery_attempts where channel_message_id in
+        (select m.id from public.channel_messages m
+         join public.channel_conversations c on c.id = m.conversation_id
+         where c.branch_id = branch);
+      delete from public.channel_messages where conversation_id in
+        (select id from public.channel_conversations where branch_id = branch);
+      delete from public.channel_attributions where conversation_id in
+        (select id from public.channel_conversations where branch_id = branch);
+      delete from public.channel_conversations where branch_id = branch;
+      delete from public.channel_contacts where channel_account_id in
+        (select id from public.channel_accounts where branch_id = branch);
+      delete from public.channel_accounts where branch_id = branch;
+      delete from public.sales where branch_id = branch;
+      delete from public.branch_document_counters where branch_id = branch;
+      delete from public.inventory_movements where branch_id = branch;
+      delete from public.inventory_valuation where branch_id = branch;
+      delete from public.inventory_stock where branch_id = branch;
+      delete from public.staff_branches where branch_id = branch;
+      delete from public.branches where id = branch;
+    end $$;
+
+    delete from public.integration_webhook_events where external_event_id like 'omni-evt-%';
+
     insert into auth.users (
       instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
       raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
@@ -305,7 +344,7 @@ async function teardown() {
       delete from public.channel_events where conversation_id in
         (select id from public.channel_conversations where branch_id = branch);
       delete from public.integration_delivery_attempts where channel_message_id in
-        (select id from public.channel_messages m
+        (select m.id from public.channel_messages m
          join public.channel_conversations c on c.id = m.conversation_id
          where c.branch_id = branch);
       delete from public.channel_messages where conversation_id in
