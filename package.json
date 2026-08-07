@@ -29,6 +29,8 @@
     "test:sales-concurrency": "node scripts/test-sales-concurrency.mjs",
     "test:sales-ui": "node scripts/test-sales-ui.mjs --env .env.supabase.local",
     "test:block2": "node scripts/test-block2-integral.mjs --env .env.supabase.local",
+    "test:block3": "node scripts/test-block3-integral.mjs --env .env.supabase.local",
+    "test:omnichannel-concurrency": "node scripts/test-omnichannel-concurrency.mjs",
     "seed:demo-operation": "node scripts/seed-demo-operation.mjs --env .env.supabase.local",
     "test:cleanup": "node scripts/cleanup-v2-test-data.mjs --env .env.supabase.local"
   },

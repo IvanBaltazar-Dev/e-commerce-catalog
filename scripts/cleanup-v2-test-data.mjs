@@ -43,6 +43,8 @@ async function deleteProducts(pattern) {
         check(await client.from("reservations").delete().in("id", reservationIds).select("id"), "eliminar reservas de prueba");
       }
 
+      // Carrito público (0037): FK restrictiva a la variante.
+      check(await client.from("public_cart_items").delete().in("variant_id", variantIds).select("id"), "eliminar líneas de carrito público de prueba");
       check(await client.from("wholesale_rules").delete().in("variant_id", variantIds).select("id"), "eliminar reglas mayoristas de variante");
       check(await client.from("product_relations").delete().in("source_variant_id", variantIds).select("id"), "eliminar relaciones origen variante");
       check(await client.from("product_relations").delete().in("target_variant_id", variantIds).select("id"), "eliminar relaciones destino variante");

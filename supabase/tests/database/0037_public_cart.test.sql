@@ -21,13 +21,19 @@ insert into public.admin_profiles(id, role, full_name) values
   ('d5000000-0000-4000-8000-000000000001','admin','Propietaria de carritos'),
   ('d5000000-0000-4000-8000-000000000002','seller','Vendedora de carritos');
 
+-- Sede propia: las aserciones declaran existencias absolutas y sobre la sede
+-- principal dependerían de lo que dejara la integral o el seed.
+insert into public.branches (company_id, code, name, district, is_default, sort_order)
+select c.id, 'CARTTEST', 'Sede de carritos de prueba', 'Lima', false, 901
+from public.companies c limit 1;
+
 create temporary table fx on commit drop as
 select
   'd5000000-0000-4000-8000-000000000001'::uuid as admin_id,
   'd5000000-0000-4000-8000-000000000002'::uuid as seller_id,
   (select id from public.product_variants where sku = 'DEMO-ESM-ROJO') as v1,
   (select id from public.product_variants where sku = 'DEMO-ESM-NUDE') as v2,
-  (select id from public.branches where is_default and is_active) as main_branch;
+  (select id from public.branches where code = 'CARTTEST') as main_branch;
 
 set local request.jwt.claims = '{"sub":"d5000000-0000-4000-8000-000000000001","role":"authenticated"}';
 
@@ -92,6 +98,12 @@ select public.touch_anonymous_visitor(null, '/seleccion', null) as id;
 
 create temporary table cart1 on commit drop as
 select public.get_or_create_public_cart(null, (select id from visitor1)) as detail;
+
+-- El carrito público nace en la sede por defecto; la prueba lo opera en la
+-- suya para que las existencias declaradas no dependan de nadie más.
+update public.public_carts
+set branch_id = (select main_branch from fx)
+where public_token = (select detail ->> 'publicToken' from cart1);
 
 select is(
   length((select detail ->> 'publicToken' from cart1)),

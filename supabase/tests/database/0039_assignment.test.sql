@@ -98,8 +98,11 @@ select is(
   '5 · Y la tercera vuelve a la primera: la rueda gira en orden total'
 );
 
+-- Acotado a las conversaciones del fixture: sobre una base operada existen
+-- asignaciones de otros recorridos.
 select is(
-  (select count(*)::integer from public.conversation_assignments),
+  (select count(*)::integer from public.conversation_assignments
+   where conversation_id in (select c1 from convs union all select c2 from convs union all select c3 from convs)),
   3,
   '6 · Cada asignación dejó su fila de historia'
 );

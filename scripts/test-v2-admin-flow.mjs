@@ -217,6 +217,10 @@ try {
     assertClean(await admin.from("wholesale_rules").delete().eq("product_id", productId), "regla mayorista de producto");
     assertClean(await admin.from("product_relations").delete().or(`source_product_id.eq.${productId},target_product_id.eq.${productId}`), "relaciones de producto");
     if (variantIds.length) {
+      // El carrito público persistente (0037) referencia la variante con FK
+      // restrictiva: el recorrido de esta misma prueba deja la selección en el
+      // servidor, así que se retira antes de borrar el producto.
+      assertClean(await admin.from("public_cart_items").delete().in("variant_id", variantIds), "líneas de carrito público");
       assertClean(await admin.from("wholesale_rules").delete().in("variant_id", variantIds), "reglas mayoristas de variante");
       assertClean(await admin.from("product_relations").delete().or(`source_variant_id.in.(${variantIds.join(",")}),target_variant_id.in.(${variantIds.join(",")})`), "relaciones de variante");
     }
