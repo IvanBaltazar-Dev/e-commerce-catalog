@@ -103,7 +103,7 @@ export function AnalyticsView() {
             Cada cifra nace de ventas, costos y gastos reales. Lo no calculable se dice, no se inventa.
           </div>
         </div>
-        <div className="order-delivery" style={{ margin: 0, minWidth: 420, gridTemplateColumns: "repeat(5, 1fr)" }}>
+        <div className="order-delivery order-tabs" style={{ margin: 0, gridTemplateColumns: "repeat(5, 1fr)" }}>
           {PRESETS.map((option) => (
             <button key={option.id} type="button"
               className={preset === option.id ? "order-delivery-option order-delivery-option--active" : "order-delivery-option"}

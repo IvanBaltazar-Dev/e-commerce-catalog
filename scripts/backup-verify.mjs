@@ -83,10 +83,12 @@ try {
   } else {
     run("docker", ["cp", DUMP_FILE, `${CONTAINER}:/tmp/bellaroshe.dump`]);
     // --no-owner/--no-privileges: los dueños y roles ya existen en el clúster;
-    // schema_migrations y las extensiones llegan con el propio dump.
+    // schema_migrations y las extensiones llegan con el propio dump. `-U
+    // postgres` es OBLIGATORIO: sin él pg_restore conecta como el usuario del
+    // contenedor (root) y falla la autenticación peer — restaurando cero.
     // Los errores de objetos de sistema de Supabase (event triggers) no
     // invalidan los DATOS: se toleran y la verificación es por conteo.
-    spawnSync("docker", ["exec", CONTAINER, "pg_restore", "--no-owner", "--no-privileges", "-d", CHECK_DB, "/tmp/bellaroshe.dump"], { encoding: "utf8", maxBuffer: 1024 * 1024 * 64 });
+    spawnSync("docker", ["exec", CONTAINER, "pg_restore", "-U", "postgres", "--no-owner", "--no-privileges", "-d", CHECK_DB, "/tmp/bellaroshe.dump"], { encoding: "utf8", maxBuffer: 1024 * 1024 * 64 });
     run("docker", ["exec", CONTAINER, "rm", "-f", "/tmp/bellaroshe.dump"]);
   }
 

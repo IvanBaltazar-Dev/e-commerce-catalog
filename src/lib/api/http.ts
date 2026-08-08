@@ -87,9 +87,21 @@ export async function handleApiError(error: unknown) {
     );
   }
 
-  const message = error instanceof Error ? error.message : "Unexpected error.";
+  // Los errores de Supabase (RPC/PostgREST) NO son instancias de Error: son
+  // objetos planos { message, code, details, hint }. Extraer su mensaje es
+  // lo que convierte un «Unexpected error» mudo en un diagnóstico real.
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "object" && error !== null && typeof (error as { message?: unknown }).message === "string"
+        ? (error as { message: string }).message
+        : "Unexpected error.";
+  const pgCode =
+    typeof error === "object" && error !== null && typeof (error as { code?: unknown }).code === "string"
+      ? (error as { code: string }).code
+      : null;
 
-  logServerEvent("http_5xx", { requestId, code: "internal_error", status: 500, message });
+  logServerEvent("http_5xx", { requestId, code: "internal_error", status: 500, message, detail: pgCode });
 
   return NextResponse.json(
     {

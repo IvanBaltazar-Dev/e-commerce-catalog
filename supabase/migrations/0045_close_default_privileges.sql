@@ -129,17 +129,17 @@ end $$;
 do $$
 declare
   fn record;
-  -- Contratos del PÚBLICO ANÓNIMO puro: el carrito persistente, el visitante
-  -- y la atribución. 0037/0038 los cerraron a authenticated A PROPÓSITO
-  -- (solo la clienta anónima los invoca); ese diseño se conserva.
-  anon_only_contracts constant text[] := array[
+  -- Contratos de la SUPERFICIE PÚBLICA del catálogo: el listado, el detalle,
+  -- la evaluación, el carrito persistente, el visitante anónimo y la
+  -- atribución. Todos deben ser ejecutables por anon Y por authenticated: una
+  -- vendedora con sesión también navega la tienda pública, y su carrito,
+  -- sesión y atribución tienen que funcionar igual. (La corrección la destapó
+  -- el gate de frontend del Bloque 5: un admin logueado en la home recibía
+  -- permission denied en /api/catalog/session y en el carrito.)
+  shared_contracts constant text[] := array[
+    'catalog_list_v2', 'catalog_product_detail_v2', 'evaluate_cart_v2', 'is_admin',
     'get_or_create_public_cart', 'public_cart_detail', 'set_public_cart_item',
     'sync_public_cart', 'touch_anonymous_visitor', 'record_attribution_touch'
-  ];
-  -- Contratos compartidos: catálogo y evaluación (el panel de ventas también
-  -- los usa) y el helper que las políticas evalúan bajo cualquier rol.
-  shared_contracts constant text[] := array[
-    'catalog_list_v2', 'catalog_product_detail_v2', 'evaluate_cart_v2', 'is_admin'
   ];
   -- Helpers INVOKER que los contratos del catálogo llaman por dentro. La
   -- lista salió de ejecutar los contratos COMO anon hasta verlos vivir; el
@@ -166,10 +166,7 @@ begin
     -- Cerrar PUBLIC siempre: es el privilegio implícito de PostgreSQL.
     execute format('revoke execute on function %s from public', fn.signature);
 
-    if fn.proname = any (anon_only_contracts) then
-      execute format('revoke execute on function %s from authenticated', fn.signature);
-      execute format('grant execute on function %s to anon, service_role', fn.signature);
-    elsif fn.proname = any (shared_contracts) or fn.proname = any (helper_contracts) then
+    if fn.proname = any (shared_contracts) or fn.proname = any (helper_contracts) then
       execute format('grant execute on function %s to anon, authenticated, service_role', fn.signature);
     elsif fn.prorettype = 'trigger'::regtype then
       -- Las funciones de trigger no se invocan por RPC: nadie las necesita.

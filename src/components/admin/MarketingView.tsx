@@ -172,7 +172,7 @@ export function MarketingView({ initialTab = "atribucion" }: { initialTab?: Tab 
           <div className="form-title">Marketing y canales</div>
           <div className="field-hint">Todo importe nace de ventas reales del Bloque 2.</div>
         </div>
-        <div className="order-delivery" style={{ margin: 0, minWidth: 440, gridTemplateColumns: "repeat(4, 1fr)" }}>
+        <div className="order-delivery order-tabs" style={{ margin: 0, gridTemplateColumns: "repeat(4, 1fr)" }}>
           {(["atribucion", "campanas", "canales", "tendencias"] as Tab[]).map((option) => (
             <button key={option} type="button"
               className={tab === option ? "order-delivery-option order-delivery-option--active" : "order-delivery-option"}

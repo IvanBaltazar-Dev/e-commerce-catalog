@@ -145,12 +145,13 @@ select ok(
   (select bool_and(has_function_privilege('authenticated', p.oid, 'execute'))
    from pg_proc p
    where p.pronamespace = 'public'::regnamespace
-     and p.proname in ('register_sale', 'business_dashboard', 'record_ai_interaction', 'evaluate_cart_v2'))
-  and not (select bool_or(has_function_privilege('authenticated', p.oid, 'execute'))
-   from pg_proc p
-   where p.pronamespace = 'public'::regnamespace
-     and p.proname in ('get_or_create_public_cart', 'set_public_cart_item')),
-  '11 · El panel conserva sus contratos; los del carrito anónimo siguen siendo solo de anon'
+     and p.proname in ('register_sale', 'business_dashboard', 'record_ai_interaction', 'evaluate_cart_v2',
+                       -- La superficie pública del catálogo es COMPARTIDA: una
+                       -- vendedora logueada también navega la tienda, así que
+                       -- su carrito, sesión y atribución deben funcionarle.
+                       'get_or_create_public_cart', 'set_public_cart_item',
+                       'touch_anonymous_visitor', 'record_attribution_touch')),
+  '11 · El panel conserva sus contratos y la superficie pública es compartida (anon Y authenticated)'
 );
 
 -- 12 · Las funciones de trigger DEL PRODUCTO no las ejecuta nadie por RPC.

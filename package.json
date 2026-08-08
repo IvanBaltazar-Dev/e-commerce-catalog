@@ -39,7 +39,9 @@
     "audit:security": "node scripts/audit-security.mjs",
     "backup:verify": "node scripts/backup-verify.mjs",
     "perf:volume": "node scripts/perf-volume.mjs",
-    "test:responsive": "node scripts/test-responsive-sweep.mjs"
+    "test:responsive": "node scripts/test-responsive-sweep.mjs",
+    "rollback:drill": "node scripts/rollback-drill.mjs",
+    "e2e:staging": "node scripts/e2e-staging.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",

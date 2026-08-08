@@ -24,7 +24,7 @@ import { fileURLToPath } from "node:url";
 import { loadSupabaseScriptEnv } from "./lib/supabase-script-env.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const { env, isLocal } = loadSupabaseScriptEnv({ rootDir: ROOT, scriptName: "perf-volume" });
+const { env, isLocal } = loadSupabaseScriptEnv({ rootDir: ROOT, scriptName: "perf-volume", allowedFlags: ["--keep", "--skip-seed"] });
 if (!isLocal) throw new Error("El arnés de volumen solo corre contra Supabase local.");
 
 const BASE_URL = process.env.UI_BASE_URL ?? "http://localhost:3002";
@@ -68,8 +68,8 @@ async function cleanupVolume() {
   console.log("Limpieza del volumen VOLB5 previo…");
   psql(`
     delete from public.channel_attributions where last_utm->>'volb5' = '1';
-    delete from public.public_cart_items where cart_id in (select id from public.public_carts where notes = 'VOLB5');
-    delete from public.public_carts where notes = 'VOLB5';
+    delete from public.public_cart_items where cart_id in (select id from public.public_carts where metadata->>'volb5' = '1');
+    delete from public.public_carts where metadata->>'volb5' = '1';
     delete from public.channel_events where conversation_id in (
       select c.id from public.channel_conversations c
       join public.channel_accounts a on a.id = c.channel_account_id
@@ -87,21 +87,31 @@ async function cleanupVolume() {
     delete from public.channel_contacts where external_contact_id like 'volb5-%';
     delete from public.channel_accounts where external_account_id = 'volb5-account';
     delete from public.expenses where description like 'VOLB5%';
-    delete from public.sale_line_costs where sale_id in (select id from public.sales where notes = 'VOLB5');
+    -- Solo la CABECERA: cascadea a líneas, costos y pagos. Quitar los pagos
+    -- antes dejaría la venta con total y cobranza cero, y el trigger diferido
+    -- assert_sale_fully_paid lo rechaza (la lección de cleanup-v2-test-data).
     delete from public.sales where notes = 'VOLB5';
+    -- Las mediciones de venta y reserva crean reservas sobre variantes VOLB5;
+    -- sus líneas tienen FK restrictiva a la variante y deben irse antes.
+    delete from public.reservations where notes = 'VOLB5';
+
+    -- Los productos del volumen: todo por SQL (sin límite de URI). Primero se
+    -- DESPUBLICAN — un producto publicado no puede quedarse sin precio, y el
+    -- trigger diferido lo comprueba al borrar los precios — y luego se borra
+    -- en el orden que respetan las FKs restrictivas del kardex.
+    update public.products set is_active = false, editorial_status = 'draft'
+      where code like 'VOLB5-%';
+    delete from public.inventory_movements where variant_id in (
+      select id from public.product_variants where sku like 'VOLB5-%');
+    delete from public.inventory_valuation where variant_id in (
+      select id from public.product_variants where sku like 'VOLB5-%');
+    delete from public.inventory_stock where variant_id in (
+      select id from public.product_variants where sku like 'VOLB5-%');
+    delete from public.variant_prices where variant_id in (
+      select id from public.product_variants where sku like 'VOLB5-%');
+    delete from public.product_variants where sku like 'VOLB5-%';
+    delete from public.products where code like 'VOLB5-%';
   `);
-  // Los productos del volumen, por lotes (FKs restrictivas ya retiradas arriba).
-  while (true) {
-    const rows = must(await service.from("products").select("id").like("code", "VOLB5-%").limit(300), "listar VOLB5");
-    if (rows.length === 0) break;
-    const ids = rows.map((row) => row.id);
-    const variants = must(await service.from("product_variants").select("id").in("product_id", ids), "variantes VOLB5");
-    const variantIds = variants.map((row) => row.id);
-    if (variantIds.length) {
-      must(await service.from("variant_prices").delete().in("variant_id", variantIds).select("variant_id"), "precios VOLB5");
-    }
-    must(await service.from("products").delete().in("id", ids).select("id"), "borrar VOLB5");
-  }
 }
 
 async function seedVolume() {
@@ -132,8 +142,11 @@ async function seedVolume() {
     wholesale_price: 8 + (index % 40),
     wholesale_min_quantity: 3,
     availability: "available",
-    editorial_status: "published",
-    is_active: true,
+    // Nacen INACTIVOS: el trigger diferido exige que un producto activo ya
+    // tenga variante predeterminada, y supabase-js confirma cada inserción
+    // por separado. Se activan al final, cuando sus variantes existen.
+    editorial_status: "draft",
+    is_active: false,
     sort_order: 9000 + index
   }));
 
@@ -164,6 +177,15 @@ async function seedVolume() {
   await chunks(prices, 500, async (rows) => {
     must(await service.from("variant_prices").insert(rows).select("variant_id"), "insert precios");
   });
+
+  // Ahora que cada producto tiene su variante predeterminada activa, se
+  // activan y publican en un solo golpe — el trigger diferido queda contento.
+  console.log("  activando productos…");
+  psql(`
+    update public.products
+    set is_active = true, editorial_status = 'published'
+    where code like 'VOLB5-%';
+  `);
 
   // Ventas consistentes por SQL puro: total = suma de líneas, un pago igual al
   // total, costo conocido — y `set constraints all immediate` para que los
@@ -224,18 +246,25 @@ async function seedVolume() {
       returning id, channel_account_id, external_contact_id
     ),
     convs as (
-      insert into public.channel_conversations (channel_account_id, channel_contact_id, branch_id, status, opened_at, last_message_at)
+      -- Todas abiertas: una cerrada exige sus campos de cierre (close_
+      -- consistent), y para medir la bandeja el estado es irrelevante.
+      insert into public.channel_conversations (channel_account_id, channel_contact_id, branch_id, status, opened_at, last_activity_at)
       select c.id_account, c.id_contact, '${branch.id}',
-        case when n % 5 = 0 then 'closed' else 'open' end,
+        'open'::public.conversation_status,
         now() - ((n % 45) || ' days')::interval,
         now() - ((n % 45) || ' days')::interval + interval '30 minutes'
       from (select row_number() over () as n, channel_account_id as id_account, id as id_contact from contacts) c
       returning id, channel_account_id
     )
-    insert into public.channel_messages (conversation_id, channel_account_id, direction, message_type, body, external_message_id, received_at)
+    -- Todos entrantes: un saliente exige remitente (channel_messages_outbound_
+    -- has_sender), y para medir la bandeja la dirección es irrelevante — lo que
+    -- importa es el VOLUMEN de mensajes y conversaciones.
+    insert into public.channel_messages (conversation_id, channel_account_id, direction, message_type, status, body, external_message_id, received_at)
     select convs.id, convs.channel_account_id,
-      case when gs % 2 = 0 then 'inbound' else 'outbound' end,
-      'text', 'Mensaje de volumen ' || gs,
+      'inbound'::public.message_direction,
+      'text',
+      'received'::public.message_delivery_status,
+      'Mensaje de volumen ' || gs,
       'volb5-m-' || convs.id || '-' || gs,
       now() - interval '1 day' + (gs || ' minutes')::interval
     from convs, generate_series(1, ${MESSAGES_PER_CONV}) gs;
@@ -243,6 +272,7 @@ async function seedVolume() {
   `);
 
   console.log("  carritos persistentes…");
+  const webChannel = must(await service.from("channels").select("id").eq("code", "web").single(), "canal web");
   psql(`
     begin;
     with vars as (select array(select id from public.product_variants where sku like 'VOLB5-%' limit 500) as ids),
@@ -252,8 +282,10 @@ async function seedVolume() {
       select gen_random_uuid() from nums returning id
     ),
     carts as (
-      insert into public.public_carts (anonymous_visitor_id, branch_id, status, notes, last_activity_at)
-      select v.id, '${branch.id}', case when n % 3 = 0 then 'abandoned' else 'active' end, 'VOLB5',
+      insert into public.public_carts (anonymous_visitor_id, channel_id, branch_id, status, metadata, last_activity_at)
+      select v.id, '${webChannel.id}', '${branch.id}',
+        (case when n % 3 = 0 then 'abandoned' else 'active' end)::public.cart_status,
+        '{"volb5":"1"}'::jsonb,
         now() - ((n % 30) || ' days')::interval
       from (select row_number() over () as n, id from visitors) v
       returning id
@@ -277,7 +309,7 @@ async function seedVolume() {
     select 'productos: ' || count(*) from public.products where code like 'VOLB5-%'
     union all select 'ventas: ' || count(*) from public.sales where notes = 'VOLB5'
     union all select 'mensajes: ' || (select count(*) from public.channel_messages where external_message_id like 'volb5-%')
-    union all select 'carritos: ' || (select count(*) from public.public_carts where notes = 'VOLB5');
+    union all select 'carritos: ' || (select count(*) from public.public_carts where metadata->>'volb5' = '1');
   `);
   console.log(counts.split("\n").map((line) => `  ${line}`).join("\n"));
 }
@@ -305,7 +337,7 @@ async function measureAll() {
 
   const someProduct = must(await service.from("products").select("slug").like("code", "VOLB5-%").limit(1).single(), "producto de muestra");
   const tenVariants = must(await service.from("product_variants").select("id").like("sku", "VOLB5-%").limit(10), "variantes de muestra");
-  const someCart = must(await service.from("public_carts").select("public_token").eq("notes", "VOLB5").eq("status", "active").limit(1).single(), "carrito de muestra");
+  const someCart = must(await service.from("public_carts").select("public_token, metadata").eq("status", "active").limit(1).single(), "carrito de muestra");
   const someVariantForSale = tenVariants[0].id;
   const branch = must(await service.from("branches").select("id").eq("is_default", true).limit(1).single(), "sede");
 
@@ -365,12 +397,12 @@ async function measureAll() {
     },
     {
       name: "Kardex (inventory_ledger, 50 filas)", threshold: 700,
-      fn: async () => { must(await asAdmin.rpc("inventory_ledger", { p_variant_id: someVariantForSale, p_limit: 50 }), "kardex"); },
+      fn: async () => { must(await asAdmin.rpc("inventory_ledger", { p_variant_id: someVariantForSale, p_branch_id: branch.id, p_from: null, p_to: null, p_limit: 50 }), "kardex"); },
       explain: null
     },
     {
       name: "Lectura de caja (daily_cash_summary)", threshold: 800,
-      fn: async () => { must(await asAdmin.rpc("daily_cash_summary", { p_branch_id: branch.id }), "caja"); },
+      fn: async () => { must(await asAdmin.rpc("daily_cash_summary", { p_branch_id: branch.id, p_date: new Date().toISOString().slice(0, 10) }), "caja"); },
       explain: null
     },
     {
@@ -390,11 +422,11 @@ async function measureAll() {
       name: "Bandeja de conversaciones (30 más recientes)", threshold: 700,
       fn: async () => {
         must(await service.from("channel_conversations")
-          .select("id, status, last_message_at, channel_accounts(display_name), channel_contacts(display_name)")
-          .order("last_message_at", { ascending: false })
+          .select("id, status, last_activity_at, channel_accounts(display_name), channel_contacts(display_name)")
+          .order("last_activity_at", { ascending: false })
           .limit(30), "bandeja");
       },
-      explain: `select c.id from public.channel_conversations c order by c.last_message_at desc limit 30;`
+      explain: `select c.id from public.channel_conversations c order by c.last_activity_at desc limit 30;`
     },
     {
       name: "Carrito persistente (public_cart_detail)", threshold: 700,

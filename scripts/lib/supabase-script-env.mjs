@@ -42,7 +42,7 @@ function parseEnvFile(filePath) {
   );
 }
 
-function parseArgs(argv) {
+function parseArgs(argv, allowedFlags = []) {
   const options = {
     envFile: ".env.supabase.local",
     allowRemote: false,
@@ -92,6 +92,12 @@ function parseArgs(argv) {
       continue;
     }
 
+    // Banderas propias del guion que lo llama (declaradas en allowedFlags):
+    // no las interpreta el loader, pero no debe rechazarlas.
+    if (argument.startsWith("--") && allowedFlags.includes(argument.split("=")[0])) {
+      continue;
+    }
+
     if (argument.startsWith("--")) {
       throw new Error(`Argumento desconocido: ${argument}`);
     }
@@ -113,8 +119,8 @@ function projectRef(url, env) {
   return host.endsWith(suffix) ? host.slice(0, -suffix.length) : null;
 }
 
-export function loadSupabaseScriptEnv({ rootDir, scriptName }) {
-  const options = parseArgs(process.argv.slice(2));
+export function loadSupabaseScriptEnv({ rootDir, scriptName, allowedFlags = [] }) {
+  const options = parseArgs(process.argv.slice(2), allowedFlags);
   const envPath = path.resolve(rootDir, options.envFile);
   let env;
 

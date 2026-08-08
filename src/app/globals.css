@@ -5088,6 +5088,20 @@ a.pub-tab--wa:hover {
   }
 }
 
+/* En móvil el aviso «datos actualizados» no debe empujar la cabecera del
+   listado fuera de pantalla: la cabecera envuelve y el aviso deja de forzar
+   ancho (era el único desborde horizontal de la home). */
+@media (max-width: 759px) {
+  .pub-listhead {
+    flex-wrap: wrap;
+  }
+
+  .pub-original {
+    white-space: normal;
+    min-width: 0;
+  }
+}
+
 /* ---------------------------------------------------------------------------
    Caja — venta, cobro y reservas (Bloque 2)
    Reutiliza el lenguaje visual del registro de pedidos: mismas tarjetas, mismo
@@ -5560,10 +5574,22 @@ a.pub-tab--wa:hover {
 .metric-tile b { font-family: "Poppins", sans-serif; font-size: 18px; color: var(--br-ink-strong); }
 .metric-tile span { color: var(--br-muted); font-size: 10.5px; }
 
+/* Barras de pestañas/presets: en móvil van a ancho completo y sus columnas
+   se encogen en vez de forzar scroll horizontal. */
+.order-tabs { width: 100%; min-width: 0; }
+.order-tabs .order-delivery-option {
+  min-width: 0;
+  padding: 9px 4px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Rankings del tablero comercial (Bloque 4) */
 .rank-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 12px;
   margin-top: 10px;
 }

@@ -34,7 +34,7 @@ npx supabase start                  # primera vez descarga contenedores
 npx supabase status                 # copiar anon y service_role
 cp .env.example .env.local          # pegar las claves locales
 cp .env.example .env.supabase.local # ídem (los guiones .mjs leen este)
-npx supabase db reset --local       # 0001–0044 + seed base
+npx supabase db reset --local       # 0001–0046 + seed base
 npm run seed:demo-operation         # operación demo (usuarios, stock, ventas)
 npm run build && npm run start -- -p 3002
 ```
@@ -48,7 +48,7 @@ Credenciales demo: `demo-admin@local.invalid` / `Demo-Admin-2026!` y `demo-selle
 | Comando | Qué prueba |
 |---|---|
 | `npm run gate:rebuild` | **El gate del Bloque 5**: base vacía → migraciones → seeds → pgTAP → integrales B1–B4 → concurrencias → typecheck → lint → build. Evidencia en `test-results/gate-rebuild-N.md` |
-| `npm run test:db` | pgTAP completo (19 suites, 490 aserciones) |
+| `npm run test:db` | pgTAP completo (20 suites, 505 aserciones) |
 | `test:contracts` / `test:block2` / `test:block3` / `test:block4` | Integrales por bloque |
 | `test:inventory-concurrency` / `test:sales-concurrency` / `test:omnichannel-concurrency` | Concurrencia con sesiones reales |
 | `test:ai-matching` | Intérprete determinista de pedidos (sin IA) |
@@ -67,7 +67,7 @@ Credenciales demo: `demo-admin@local.invalid` / `Demo-Admin-2026!` y `demo-selle
 
 ## 5. Migraciones — clasificación y despliegue remoto
 
-Las migraciones 0001–0044 son **aditivas** con estas excepciones conocidas:
+Las migraciones 0001–0046 son **aditivas** con estas excepciones conocidas:
 
 | Migración | Naturaleza | Precaución en producción |
 |---|---|---|
