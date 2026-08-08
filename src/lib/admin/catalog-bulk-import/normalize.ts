@@ -373,6 +373,10 @@ export function normalizeListing(rows: BulkListingRow[]): NormalizeListingResult
 
   // --- Registros normalizados por clúster -----------------------------------
   const records: BulkNormalizedRecord[] = [];
+  // Regla 2 de identidad: proveedor + código de proveedor identifican el artículo.
+  // Si dos filas comparten esa clave, la segunda es candidata a fusión y JAMÁS
+  // avanza sola: queda en revisión con referencia a la primera.
+  const supplierOfferSeen = new Map<string, number>();
   for (const [, members] of [...clusters.entries()].sort(([a], [b]) => a.localeCompare(b))) {
     const first = members[0];
     const config = first.config;
@@ -482,6 +486,17 @@ export function normalizeListing(rows: BulkListingRow[]): NormalizeListingResult
       if (!duplicate) seenVariantKeys.set(variantKey, record);
       if (groupingConfidence === "review" && action !== "skip") {
         issues.push({ row: member.row.row, severity: "warning", code: "grouping_needs_confirmation", field: null, message: `Agrupación propuesta con confianza baja (${variantName}); confirmar en revisión.` });
+      }
+      if (supplier.name && supplier.supplierSku && record.action !== "skip") {
+        const offerKey = `${supplier.name.toLowerCase()}|${supplier.supplierSku.toLowerCase()}`;
+        const firstRow = supplierOfferSeen.get(offerKey);
+        if (firstRow !== undefined) {
+          record.action = "merge";
+          record.review.push(`Mismo proveedor y código (${supplier.name} / ${supplier.supplierSku}) que la fila ${firstRow}`);
+          issues.push({ row: member.row.row, severity: "error", code: "duplicate_supplier_code", field: "codigo_proveedor", message: `Comparte proveedor y código de proveedor con la fila ${firstRow}; son el mismo artículo o un error de código. Decidir manualmente.` });
+        } else {
+          supplierOfferSeen.set(offerKey, member.row.row);
+        }
       }
       records.push(record);
     }

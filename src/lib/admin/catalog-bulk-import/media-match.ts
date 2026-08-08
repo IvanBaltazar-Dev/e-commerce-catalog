@@ -8,6 +8,7 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { slugify } from "@/lib/catalog/slug";
+import { COLOR_LEXICON } from "@/lib/admin/catalog-bulk-import/lexicons";
 import type { BulkMediaMatch, BulkNormalizedRecord } from "@/lib/admin/catalog-bulk-import/types";
 
 const BUCKET = "catalog-assets";
@@ -146,8 +147,12 @@ export function matchClusterMedia(records: BulkNormalizedRecord[], index: BulkMe
       record.media.status = "review";
       record.media.backfill = null;
     } else if (visualAxis) {
-      // Variante visual sin imagen: swatch honesto solo con color conocido.
-      if (record.color?.referenceColor) {
+      // Variante visual sin imagen: swatch honesto solo con color conocido —
+      // sea tono con hex (shade) o eje de color con palabra del léxico.
+      const colorAxisHex = visualAxis.code === "color"
+        ? COLOR_LEXICON.find((entry) => slugify(entry.label) === visualAxis.value)?.hex ?? null
+        : null;
+      if (record.color?.referenceColor || colorAxisHex) {
         record.media.status = "color_fallback";
         record.media.backfill = "color";
       } else {

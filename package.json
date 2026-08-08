@@ -43,7 +43,8 @@
     "perf:volume": "node scripts/perf-volume.mjs",
     "test:responsive": "node scripts/test-responsive-sweep.mjs",
     "rollback:drill": "node scripts/rollback-drill.mjs",
-    "e2e:staging": "node scripts/e2e-staging.mjs"
+    "e2e:staging": "node scripts/e2e-staging.mjs",
+    "test:bulk-import-pilot": "node --conditions=react-server --experimental-transform-types scripts/test-bulk-import-pilot.mjs --env .env.supabase.local"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",

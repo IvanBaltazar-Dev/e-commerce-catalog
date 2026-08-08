@@ -9,6 +9,7 @@
 
 import "server-only";
 
+import { createHash } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { HttpError } from "@/lib/api/errors";
 import { getCatalogV2Bootstrap, getCatalogV2Product, saveCatalogV2Product } from "@/lib/admin/catalog-v2-service";
@@ -16,6 +17,7 @@ import type { AdminV2Bootstrap, AdminV2ProductInput } from "@/lib/admin/catalog-
 import type { CatalogRawWorkbook } from "@/lib/admin/catalog-import-xlsx";
 import { mapListingRows, normalizeListing } from "@/lib/admin/catalog-bulk-import/normalize";
 import { indexCatalogAssets, matchClusterMedia } from "@/lib/admin/catalog-bulk-import/media-match";
+import { COLOR_LEXICON } from "@/lib/admin/catalog-bulk-import/lexicons";
 import { slugify } from "@/lib/catalog/slug";
 import type {
   BulkBatchCounts,
@@ -36,6 +38,12 @@ const OPEN_VOCABULARY_AXES = new Set(["aroma", "set_name", "size_label", "color"
 
 function fail(code: string, message: string): never {
   throw new HttpError(400, code, message);
+}
+
+function chunked<T>(items: T[], size = 80): T[][] {
+  const chunks: T[][] = [];
+  for (let offset = 0; offset < items.length; offset += size) chunks.push(items.slice(offset, offset + size));
+  return chunks;
 }
 
 // ---------------------------------------------------------------------------
@@ -82,22 +90,20 @@ export async function stageBulkImportBatch(
   const internalCodes = [...new Set(records.map((record) => record.identity.internalCode).filter((code): code is string => Boolean(code)))];
   const productCodes = [...new Set(records.map((record) => record.grouping.productCode))];
 
-  const [variantsBySku, productsByCode, supplierLinks] = await Promise.all([
-    internalCodes.length
-      ? supabase.from("product_variants").select("id, sku, product_id").in("sku", internalCodes)
-      : Promise.resolve({ data: [], error: null }),
-    productCodes.length
-      ? supabase.from("products").select("id, code").in("code", productCodes)
-      : Promise.resolve({ data: [], error: null }),
-    internalCodes.length || records.some((record) => record.identity.supplierCode)
-      ? supabase.from("product_suppliers").select("variant_id, supplier_sku, suppliers!inner(trade_name)").eq("is_active", true)
-      : Promise.resolve({ data: [], error: null })
-  ]);
-  for (const result of [variantsBySku, productsByCode, supplierLinks]) {
+  const existingSkus = new Map<string, { id: unknown; sku: unknown; product_id: unknown }>();
+  for (const chunk of chunked(internalCodes)) {
+    const result = await supabase.from("product_variants").select("id, sku, product_id").in("sku", chunk);
     if (result.error) fail("bulk_identity_lookup_failed", result.error.message);
+    for (const variant of result.data ?? []) existingSkus.set(String(variant.sku).toLowerCase(), variant);
   }
-  const existingSkus = new Map((variantsBySku.data ?? []).map((variant) => [String(variant.sku).toLowerCase(), variant]));
-  const existingProducts = new Map((productsByCode.data ?? []).map((product) => [String(product.code), product]));
+  const existingProducts = new Map<string, { id: unknown; code: unknown }>();
+  for (const chunk of chunked(productCodes)) {
+    const result = await supabase.from("products").select("id, code").in("code", chunk);
+    if (result.error) fail("bulk_identity_lookup_failed", result.error.message);
+    for (const product of result.data ?? []) existingProducts.set(String(product.code), product);
+  }
+  const supplierLinks = await supabase.from("product_suppliers").select("variant_id, supplier_sku, suppliers!inner(trade_name)").eq("is_active", true);
+  if (supplierLinks.error) fail("bulk_identity_lookup_failed", supplierLinks.error.message);
   const existingSupplierOffers = new Set(
     (supplierLinks.data ?? []).map((link) => `${String((link.suppliers as unknown as { trade_name: string }).trade_name).toLowerCase()}|${String(link.supplier_sku ?? "").toLowerCase()}`)
   );
@@ -375,16 +381,16 @@ export async function approveBulkBatch(
     resolvableIssues.push(...open.map((issue) => String(issue.id)));
   }
 
-  if (toApprove.length) {
-    const update = await supabase.from("import_rows").update({ status: "approved" }).in("id", toApprove);
+  for (const chunk of chunked(toApprove)) {
+    const update = await supabase.from("import_rows").update({ status: "approved" }).in("id", chunk);
     if (update.error) fail("bulk_approve_failed", update.error.message);
   }
-  if (toSkip.length) {
-    const update = await supabase.from("import_rows").update({ status: "skipped", proposed_action: "skip" }).in("id", toSkip);
+  for (const chunk of chunked(toSkip)) {
+    const update = await supabase.from("import_rows").update({ status: "skipped", proposed_action: "skip" }).in("id", chunk);
     if (update.error) fail("bulk_skip_failed", update.error.message);
   }
-  if (resolvableIssues.length) {
-    const update = await supabase.from("import_issues").update({ status: "resolved", resolved_at: new Date().toISOString(), resolution: { via: "bulk_approve" } }).in("id", resolvableIssues);
+  for (const chunk of chunked(resolvableIssues)) {
+    const update = await supabase.from("import_issues").update({ status: "resolved", resolved_at: new Date().toISOString(), resolution: { via: "bulk_approve" } }).in("id", chunk);
     if (update.error) fail("bulk_issue_resolve_failed", update.error.message);
   }
   const status = await supabase.from("import_batches").update({ status: "approved" }).eq("id", batchId);
@@ -462,10 +468,16 @@ async function ensureAttributeOption(
   const existing = definition.options.find((option) => option.value.toLowerCase() === value.toLowerCase());
   if (existing) return existing.id;
   if (!OPEN_VOCABULARY_AXES.has(attributeCode)) return null;
+  // El hex del léxico viaja en metadata para que el swatch temporal (deuda
+  // media_backfill=color) tenga de dónde pintarse sin inventar nada.
+  const lexiconHex = attributeCode === "color"
+    ? COLOR_LEXICON.find((entry) => slugify(entry.label) === value)?.hex ?? null
+    : null;
   const insert = await supabase.from("attribute_options").insert({
     attribute_definition_id: definition.id,
     value,
     label,
+    metadata: lexiconHex ? { hex: lexiconHex } : {},
     sort_order: 500 + definition.options.length
   }).select("id").single();
   if (insert.error || !insert.data) fail("bulk_option_create_failed", insert.error?.message ?? `No se pudo crear la opción ${value} de ${attributeCode}.`);
@@ -520,10 +532,12 @@ async function ensureColorShade(
 
 function variantSkuFor(record: BulkNormalizedRecord): string {
   if (record.identity.internalCode) return record.identity.internalCode;
-  const hash = record.grouping.variantKey === "unica"
+  // Determinista y sin colisiones: hash del eje completo, no su cola (todas las
+  // claves de un clúster terminan igual — «presentation150gr» — y chocarían).
+  const suffix = record.grouping.variantKey === "unica"
     ? "UNICA"
-    : record.grouping.variantKey.replace(/[^a-z0-9]/gi, "").slice(-8).toUpperCase() || "VAR";
-  return `${record.grouping.productCode}-${hash}`;
+    : createHash("sha1").update(record.grouping.variantKey).digest("hex").slice(0, 6).toUpperCase();
+  return `${record.grouping.productCode}-${suffix}`;
 }
 
 export async function commitBulkBatch(
@@ -679,13 +693,24 @@ export async function commitBulkBatch(
       let created = false;
       let variantsAdded = 0;
 
+      // Un clúster puede traer la MISMA variante en varias filas (segunda oferta
+      // de proveedor): la variante se crea una vez y las demás filas solo enlazan.
+      const uniqueMembers: StagedRow[] = [];
+      const seenKeys = new Set<string>();
+      for (const member of members) {
+        const key = member.record.grouping.variantKey.toLowerCase();
+        if (seenKeys.has(key)) continue;
+        seenKeys.add(key);
+        uniqueMembers.push(member);
+      }
+
       if (existingProduct.data) {
         // Producto ya existente: solo variantes/ofertas nuevas sobre él.
         productId = String(existingProduct.data.id);
         const current = await getCatalogV2Product(supabase, productId);
         const currentKeys = new Set(current.variants.map((variant) => variant.variantKey.toLowerCase()));
         const currentSkus = new Set(current.variants.map((variant) => variant.sku.toLowerCase()));
-        const additions = members.filter((member) => {
+        const additions = uniqueMembers.filter((member) => {
           const sku = variantSkuFor(member.record).toLowerCase();
           return !currentKeys.has(member.record.grouping.variantKey.toLowerCase()) && !currentSkus.has(sku);
         });
@@ -742,7 +767,7 @@ export async function commitBulkBatch(
           isActive: true,
           isFeatured: false,
           productAttributes: [],
-          variants: members.map((member, index) => buildVariant(member, index, index === 0)),
+          variants: uniqueMembers.map((member, index) => buildVariant(member, index, index === 0)),
           media: productMedia,
           relations: [],
           wholesaleMixingPolicy: "same_product"
@@ -751,7 +776,7 @@ export async function commitBulkBatch(
         productId = product.id;
         created = true;
         counts.productosNuevos += 1;
-        variantsAdded = members.length;
+        variantsAdded = uniqueMembers.length;
       }
 
       // Vínculos de proveedor + marcadores de deuda de medios, por variante.
@@ -779,14 +804,19 @@ export async function commitBulkBatch(
         }
         if (record.supplier?.name) {
           const supplierId = await ensureSupplier(supabase, supplierCache, companyId, record.supplier.name);
-          const link = await supabase.from("product_suppliers").select("id").eq("supplier_id", supplierId).eq("variant_id", variant.id).maybeSingle();
-          if (link.error) fail("bulk_supplier_link_lookup_failed", link.error.message);
-          if (!link.data) {
+          const links = await supabase.from("product_suppliers").select("id, supplier_id, is_preferred").eq("variant_id", variant.id).eq("is_active", true);
+          if (links.error) fail("bulk_supplier_link_lookup_failed", links.error.message);
+          const already = (links.data ?? []).some((link) => String(link.supplier_id) === supplierId);
+          if (!already) {
+            // La regla de dominio exige un preferido cuando hay ofertas activas:
+            // la primera oferta del lote queda como preferida.
+            const hasPreferred = (links.data ?? []).some((link) => link.is_preferred);
             const insert = await supabase.from("product_suppliers").insert({
               supplier_id: supplierId,
               scope_type: "variant",
               variant_id: variant.id,
-              supplier_sku: record.supplier.supplierSku
+              supplier_sku: record.supplier.supplierSku,
+              is_preferred: !hasPreferred
             });
             if (insert.error) fail("bulk_supplier_link_failed", insert.error.message);
           }
@@ -855,6 +885,101 @@ export async function commitBulkBatch(
 
   const loteName = ((batch.data.summary as { lote?: string })?.lote) ?? String(batch.data.source_name).replace(`${SOURCE_PREFIX}:`, "");
   return { batchId, loteName, counts, productos: productosReporte, rechazadas };
+}
+
+// ---------------------------------------------------------------------------
+// Conciliación posterior de imágenes: un lote ya importado adopta los archivos
+// que llegaron después (ZIP de medios), sin tocar productos ni variantes.
+// Solo adopta coincidencias exact/high; las review siguen siendo humanas.
+// ---------------------------------------------------------------------------
+
+export async function syncBulkBatchMedia(supabase: Supabase, batchId: string) {
+  const rowsResult = await supabase
+    .from("import_rows")
+    .select("id, row_number, status, normalized_data, target_product_id, target_variant_id")
+    .eq("batch_id", batchId)
+    .eq("status", "committed");
+  if (rowsResult.error) fail("bulk_media_sync_read_failed", rowsResult.error.message);
+  const rows = (rowsResult.data ?? []).filter((row) => row.target_product_id);
+  if (!rows.length) {
+    throw new HttpError(422, "bulk_media_sync_nothing", "El lote no tiene filas importadas sobre las que conciliar imágenes.");
+  }
+
+  const index = await indexCatalogAssets(supabase);
+  const byProduct = new Map<string, Array<{ row: (typeof rows)[number]; record: BulkNormalizedRecord }>>();
+  for (const row of rows) {
+    const record = JSON.parse(JSON.stringify(row.normalized_data)) as BulkNormalizedRecord;
+    byProduct.set(record.grouping.productKey, [...(byProduct.get(record.grouping.productKey) ?? []), { row, record }]);
+  }
+
+  const ensureAsset = async (storagePath: string) => {
+    const upsert = await supabase.from("media_assets").upsert({
+      bucket: "catalog-assets",
+      storage_path: storagePath,
+      file_name: storagePath.split("/").pop() ?? storagePath,
+      mime_type: storagePath.toLowerCase().endsWith(".pdf") ? "application/pdf" : "image/webp"
+    }, { onConflict: "bucket,storage_path" }).select("id").single();
+    if (upsert.error || !upsert.data) fail("bulk_media_asset_failed", upsert.error?.message ?? storagePath);
+    return String(upsert.data.id);
+  };
+
+  let variantesConImagen = 0;
+  let productosConImagen = 0;
+  let sinCambio = 0;
+
+  for (const cluster of byProduct.values()) {
+    matchClusterMedia(cluster.map((entry) => entry.record), index);
+    const head = cluster[0];
+    const productId = String(head.row.target_product_id);
+
+    const productMain = head.record.media.matches.find((match) => match.target === "product" && match.role === "main");
+    if (productMain) {
+      const existing = await supabase.from("product_media").select("id").eq("product_id", productId).eq("media_role", "main").limit(1);
+      if (existing.error) fail("bulk_media_sync_lookup_failed", existing.error.message);
+      if (!existing.data?.length) {
+        const assetId = await ensureAsset(productMain.storagePath);
+        const insert = await supabase.from("product_media").insert({ product_id: productId, media_asset_id: assetId, media_role: "main", is_primary: true });
+        if (insert.error) fail("bulk_media_sync_link_failed", insert.error.message);
+        productosConImagen += 1;
+      }
+    }
+
+    for (const { row, record } of cluster) {
+      if (!row.target_variant_id) continue;
+      const match = record.media.matches.find((entry) => entry.target === "variant" && entry.confidence !== "review");
+      if (!match) {
+        sinCambio += 1;
+        continue;
+      }
+      const variantId = String(row.target_variant_id);
+      const existing = await supabase.from("product_media").select("id").eq("variant_id", variantId).limit(1);
+      if (existing.error) fail("bulk_media_sync_lookup_failed", existing.error.message);
+      if (existing.data?.length) {
+        sinCambio += 1;
+        continue;
+      }
+      const assetId = await ensureAsset(match.storagePath);
+      const insert = await supabase.from("product_media").insert({
+        variant_id: variantId,
+        media_asset_id: assetId,
+        media_role: match.role === "swatch" ? "swatch" : "main",
+        is_primary: true
+      });
+      if (insert.error) fail("bulk_media_sync_link_failed", insert.error.message);
+      variantesConImagen += 1;
+    }
+  }
+
+  const batch = await supabase.from("import_batches").select("summary").eq("id", batchId).single();
+  if (!batch.error && batch.data) {
+    await supabase.from("import_batches").update({
+      summary: {
+        ...(batch.data.summary as Record<string, unknown>),
+        mediaSync: { variantesConImagen, productosConImagen, sinCambio, at: new Date().toISOString() }
+      }
+    }).eq("id", batchId);
+  }
+  return { variantesConImagen, productosConImagen, sinCambio };
 }
 
 // ---------------------------------------------------------------------------
