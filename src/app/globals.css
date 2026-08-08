@@ -5887,3 +5887,62 @@ a.pub-tab--wa:hover {
   color: var(--ink-3);
   font-variant-numeric: tabular-nums;
 }
+
+/* ═══════ POS · cobro (B1.2) ═══════ */
+
+/* Con un solo medio no se pregunta el importe: es el total. Elegir el medio
+   nunca confirma —eso queda para el último clic consciente— así que los medios
+   son chips seleccionables, no botones de acción. */
+.pay-methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pay-method {
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  color: var(--ink-2);
+  border-radius: var(--r-sm);
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+
+.pay-method:hover { background: var(--surface-2); }
+
+.pay-method--on,
+.pay-method--on:hover {
+  border-color: var(--rose);
+  background: var(--rose-wash);
+  color: var(--rose-deep);
+  font-weight: var(--fw-semibold);
+}
+
+.sale-payment--single {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pay-cash {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+/* Calculados desde el total: nada de una botonera fija que ofrezca S/ 200
+   para una venta de S/ 19. */
+.pay-quick {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pay-change {
+  font-variant-numeric: tabular-nums;
+  color: var(--green);
+  font-weight: var(--fw-semibold);
+}

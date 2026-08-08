@@ -76,6 +76,30 @@ function money(value: number) {
   return Math.round(value * 100) / 100;
 }
 
+/**
+ * Lee un importe tecleado en mostrador. Acepta coma decimal porque en Perú se
+ * escribe «12,50» tan a menudo como «12.50», y rechazarlo en silencio hace que
+ * la vendedora cobre 12 soles creyendo que cobró 12,50.
+ */
+function toNumber(text: string): number {
+  const clean = text.replace(/\s/g, "").replace(",", ".");
+  const value = Number(clean);
+  return Number.isFinite(value) ? value : 0;
+}
+
+/**
+ * Botones rápidos de efectivo calculados desde el total: el exacto y los dos
+ * billetes siguientes con los que suelen pagar. Nada de una botonera fija que
+ * ofrezca S/ 200 para una venta de S/ 19.
+ */
+function cashSuggestions(total: number): number[] {
+  const billetes = [10, 20, 50, 100, 200];
+  const mayores = billetes.filter((b) => b > total).slice(0, 2);
+  const redondo = Math.ceil(total / 10) * 10;
+  const extra = redondo > total && !mayores.includes(redondo) ? [redondo] : [];
+  return [...new Set([...extra, ...mayores])].slice(0, 3);
+}
+
 function saleDate(value: string) {
   return new Date(value).toLocaleString("es-PE", {
     day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit"
@@ -116,6 +140,12 @@ export function SalesView() {
   const [notes, setNotes] = useState("");
 
   const [payments, setPayments] = useState<DraftPayment[]>([newPayment()]);
+  // Dividir el pago es una decisión explícita, no el estado por defecto: la
+  // inmensa mayoría de las ventas se cobran con un solo medio.
+  const [splitPayment, setSplitPayment] = useState(false);
+  // Candado instantáneo contra el doble cobro. El estado de React tarda un
+  // render en llegar al DOM, y en ese hueco cabe un segundo clic.
+  const registeringRef = useRef(false);
   // Se genera una sola vez por borrador: es lo que hace idempotente el registro.
   // Un doble clic devuelve la misma venta en lugar de duplicarla.
   const [operationId, setOperationId] = useState(() => crypto.randomUUID());
@@ -288,17 +318,22 @@ export function SalesView() {
   const gross = evaluation?.subtotal ?? null;
   const discount = money(Number(discountTotal) || 0);
   const total = gross === null ? null : money(gross - discount);
-  const paid = useMemo(
-    () => money(payments.reduce((sum, payment) => sum + (Number(payment.amount) || 0), 0)),
-    [payments]
-  );
+  // Con un solo medio no se pregunta el importe: es el total. El campo existía
+  // para que la vendedora tecleara un número que la pantalla ya conocía.
+  const singleMethod = !splitPayment && payments.length === 1;
+  const paid = useMemo(() => {
+    if (singleMethod && total !== null) return total;
+    return money(payments.reduce((sum, payment) => sum + toNumber(payment.amount), 0));
+  }, [payments, singleMethod, total]);
+
   const change = useMemo(
     () => money(payments.reduce((sum, payment) => {
-      const tendered = Number(payment.tenderedAmount) || 0;
-      const amount = Number(payment.amount) || 0;
-      return sum + (payment.method === "cash" && tendered > amount ? tendered - amount : 0);
+      if (payment.method !== "cash") return sum;
+      const tendered = toNumber(payment.tenderedAmount);
+      const asignado = singleMethod && total !== null ? total : toNumber(payment.amount);
+      return sum + (tendered > asignado ? tendered - asignado : 0);
     }, 0)),
-    [payments]
+    [payments, singleMethod, total]
   );
   const missing = total === null ? null : money(total - paid);
 
@@ -360,6 +395,31 @@ export function SalesView() {
     setPayments((current) => current.map((payment) => payment.key === key ? { ...payment, ...patch } : payment));
   }
 
+  /**
+   * El exceso solo existe en efectivo, porque solo ahí hay vuelto que devolver.
+   * Si a Yape o a la tarjeta se les asigna más de lo que falta, se recorta: no
+   * hay forma de devolver por esos medios y aceptarlo dejaría una venta
+   * cobrada de más que nadie sabría cómo cuadrar.
+   */
+  function assignAmount(key: string, text: string) {
+    const payment = payments.find((item) => item.key === key);
+    if (!payment || payment.method === "cash" || total === null) {
+      updatePayment(key, { amount: text });
+      return;
+    }
+    const otros = payments
+      .filter((item) => item.key !== key)
+      .reduce((sum, item) => sum + toNumber(item.amount), 0);
+    const tope = money(total - otros);
+    const pedido = toNumber(text);
+    if (pedido > tope && tope >= 0) {
+      updatePayment(key, { amount: String(tope) });
+      showToast(`Por ${PAYMENT_METHOD_LABELS[payment.method]} no se puede cobrar de más: no hay vuelto que devolver.`);
+      return;
+    }
+    updatePayment(key, { amount: text });
+  }
+
   function coverRest(key: string) {
     if (missing === null || missing <= 0) return;
     const current = Number(payments.find((payment) => payment.key === key)?.amount) || 0;
@@ -384,9 +444,14 @@ export function SalesView() {
   }
 
   async function registerSale() {
-    if (saving) return;
-    if (!branchId) { showToast("Elige la sede en la que registras la venta."); return; }
-    if (lines.length === 0) { showToast("Agrega al menos una presentación."); return; }
+    // El ref cierra antes que el estado: entre setSaving(true) y el render que
+    // deshabilita el botón cabe un segundo clic, y ahí es donde nacen los
+    // cobros duplicados. El clientOperationId hace idempotente el backend; esto
+    // evita además la segunda petición.
+    if (registeringRef.current || saving) return;
+    registeringRef.current = true;
+    if (!branchId) { showToast("Elige la sede en la que registras la venta."); registeringRef.current = false; return; }
+    if (lines.length === 0) { showToast("Agrega al menos una presentación."); registeringRef.current = false; return; }
 
     setSaving(true);
     try {
@@ -406,13 +471,19 @@ export function SalesView() {
         notes: notes.trim() || null,
         reservationId: null,
         lines: lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity })),
+        // Con un solo medio el importe es el total: la pantalla no se lo
+        // pregunta a la vendedora y tampoco se lo inventa aquí.
         payments: payments
-          .filter((payment) => Number(payment.amount) > 0)
           .map((payment) => ({
+            payment,
+            amount: singleMethod && total !== null ? total : toNumber(payment.amount)
+          }))
+          .filter(({ amount }) => amount > 0)
+          .map(({ payment, amount }) => ({
             method: payment.method,
-            amount: Number(payment.amount),
-            tenderedAmount: payment.method === "cash" && Number(payment.tenderedAmount) > 0
-              ? Number(payment.tenderedAmount) : null,
+            amount,
+            tenderedAmount: payment.method === "cash" && toNumber(payment.tenderedAmount) > 0
+              ? toNumber(payment.tenderedAmount) : null,
             reference: payment.reference.trim() || null,
             evidencePath: null,
             receivedAt: null
@@ -427,6 +498,7 @@ export function SalesView() {
       handleApiError(error, "No se pudo registrar la venta.");
     } finally {
       setSaving(false);
+      registeringRef.current = false;
     }
   }
 
@@ -755,65 +827,152 @@ export function SalesView() {
           <div className="order-section-title order-customer-title">
             {reservationMode ? "4. Adelanto" : "4. Cobro"}
           </div>
-          <div className="sale-payments">
-            {payments.map((payment) => (
-              <div key={payment.key} className="sale-payment">
-                <select
-                  className="input"
-                  value={payment.method}
-                  onChange={(event) => updatePayment(payment.key, { method: event.target.value as PaymentMethod })}
-                >
+          {singleMethod ? (
+            // Un solo medio: se asigna el 100% del total. Elegir el medio NO
+            // confirma nada — siempre queda el último clic consciente abajo.
+            <div className="sale-payments">
+              <div className="sale-payment sale-payment--single">
+                <div className="pay-methods">
                   {CHARGEABLE_METHODS.map((method) => (
-                    <option key={method} value={method}>{PAYMENT_METHOD_LABELS[method]}</option>
+                    <button
+                      key={method}
+                      type="button"
+                      className={payments[0].method === method ? "pay-method pay-method--on" : "pay-method"}
+                      onClick={() => updatePayment(payments[0].key, { method })}
+                    >
+                      {PAYMENT_METHOD_LABELS[method]}
+                    </button>
                   ))}
-                </select>
-                <input
-                  className="input"
-                  inputMode="decimal"
-                  value={payment.amount}
-                  onChange={(event) => updatePayment(payment.key, { amount: event.target.value })}
-                  placeholder="Importe"
-                />
-                {payment.method === "cash" ? (
-                  <input
-                    className="input"
-                    inputMode="decimal"
-                    value={payment.tenderedAmount}
-                    onChange={(event) => updatePayment(payment.key, { tenderedAmount: event.target.value })}
-                    placeholder="Recibido"
-                  />
+                </div>
+
+                {payments[0].method === "cash" ? (
+                  <div className="pay-cash">
+                    <label className="sale-field">
+                      <span>Recibido</span>
+                      <input
+                        className="input"
+                        type="text"
+                        inputMode="decimal"
+                        value={payments[0].tenderedAmount}
+                        onChange={(event) => updatePayment(payments[0].key, { tenderedAmount: event.target.value })}
+                        placeholder={total === null ? "" : String(total)}
+                      />
+                    </label>
+                    <div className="pay-quick">
+                      <button type="button" className="btn-ghost"
+                        onClick={() => updatePayment(payments[0].key, { tenderedAmount: total === null ? "" : String(total) })}>
+                        Exacto
+                      </button>
+                      {(total === null ? [] : cashSuggestions(total)).map((billete) => (
+                        <button key={billete} type="button" className="btn-ghost"
+                          onClick={() => updatePayment(payments[0].key, { tenderedAmount: String(billete) })}>
+                          {formatSoles(billete)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 ) : (
+                  <label className="sale-field">
+                    <span>Referencia (opcional)</span>
+                    <input className="input" type="text" value={payments[0].reference}
+                      onChange={(event) => updatePayment(payments[0].key, { reference: event.target.value })} />
+                  </label>
+                )}
+              </div>
+
+              <button type="button" className="btn-soft" onClick={() => {
+                setSplitPayment(true);
+                // Al dividir, el primer medio arranca con lo que ya cubría.
+                updatePayment(payments[0].key, { amount: total === null ? "" : String(total) });
+              }}>
+                Dividir pago
+              </button>
+            </div>
+          ) : (
+            <div className="sale-payments">
+              {payments.map((payment) => (
+                <div key={payment.key} className="sale-payment">
+                  <select
+                    className="input"
+                    value={payment.method}
+                    onChange={(event) => updatePayment(payment.key, { method: event.target.value as PaymentMethod })}
+                  >
+                    {CHARGEABLE_METHODS.map((method) => (
+                      <option key={method} value={method}>{PAYMENT_METHOD_LABELS[method]}</option>
+                    ))}
+                  </select>
                   <input
                     className="input"
-                    value={payment.reference}
-                    onChange={(event) => updatePayment(payment.key, { reference: event.target.value })}
-                    placeholder="Referencia"
+                    type="text"
+                    inputMode="decimal"
+                    value={payment.amount}
+                    onChange={(event) => assignAmount(payment.key, event.target.value)}
+                    placeholder="Importe"
                   />
-                )}
-                <button type="button" className="btn-soft" onClick={() => coverRest(payment.key)} disabled={missing === null || missing <= 0}>
-                  Completar
-                </button>
-                <button
-                  type="button"
-                  className="btn-ghost"
-                  aria-label="Quitar el pago"
-                  onClick={() => setPayments((current) => current.length === 1 ? current : current.filter((item) => item.key !== payment.key))}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-            <button type="button" className="btn-soft" onClick={() => setPayments((current) => [...current, newPayment()])}>
-              Añadir otro medio de pago
-            </button>
-          </div>
+                  {payment.method === "cash" ? (
+                    <input
+                      className="input"
+                      type="text"
+                      inputMode="decimal"
+                      value={payment.tenderedAmount}
+                      onChange={(event) => updatePayment(payment.key, { tenderedAmount: event.target.value })}
+                      placeholder="Recibido"
+                    />
+                  ) : (
+                    <input
+                      className="input"
+                      type="text"
+                      value={payment.reference}
+                      onChange={(event) => updatePayment(payment.key, { reference: event.target.value })}
+                      placeholder="Referencia"
+                    />
+                  )}
+                  <button type="button" className="btn-soft" onClick={() => coverRest(payment.key)} disabled={missing === null || missing <= 0}>
+                    Completar
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-ghost"
+                    aria-label="Quitar el pago"
+                    onClick={() => setPayments((current) => {
+                      const rest = current.filter((item) => item.key !== payment.key);
+                      if (rest.length === 0) return current;
+                      if (rest.length === 1) setSplitPayment(false);
+                      return rest;
+                    })}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              {/* Al añadir un medio se PROPONE lo que falta: es la cifra que la
+                  vendedora iba a teclear de todos modos. */}
+              <button type="button" className="btn-soft" onClick={() => setPayments((current) =>
+                [...current, newPayment("cash", missing !== null && missing > 0 ? String(missing) : "")]
+              )}>
+                Añadir otro medio de pago
+              </button>
+            </div>
+          )}
 
           <div className="sale-balance">
-            <span>Cobrado <b>{formatSoles(paid)}</b></span>
-            <span>Vuelto <b>{formatSoles(change)}</b></span>
-            <span className={missing === 0 ? "sale-balance--ok" : "sale-balance--warn"}>
-              {missing === null ? "Sin total" : missing === 0 ? "Cuadra exacto" : missing > 0 ? `Faltan ${formatSoles(missing)}` : `Sobran ${formatSoles(-missing)}`}
-            </span>
+            {singleMethod ? (
+              // La confirmación de que está cubierto, sin pedir nada más.
+              <span className={total === null ? "sale-balance--warn" : "sale-balance--ok"}>
+                {total === null
+                  ? "Sin total"
+                  : `✓ ${PAYMENT_METHOD_LABELS[payments[0].method]} · ${formatSoles(total)}`}
+              </span>
+            ) : (
+              <>
+                <span>Cobrado <b>{formatSoles(paid)}</b></span>
+                <span>Vuelto <b>{formatSoles(change)}</b></span>
+                <span className={missing === 0 ? "sale-balance--ok" : "sale-balance--warn"}>
+                  {missing === null ? "Sin total" : missing === 0 ? "Cuadra exacto" : missing > 0 ? `Faltan ${formatSoles(missing)}` : `Sobran ${formatSoles(-missing)}`}
+                </span>
+              </>
+            )}
+            {change > 0 ? <span className="pay-change">Vuelto <b>{formatSoles(change)}</b></span> : null}
           </div>
 
           {reservationMode ? (
