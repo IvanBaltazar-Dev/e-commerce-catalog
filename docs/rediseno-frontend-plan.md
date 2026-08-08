@@ -226,6 +226,40 @@ es una decisión de Ivan, no una consecuencia técnica del rediseño.
 
 ---
 
+### 3.7 Fase 0 — resultado
+
+Cerrada en `f3dc9c0` (0.1), `232ead8` (0.2) y `d84b6cf` (0.3).
+
+| Criterio | Estado |
+|---|---|
+| 1 · Contrato de selectores | ✅ 562 clases y 544 reglas base intactas |
+| 2 · typecheck · lint · build | ✅ |
+| 3 · Barrido responsive **con emulación móvil** | ✅ 24/24 |
+| 4 · Pruebas de UI por selector | ✅ ventas, analítica y alta de productos |
+| 5 · Cero hex crudos fuera de `:root` | ⚠️ quedan 70 usos (57 valores) decorativos de una sola pantalla |
+| 6 · Contraste AA | ✅ en las cuatro superficies, con `check-contrast.mjs` |
+| 7 · Capturas antes/después | ✅ `test-results/redesign/` |
+| 8 · Cero `.tsx` salvo `layout.tsx` | ⚠️ una excepción: `AnalyticsView.tsx` (§3.6) |
+
+Los dos criterios con asterisco son deudas conscientes, no descuidos:
+
+- **Los 70 hex restantes** son gradientes de carta, badges del PDF y colores de
+  una sola pantalla. Colapsarlos en un token del núcleo habría cambiado el
+  aspecto en 0.2, que es justo lo que ese paso prometía no hacer. Se resuelven
+  en la fase de su pantalla.
+- **La excepción de `AnalyticsView.tsx`** está justificada en §3.6: el defecto
+  no se podía arreglar desde CSS porque su causa era que el CSS no llegaba.
+
+Herramientas que deja la fase, y que sirven para todas las siguientes:
+`gate-selectors` (contrato), `shoot-surfaces` (capturas con emulación),
+`compare-shots` (cuánto cambió, en %) y `check-contrast` (AA sobre superficie real).
+
+**Pendiente heredado**: quedan dos `style={{ gridTemplateColumns }}` en línea
+(`AnalyticsView.tsx:106`, `MarketingView.tsx:175`). Hoy no desbordan porque
+`.order-tabs` lleva `min-width: 0`, pero son la misma trampa de §3.6.
+Y los scripts de UI usan tres nombres distintos para la misma variable de
+entorno: `UI_BASE_URL`, `E2E_BASE_URL` y `PRODUCT_REGISTRATION_BASE_URL`.
+
 ## 4. S2 — Navegación (después de Fase 0)
 
 Ocho áreas con navegación secundaria dentro de cada una. `Topbar.tsx` pasa de lista plana a
