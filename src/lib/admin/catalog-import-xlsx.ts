@@ -352,6 +352,75 @@ function mapSheetRows(sheetName: CatalogImportSheetName, rows: Map<number, Map<n
   return result;
 }
 
+export type CatalogRawSheetRow = { row: number; cells: CatalogImportCell[] };
+
+export type CatalogRawWorkbook = {
+  fileName: string;
+  fileSha256: string;
+  security: CatalogImportSecurityReport;
+  sheets: Record<string, CatalogRawSheetRow[]>;
+};
+
+/**
+ * Lectura cruda de un XLSX arbitrario (listados reales, no la plantilla curada).
+ * Comparte TODAS las defensas del parser curado — mismo contenedor inspeccionado,
+ * sin fórmulas, macros, vínculos ni partes activas — pero devuelve las hojas tal
+ * cual, con las celdas por posición, para que la etapa de normalización decida.
+ */
+export async function parseCatalogXlsxRaw(file: { name: string; size: number; arrayBuffer(): Promise<ArrayBuffer> }): Promise<CatalogRawWorkbook> {
+  if (!/\.xlsx$/i.test(file.name) || /\.(?:xlsm|xlsb|xls)$/i.test(file.name)) {
+    throw new HttpError(415, "unsupported_import_file", "Solo se acepta .xlsx; .xls, .xlsm y .xlsb están bloqueados.");
+  }
+  if (file.size <= 0 || file.size > MAX_FILE_BYTES) {
+    throw new HttpError(413, "import_file_too_large", `El archivo debe pesar entre 1 byte y ${MAX_FILE_BYTES / 1024 / 1024} MB.`);
+  }
+  const buffer = Buffer.from(await file.arrayBuffer());
+  if (buffer.length !== file.size || buffer.length > MAX_FILE_BYTES) malformed("El tamaño recibido no coincide con el archivo declarado.");
+  if (buffer[0] !== 0x50 || buffer[1] !== 0x4b) malformed("El archivo no tiene la firma de un XLSX.");
+
+  const fileSha256 = createHash("sha256").update(buffer).digest("hex");
+  const archive = await inspectArchive(buffer);
+  const workbookSheets = parseWorkbookSheets(archive.entries.get("xl/workbook.xml")!);
+  const relationships = parseRelationships(archive.entries.get("xl/_rels/workbook.xml.rels")!, "xl/workbook.xml");
+  const sharedStrings = parseSharedStrings(archive.entries.get("xl/sharedStrings.xml"));
+  const sheets: Record<string, CatalogRawSheetRow[]> = {};
+
+  for (const sheet of workbookSheets) {
+    const target = relationships.get(sheet.relationshipId);
+    if (!target || !/^xl\/worksheets\/[^/]+\.xml$/i.test(target)) malformed(`La hoja ${sheet.name} apunta a una parte inválida.`);
+    const xml = archive.entries.get(target);
+    if (!xml) malformed(`No se pudo leer la hoja ${sheet.name}.`);
+    const cellRows = parseWorksheet(xml, sharedStrings);
+    const rows: CatalogRawSheetRow[] = [];
+    for (const [rowNumber, cells] of [...cellRows.entries()].sort(([a], [b]) => a - b)) {
+      if (rows.length >= MAX_DATA_ROWS) malformed(`La hoja ${sheet.name} supera ${MAX_DATA_ROWS} filas.`);
+      const maxColumn = Math.max(0, ...cells.keys());
+      const list: CatalogImportCell[] = [];
+      for (let column = 1; column <= maxColumn; column += 1) list.push(cells.get(column) ?? null);
+      if (list.every((value) => value === null || cellText(value) === "")) continue;
+      rows.push({ row: rowNumber, cells: list });
+    }
+    sheets[sheet.name] = rows;
+  }
+
+  return {
+    fileName: file.name,
+    fileSha256,
+    security: {
+      fileSha256,
+      fileBytes: buffer.length,
+      archiveEntries: archive.archiveEntries,
+      totalUncompressedBytes: archive.totalUncompressedBytes,
+      macrosDetected: false,
+      externalLinksDetected: false,
+      embeddedObjectsDetected: false,
+      formulasDetected: false,
+      originalFileStored: false
+    },
+    sheets
+  };
+}
+
 export async function parseCatalogImportXlsx(file: { name: string; size: number; arrayBuffer(): Promise<ArrayBuffer> }): Promise<CatalogImportWorkbook> {
   if (!/\.xlsx$/i.test(file.name) || /\.(?:xlsm|xlsb|xls)$/i.test(file.name)) {
     throw new HttpError(415, "unsupported_import_file", "Solo se acepta .xlsx; .xls, .xlsm y .xlsb están bloqueados.");
