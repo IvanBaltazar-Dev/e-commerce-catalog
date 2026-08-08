@@ -1,0 +1,43 @@
+{
+  "rlsDisabled": [],
+  "anonTablePrivs": [
+    "attribute_definitions:SELECT",
+    "attribute_options:SELECT",
+    "attribute_templates:SELECT",
+    "branches:SELECT",
+    "brands:SELECT",
+    "categories:SELECT",
+    "color_shades:SELECT",
+    "media_assets:SELECT",
+    "price_lists:SELECT",
+    "product_attribute_values:SELECT",
+    "product_images:SELECT",
+    "product_lines:SELECT",
+    "product_media:SELECT",
+    "product_relations:SELECT",
+    "product_variants:SELECT",
+    "products:SELECT",
+    "store_settings:SELECT",
+    "template_attributes:SELECT",
+    "variant_attribute_values:SELECT",
+    "variant_prices:SELECT",
+    "wholesale_rules:SELECT"
+  ],
+  "anonExecutableFunctions": [
+    "catalog_list_v2(p_page integer, p_page_size integer, p_search text, p_brand_slug text, p_category_path text, p_availability product_availability, p_attribute_filters jsonb, p_sort text)",
+    "catalog_product_detail_v2(p_slug text)",
+    "evaluate_cart_v2(p_lines jsonb)",
+    "get_or_create_public_cart(p_public_token text, p_visitor_id uuid, p_channel_code text)",
+    "is_admin(user_id uuid)",
+    "is_public_catalog_media(media_id uuid)",
+    "is_public_catalog_product(product_id uuid)",
+    "is_public_catalog_variant(variant_id uuid)",
+    "public_cart_detail(p_public_token text)",
+    "record_attribution_touch(p_visitor_id uuid, p_source_code text, p_campaign_code text, p_utm jsonb, p_referrer text, p_landing_path text)",
+    "set_public_cart_item(p_public_token text, p_variant_id uuid, p_quantity integer, p_expected_version integer)",
+    "sync_public_cart(p_public_token text, p_lines jsonb)",
+    "touch_anonymous_visitor(p_visitor_id uuid, p_landing_path text, p_referrer text)",
+    "variant_effective_availability(p_variant_id uuid, p_branch_id uuid)"
+  ],
+  "definerWithoutSearchPath": []
+}

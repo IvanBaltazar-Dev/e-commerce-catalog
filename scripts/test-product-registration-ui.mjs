@@ -1,3 +1,4 @@
+import { resolveBrowserExecutable } from "./lib/resolve-browser.mjs";
 import { createClient } from "@supabase/supabase-js";
 import puppeteer from "puppeteer";
 import path from "node:path";
@@ -81,7 +82,7 @@ try {
     headless: true,
     protocolTimeout: 120000,
     args: ["--no-sandbox", "--disable-gpu"],
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH ?? "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+    executablePath: await resolveBrowserExecutable()
   });
   const page = await browser.newPage();
   page.setDefaultTimeout(120000);

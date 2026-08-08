@@ -1,8 +1,19 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { z } from "zod";
 import { HttpError } from "@/lib/api/errors";
+import { logServerEvent } from "@/lib/observability/log";
 
 export { HttpError };
+
+/** El id que el middleware estampó en la petición; null fuera de una ruta. */
+async function currentRequestId(): Promise<string | null> {
+  try {
+    return (await headers()).get("x-request-id");
+  } catch {
+    return null;
+  }
+}
 
 export function ok<T>(data: T, init?: ResponseInit | number) {
   const responseInit = typeof init === "number" ? { status: init } : init;
@@ -32,14 +43,30 @@ export async function readJson<TSchema extends z.ZodTypeAny>(
   return schema.parse(body);
 }
 
-export function handleApiError(error: unknown) {
+export async function handleApiError(error: unknown) {
+  const requestId = await currentRequestId();
+
   if (error instanceof HttpError) {
+    // Un HttpError con código de PostgreSQL adjunto ES un fallo de RPC: se
+    // clasifica aparte para poder filtrar incidentes de base de datos.
+    const supabaseCode = (error.details as { supabaseCode?: string } | undefined)?.supabaseCode;
+    if (error.status >= 500) {
+      logServerEvent("http_5xx", {
+        requestId, code: error.code, status: error.status, message: error.message
+      });
+    } else if (supabaseCode || error.code.endsWith("_failed")) {
+      logServerEvent("rpc_error", {
+        requestId, code: error.code, status: error.status, message: error.message, detail: supabaseCode ?? null
+      });
+    }
+
     return NextResponse.json(
       {
         error: {
           code: error.code,
           message: error.message,
-          details: error.details
+          details: error.details,
+          requestId
         }
       },
       { status: error.status }
@@ -52,7 +79,8 @@ export function handleApiError(error: unknown) {
         error: {
           code: "validation_error",
           message: "Invalid input.",
-          details: error.flatten()
+          details: error.flatten(),
+          requestId
         }
       },
       { status: 422 }
@@ -61,11 +89,14 @@ export function handleApiError(error: unknown) {
 
   const message = error instanceof Error ? error.message : "Unexpected error.";
 
+  logServerEvent("http_5xx", { requestId, code: "internal_error", status: 500, message });
+
   return NextResponse.json(
     {
       error: {
         code: "internal_error",
-        message
+        message,
+        requestId
       }
     },
     { status: 500 }

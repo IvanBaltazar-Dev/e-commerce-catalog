@@ -6,6 +6,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import type { z } from "zod/v4";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { serverEnv } from "@/lib/env/server";
+import { logServerEvent } from "@/lib/observability/log";
 
 /**
  * El único punto de contacto con el proveedor de IA. Todo lo demás del
@@ -76,6 +77,10 @@ export async function runStructured<Schema extends z.ZodType>(
     const latencyMs = Date.now() - startedAt;
 
     if (response.stop_reason === "refusal") {
+      // Fallo de IA ≠ fallo operacional: clase propia para poder filtrarlo.
+      logServerEvent("ai_failure", {
+        code: "provider_refusal", message: "El proveedor declinó la solicitud."
+      });
       return {
         ok: false,
         reason: "refusal",
@@ -102,6 +107,7 @@ export async function runStructured<Schema extends z.ZodType>(
         : error instanceof Error
           ? error.message
           : "Fallo desconocido del proveedor.";
+    logServerEvent("ai_failure", { code: "provider_error", message });
     return { ok: false, reason: "error", message, latencyMs };
   }
 }

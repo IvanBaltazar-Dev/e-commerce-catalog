@@ -8,6 +8,7 @@
 import puppeteer from "puppeteer";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveBrowserExecutable } from "./lib/resolve-browser.mjs";
 import { loadSupabaseScriptEnv } from "./lib/supabase-script-env.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -25,7 +26,7 @@ function check(name, condition) {
 
 const browser = await puppeteer.launch({
   headless: "new",
-  executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+  executablePath: await resolveBrowserExecutable(),
   args: ["--no-sandbox"]
 });
 

@@ -9,6 +9,7 @@
 // Requiere `node scripts/seed-demo-operation.mjs` ejecutado antes: usa la
 // vendedora demo, su sede y la existencia inicial cargada por el contrato.
 
+import { resolveBrowserExecutable } from "./lib/resolve-browser.mjs";
 import { createClient } from "@supabase/supabase-js";
 import puppeteer from "puppeteer";
 import path from "node:path";
@@ -130,7 +131,7 @@ try {
     headless: true,
     protocolTimeout: 120000,
     args: ["--no-sandbox", "--disable-gpu"],
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH ?? "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+    executablePath: await resolveBrowserExecutable()
   });
 
   const page = await browser.newPage();

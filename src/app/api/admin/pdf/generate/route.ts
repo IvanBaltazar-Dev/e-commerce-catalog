@@ -2,6 +2,7 @@ import { handleApiError, ok } from "@/lib/api/http";
 import { requireAdmin } from "@/lib/auth/admin";
 import type { CatalogListResponse } from "@/lib/catalog/contracts";
 import { renderCatalogPdf } from "@/lib/catalog/pdf";
+import { logServerEvent } from "@/lib/observability/log";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -123,6 +124,11 @@ export async function POST(request: Request) {
     if (updateResult.error) throw updateResult.error;
     return ok(updateResult.data, 201);
   } catch (error) {
+    logServerEvent("pdf_failure", {
+      route: "/api/admin/pdf/generate",
+      code: "pdf_generation_failed",
+      message: error instanceof Error ? error.message : "PDF generation failed."
+    });
     if (exportId) {
       try {
         const { supabase } = await requireAdmin();

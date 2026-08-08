@@ -33,8 +33,13 @@
     "test:omnichannel-concurrency": "node scripts/test-omnichannel-concurrency.mjs",
     "test:ai-matching": "node scripts/test-ai-matching.mjs",
     "test:block4": "node scripts/test-block4-intelligence.mjs",
+    "gate:rebuild": "node scripts/gate-rebuild.mjs",
     "seed:demo-operation": "node scripts/seed-demo-operation.mjs --env .env.supabase.local",
-    "test:cleanup": "node scripts/cleanup-v2-test-data.mjs --env .env.supabase.local"
+    "test:cleanup": "node scripts/cleanup-v2-test-data.mjs --env .env.supabase.local",
+    "audit:security": "node scripts/audit-security.mjs",
+    "backup:verify": "node scripts/backup-verify.mjs",
+    "perf:volume": "node scripts/perf-volume.mjs",
+    "test:responsive": "node scripts/test-responsive-sweep.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",

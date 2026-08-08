@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { handleApiError, ok, readJson } from "@/lib/api/http";
 import { requireAdmin } from "@/lib/auth/admin";
 import { assetUploadSchema } from "@/lib/catalog/validation";
+import { logServerEvent } from "@/lib/observability/log";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -41,6 +42,11 @@ export async function POST(request: Request) {
     });
 
     if (error) {
+      logServerEvent("storage_failure", {
+        route: "/api/admin/assets/upload-url",
+        code: "signed_upload_failed",
+        message: error.message
+      });
       throw error;
     }
 

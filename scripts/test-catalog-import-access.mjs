@@ -1,3 +1,4 @@
+import { resolveBrowserExecutable } from "./lib/resolve-browser.mjs";
 import { createClient } from "@supabase/supabase-js";
 import puppeteer from "puppeteer";
 import path from "node:path";
@@ -48,7 +49,7 @@ try {
   browser = await puppeteer.launch({
     headless: true,
     args: ["--no-sandbox", "--disable-gpu"],
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH ?? "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+    executablePath: await resolveBrowserExecutable()
   });
   const adminContext = await browser.createBrowserContext();
   const adminPage = await adminContext.newPage();
