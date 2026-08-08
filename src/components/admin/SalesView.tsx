@@ -15,7 +15,7 @@ import {
   type Sale,
   type SaleSourceChannel
 } from "@/lib/admin/sales";
-import type { CartEvaluation, CatalogListItem, CatalogProductDetail, PurchasableVariant } from "@/lib/catalog/contracts";
+import type { CartEvaluation, CatalogProductDetail, PurchasableVariant } from "@/lib/catalog/contracts";
 import { formatSoles, publicApi, retailPrice } from "@/lib/public/catalog";
 
 type DraftLine = {
@@ -44,6 +44,29 @@ const FULFILLMENTS: FulfillmentMethod[] = ["in_store", "pickup", "delivery"];
 // `reservation_advance` se excluye a propósito: esa fila la crea la conversión
 // de la reserva, no la pantalla, y lleva el pago original al que se aplica.
 const CHARGEABLE_METHODS: PaymentMethod[] = ["cash", "yape", "plin", "transfer", "card", "store_credit", "other"];
+
+/** Una fila del buscador del POS: es una variante, no un producto. */
+type PosVariant = {
+  variantId: string;
+  sku: string | null;
+  barcode: string | null;
+  variantName: string;
+  productId: string;
+  productName: string;
+  presentation: string | null;
+  brandName: string;
+  lineName: string | null;
+  shadeName: string | null;
+  shadeCode: string | null;
+  referenceColor: string | null;
+  unitPrice: number;
+  wholesalePrice: number | null;
+  /** Del producto y configurable por la dueña. Jamás una constante. */
+  wholesaleMinQuantity: number | null;
+  availability: "available" | "sold_out" | "consult";
+  tracksInventory: boolean;
+  availableQuantity: number;
+};
 
 function newPayment(method: PaymentMethod = "cash", amount = ""): DraftPayment {
   return { key: crypto.randomUUID(), method, amount, tenderedAmount: "", reference: "" };
@@ -74,10 +97,10 @@ export function SalesView() {
   const [branchId, setBranchId] = useState("");
 
   const [search, setSearch] = useState("");
-  const [products, setProducts] = useState<CatalogListItem[]>([]);
+  const [results, setResults] = useState<PosVariant[]>([]);
+  const searchRef = useRef<HTMLInputElement>(null);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<CatalogProductDetail | null>(null);
-  const [loadingProductId, setLoadingProductId] = useState<string | null>(null);
 
   const [lines, setLines] = useState<DraftLine[]>([]);
   const [evaluation, setEvaluation] = useState<CartEvaluation | null>(null);
@@ -202,15 +225,29 @@ export function SalesView() {
     }
   }
 
+  // Primera velocidad de la venta: «sé qué quiere». El buscador devuelve la
+  // VARIANTE, no el producto — teclear «Abrumadora» no puede obligar a abrir el
+  // esmalte y recorrer sus 200 tonos. El orden y el recorte por sede los
+  // resuelve pos_variant_search en PostgreSQL.
   useEffect(() => {
     let cancelled = false;
+    const term = search.trim();
+
+    if (!branchId || term.length === 0) {
+      setResults([]);
+      setLoadingProducts(false);
+      return;
+    }
+
     const timer = window.setTimeout(async () => {
       setLoadingProducts(true);
       try {
-        const response = await publicApi.listProducts({
-          page: 1, pageSize: 12, search: search.trim() || undefined, sort: "name_asc"
-        });
-        if (!cancelled) setProducts(response.items);
+        const response = await fetch(
+          `/api/admin/sales/search?branch=${encodeURIComponent(branchId)}&q=${encodeURIComponent(term)}`
+        );
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload?.error?.message ?? "Búsqueda fallida");
+        if (!cancelled) setResults((payload?.data?.items ?? []) as PosVariant[]);
       } catch (error) {
         if (!cancelled) handleApiError(error, "No se pudo buscar en el catálogo.");
       } finally {
@@ -222,7 +259,7 @@ export function SalesView() {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [search, handleApiError]);
+  }, [search, branchId, handleApiError]);
 
   // Precio, modalidad mayorista y disponibilidad se resuelven en PostgreSQL. La
   // pantalla solo muestra lo que la base ya decidió: nunca calcula un importe.
@@ -265,16 +302,32 @@ export function SalesView() {
   );
   const missing = total === null ? null : money(total - paid);
 
-  async function chooseProduct(product: CatalogListItem) {
-    if (loadingProductId) return;
-    setLoadingProductId(product.productId);
-    try {
-      setSelectedProduct(await publicApi.getProduct(product.slug));
-    } catch (error) {
-      handleApiError(error, "No se pudieron cargar las presentaciones del producto.");
-    } finally {
-      setLoadingProductId(null);
-    }
+
+  /**
+   * Agrega la variante que el buscador ya resolvió y devuelve el foco al
+   * buscador: en mostrador se encadenan productos, y obligar a volver con el
+   * ratón entre uno y otro rompe el ritmo de la venta.
+   */
+  function addFound(item: PosVariant) {
+    if (item.availability === "sold_out") return;
+    setLines((current) => {
+      const existing = current.find((line) => line.variantId === item.variantId);
+      if (existing) {
+        return current.map((line) =>
+          line.variantId === item.variantId ? { ...line, quantity: line.quantity + 1 } : line);
+      }
+      return [...current, {
+        variantId: item.variantId,
+        sku: item.sku ?? "",
+        productName: item.productName,
+        variantName: item.shadeName ?? item.variantName,
+        quantity: 1,
+        referencePrice: item.unitPrice
+      }];
+    });
+    showToast(`${item.productName} · ${item.shadeName ?? item.variantName} agregado`);
+    searchRef.current?.focus();
+    searchRef.current?.select();
   }
 
   function addVariant(product: CatalogProductDetail, variant: PurchasableVariant) {
@@ -515,37 +568,65 @@ export function SalesView() {
         <section className="form-card order-catalog">
           <div className="order-section-title">1. Buscar productos</div>
           <input
+            ref={searchRef}
             className="input order-search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Código, producto o marca…"
+            onKeyDown={(event) => {
+              // Enter agrega solo si el resultado es inequívoco. Con varios, no
+              // se adivina: elegir por la vendedora es peor que no hacer nada.
+              if (event.key === "Enter" && results.length === 1) {
+                event.preventDefault();
+                addFound(results[0]);
+              }
+              if (event.key === "Escape") setSearch("");
+            }}
+            placeholder="Producto, marca, tono, código o escanea…"
             autoFocus
           />
 
           {loadingProducts ? (
             <div className="order-loading"><span className="spinner spinner--pink" /> Buscando…</div>
-          ) : products.length === 0 ? (
-            <div className="order-empty">No hay productos publicados que coincidan.</div>
+          ) : search.trim().length === 0 ? (
+            <div className="order-empty">Busca por producto, marca, tono, SKU o escanea el código.</div>
+          ) : results.length === 0 ? (
+            <div className="order-empty">Nada coincide con «{search.trim()}».</div>
           ) : (
             <div className="order-products">
-              {products.map((product) => (
-                <button
-                  key={product.productId}
-                  type="button"
-                  className={selectedProduct?.productId === product.productId ? "order-product order-product--active" : "order-product"}
-                  onClick={() => chooseProduct(product)}
-                >
-                  <span className="order-product-main">
-                    <span className="order-product-brand">{product.brand.name}</span>
-                    <strong>{product.name}</strong>
-                    <small>{product.featuredVariant.sku} · {product.category.name}</small>
-                  </span>
-                  <span className="order-product-price">
-                    {formatSoles(product.startingPrice)}
-                    <small>{loadingProductId === product.productId ? "Cargando…" : "Elegir →"}</small>
-                  </span>
-                </button>
-              ))}
+              {results.map((item) => {
+                const enVenta = lines.find((line) => line.variantId === item.variantId)?.quantity ?? 0;
+                const agotado = item.availability === "sold_out"
+                  || (item.tracksInventory && item.availableQuantity <= 0);
+                return (
+                  <div key={item.variantId} className="order-product">
+                    <div className="order-variant">
+                      <span
+                        className="pos-swatch"
+                        style={item.referenceColor ? { background: item.referenceColor } : undefined}
+                        aria-hidden="true"
+                      />
+                      <div className="pos-result-main">
+                        <span className="order-product-brand">{item.brandName}</span>
+                        <strong>{item.productName}</strong>
+                        <small>
+                          {[
+                            item.shadeName ?? item.variantName,
+                            item.shadeCode,
+                            item.presentation,
+                            item.tracksInventory ? `${item.availableQuantity} disp.` : null
+                          ].filter(Boolean).join(" · ")}
+                        </small>
+                      </div>
+                      <div className="order-variant-action">
+                        <span>{formatSoles(item.unitPrice)}</span>
+                        <button type="button" disabled={agotado} onClick={() => addFound(item)}>
+                          {agotado ? "Agotado" : enVenta ? `Agregar otra (${enVenta})` : "Agregar"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
 

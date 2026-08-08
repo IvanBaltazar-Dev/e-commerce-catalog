@@ -5854,3 +5854,36 @@ a.pub-tab--wa:hover {
   .conv-row { grid-template-columns: 80px 1fr auto; }
   .conv-assignee, .conv-badges { display: none; }
 }
+
+/* ═══════ POS · resultado de búsqueda por variante (B1) ═══════ */
+
+/* Cada resultado ES una variante: swatch, tono, código y stock en una fila
+   accionable. Buscar «Abrumadora» ya no abre un esmalte con 200 tonos. */
+.pos-swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-pill);
+  flex: none;
+  background: var(--surface-2);
+  border: 1px solid rgba(36, 22, 33, 0.16);
+}
+
+.pos-result-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.pos-result-main strong {
+  font-size: 13.5px;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.pos-result-main small {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
