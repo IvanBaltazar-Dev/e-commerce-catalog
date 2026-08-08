@@ -30,19 +30,38 @@ const WRITE_BASELINE = process.argv.includes("--write-baseline");
 const TARGET = process.env.PG_AUDIT_URL ? "remoto (PG_AUDIT_URL)" : `local (docker: ${CONTAINER})`;
 
 function sql(query) {
-  const args = process.env.PG_AUDIT_URL
-    ? ["-v", "ON_ERROR_STOP=1", "-A", "-t", "-F", "", process.env.PG_AUDIT_URL, "-c", query]
-    : ["exec", "-i", CONTAINER, "psql", "-U", "postgres", "-d", "postgres", "-v", "ON_ERROR_STOP=1", "-A", "-t", "-F", "", "-c", query];
-  const bin = process.env.PG_AUDIT_URL ? "psql" : "docker";
-  const result = spawnSync(bin, args, { encoding: "utf8" });
-  if (result.status !== 0) {
-    throw new Error(`Consulta fallida (${bin}): ${result.stderr || result.stdout}`);
+  // Local (sin PG_AUDIT_URL): psql por el contenedor. Remoto: prefiere el psql
+  // del HOST y, si no existe (ENOENT), lo enruta por el psql del CONTENEDOR —
+  // que sí alcanza la red. Así la auditoría remota corre en cualquier máquina
+  // con el prerequisito documentado (Docker + stack local), sin exigir psql en
+  // el PATH del host.
+  // Separador de campos: SOH (\x01), un byte que jamás aparece en un nombre de
+  // objeto — así las columnas se parten sin ambigüedad.
+  const SEP = "\x01";
+  const url = process.env.PG_AUDIT_URL;
+  let result;
+  if (!url) {
+    result = spawnSync("docker",
+      ["exec", "-i", CONTAINER, "psql", "-U", "postgres", "-d", "postgres", "-v", "ON_ERROR_STOP=1", "-A", "-t", "-F", SEP, "-c", query],
+      { encoding: "utf8" });
+  } else {
+    result = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-A", "-t", "-F", SEP, url, "-c", query], { encoding: "utf8" });
+    if (result.error && result.error.code === "ENOENT") {
+      // URL, consulta y separador por variable de entorno: así el `sh -c` no
+      // mutila los saltos de línea de la query ni el byte de control.
+      result = spawnSync("docker",
+        ["exec", "-i", "-e", `PGURL=${url}`, "-e", `PGQUERY=${query}`, "-e", `PGSEP=${SEP}`, CONTAINER, "sh", "-c",
+         'psql "$PGURL" -v ON_ERROR_STOP=1 -A -t -F "$PGSEP" -c "$PGQUERY"'],
+        { encoding: "utf8" });
+    }
   }
+  if (result.error) throw new Error(`Consulta fallida: ${result.error.message}`);
+  if (result.status !== 0) throw new Error(`Consulta fallida: ${result.stderr || result.stdout}`);
   return result.stdout
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean)
-    .map((line) => line.split(""));
+    .map((line) => line.split(SEP));
 }
 
 // --- 1. RLS en todas las tablas de public ----------------------------------

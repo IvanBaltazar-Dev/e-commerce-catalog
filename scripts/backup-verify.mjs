@@ -26,6 +26,16 @@ const BACKUP_DIR = path.join(ROOT, "backups");
 const DUMP_FILE = path.join(BACKUP_DIR, `bellaroshe-${STAMP}.dump`);
 const CHECK_DB = "bellaroshe_restore_check";
 
+// Remoto: prefiere las herramientas del HOST; si no están en el PATH, enruta
+// pg_dump/pg_restore/psql por el CONTENEDOR (que sí las trae y alcanza la red).
+// Una sola sonda: así el camino remoto corre en cualquier máquina con Docker,
+// sin exigir el cliente de PostgreSQL instalado en el host.
+function hostHasPsql() {
+  const probe = spawnSync("psql", ["--version"], { encoding: "utf8" });
+  return !probe.error;
+}
+const REMOTE_VIA_CONTAINER = Boolean(REMOTE) && !hostHasPsql();
+
 // Tablas cuyo conteo debe sobrevivir intacto a un ciclo dump→restore.
 const CRITICAL_TABLES = [
   "products", "product_variants", "sales", "sale_lines", "sale_payments",
@@ -45,6 +55,12 @@ function psql(db, query) {
   if (REMOTE) {
     const url = new URL(REMOTE);
     url.pathname = `/${db}`;
+    if (REMOTE_VIA_CONTAINER) {
+      // URL y consulta por variable de entorno: el `sh -c` no debe mutilar los
+      // saltos de línea ni las comillas de la query.
+      return run("docker", ["exec", "-i", "-e", `PGURL=${url.toString()}`, "-e", `PGQUERY=${query}`, CONTAINER, "sh", "-c",
+        'psql "$PGURL" -v ON_ERROR_STOP=1 -A -t -c "$PGQUERY"']);
+    }
     return run("psql", ["-v", "ON_ERROR_STOP=1", "-A", "-t", url.toString(), "-c", query]);
   }
   return run("docker", ["exec", "-i", CONTAINER, "psql", "-U", "postgres", "-d", db, "-v", "ON_ERROR_STOP=1", "-A", "-t", "-c", query]);
@@ -53,7 +69,13 @@ function psql(db, query) {
 mkdirSync(BACKUP_DIR, { recursive: true });
 
 console.log("1. Dump (formato custom, con Storage y Auth incluidos)…");
-if (REMOTE) {
+if (REMOTE && REMOTE_VIA_CONTAINER) {
+  // pg_dump del remoto DENTRO del contenedor y copia afuera: el host no tiene
+  // cliente de PostgreSQL, pero el contenedor sí y alcanza la red.
+  run("docker", ["exec", "-e", `PGURL=${REMOTE}`, CONTAINER, "sh", "-c", 'pg_dump "$PGURL" -Fc -f /tmp/bellaroshe.dump']);
+  run("docker", ["cp", `${CONTAINER}:/tmp/bellaroshe.dump`, DUMP_FILE]);
+  run("docker", ["exec", CONTAINER, "rm", "-f", "/tmp/bellaroshe.dump"]);
+} else if (REMOTE) {
   run("pg_dump", ["-Fc", "-f", DUMP_FILE, REMOTE]);
 } else {
   // El dump se genera DENTRO del contenedor y se copia afuera: pg_dump del
@@ -76,7 +98,16 @@ console.log("3. Restauración REAL en una base de verificación limpia…");
 psql("postgres", `drop database if exists ${CHECK_DB} with (force);`);
 psql("postgres", `create database ${CHECK_DB};`);
 try {
-  if (REMOTE) {
+  if (REMOTE && REMOTE_VIA_CONTAINER) {
+    const url = new URL(REMOTE);
+    url.pathname = `/${CHECK_DB}`;
+    run("docker", ["cp", DUMP_FILE, `${CONTAINER}:/tmp/bellaroshe.dump`]);
+    // Errores de objetos de sistema de Supabase no invalidan los DATOS: se
+    // toleran y la verificación es por conteo (igual que el camino local).
+    spawnSync("docker", ["exec", "-e", `PGURL=${url.toString()}`, CONTAINER, "sh", "-c",
+      'pg_restore --no-owner --no-privileges -d "$PGURL" /tmp/bellaroshe.dump'], { encoding: "utf8", maxBuffer: 1024 * 1024 * 64 });
+    run("docker", ["exec", CONTAINER, "rm", "-f", "/tmp/bellaroshe.dump"]);
+  } else if (REMOTE) {
     const url = new URL(REMOTE);
     url.pathname = `/${CHECK_DB}`;
     run("pg_restore", ["--no-owner", "--no-privileges", "-d", url.toString(), DUMP_FILE]);
