@@ -103,6 +103,9 @@ set name = excluded.name,
 insert into public.attribute_options (attribute_definition_id, value, label, sort_order)
 select definition.id, option.value, option.label, option.sort_order
 from (values
+  -- El listado real trae tonos con nombre pero sin carta de colores: la familia
+  -- cromática queda como deuda clasificable, nunca inventada.
+  ('color_family', 'por-clasificar', 'Por clasificar', 999),
   ('size_label', 'xs', 'XS', 10),
   ('size_label', 's', 'S', 20),
   ('size_label', 'm', 'M', 30),
