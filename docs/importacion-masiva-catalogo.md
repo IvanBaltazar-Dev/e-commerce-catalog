@@ -148,12 +148,61 @@ duplicados evitados · imágenes exactas · imágenes alta confianza · imágene
 imágenes faltantes · variantes con color de respaldo · filas rechazadas · issues ·
 tiempo del proceso. Cada issue enlaza `import_row` → fila del Excel original.
 
-## 7. Estado de ejecución
+## 7. Estado de ejecución (2026-08-08)
 
 - [x] Análisis del Excel real y cruce con BD (este documento).
-- [ ] Migración 0049 (media_backfill + plantillas/ejes/categorías de familias como datos).
-- [ ] Módulos `catalog-bulk-import` (parser genérico, normalización, identidad,
-      agrupamiento, conciliación de medios, servicio de lote).
-- [ ] Rutas API `importaciones/bulk/*` + UI de excepciones.
-- [ ] Piloto local con casos difíciles + reporte + re-ejecución (idempotencia).
-- [ ] Lotes completos en entorno de prueba → reporte → carga definitiva.
+- [x] Migración 0049 (media_backfill + summary de lote + plantillas/ejes/categorías
+      de familias como datos + «Por clasificar» en color_family). pgTAP 0049 en verde.
+- [x] Módulos `src/lib/admin/catalog-bulk-import/` (tipos, léxicos, mapa de familias,
+      normalización pura, conciliación de medios, servicio de lote) + parser crudo
+      `parseCatalogXlsxRaw` dentro del módulo XLSX existente.
+- [x] Rutas `api/admin/importaciones/bulk/{preview,approve,commit,report,media-sync}`
+      + pestaña «Carga masiva» en Importaciones (revisión de excepciones, aprobación
+      masiva, confirmación IMPORTAR LOTE, reporte e historial). Verificada en
+      escritorio y con emulación móvil (sin desborde; tablas con scroll propio).
+- [x] Piloto local `npm run test:bulk-import-pilot` con FILAS REALES y los diez casos
+      difíciles: 346 filas → 152 productos, 343 variantes, 18 duplicados evitados,
+      2 conciliaciones exact, 23 swatches de respaldo; segundo pase con CERO
+      duplicados; tercera pasada adopta la imagen que llega tarde y el trigger
+      limpia `media_backfill`. Las 2 filas `merge` quedan fuera hasta decisión humana.
+- [ ] Lotes completos en entorno de prueba (staging sigue bloqueado por credenciales,
+      ver `docs/staging-produccion.md` §0–§2) → reporte → carga definitiva.
+
+## 8. Runbook: plan de lotes para las 1,500 filas
+
+El piloto ya validó el pipeline; los lotes de producción se arman por familias
+compatibles (~100–250 filas) desde la pestaña «Carga masiva». Plan propuesto:
+
+| Lote | Familias | Filas |
+|------|----------|------:|
+| `unas-esmaltes-01` | Esmaltes tradicionales y gel · Bases, tops | 238 |
+| `unas-sistemas-01` | Sistema acrílico · Polygel · Soft gel · Preparadores · Remoción | 161 |
+| `unas-decoracion-01` | Decoración y nail art · Press on · Tips/dual system | 209 |
+| `unas-herramientas-01` | Herramientas manicure · Limas · Pinceles | 151 |
+| `unas-equipos-01` | Drills · Lámparas UV/LED · Brocas · Cutícula · Moldes · Recipientes | 129 |
+| `cejas-pestanas-01` | Las 7 familias de cejas y pestañas | 170 |
+| `cabello-barberia-01` | Las 8 familias de cabello y barbería | 196 |
+| `rostro-cuerpo-01` | Las 5 familias de rostro, cuerpo y maquillaje | 134 |
+| `transversales-01` | Depilación (4) · Higiene (5) · Organización (3) | 106 |
+| — revisión manual | «Pendiente de clasificación» (filas 474–479) | 6 |
+
+Por lote: preview → excepciones → aprobar → IMPORTAR LOTE → reporte. Cuando llegue
+un ZIP de imágenes (flujo existente de medios), «Conciliar imágenes» sobre los lotes
+committed adopta exact/high y deja `review` para decisión humana. Todo es
+re-ejecutable sin duplicar.
+
+## 9. Criterio de terminado del bloque
+
+1. leer XLSX + ZIP ✔ (parser crudo con las defensas del curado; ZIP existente)
+2. normalizar ✔ · 3. producto vs variante ✔ · 4. duplicados ✔ (escalera de identidad,
+   `S/C` como nulo, merge nunca automático) · 5. asociar imágenes ✔ (5 mecanismos con
+   confianza registrada) · 6. fallback de color ✔ (solo con tono conocido; hex en el
+   léxico o en `attribute_options.metadata`) · 7. solo excepciones ✔ · 8. aprobar
+   lote ✔ · 9. importar coherente ✔ (mismo camino del panel) · 10. repetir sin
+   duplicar ✔ (verificado con dos pases sobre datos reales).
+
+Pendientes conscientes: los pesos/contenidos por variante viajan en el nombre y la
+clave de la variante (no hay atributo tipado por-variante de contenido); las
+imágenes `review` se aprueban subiendo el archivo con la convención o desde el
+detalle del producto (no hay aún botón de adopción individual); staging/producción
+esperan credenciales (R-12 y provisión siguen del lado humano).
