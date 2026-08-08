@@ -115,7 +115,7 @@ export function AnalyticsView() {
       </div>
 
       <section className="form-card">
-        <div className="order-customer-fields" style={{ gridTemplateColumns: "1fr 1fr 1.4fr" }}>
+        <div className="order-customer-fields order-customer-fields--rango">
           <label><span>Desde</span>
             <input className="input" type="date" value={desde} max={hasta}
               onChange={(event) => { setPreset("rango"); setDesde(event.target.value); }} />

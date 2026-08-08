@@ -39,9 +39,17 @@ const SURFACES = [
   { name: "admin · asistente", url: "/admin/asistente", admin: true, shot: true }
 ];
 
+// El móvil se prueba con emulación de dispositivo, no con una ventana estrecha.
+// No es un matiz: fijar solo el ancho mide un escritorio angosto y deja pasar
+// desbordes reales. Medido sobre /admin/analitica en 375px:
+//
+//   sin isMobile → scrollWidth 375, desborde 0px   (falso verde)
+//   con isMobile → scrollWidth 383, desborde 8px   (el <select> de sede)
+//
+// Ninguna pantalla se da por aprobada sin pasar por aquí.
 const VIEWPORTS = [
-  { label: "escritorio", width: 1440, height: 900 },
-  { label: "móvil", width: 375, height: 812 }
+  { label: "escritorio", width: 1440, height: 900, isMobile: false, hasTouch: false, deviceScaleFactor: 1 },
+  { label: "móvil", width: 375, height: 812, isMobile: true, hasTouch: true, deviceScaleFactor: 2 }
 ];
 
 // Ruido conocido que NO es defecto del producto.
@@ -93,7 +101,8 @@ try {
   const evidence = [];
 
   for (const viewport of VIEWPORTS) {
-    await page.setViewport({ width: viewport.width, height: viewport.height });
+    // El objeto entero: quedarse solo con width/height desactivaría la emulación.
+    await page.setViewport(viewport);
 
     for (const surface of SURFACES) {
       const consoleErrors = [];

@@ -5145,6 +5145,21 @@ a.pub-tab--wa:hover {
   grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
 }
 
+/* Analítica filtra por dos fechas y una sede: tres columnas en escritorio.
+   Esto vivía en un style={{}} en línea, y un estilo en línea gana a cualquier
+   hoja — también a la media query de móvil. El resultado era que los tres
+   filtros no colapsaban a 375px y el <select> de sede se salía 8px de la
+   página. En una clase, la media query vuelve a mandar. */
+.order-customer-fields--rango {
+  grid-template-columns: 1fr 1fr 1.4fr;
+}
+
+@media (max-width: 640px) {
+  .order-customer-fields--rango {
+    grid-template-columns: 1fr;
+  }
+}
+
 .sale-totals {
   display: grid;
   grid-template-columns: 1fr auto;
