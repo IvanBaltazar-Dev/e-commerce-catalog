@@ -6251,3 +6251,74 @@ a.pub-tab--wa:hover {
 }
 
 .home-action:hover { background: var(--surface-2); color: var(--ink); }
+
+/* ═══════ D1 · Existencias y D2 · Reposición ═══════ */
+
+.inv-search { margin-bottom: 12px; }
+
+.inv-summary {
+  display: flex;
+  gap: 16px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.inv-summary b { font-variant-numeric: tabular-nums; }
+
+.inv-rows { display: flex; flex-direction: column; gap: 8px; }
+
+.inv-row { border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); }
+
+.inv-row-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  flex-wrap: wrap;
+}
+
+/* La cantidad manda visualmente: es la pregunta de la pantalla. */
+.inv-qty { text-align: right; min-width: 92px; }
+.inv-qty-main {
+  display: block;
+  font-size: 20px;
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--track-kpi);
+}
+.inv-qty small { font-size: 12px; color: var(--ink-3); }
+
+.inv-signal { min-width: 176px; display: flex; flex-direction: column; gap: 3px; }
+.inv-signal small { font-size: 12.5px; color: var(--ink-3); }
+
+.inv-tag {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--track-caps-sm);
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+}
+.inv-tag--agotado { background: var(--crit-wash); color: var(--crit); }
+.inv-tag--cobertura { background: var(--gold-wash); color: var(--gold-deep); }
+
+.inv-actions { display: flex; gap: 6px; margin-left: auto; }
+.inv-actions .btn-soft { text-decoration: none; display: inline-flex; align-items: center; }
+
+/* Los movimientos son la explicación de la cantidad, así que viven bajo ella. */
+.inv-ledger {
+  border-top: 1px solid var(--line);
+  padding: 10px 12px;
+  overflow-x: auto;
+}
+
+@media (max-width: 900px) {
+  .inv-qty { text-align: left; min-width: 0; }
+  .inv-actions { margin-left: 0; width: 100%; }
+}

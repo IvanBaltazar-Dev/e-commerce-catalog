@@ -31,7 +31,8 @@ const CUENTAS = {
 const ESPERADO = [
   { ruta: "/admin/ventas", area: "Ventas", sub: "Nueva venta" },
   { ruta: "/admin/caja", area: "Ventas", sub: "Caja" },
-  { ruta: "/admin/inventario", area: "Inventario", sub: null },
+  { ruta: "/admin/inventario", area: "Inventario", sub: "Existencias" },
+  { ruta: "/admin/reposicion", area: "Inventario", sub: "Reposición" },
   { ruta: "/admin/conversaciones", area: "Clientes", sub: "Conversaciones" },
   { ruta: "/admin/carritos", area: "Clientes", sub: "Carritos" },
   { ruta: "/admin/productos", area: "Catálogo", sub: "Productos" },

@@ -39,7 +39,11 @@ const AREAS: Area[] = [
   {
     id: "inventario",
     label: "Inventario",
-    entradas: [{ href: "/admin/inventario", label: "Existencias" }]
+    entradas: [
+      { href: "/admin/inventario", label: "Existencias" },
+      // D2 empieza donde acaba D1: es el mismo circuito, no otra área.
+      { href: "/admin/reposicion", label: "Reposición" }
+    ]
   },
   {
     id: "clientes",

@@ -77,12 +77,18 @@ export async function loadOwnerHome(): Promise<OwnerHome> {
     .lte("received_at", `${iso(hoy)}T23:59:59`);
   const cobradoHoy = (pagos ?? []).reduce((sum: number, fila: { amount: number | null }) => sum + Number(fila.amount ?? 0), 0);
 
-  // Existencias por agotarse. «Bajo mínimo» es jerga: la dueña dice «por agotarse».
-  const { data: bajas } = await supabase
-    .from("inventory_position")
-    .select("variant_id, available_quantity")
-    .lte("available_quantity", 5)
-    .limit(200);
+  // Lo que pide reposición NO se decide aquí: lo decide inventory_board, que es
+  // la misma definición que usa la pantalla de Reposición. Antes esta línea
+  // tenía su propio `<= 5` y el Inicio podía contradecir al inventario.
+  const { data: tablero } = await supabase.rpc("inventory_board", {
+    p_branch_id: null,
+    p_query: null,
+    p_from: null,
+    p_to: null,
+    p_only_reposition: true,
+    p_limit: 200
+  });
+  const reposicion = (tablero as { total?: number } | null)?.total ?? 0;
 
   const atencion: Atencion[] = [];
 
@@ -96,14 +102,13 @@ export async function loadOwnerHome(): Promise<OwnerHome> {
     });
   }
 
-  const porAgotarse = (bajas ?? []).length;
-  if (porAgotarse > 0) {
+  if (reposicion > 0) {
     atencion.push({
       nivel: "importante",
-      titulo: `${porAgotarse} presentación(es) por agotarse`,
-      detalle: "Cinco unidades o menos disponibles.",
+      titulo: `${reposicion} presentación(es) piden reposición`,
+      detalle: "Agotadas o con menos de siete días de cobertura.",
       accion: "Reponer",
-      href: "/admin/inventario"
+      href: "/admin/reposicion"
     });
   }
 
