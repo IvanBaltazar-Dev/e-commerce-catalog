@@ -1,8 +1,13 @@
-# Bellaroshe · Registro de productos y catálogo
+# Bellaroshé · Plataforma comercial
 
-Prototipo funcional de baja fidelidad para registrar productos heterogéneos en el catálogo Bellaroshe V2, con Next.js, Supabase PostgreSQL/Auth/Storage, RLS y TypeScript. El alta guía por familia comercial y resuelve internamente la categoría, la plantilla y los campos aplicables. El módulo de pedidos se conserva como una función adicional ya implementada.
+Plataforma de operación comercial para Importaciones Bellaroshé (belleza y uñas, Lima), construida sobre **Next.js 15 + Supabase (PostgreSQL/Auth/Storage) con RLS y TypeScript**. No es un catálogo con pedidos añadidos: es la operación completa del negocio.
 
-La fuente técnica de verdad es [docs/CATALOG_V2_IMPLEMENTATION.md](docs/CATALOG_V2_IMPLEMENTATION.md).
+- **Catálogo V2** — productos heterogéneos con alta guiada por familia comercial, variantes, tonos y precios mayorista/minorista resueltos en PostgreSQL (Bloque 1).
+- **Operación comercial** — inventario con kardex y costo promedio, ventas, reservas con adelanto, compras y recepciones, devoluciones, anulaciones, gastos y caja, todo conciliado de extremo a extremo (Bloque 2).
+- **Omnicanalidad** — canales (WhatsApp/Instagram/Facebook/TikTok), conversaciones, carrito público persistente y recuperable entre dispositivos, atribución first/last-touch y asignación de vendedora (Bloque 3).
+- **Inteligencia comercial e IA** — tablero con indicadores y rankings, y un asistente (dictado, foto por etapas, asesor de catálogo, tendencias) que **propone** y siempre deja la venta y la publicación en manos de una persona; degrada con honestidad sin credencial de IA (Bloque 4).
+
+**El runbook operativo es [docs/operacion.md](docs/operacion.md)** (instalación, backup, migraciones, despliegue, rollback, troubleshooting); el despliegue remoto, [docs/staging-produccion.md](docs/staging-produccion.md). La fuente técnica del catálogo es [docs/CATALOG_V2_IMPLEMENTATION.md](docs/CATALOG_V2_IMPLEMENTATION.md); el registro de cada bloque, `docs/bloque-N-ejecucion.md`.
 
 ## Ejecución local segura
 
@@ -26,19 +31,26 @@ npm run dev
 
 ## Rutas principales
 
-- `/` — catálogo público paginado y filtrado en PostgreSQL.
+**Público**
+
+- `/` — catálogo paginado y filtrado en PostgreSQL.
 - `/producto/:slug` — detalle y selección de variante.
-- `/seleccion` — carrito compacto por `variantId + purchaseMode`.
-- `/admin/pedidos` — registro rápido e historial reciente de pedidos.
-- `/admin/productos` — listado administrativo.
-- `/admin/productos/nuevo` — alta guiada por tipo, con buscadores contextuales de marca/línea y biblioteca de tonos por familia cromática.
-- `/admin/productos/:id` — edición/duplicación V2.
-- `/admin/estructura` — compatibilidad; redirige al alta guiada de productos.
-- `/admin/pdf` — exportación PDF V2.
+- `/seleccion` — carrito persistente; `/seleccion/:token` recupera la selección entre dispositivos.
+
+**Panel** (roles admin/developer/seller según la RLS)
+
+- `/admin/ventas` — venta, cobro, caja y reservas.
+- `/admin/conversaciones` — bandeja omnicanal en tres columnas.
+- `/admin/asistente` — dictado, foto por etapas y asesor (propone; la persona confirma).
+- `/admin/inventario` · `/admin/compras` · `/admin/gastos` — operación diaria.
+- `/admin/analitica` — tablero comercial con presets e indicadores.
+- `/admin/carritos` · `/admin/atribucion` — carritos persistentes y marketing (campañas, canales, tendencias).
+- `/admin/productos` · `/admin/productos/nuevo` · `/admin/productos/:id` — catálogo V2.
+- `/admin/pdf` — exportación PDF del catálogo.
 
 ## Organización y roles
 
-La plataforma modela empresa, sedes y personal desde la primera migración del Bloque 1. Toda operación guarda su `branch_id`; `orders` es el primer caso. Los roles disponibles son `admin` (propietaria), `developer` (perfil técnico) y `seller` (vendedora), y todo cambio sobre catálogo, pedidos y organización queda en una bitácora de solo adición. Detalle en [docs/vertical-1-organizacion.md](docs/vertical-1-organizacion.md).
+La plataforma modela empresa, sedes y personal desde la primera migración del Bloque 1. Toda operación guarda su `branch_id`. Los roles son `admin` (propietaria), `developer` (perfil técnico) y `seller` (vendedora); la RLS acota qué ve y qué puede hacer cada uno, y todo cambio sobre catálogo, ventas, dinero e inventario queda en libros de solo adición. Detalle en [docs/vertical-1-organizacion.md](docs/vertical-1-organizacion.md).
 
 Para entrar al panel hace falta un usuario de Supabase Auth. Créalo en Studio (`http://127.0.0.1:55323` → Authentication → Users, con *Auto Confirm*) y después:
 
@@ -48,14 +60,22 @@ node scripts/grant-admin.mjs tu-correo@dominio.pe admin --env .env.supabase.loca
 
 ## Verificación
 
+El gate del repositorio reconstruye y prueba todo desde una base vacía:
+
 ```bash
-npm run typecheck
-npm run test:product-registration
-npm run lint
-npm run build
-npm run test:db
-npm run test:contracts
-npm run test:backfill
+npm run gate:rebuild
 ```
 
-Todos los comandos de base de datos se ejecutan contra Supabase local. No se debe desplegar ni aplicar migraciones en producción sin la validación formal definida en la documentación.
+Corre, en orden: base vacía → migraciones 0001–0046 → seeds → pgTAP (20 suites, 505 aserciones) → integrales B1–B4 → concurrencias → typecheck → lint → build, con evidencia en `test-results/`. Suites individuales: `test:db`, `test:block2`/`3`/`4`, `test:*-concurrency`, `test:ai-matching`.
+
+Estabilización y despliegue (Bloque 5), parametrizados por entorno:
+
+```bash
+npm run audit:security     # RLS/ACL/DEFINER/bundle contra security/baseline.json
+npm run perf:volume        # rendimiento con ~1,500 SKUs, 12 superficies
+npm run backup:verify      # pg_dump + restauración REAL verificada
+npm run rollback:drill     # los cinco casos A–E
+npm run test:responsive    # escritorio + móvil sobre superficies reales
+```
+
+Todos los comandos de base de datos se ejecutan contra Supabase local. **Producción no se toca** hasta superar los gates de staging descritos en [docs/staging-produccion.md](docs/staging-produccion.md).
