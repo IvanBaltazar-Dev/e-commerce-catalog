@@ -44,3 +44,6 @@ ChatGPT Image*.png
 
 test-results/
 backups/
+
+# build aislado de la segunda sesión de desarrollo
+.next-b/

@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Dos sesiones de desarrollo pueden convivir en esta carpeta: cada una puede
+  // aislar su build con NEXT_DIST_DIR para no pisarse el .next.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   // El render del PDF usa Chromium: estos paquetes no deben empaquetarse por webpack,
   // se cargan como dependencias nativas del runtime de Node.
   serverExternalPackages: ["puppeteer", "puppeteer-core", "@sparticuz/chromium"],

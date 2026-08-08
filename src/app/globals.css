@@ -5946,3 +5946,185 @@ a.pub-tab--wa:hover {
   color: var(--green);
   font-weight: var(--fw-semibold);
 }
+
+/* --- Carga masiva del catálogo (importador de listados crudos) ----------- */
+
+.bulk-lote-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.bulk-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 360px;
+}
+
+.bulk-field > span {
+  font-size: 0.85rem;
+  font-weight: var(--fw-semibold);
+}
+
+.bulk-field input[type="text"] {
+  padding: 9px 12px;
+  border: 1px solid var(--line-input);
+  border-radius: 8px;
+  background: var(--surface);
+  color: inherit;
+}
+
+.bulk-field-error {
+  color: var(--crit);
+  font-size: 0.8rem;
+}
+
+.bulk-familias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 6px 14px;
+  padding-top: 8px;
+}
+
+.bulk-familia-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.bulk-familia-option input {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.bulk-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.bulk-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  min-width: 640px;
+}
+
+.bulk-table th,
+.bulk-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.bulk-table thead th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.bulk-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 12px;
+}
+
+@media (max-width: 860px) {
+  .bulk-field {
+    max-width: none;
+  }
+
+  .bulk-familias-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bulk-actions-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .bulk-actions-row .btn-secondary {
+    width: 100%;
+  }
+}
+
+.bulk-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0;
+}
+
+.bulk-tab {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: var(--fw-semibold);
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+
+.bulk-tab--active {
+  color: inherit;
+  border-bottom-color: var(--rose-deep);
+}
+
+/* ═══════ POS · barra de venta en móvil (B1.4) ═══════ */
+
+/* Solo existe en móvil: en escritorio el carrito está fijo a la derecha y el
+   total ya se ve siempre. Aquí abajo el carrito queda tras los productos, y
+   sin esto el total desaparece justo cuando más se consulta. */
+.pos-cartbar { display: none; }
+
+@media (max-width: 900px) {
+  .pos-cartbar {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -4px 18px rgba(36, 22, 33, 0.08);
+  }
+
+  .pos-cartbar-count {
+    font-size: 13px;
+    color: var(--ink-3);
+    white-space: nowrap;
+  }
+
+  .pos-cartbar-total {
+    flex: 1;
+    font-size: 17px;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: var(--track-kpi);
+  }
+
+  .pos-cartbar .btn-save {
+    padding: 10px 18px;
+    font-size: 14px;
+  }
+
+  /* La barra no puede tapar la última acción de la página. */
+  .order-page { padding-bottom: 76px; }
+}
+
+/* El carrito pegajoso se apoya bajo la barra de navegación, que desde S2 puede
+   tener dos niveles. Con un desplazamiento fijo se metía debajo del segundo. */
+.order-draft { top: 118px; }

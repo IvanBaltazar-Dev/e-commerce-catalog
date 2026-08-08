@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CatalogImportView } from "@/components/admin/CatalogImportView";
+import { ImportacionesTabs } from "@/components/admin/ImportacionesTabs";
 import { requireCatalogImportPage } from "@/lib/auth/catalog-import";
 
 export const metadata: Metadata = {
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 
 export default async function CatalogImportPage() {
   await requireCatalogImportPage();
-  return <CatalogImportView />;
+  return <ImportacionesTabs />;
 }

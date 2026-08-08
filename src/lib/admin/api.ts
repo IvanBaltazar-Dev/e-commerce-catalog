@@ -255,6 +255,29 @@ export const adminApi = {
     body.set("productLineApprovals", JSON.stringify(productLineApprovals));
     return request<CatalogImportCommitResult>("/api/admin/importaciones/commit", { method: "POST", body });
   },
+  previewBulkImport: (file: File, lote: { name: string; familias?: string[]; fromRow?: number; toRow?: number }) => {
+    const body = new FormData();
+    body.set("file", file);
+    body.set("lote", JSON.stringify(lote));
+    return request<import("@/lib/admin/catalog-bulk-import/types").BulkBatchPreview>("/api/admin/importaciones/bulk/preview", { method: "POST", body });
+  },
+  approveBulkImport: (payload: { batchId: string; includeReview?: boolean; rowNumbers?: number[]; skipRowNumbers?: number[] }) =>
+    request<{ approved: number; skipped: number; blockedByIssues: number; preview: import("@/lib/admin/catalog-bulk-import/types").BulkBatchPreview }>("/api/admin/importaciones/bulk/approve", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  commitBulkImport: (payload: { batchId: string; confirmation: string }) =>
+    request<import("@/lib/admin/catalog-bulk-import/types").BulkCommitReport>("/api/admin/importaciones/bulk/commit", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  listBulkImportBatches: () =>
+    request<{ batches: Array<{ id: string; source_name: string; original_file_name: string | null; status: string; total_rows: number; processed_rows: number; error_rows: number; committed_at: string | null; created_at: string; summary: Record<string, unknown> }> }>("/api/admin/importaciones/bulk/report").then((result) => result.batches),
+  syncBulkImportMedia: (batchId: string) =>
+    request<{ variantesConImagen: number; productosConImagen: number; sinCambio: number }>("/api/admin/importaciones/bulk/media-sync", {
+      method: "POST",
+      body: JSON.stringify({ batchId })
+    }),
   previewCatalogMediaPackage: (file: File) => {
     const body = new FormData();
     body.set("file", file);
