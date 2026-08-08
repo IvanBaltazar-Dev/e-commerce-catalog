@@ -417,14 +417,23 @@ export function normalizeListing(rows: BulkListingRow[]): NormalizeListingResult
         const duplicateSupplier = duplicate.supplier?.name ?? null;
         const sameSupplier = (supplier.name ?? null) === duplicateSupplier;
         const bothCoded = internalCode && duplicate.identity.internalCode;
+        const duplicateSupplierCode = duplicate.identity.supplierCode ?? null;
+        const thisSupplierCode = supplier.supplierSku ?? null;
         if (bothCoded && internalCode !== duplicate.identity.internalCode) {
           action = "merge";
           review.push(`Misma variante propuesta con códigos internos distintos (${duplicate.identity.internalCode} vs ${internalCode})`);
           issues.push({ row: member.row.row, severity: "error", code: "conflicting_internal_codes", field: "codigo", message: `La fila coincide con la fila ${duplicate.source.row} pero con otro código interno; decidir manualmente.` });
-        } else if (sameSupplier) {
+        } else if (sameSupplier && duplicateSupplierCode === thisSupplierCode) {
+          // Duplicado exacto de verdad: mismo proveedor y mismo código (o ambos sin código).
           action = "skip";
-          review.push(`Duplicado exacto de la fila ${duplicate.source.row} (mismo proveedor)`);
-          issues.push({ row: member.row.row, severity: "warning", code: "duplicate_row_skipped", field: null, message: `Repite descripción, marca y proveedor de la fila ${duplicate.source.row}; se omite para no duplicar.` });
+          review.push(`Duplicado exacto de la fila ${duplicate.source.row} (mismo proveedor y código)`);
+          issues.push({ row: member.row.row, severity: "warning", code: "duplicate_row_skipped", field: null, message: `Repite descripción, marca, proveedor y código de la fila ${duplicate.source.row}; se omite para no duplicar.` });
+        } else if (sameSupplier) {
+          // Mismo proveedor pero códigos de proveedor distintos: la regla de identidad
+          // dice que son artículos distintos (o un error de código). Jamás se omite solo.
+          action = "merge";
+          review.push(`Misma descripción y proveedor que la fila ${duplicate.source.row}, pero con código de proveedor distinto (${duplicateSupplierCode ?? "sin código"} vs ${thisSupplierCode ?? "sin código"})`);
+          issues.push({ row: member.row.row, severity: "error", code: "same_supplier_different_codes", field: "codigo_proveedor", message: `Coincide con la fila ${duplicate.source.row} salvo el código de proveedor: puede ser otra variante (tono/modelo) sin describir. Decidir manualmente.` });
         } else {
           action = "update_variant";
           review.push(`Segunda oferta de proveedor para la variante de la fila ${duplicate.source.row}`);

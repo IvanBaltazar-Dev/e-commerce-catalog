@@ -47,7 +47,8 @@
     "test:bulk-import-pilot": "node --conditions=react-server --experimental-transform-types scripts/test-bulk-import-pilot.mjs --env .env.supabase.local",
     "dev:b": "node scripts/dev-b.mjs",
     "build:a": "node scripts/build-a.mjs",
-    "serve:a": "node scripts/serve-a.mjs"
+    "serve:a": "node scripts/serve-a.mjs",
+    "bulk:lote": "node --conditions=react-server --experimental-transform-types scripts/run-bulk-lote.mjs --env .env.supabase.local"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",

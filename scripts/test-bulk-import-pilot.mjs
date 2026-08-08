@@ -123,6 +123,24 @@ async function cleanup() {
 }
 
 try {
+  // --- Guard: el piloto borra por códigos deterministas al limpiar. Si alguna
+  // de sus familias ya fue importada por un lote REAL, esos códigos coinciden y
+  // la limpieza destruiría datos de verdad. En ese caso el piloto no corre.
+  const committedReal = await service
+    .from("import_batches")
+    .select("id, source_name, summary")
+    .like("source_name", "bulk_catalog_v2:%")
+    .not("source_name", "like", "bulk_catalog_v2:piloto-%")
+    .eq("status", "committed");
+  const overlapping = (committedReal.data ?? []).filter((batch) => {
+    const familias = (batch.summary?.familias ?? []);
+    return familias.some((familia) => FAMILIAS.includes(familia));
+  });
+  if (overlapping.length) {
+    console.log(`[skip] Hay lotes reales committed con familias del piloto (${overlapping.map((batch) => batch.source_name).join(", ")}); el piloto no corre para no tocar datos reales.`);
+    process.exit(0);
+  }
+
   // --- Usuario desarrollador -------------------------------------------------
   const createdUser = await service.auth.admin.createUser({ email, password, email_confirm: true });
   if (createdUser.error) throw createdUser.error;
