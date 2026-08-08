@@ -29,6 +29,17 @@ npm run db:reset:local
 npm run dev
 ```
 
+### Probar el avance (login demo)
+
+`npm run seed:demo-operation` siembra la operación de ejemplo y crea —imprimiéndolas al terminar— dos cuentas listas para entrar en `/admin/login`:
+
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Propietaria (admin) | `demo-admin@local.invalid` | `Demo-Admin-2026!` |
+| Vendedora (seller) | `demo-seller@local.invalid` | `Demo-Seller-2026!` |
+
+El catálogo público y el carrito (`/`, `/producto/:slug`, `/seleccion`) no requieren login. Son cuentas de dominio `.invalid`, exclusivas del stack local: **nunca** se siembran en staging ni en producción.
+
 ## Rutas principales
 
 **Público**

@@ -10,6 +10,11 @@ coverage/
 .env.remote
 !.env.example
 
+# Chuletas de credenciales locales: jamás al historial. Las de prueba (login
+# demo) están documentadas en el README; este txt es conveniencia de máquina.
+credentials.txt
+**/credentials.txt
+
 *.log
 *.tsbuildinfo
 .DS_Store
