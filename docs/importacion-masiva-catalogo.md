@@ -165,8 +165,38 @@ tiempo del proceso. Cada issue enlaza `import_row` → fila del Excel original.
       2 conciliaciones exact, 23 swatches de respaldo; segundo pase con CERO
       duplicados; tercera pasada adopta la imagen que llega tarde y el trigger
       limpia `media_backfill`. Las 2 filas `merge` quedan fuera hasta decisión humana.
+- [x] **Primer lote real committed en local: `unas-esmaltes-01`** (2026-08-08, batch
+      `aeb91291…`). 238 filas → 229 importadas (74 productos, 227 variantes, 229
+      ofertas de proveedor, 152 tonos), 2 ofertas multi-proveedor VOGGUE aprobadas
+      en revisión, **9 filas dejadas a decisión de la dueña** (§8.1). Reconciliación
+      R1–R7 contra BD en verde; segundo pase con CERO duplicados (8 tablas idénticas);
+      conciliación posterior adoptó las 60 fotos reales de tonos Masglo + main
+      (deuda `media_backfill` saldada por trigger; 14 tonos siguen `pending`).
+      Esmalte MASGLO (`MAS-ESM-4C95F3`) y Esmalte ADMISS (`ADM-ESM-CA6EEA`)
+      completados con datos reales del V1 (13.5 ml / 10 ml, sin lámpara), publicados
+      y verificados: catálogo público (anon), detalle con 74 tonos y 60 swatches
+      reales, y búsqueda POS por tono («activista» → MAS014 directa).
+      Runner permanente: `npm run bulk:lote -- --lote <n> --familias "A;B" --stage|--approve|--commit|--second-pass|--media-sync`.
 - [ ] Lotes completos en entorno de prueba (staging sigue bloqueado por credenciales,
       ver `docs/staging-produccion.md` §0–§2) → reporte → carga definitiva.
+
+### 8.1 Decisiones pendientes de la dueña (lote unas-esmaltes-01)
+
+Nueve filas comparten descripción y proveedor con otra fila pero con **código de
+proveedor distinto** — son artículos distintos (tonos/diseños) que el Excel
+describió igual, y el sistema no los fusiona ni omite solo (issue
+`same_supplier_different_codes`, navegable hasta la fila original):
+
+| Filas | Artículo | Códigos en conflicto |
+|-------|----------|----------------------|
+| 939↔940 | BEIFA · ESMALTE OJO DE GATO BOXx36 | (sin código) vs B |
+| 944↔945 | CHARM LIMIT · ESMALTE CAT EYE GEL 10ML | LC2544 vs LC2536 |
+| 946↔947 | CHARM LIMIT · ESMALTE CAT EYE GEL 12ML | LC2522 vs LC2516 |
+| 949↔950–954 | CHARM LIMIT · ESMALTE GEL CAT EYE | LC2548 vs LC2545/46/47/18/19 |
+| 1043↔1044 | REVEL · ESMALTE RUBBER 20ML | SH-236A vs SH-236B |
+
+Resolución típica: confirmar qué es cada código (¿tono?, ¿diseño?) y re-aprobar
+como variantes separadas con su descripción corregida, u omitir si es un error.
 
 ## 8. Runbook: plan de lotes para las 1,500 filas
 
