@@ -98,11 +98,23 @@ try {
     }, pattern);
   }
 
+  // Esperar un tiempo fijo no sirve: la ficha de producto tarda más que el resto
+  // y una captura prematura sale 800px más corta, que luego parece una regresión
+  // de CSS y no lo es. Se espera a que el alto del documento deje de moverse.
   async function settle() {
     await page.waitForFunction(() => !document.querySelector(".order-loading"), { timeout: 30000 })
       .catch(() => { /* un loader eterno también es información: se ve en la captura */ });
     await page.evaluate(() => document.fonts?.ready).catch(() => {});
-    await new Promise((resolve) => setTimeout(resolve, 900));
+
+    let previo = -1;
+    let estable = 0;
+    for (let intento = 0; intento < 40 && estable < 4; intento += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      const alto = await page.evaluate(() => document.documentElement.scrollHeight);
+      estable = alto === previo ? estable + 1 : 0;
+      previo = alto;
+    }
+    if (estable < 4) console.warn("  · el alto no se estabilizó: la captura puede no ser comparable");
   }
 
   // La home no enlaza las fichas con <a href>: navega con router.push sobre un
