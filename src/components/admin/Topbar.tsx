@@ -126,14 +126,18 @@ export function Topbar({ role, importsEnabled }: { role: Rol; importsEnabled: bo
   return (
     <div className="topbar">
       <div className="topbar-inner">
-        <Image
-          src="/brand/logo-sm.png"
-          alt="Bellaroshé"
-          width={72}
-          height={44}
-          className="topbar-logo"
-          priority
-        />
+        {/* El logo es la vuelta a casa, convención universal. No se añade un
+            área «Inicio»: son ocho dominios y el Inicio no es uno de ellos. */}
+        <Link href={role === "seller" ? "/admin/ventas" : "/admin/inicio"} aria-label="Ir al inicio">
+          <Image
+            src="/brand/logo-sm.png"
+            alt="Bellaroshé"
+            width={72}
+            height={44}
+            className="topbar-logo"
+            priority
+          />
+        </Link>
         <div className="topbar-title">Administración</div>
         <nav className="topbar-nav">
           {areas.map((area) => (

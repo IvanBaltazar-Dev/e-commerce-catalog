@@ -4086,9 +4086,12 @@ a.pub-cta-primary:hover {
 }
 
 .pub-agotado {
-  font-size: 9.5px;
-  font-weight: 700;
-  color: #9a8492;
+  /* Estaba a 9.5px en gris claro: 2.66:1, por debajo de AA. Un aviso que dice
+     que no puedes comprar algo es exactamente el que tiene que leerse. */
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--track-caps-sm);
+  color: var(--ink-2);
   background: var(--line);
   border-radius: var(--r-pill);
   padding: 2px 8px;
@@ -6128,3 +6131,123 @@ a.pub-tab--wa:hover {
 /* El carrito pegajoso se apoya bajo la barra de navegación, que desde S2 puede
    tener dos niveles. Con un desplazamiento fijo se metía debajo del segundo. */
 .order-draft { top: 118px; }
+
+/* ═══════ A1 · Inicio de la propietaria ═══════ */
+
+.home-page { display: flex; flex-direction: column; gap: 14px; }
+
+.home-date { text-transform: capitalize; }
+
+/* Cuatro KPI y no más. Cada uno tiene un solo dueño visual en la pantalla. */
+.home-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.home-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+}
+
+.home-kpi-label {
+  font-size: 11px;
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--track-caps-sm);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.home-kpi b {
+  font-size: 24px;
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+  letter-spacing: var(--track-kpi);
+  font-variant-numeric: tabular-nums;
+}
+
+/* La variación va en soles, no en puntos porcentuales. */
+.home-kpi-delta { font-size: 12.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.home-kpi-delta--up { color: var(--green); }
+.home-kpi-delta--down { color: var(--crit); }
+
+.home-split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.home-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 12px 0 0; }
+.home-facts--wide { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.home-facts dt { font-size: 12.5px; color: var(--ink-3); }
+.home-facts dd {
+  margin: 2px 0 0;
+  font-size: 17px;
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.home-goal {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.home-goal span { font-size: 13px; font-weight: var(--fw-semibold); color: var(--ink-2); }
+.home-goal small { font-size: 12.5px; color: var(--ink-3); }
+
+/* Priorizado por severidad y cada aviso con su acción: enterarse sin poder
+   resolver es peor que no enterarse. */
+.home-alerts { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+.home-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+}
+
+.home-dot { width: 9px; height: 9px; border-radius: var(--r-pill); flex: none; }
+.home-dot--urgente { background: var(--crit); }
+.home-dot--importante { background: var(--gold); }
+.home-dot--atencion { background: var(--teal); }
+
+.home-alert-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.home-alert-main strong { font-size: 13.5px; color: var(--ink); }
+.home-alert-main small { font-size: 12.5px; color: var(--ink-3); }
+
+.home-alert-action {
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  color: var(--rose-deep);
+}
+
+/* Accesos compactos: «Nueva venta» aquí es un acceso rápido, no la tarjeta
+   gigante — eso sería pensar como vendedora, no como dueña. */
+.home-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+.home-action {
+  padding: 10px 16px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: var(--fw-medium);
+}
+
+.home-action:hover { background: var(--surface-2); color: var(--ink); }
