@@ -153,7 +153,14 @@ try {
   // La vendedora opera venta, caja e inventario de sus sedes. El catálogo, los
   // gastos y el PDF no son suyos: la RLS ya se lo impide y la barra no debe
   // ofrecerle pantallas donde solo encontraría cero filas.
-  const navLabels = await page.$$eval(".topbar-nav .nav-pill", (nodes) => nodes.map((node) => node.textContent?.trim()));
+  // Desde S2 la navegación tiene dos niveles: ocho áreas arriba y, dentro del
+  // área activa, sus pantallas. Lo que se exige no cambia —qué ve y qué no ve
+  // la vendedora— pero hay que mirar los dos niveles, no solo el primero: su
+  // caja vive dentro de Ventas.
+  const navLabels = await page.$$eval(
+    ".topbar-nav .nav-pill, .nav-subbar .nav-sub",
+    (nodes) => nodes.map((node) => node.textContent?.trim())
+  );
   const forbiddenSections = ["Productos", "Catálogo PDF", "Gastos", "Compras", "Importaciones"];
   check(
     "ve su caja y su inventario, y ninguna sección administrativa",

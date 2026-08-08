@@ -100,21 +100,32 @@ try {
 
   // Esperar un tiempo fijo no sirve: la ficha de producto tarda más que el resto
   // y una captura prematura sale 800px más corta, que luego parece una regresión
-  // de CSS y no lo es. Se espera a que el alto del documento deje de moverse.
+  // de CSS y no lo es.
+  //
+  // Tampoco basta con esperar a que el alto se quede quieto: ese formulario
+  // encadena peticiones y se queda inmóvil más de un segundo entre una y la
+  // siguiente. Hay que exigir las dos cosas — red en silencio Y alto estable.
+  let enVuelo = 0;
+  page.on("request", () => { enVuelo += 1; });
+  page.on("requestfinished", () => { enVuelo -= 1; });
+  page.on("requestfailed", () => { enVuelo -= 1; });
+
   async function settle() {
     await page.waitForFunction(() => !document.querySelector(".order-loading"), { timeout: 30000 })
       .catch(() => { /* un loader eterno también es información: se ve en la captura */ });
     await page.evaluate(() => document.fonts?.ready).catch(() => {});
 
     let previo = -1;
-    let estable = 0;
-    for (let intento = 0; intento < 40 && estable < 4; intento += 1) {
+    let quieto = 0;
+    let intentos = 0;
+    while (intentos < 80 && quieto < 6) {
       await new Promise((resolve) => setTimeout(resolve, 250));
+      intentos += 1;
       const alto = await page.evaluate(() => document.documentElement.scrollHeight);
-      estable = alto === previo ? estable + 1 : 0;
+      quieto = alto === previo && enVuelo <= 0 ? quieto + 1 : 0;
       previo = alto;
     }
-    if (estable < 4) console.warn("  · el alto no se estabilizó: la captura puede no ser comparable");
+    if (quieto < 6) console.warn("  · no se estabilizó: la captura puede no ser comparable");
   }
 
   // La home no enlaza las fichas con <a href>: navega con router.push sobre un

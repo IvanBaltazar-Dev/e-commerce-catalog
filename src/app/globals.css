@@ -508,6 +508,46 @@ button:disabled {
   box-shadow: var(--e-hover);
 }
 
+/* Segundo nivel (S2): dentro de un área, no encima de ella. Se distingue por
+   posición y por una subrayado fino, nunca por otra píldora fuerte: dos
+   acentos compitiendo dejan de señalar dónde estás. */
+.nav-subbar {
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.nav-subbar-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 0 22px;
+  overflow-x: auto;
+}
+
+.nav-sub {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: var(--fw-medium);
+  color: var(--ink-3);
+  border-bottom: 2px solid transparent;
+}
+
+.nav-sub:hover {
+  color: var(--ink);
+}
+
+.nav-sub--active,
+.nav-sub--active:hover {
+  color: var(--ink);
+  font-weight: var(--fw-semibold);
+  border-bottom-color: var(--rose);
+}
+
 .topbar-link {
   font-size: 13px;
   color: var(--br-muted);

@@ -265,25 +265,53 @@ entorno: `UI_BASE_URL`, `E2E_BASE_URL` y `PRODUCT_REGISTRATION_BASE_URL`.
 Ocho áreas con navegación secundaria dentro de cada una. `Topbar.tsx` pasa de lista plana a
 estructura de áreas. **Ninguna URL cambia.**
 
+Implementado en `Topbar.tsx`. Solo se listan pantallas que **existen hoy**; las
+del plan original que aún no tienen ruta (Historial, Reservas, Devoluciones,
+Reposición, Kardex, Proveedores, Recepciones, Rankings, Tendencias) entran
+cuando se construyan, no antes.
+
 ```
-Ventas       Nueva venta · Historial · Reservas · Devoluciones · Caja      → /admin/ventas, /admin/caja
-Inventario   Existencias · Reposición · Kardex                             → /admin/inventario
-Catálogo     Productos · Estructura · Importaciones · Catálogo PDF         → /admin/productos, /admin/estructura, …
-Compras      Órdenes · Proveedores · Recepciones · Gastos                  → /admin/compras, /admin/gastos
-Clientes     Conversaciones · Carritos                                     → /admin/conversaciones, /admin/carritos
-Marketing    Campañas · Canales · Atribución                               → /admin/atribucion, /admin/campanas, /admin/canales
-Analítica    Tablero · Rankings · Tendencias                               → /admin/analitica
-Asistente                                                                  → /admin/asistente
+Ventas       Nueva venta · Caja                    → /admin/ventas · /admin/caja
+Inventario   Existencias                           → /admin/inventario
+Clientes     Conversaciones · Carritos             → /admin/conversaciones · /admin/carritos
+Catálogo     Productos · Catálogo PDF              → /admin/productos · /admin/pdf
+             (+ Importaciones si developer y flag) → /admin/importaciones
+Compras      Órdenes · Gastos                      → /admin/compras · /admin/gastos
+Marketing    Atribución · Campañas · Canales       → /admin/atribucion · /admin/campanas · /admin/canales
+Analítica    Tablero                               → /admin/analitica
+Asistente                                          → /admin/asistente
 ```
 
-Detalles que hay que resolver ahí:
-- El activo hoy es `pathname.startsWith(item.href)`; con áreas hace falta activo de área **y** de sub-entrada.
-- El filtro por rol ya existe y se mantiene: la vendedora ve Ventas, Inventario, Clientes y Asistente.
-- Si más adelante aporta, se añaden alias/redirecciones. No ahora.
+**Ninguna URL se movió**, comprobado ruta a ruta. El segundo nivel solo aparece
+cuando el área tiene más de una pantalla: repetir un área de una sola entrada
+es ruido.
+
+Dos cosas que la agrupación destapó:
+
+- **Campañas y canales existían y no eran alcanzables** desde la barra. Ahora sí.
+- **`/admin/estructura` no es una pantalla**: es un stub que redirige al alta de
+  productos. Se dejó fuera de la barra — ofrecerla sería prometer algo que deja
+  al usuario en otro sitio sin explicación.
+
+Resuelto al implementarlo:
+- Activo de área **y** de sub-entrada, ambos por `pathname.startsWith`.
+- El filtro por rol se mantiene: la vendedora ve Ventas, Inventario, Clientes y Asistente, y su
+  caja vive dentro de Ventas.
+- Alias y redirecciones: no ahora.
 
 Por qué no mover rutas, con evidencia: seis scripts de prueba navegan a URLs literales
 (`/admin/atribucion`, `/admin/ventas`, `/admin/analitica`…). Renombrar rutas convierte un rediseño
 en una migración.
+
+**Puerta nueva**: `scripts/check-nav.mjs` comprueba que cada ruta sigue respondiendo donde siempre,
+que marca su área, y que la vendedora no ve ni una pantalla administrativa **en ninguno de los dos
+niveles**. Las dos rutas que no son pantalla están declaradas como tales, así que la puerta no tiene
+rojos crónicos que la gente aprenda a ignorar.
+
+Al implementarlo hubo que tocar `test-sales-ui.mjs`: su aserción leía solo `.topbar-nav .nav-pill`,
+y la caja de la vendedora ahora vive en el segundo nivel. **La exigencia no se debilitó** —sigue
+pidiendo que vea Ventas, Caja e Inventario y ninguna sección administrativa—, solo mira los dos
+niveles. Cuando cambia la arquitectura de información, la prueba que la describía cambia con ella.
 
 ---
 
