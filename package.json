@@ -45,7 +45,9 @@
     "rollback:drill": "node scripts/rollback-drill.mjs",
     "e2e:staging": "node scripts/e2e-staging.mjs",
     "test:bulk-import-pilot": "node --conditions=react-server --experimental-transform-types scripts/test-bulk-import-pilot.mjs --env .env.supabase.local",
-    "dev:b": "node scripts/dev-b.mjs"
+    "dev:b": "node scripts/dev-b.mjs",
+    "build:a": "node scripts/build-a.mjs",
+    "serve:a": "node scripts/serve-a.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",

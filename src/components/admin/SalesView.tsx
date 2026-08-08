@@ -123,6 +123,7 @@ export function SalesView() {
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<PosVariant[]>([]);
   const searchRef = useRef<HTMLInputElement>(null);
+  const draftRef = useRef<HTMLElement>(null);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<CatalogProductDetail | null>(null);
 
@@ -166,6 +167,18 @@ export function SalesView() {
   const [reservations, setReservations] = useState<ReservationSummary[]>([]);
   const [loadingReservations, setLoadingReservations] = useState(true);
   const [busyReservationId, setBusyReservationId] = useState<string | null>(null);
+
+  // Esc cierra el panel que esté abierto antes que nada: si hay un detalle de
+  // venta encima, cerrarlo es lo que la vendedora quiere, no vaciar su búsqueda.
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      if (openSale) { setOpenSale(null); return; }
+      if (search) setSearch("");
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [openSale, search]);
 
   const loadBranches = useCallback(async () => {
     try {
@@ -733,7 +746,7 @@ export function SalesView() {
           ) : null}
         </section>
 
-        <section className="form-card order-draft">
+        <section className="form-card order-draft" ref={draftRef}>
           <div className="order-section-title">2. Venta actual</div>
 
           <label className="sale-field">
@@ -1096,6 +1109,26 @@ export function SalesView() {
           </div>
         )}
       </section>
+
+      {/* En móvil el carrito queda debajo de los productos, así que el total
+          dejaría de verse justo cuando más se mira. Esta barra lo mantiene a la
+          vista y lleva a la venta de un toque. Solo aparece con algo dentro:
+          una barra vacía es ruido fijo en pantalla. */}
+      {lines.length > 0 ? (
+        <div className="pos-cartbar">
+          <span className="pos-cartbar-count">
+            {totalUnits} {totalUnits === 1 ? "producto" : "productos"}
+          </span>
+          <b className="pos-cartbar-total">{total === null ? "—" : formatSoles(total)}</b>
+          <button
+            type="button"
+            className="btn-save"
+            onClick={() => draftRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+          >
+            Ver venta →
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
