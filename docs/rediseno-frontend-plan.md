@@ -190,7 +190,9 @@ capturas de las cuatro y guardar el **antes** primero.
 
 1. `gate-selectors.mjs` verde: **cero selectores perdidos**.
 2. `npm run typecheck` · `npm run lint` · `npm run build` verdes.
-3. `npm run test:responsive` verde en las 12 superficies × 2 viewports.
+3. `npm run test:responsive` verde en las 12 superficies × 2 viewports, **con emulación de
+   dispositivo móvil**. Regla permanente de Ivan: *ninguna pantalla se aprueba sin emulación móvil*.
+   Fijar solo el ancho no cuenta — mide un escritorio estrecho y deja pasar desbordes reales.
 4. `npm run test:sales-ui` y `npm run test:product-registration-ui` verdes.
 5. Cero hex crudos en `globals.css` fuera del bloque `:root` (se admiten `#fff` y `rgba()` de sombra).
 6. Contraste AA en texto sobre las cuatro superficies de control.
