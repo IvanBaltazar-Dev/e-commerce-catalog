@@ -286,16 +286,18 @@ dos errores reales (un vuelto de S/ 6.60 que eran S/ 4.60, y un Yape que cobraba
 
 ---
 
-## 6. Pendiente de confirmar con Ivan
+## 6. Confirmado por Ivan — 2026-08-08
 
-1. **Radios.** El plan de Fase 0 propone 12/16/20; los prototipos aprobados usan 7/10. Ivan pidió
-   *«sin exceso de curva»*. **Recomendación: 7/10**, y que él lo confirme mirando una pantalla.
-2. **Rutas.** El plan dice «no se mueven rutas; Caja sigue en `/admin/caja`». La arquitectura que
-   Ivan aprobó agrupa en **8 áreas** (Caja dentro de Ventas, Marketing fusionando campañas + canales
-   + atribución). Se puede **agrupar en la navegación sin mover URLs** — pero hay que decidirlo
-   explícitamente, no por omisión.
-3. **Exceso en pago dividido**: hoy se bloquea si Yape/Tarjeta superan el total. ¿Hay casos reales
-   donde acepten de más por Yape y devuelvan en efectivo?
+Los tres puntos que estaban pendientes quedaron decididos. Ya no se discuten:
+
+1. **Radios: 7/10.** Confirmado. El `--r-sm 6–7px` / `--r 10px` de los prototipos es lo que se
+   implementa; el 12/16/20 del plan de Fase 0 queda derogado.
+2. **Rutas: se agrupa la navegación en las 8 áreas SIN mover ninguna URL.** Decidido a propósito, no
+   por omisión. Caja se muestra dentro de Ventas y sigue respondiendo en `/admin/caja`; Marketing
+   agrupa campañas, canales y atribución sobre sus rutas actuales. Si más adelante aporta, se añaden
+   alias o redirecciones — no ahora.
+3. **Exceso en pago dividido: se mantiene bloqueado.** Si Yape o tarjeta superan el total, no se
+   acepta. El exceso sigue siendo exclusivo del efectivo, porque solo ahí hay vuelto que devolver.
 
 ## 7. Dato recién arreglado que afecta al POS
 

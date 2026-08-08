@@ -34,6 +34,8 @@
     "test:ai-matching": "node scripts/test-ai-matching.mjs",
     "test:block4": "node scripts/test-block4-intelligence.mjs",
     "gate:rebuild": "node scripts/gate-rebuild.mjs",
+    "gate:selectors": "node scripts/gate-selectors.mjs",
+    "shoot:surfaces": "node scripts/shoot-surfaces.mjs",
     "seed:demo-operation": "node scripts/seed-demo-operation.mjs --env .env.supabase.local",
     "test:cleanup": "node scripts/cleanup-v2-test-data.mjs --env .env.supabase.local",
     "audit:security": "node scripts/audit-security.mjs",

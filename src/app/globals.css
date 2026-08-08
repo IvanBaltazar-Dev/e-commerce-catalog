@@ -1,6 +1,32 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Jost:wght@400;500;600&display=swap");
-
 :root {
+  /* ── Tipografía (Fase 0.1) ─────────────────────────────────────────────
+     Manrope es la única familia del sistema.
+
+     `--font-sans` lo publica next/font/local sobre el <html> desde layout.tsx;
+     `--font-app` es el alias que usa esta hoja. Son nombres distintos a
+     propósito: declarar `--font-sans` también aquí dejaría el ganador a merced
+     del orden de inyección. El respaldo mantiene la aplicación legible si la
+     clase del <html> no llegara a aplicarse.
+
+     Hasta aquí la jerarquía la sostenía el contraste de familia: Poppins
+     titulaba y Jost narraba. Con una sola familia ese canal desaparece, así
+     que la jerarquía pasa a peso, tamaño y tracking — los del pase de
+     refinamiento aprobado (rediseno-prototipos-aprobados.md §2). */
+  --font-app: var(--font-sans, "Segoe UI", system-ui, -apple-system, sans-serif);
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* Tracking: negativo aprieta ópticamente los tamaños grandes; positivo abre
+     las versalitas. El .16–.20em inicial fue rechazado por excesivo. */
+  --track-title: -0.012em;
+  --track-figure: -0.02em;
+  --track-kpi: -0.01em;
+  --track-caps: 0.075em;
+  --track-caps-sm: 0.07em;
+
   --br-ink: #4b2a3c;
   --br-ink-strong: #3d2230;
   --br-muted: #9a7386;
@@ -29,7 +55,7 @@ body {
 }
 
 body {
-  font-family: "Jost", system-ui, sans-serif;
+  font-family: var(--font-app);
   color: var(--br-ink);
   -webkit-font-smoothing: antialiased;
   background:
@@ -51,7 +77,7 @@ input,
 textarea,
 select,
 button {
-  font-family: "Jost", sans-serif;
+  font-family: var(--font-app);
 }
 
 input::placeholder,
@@ -137,10 +163,10 @@ textarea::placeholder {
 }
 
 .page-title {
-  font-family: "Poppins", sans-serif;
   font-size: 24px;
   font-weight: 600;
   color: var(--br-ink-strong);
+  letter-spacing: var(--track-title);
 }
 
 .page-sub {
@@ -271,11 +297,11 @@ button:disabled {
 }
 
 .login-title {
-  font-family: "Poppins", sans-serif;
   font-size: 21px;
   font-weight: 600;
   color: var(--br-ink-strong);
   margin-top: 10px;
+  letter-spacing: var(--track-title);
 }
 
 .login-sub {
@@ -371,7 +397,6 @@ button:disabled {
 }
 
 .topbar-title {
-  font-family: "Poppins", sans-serif;
   font-size: 15px;
   font-weight: 600;
   color: var(--br-ink-strong);
@@ -747,7 +772,6 @@ button:disabled {
 }
 
 .row-name {
-  font-family: "Poppins", sans-serif;
   font-size: 14.5px;
   font-weight: 600;
   color: var(--br-ink-strong);
@@ -846,9 +870,9 @@ button:disabled {
 }
 
 .empty-title {
-  font-family: "Poppins", sans-serif;
   font-size: 17px;
   font-weight: 600;
+  letter-spacing: var(--track-title);
 }
 
 .empty-sub {
@@ -887,10 +911,10 @@ button:disabled {
 }
 
 .form-title {
-  font-family: "Poppins", sans-serif;
   font-size: 23px;
   font-weight: 600;
   color: var(--br-ink-strong);
+  letter-spacing: var(--track-title);
 }
 
 .toggle-pill {
@@ -1666,10 +1690,10 @@ button:disabled {
 }
 
 .pdf-name {
-  font-family: "Poppins", sans-serif;
   font-size: 16px;
   font-weight: 600;
   color: var(--br-ink-strong);
+  letter-spacing: var(--track-title);
 }
 
 .badge-status {
@@ -1936,10 +1960,9 @@ a.pub-wa-pill:hover {
 }
 
 .pub-h1 {
-  font-family: "Poppins", sans-serif;
   font-size: clamp(27px, 4.2vw, 46px);
   font-weight: 600;
-  letter-spacing: -0.6px;
+  letter-spacing: var(--track-title);
   margin: 10px auto 0;
   line-height: 1.12;
   color: var(--br-ink-strong);
@@ -2184,11 +2207,11 @@ a.pub-cta-primary:hover {
 }
 
 .pub-listhead-title {
-  font-family: "Poppins", sans-serif;
   font-size: 21px;
   font-weight: 600;
   line-height: 1;
   color: var(--br-ink-strong);
+  letter-spacing: var(--track-title);
 }
 
 .pub-listhead-count {
@@ -2680,10 +2703,10 @@ a.pub-cta-primary:hover {
 }
 
 .order-section-title {
-  font-family: "Poppins", sans-serif;
   color: var(--br-ink-strong);
   font-size: 16px;
   font-weight: 600;
+  letter-spacing: var(--track-title);
 }
 
 .order-search {
@@ -2930,8 +2953,9 @@ a.pub-cta-primary:hover {
 
 .order-total strong {
   color: var(--br-pink-deep);
-  font-family: "Poppins", sans-serif;
   font-size: 20px;
+  letter-spacing: var(--track-figure);
+  font-variant-numeric: tabular-nums;
 }
 
 .order-total small {
@@ -3288,9 +3312,9 @@ a.pub-cta-primary:hover {
 .product-step-heading h2 {
   margin: 0;
   color: var(--br-ink-strong);
-  font-family: "Poppins", sans-serif;
   font-size: 21px;
   font-weight: 600;
+  letter-spacing: var(--track-title);
 }
 
 .product-step-heading p {
@@ -3340,7 +3364,6 @@ a.pub-cta-primary:hover {
 
 .product-type-card strong {
   color: var(--br-ink-strong);
-  font-family: "Poppins", sans-serif;
   font-size: 14px;
 }
 
@@ -3960,7 +3983,6 @@ a.pub-cta-primary:hover {
 }
 
 .pub-card-name {
-  font-family: "Poppins", sans-serif;
   font-size: 14.5px;
   font-weight: 600;
   line-height: 1.2;
@@ -3989,10 +4011,11 @@ a.pub-cta-primary:hover {
 }
 
 .pub-card-u {
-  font-family: "Poppins", sans-serif;
   font-size: 15.5px;
   font-weight: 700;
   color: var(--br-ink-strong);
+  letter-spacing: var(--track-figure);
+  font-variant-numeric: tabular-nums;
 }
 
 .pub-card-m {
@@ -4058,10 +4081,9 @@ a.pub-cta-primary:hover {
 }
 
 .pub-otros-title {
-  font-family: "Poppins", sans-serif;
   font-size: clamp(19px, 2.4vw, 25px);
   font-weight: 600;
-  letter-spacing: 0.2px;
+  letter-spacing: var(--track-title);
 }
 
 .pub-otros-sub {
@@ -4318,11 +4340,11 @@ a.pub-otros-btn:hover {
 }
 
 .pub-ficha-title {
-  font-family: "Poppins", sans-serif;
   font-size: clamp(24px, 2.6vw, 30px);
   font-weight: 600;
   line-height: 1.12;
   color: var(--br-ink-strong);
+  letter-spacing: var(--track-title);
 }
 
 .pub-ficha-meta {
@@ -4359,11 +4381,12 @@ a.pub-otros-btn:hover {
 }
 
 .pub-price-value {
-  font-family: "Poppins", sans-serif;
   font-size: 22px;
   font-weight: 700;
   margin-top: 2px;
   color: var(--br-ink-strong);
+  letter-spacing: var(--track-figure);
+  font-variant-numeric: tabular-nums;
 }
 
 .pub-price-m {
@@ -4453,11 +4476,12 @@ a.pub-otros-btn:hover {
 }
 
 .pub-qty {
-  font-family: "Poppins", sans-serif;
   font-size: 21px;
   font-weight: 700;
   min-width: 26px;
   text-align: center;
+  letter-spacing: var(--track-figure);
+  font-variant-numeric: tabular-nums;
 }
 
 .pub-mayornote {
@@ -4480,11 +4504,11 @@ a.pub-otros-btn:hover {
 }
 
 .pub-modes-title {
-  font-family: "Poppins", sans-serif;
   font-size: 17px;
   font-weight: 600;
   margin-bottom: 10px;
   color: var(--br-ink-strong);
+  letter-spacing: var(--track-title);
 }
 
 .pub-modes {
@@ -4582,10 +4606,10 @@ a.pub-otros-btn:hover {
 }
 
 .pub-sincarta-title {
-  font-family: "Poppins", sans-serif;
   font-size: 17px;
   font-weight: 600;
   color: var(--br-ink-strong);
+  letter-spacing: var(--track-title);
 }
 
 .pub-sincarta-sub {
@@ -4671,10 +4695,10 @@ a.pub-asesor:hover {
 .pub-selbar-title {
   flex: 1;
   text-align: right;
-  font-family: "Poppins", sans-serif;
   font-size: 18px;
   font-weight: 600;
   color: var(--br-ink-strong);
+  letter-spacing: var(--track-title);
 }
 
 .pub-sel-empty {
@@ -4687,10 +4711,10 @@ a.pub-asesor:hover {
 }
 
 .pub-sel-empty-title {
-  font-family: "Poppins", sans-serif;
   font-size: 19px;
   font-weight: 600;
   color: var(--br-ink-strong);
+  letter-spacing: var(--track-title);
 }
 
 .pub-sel-empty-sub {
@@ -4750,7 +4774,6 @@ a.pub-asesor:hover {
 }
 
 .pub-selrow-name {
-  font-family: "Poppins", sans-serif;
   font-size: 15px;
   font-weight: 600;
   line-height: 1.2;
@@ -4814,7 +4837,6 @@ a.pub-asesor:hover {
 }
 
 .pub-delivery-title {
-  font-family: "Poppins", sans-serif;
   font-size: 15.5px;
   font-weight: 600;
   margin-bottom: 10px;
@@ -4884,10 +4906,11 @@ a.pub-asesor:hover {
 }
 
 .pub-totals-price {
-  font-family: "Poppins", sans-serif;
   font-size: 23px;
   color: var(--br-pink-deep);
   font-weight: 700;
+  letter-spacing: var(--track-figure);
+  font-variant-numeric: tabular-nums;
 }
 
 .pub-totals-note {
@@ -4961,7 +4984,7 @@ a.pub-sendwa:hover {
   flex-direction: column;
   align-items: center;
   gap: 3px;
-  font-family: "Jost", sans-serif;
+  font-family: var(--font-app);
   font-size: 10.5px;
   color: var(--br-ink);
   padding: 4px 0;
@@ -5150,8 +5173,9 @@ a.pub-tab--wa:hover {
 
 .sale-totals-final b {
   color: var(--br-pink-deep);
-  font-family: "Poppins", sans-serif;
   font-size: 20px;
+  letter-spacing: var(--track-figure);
+  font-variant-numeric: tabular-nums;
 }
 
 .sale-totals small {
@@ -5571,7 +5595,7 @@ a.pub-tab--wa:hover {
 }
 
 .metric-tile small { color: var(--br-muted); font-size: 10.5px; }
-.metric-tile b { font-family: "Poppins", sans-serif; font-size: 18px; color: var(--br-ink-strong); }
+.metric-tile b { font-size: 18px; color: var(--br-ink-strong); letter-spacing: var(--track-figure); font-variant-numeric: tabular-nums; }
 .metric-tile span { color: var(--br-muted); font-size: 10.5px; }
 
 /* Barras de pestañas/presets: en móvil van a ancho completo y sus columnas
@@ -5602,10 +5626,10 @@ a.pub-tab--wa:hover {
 }
 
 .rank-title {
-  font-family: "Poppins", sans-serif;
   font-size: 12px;
   color: var(--br-ink-strong);
   margin-bottom: 8px;
+  font-weight: var(--fw-semibold);
 }
 
 /* Asistente IA (Bloque 4) */
@@ -5628,8 +5652,8 @@ a.pub-tab--wa:hover {
   padding: 2px 8px;
   border-radius: 999px;
   font-size: 10px;
-  font-family: "Poppins", sans-serif;
   vertical-align: middle;
+  font-weight: var(--fw-semibold);
 }
 .ai-badge--ok { background: #e8f7ee; color: #1c7a45; }
 .ai-badge--warn { background: #fdf3e3; color: #9a6b1a; }
@@ -5646,7 +5670,7 @@ a.pub-tab--wa:hover {
 }
 .ai-block--muted { color: var(--br-muted); font-size: 12px; }
 .ai-block--warn { border-color: #ecc9a3; background: #fdf7ef; color: #7a5a20; font-size: 12.5px; }
-.ai-block-title { font-size: 12px; color: var(--br-ink-strong); font-family: "Poppins", sans-serif; }
+.ai-block-title { font-size: 12px; color: var(--br-ink-strong); font-weight: var(--fw-semibold); }
 
 .ai-ambiguity { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; }
 .ai-options { display: flex; gap: 6px; flex-wrap: wrap; }
