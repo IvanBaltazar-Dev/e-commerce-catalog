@@ -63,6 +63,23 @@ No se agregan módulos operativos hasta hacer esta convergencia.
 - **2.5 Comprobante/cierre**: venta → pago → confirmación → comprobante/nota →
   nueva venta.
 
+### Deuda declarada al cerrar la Fase 2
+
+Se deja escrito porque no se puede cerrar en silencio:
+
+1. **La nota de venta va sin QR ni logo a 1 bit.** El QR debe apuntar a una
+   consulta real por folio y esa ruta pública todavía no existe; el logo hay
+   que convertirlo a 1 bit desde el original. Se imprime la URL de consulta en
+   texto para no fingir un QR que no lleva a ninguna parte.
+2. **El precio mayorista no se activó** en la prueba con 3 unidades del mismo
+   esmalte pese al mínimo 3 del producto: la evaluación del carrito no aplicó
+   el modo `wholesale`. La pantalla ya sabe explicarlo cuando llegue —agrupado por
+   producto y con las unidades reales— pero la regla hay que revisarla en la
+   base. El frontend NO lo calcula.
+3. **1.053 de 1.056 productos siguen sin precio.** El POS lo dice en vez de
+   ofrecer S/ 0.00, pero hasta que la dueña ponga precios el catálogo real no
+   se puede vender.
+
 ## Fase 3 — Convergencia Frontend #2: Dueña (Inicio A1)
 
 A1 ya tiene la lógica. Comparar sistemáticamente prototipo vs aplicación y
@@ -149,23 +166,23 @@ credenciales rotadas · métricas fundamentales conciliadas.
 - [x] **Fase 1C: catálogo certificado** — ver [certificacion-catalogo-local.md](certificacion-catalogo-local.md).
 
 ## POS / Venta
-- [ ] Implementar diseño definitivo de Nueva venta.
-- [ ] Velocidad 1: búsqueda directa de variante/tono.
-- [ ] Velocidad 2: producto → variante.
-- [ ] Velocidad 3: hoja de tonos.
-- [ ] Recientes / Más vendidos / Todos.
-- [ ] Recientes derivados por vendedora.
-- [ ] Familias cromáticas dinámicas.
-- [ ] Solo disponibles.
-- [ ] Selección múltiple.
-- [ ] Cuadrícula congelada.
-- [ ] Restauración de scrollTop.
-- [ ] Vaciar selección.
-- [ ] Vaciar carrito con confirmación.
-- [ ] Cobro automático con un medio.
-- [ ] Cobro dividido.
-- [ ] Comprobante/cierre.
-- [ ] Responsive real.
+- [x] Implementar diseño definitivo de Nueva venta.
+- [x] Velocidad 1: búsqueda directa de variante/tono.
+- [x] Velocidad 2: producto → variante (tarjeta con 3 tonos relevantes).
+- [x] Velocidad 3: hoja de tonos.
+- [x] Recientes / Más vendidos / Todos.
+- [x] Recientes derivados por vendedora.
+- [x] Familias cromáticas dinámicas.
+- [x] Solo disponibles.
+- [x] Selección múltiple.
+- [x] Cuadrícula congelada.
+- [x] Restauración de scrollTop.
+- [x] Vaciar selección.
+- [x] Vaciar carrito con confirmación.
+- [x] Cobro automático con un medio.
+- [x] Cobro dividido.
+- [x] Comprobante/cierre.
+- [x] Responsive real (emulación de dispositivo, no viewport estrecho).
 
 ## Dueña
 - [x] A1 funcional.

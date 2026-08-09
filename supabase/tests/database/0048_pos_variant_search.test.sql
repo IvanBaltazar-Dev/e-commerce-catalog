@@ -89,20 +89,30 @@ select is(
 set local role authenticated;
 set local request.jwt.claims to '{"sub":"f8000000-0000-4000-8000-000000000001","role":"authenticated"}';
 
+-- Las filas se localizan por SKU y no por posición: el catálogo real certificado
+-- vive en esta misma base y tiene su propia «Abrumadora» de Masglo, que ordena
+-- antes por nombre de producto. Que el buscador la devuelva es lo correcto; lo
+-- que esta prueba comprueba es el CONTENIDO de la fila del fixture.
 select is(
-  (select (public.pos_variant_search((select branch_id from fx), 'Abrumadora') -> 'items' -> 0 ->> 'variantName')),
+  (select fila ->> 'variantName'
+     from jsonb_array_elements(public.pos_variant_search((select branch_id from fx), 'Abrumadora') -> 'items') as fila
+    where fila ->> 'sku' = 'POS-TRAD-114'),
   'Abrumadora',
   'teclear el nombre del tono devuelve la variante, no el producto'
 );
 
 select is(
-  (select (public.pos_variant_search((select branch_id from fx), 'Abrumadora') -> 'items' -> 0 ->> 'shadeCode')),
+  (select fila ->> 'shadeCode'
+     from jsonb_array_elements(public.pos_variant_search((select branch_id from fx), 'Abrumadora') -> 'items') as fila
+    where fila ->> 'sku' = 'POS-TRAD-114'),
   'MSG-114',
   'la fila trae el código del tono para que la vendedora lo confirme'
 );
 
 select is(
-  (select (public.pos_variant_search((select branch_id from fx), 'Abrumadora') -> 'items' -> 0 ->> 'availableQuantity')::int),
+  (select (fila ->> 'availableQuantity')::int
+     from jsonb_array_elements(public.pos_variant_search((select branch_id from fx), 'Abrumadora') -> 'items') as fila
+    where fila ->> 'sku' = 'POS-TRAD-114'),
   7,
   'y trae el stock de ESA variante en ESA sede'
 );
@@ -135,7 +145,9 @@ select is(
 -- El umbral de mayoreo es del producto y viaja en el contrato: prohibido
 -- escribir «desde 3» como constante en ningún sitio.
 select is(
-  (select (public.pos_variant_search((select branch_id from fx), 'Abrumadora') -> 'items' -> 0 ->> 'wholesaleMinQuantity')::int),
+  (select (fila ->> 'wholesaleMinQuantity')::int
+     from jsonb_array_elements(public.pos_variant_search((select branch_id from fx), 'Abrumadora') -> 'items') as fila
+    where fila ->> 'sku' = 'POS-TRAD-114'),
   4,
   'el umbral de mayoreo viaja por producto, no como constante'
 );

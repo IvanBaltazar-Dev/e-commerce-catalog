@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useToast } from "@/components/admin/ToastProvider";
 import { useApiError } from "@/components/admin/useApiError";
-import { adminApi, type OperableBranch, type ReservationSummary, type SaleSummary } from "@/lib/admin/api";
+import { adminApi, publicAssetUrl, type OperableBranch, type ReservationSummary, type SaleSummary } from "@/lib/admin/api";
 import { ASSISTANT_HANDOFF_KEY, type AssistantHandoff } from "@/components/admin/AssistantView";
 import {
   FULFILLMENT_LABELS,
@@ -15,8 +16,19 @@ import {
   type Sale,
   type SaleSourceChannel
 } from "@/lib/admin/sales";
-import type { CartEvaluation, CatalogProductDetail, PurchasableVariant } from "@/lib/catalog/contracts";
-import { formatSoles, publicApi, retailPrice } from "@/lib/public/catalog";
+import type { CartEvaluation } from "@/lib/catalog/contracts";
+import { formatSoles, publicApi } from "@/lib/public/catalog";
+import { ToneSheet } from "@/components/admin/ToneSheet";
+import {
+  availabilityLabel,
+  isSellable,
+  priceRangeLabel,
+  toneTint,
+  type PosProductGroup,
+  type PosTone,
+  type PosToneSheet,
+  type PosVariant
+} from "@/lib/admin/pos";
 
 type DraftLine = {
   variantId: string;
@@ -45,28 +57,35 @@ const FULFILLMENTS: FulfillmentMethod[] = ["in_store", "pickup", "delivery"];
 // de la reserva, no la pantalla, y lleva el pago original al que se aplica.
 const CHARGEABLE_METHODS: PaymentMethod[] = ["cash", "yape", "plin", "transfer", "card", "store_credit", "other"];
 
-/** Una fila del buscador del POS: es una variante, no un producto. */
-type PosVariant = {
-  variantId: string;
-  sku: string | null;
-  barcode: string | null;
-  variantName: string;
-  productId: string;
-  productName: string;
-  presentation: string | null;
-  brandName: string;
-  lineName: string | null;
-  shadeName: string | null;
-  shadeCode: string | null;
-  referenceColor: string | null;
-  unitPrice: number;
-  wholesalePrice: number | null;
-  /** Del producto y configurable por la dueña. Jamás una constante. */
-  wholesaleMinQuantity: number | null;
-  availability: "available" | "sold_out" | "consult";
-  tracksInventory: boolean;
-  availableQuantity: number;
-};
+/**
+ * Cuántas coincidencias del mismo producto dejan de ser filas útiles y pasan a
+ * ser una tarjeta con «N tonos → abrir». Por debajo, verlas sueltas es más
+ * rápido; por encima, inundan el buscador y tapan los demás productos.
+ */
+const MAX_FILAS_POR_PRODUCTO = 3;
+
+/**
+ * Qué distingue a ESTA variante de su producto.
+ *
+ * En el catálogo real, un producto sin tonos llama a su única variante igual
+ * que a sí mismo, y a veces la presentación repite lo mismo otra vez. Concatenar
+ * los tres campos a ciegas produce «Base Ajos y Limon · Base Ajos y Limon», que
+ * no informa de nada y ocupa la línea donde debería ir el dato útil.
+ */
+function variantSubtitle(item: PosVariant) {
+  const nombre = item.shadeName ?? item.variantName;
+  const vistos = new Set([item.productName.toLowerCase()]);
+  const partes: string[] = [];
+  for (const parte of [nombre, item.shadeCode, item.presentation]) {
+    const limpio = parte?.trim();
+    if (!limpio) continue;
+    const clave = limpio.toLowerCase();
+    if (vistos.has(clave)) continue;
+    vistos.add(clave);
+    partes.push(limpio);
+  }
+  return partes;
+}
 
 function newPayment(method: PaymentMethod = "cash", amount = ""): DraftPayment {
   return { key: crypto.randomUUID(), method, amount, tenderedAmount: "", reference: "" };
@@ -122,10 +141,12 @@ export function SalesView() {
 
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<PosVariant[]>([]);
+  const [groups, setGroups] = useState<PosProductGroup[]>([]);
   const searchRef = useRef<HTMLInputElement>(null);
   const draftRef = useRef<HTMLElement>(null);
   const [loadingProducts, setLoadingProducts] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState<CatalogProductDetail | null>(null);
+  /** Tercera velocidad: el producto cuya carta de tonos está abierta. */
+  const [openTones, setOpenTones] = useState<string | null>(null);
 
   const [lines, setLines] = useState<DraftLine[]>([]);
   const [evaluation, setEvaluation] = useState<CartEvaluation | null>(null);
@@ -154,6 +175,9 @@ export function SalesView() {
 
   const [expiresAt, setExpiresAt] = useState(inTwoDays);
   const [reservationMode, setReservationMode] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
+  /** La venta recién registrada: el cierre del circuito, no el historial. */
+  const [justSold, setJustSold] = useState<Sale | null>(null);
 
   // Propuesta llegada del Asistente (Bloque 4). Se guarda quiénes fueron las
   // interacciones para CERRAR el ciclo con honestidad: al registrar la venta,
@@ -173,12 +197,15 @@ export function SalesView() {
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
+      // La carta de tonos cierra sola: si estuviera abierta, vaciar aquí la
+      // búsqueda le quitaría el suelo al volver.
+      if (openTones) return;
       if (openSale) { setOpenSale(null); return; }
       if (search) setSearch("");
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [openSale, search]);
+  }, [openSale, openTones, search]);
 
   const loadBranches = useCallback(async () => {
     try {
@@ -278,6 +305,7 @@ export function SalesView() {
 
     if (!branchId || term.length === 0) {
       setResults([]);
+      setGroups([]);
       setLoadingProducts(false);
       return;
     }
@@ -285,12 +313,11 @@ export function SalesView() {
     const timer = window.setTimeout(async () => {
       setLoadingProducts(true);
       try {
-        const response = await fetch(
-          `/api/admin/sales/search?branch=${encodeURIComponent(branchId)}&q=${encodeURIComponent(term)}`
-        );
-        const payload = await response.json();
-        if (!response.ok) throw new Error(payload?.error?.message ?? "Búsqueda fallida");
-        if (!cancelled) setResults((payload?.data?.items ?? []) as PosVariant[]);
+        const payload = await adminApi.searchPos(branchId, term);
+        if (!cancelled) {
+          setResults(payload.items ?? []);
+          setGroups(payload.products ?? []);
+        }
       } catch (error) {
         if (!cancelled) handleApiError(error, "No se pudo buscar en el catálogo.");
       } finally {
@@ -356,46 +383,86 @@ export function SalesView() {
    * buscador: en mostrador se encadenan productos, y obligar a volver con el
    * ratón entre uno y otro rompe el ritmo de la venta.
    */
-  function addFound(item: PosVariant) {
-    if (item.availability === "sold_out") return;
+  /** Suma una unidad de una variante ya resuelta, venga de donde venga. */
+  function addUnit(entry: {
+    variantId: string;
+    sku: string | null;
+    productName: string;
+    variantName: string;
+    unitPrice: number | null;
+  }) {
     setLines((current) => {
-      const existing = current.find((line) => line.variantId === item.variantId);
+      const existing = current.find((line) => line.variantId === entry.variantId);
       if (existing) {
         return current.map((line) =>
-          line.variantId === item.variantId ? { ...line, quantity: line.quantity + 1 } : line);
+          line.variantId === entry.variantId ? { ...line, quantity: line.quantity + 1 } : line);
       }
       return [...current, {
-        variantId: item.variantId,
-        sku: item.sku ?? "",
-        productName: item.productName,
-        variantName: item.shadeName ?? item.variantName,
+        variantId: entry.variantId,
+        sku: entry.sku ?? "",
+        productName: entry.productName,
+        variantName: entry.variantName,
         quantity: 1,
-        referencePrice: item.unitPrice
+        referencePrice: entry.unitPrice
       }];
+    });
+  }
+
+  function addFound(item: PosVariant) {
+    // Un tono sin precio vigente no se agrega en silencio: la venta saldría en
+    // S/ 0.00 y nadie sabría por qué. Se dice qué falta y quién lo arregla.
+    if (item.availability === "consult" || item.unitPrice === null) {
+      showToast(`${item.productName} todavía no tiene precio: la dueña debe ponérselo antes de venderlo.`);
+      return;
+    }
+    if (item.availability === "sold_out") return;
+    addUnit({
+      variantId: item.variantId,
+      sku: item.sku,
+      productName: item.productName,
+      variantName: item.shadeName ?? item.variantName,
+      unitPrice: item.unitPrice
     });
     showToast(`${item.productName} · ${item.shadeName ?? item.variantName} agregado`);
     searchRef.current?.focus();
     searchRef.current?.select();
   }
 
-  function addVariant(product: CatalogProductDetail, variant: PurchasableVariant) {
-    if (variant.availability === "sold_out") return;
-    setLines((current) => {
-      const existing = current.find((line) => line.variantId === variant.id);
-      if (existing) {
-        return current.map((line) =>
-          line.variantId === variant.id ? { ...line, quantity: line.quantity + 1 } : line);
-      }
-      return [...current, {
-        variantId: variant.id,
-        sku: variant.sku,
-        productName: product.name,
-        variantName: variant.name,
-        quantity: 1,
-        referencePrice: retailPrice(variant)
-      }];
+  /**
+   * Un toque en la carta de tonos ES el agregar. No hay un segundo botón
+   * porque entonces vender un esmalte serían cuatro pasos y el máximo son tres.
+   */
+  function addTone(tone: PosTone, sheet: PosToneSheet) {
+    if (!isSellable(tone)) return;
+    addUnit({
+      variantId: tone.variantId,
+      sku: tone.sku,
+      productName: sheet.product?.name ?? "",
+      variantName: tone.shadeName ?? tone.variantName,
+      unitPrice: tone.unitPrice
     });
-    showToast(`${product.name} · ${variant.name} agregado`);
+  }
+
+  /** «Limpiar selección»: deshace lo que esta apertura de la carta agregó. */
+  function removeVariants(variantIds: string[]) {
+    const quitar = new Set(variantIds);
+    setLines((current) => current.filter((line) => !quitar.has(line.variantId)));
+  }
+
+  /** Un tono destacado de la tarjeta ya trae todo lo que hace falta. */
+  function addHighlight(group: PosProductGroup, highlight: PosProductGroup["highlights"][number]) {
+    if (group.priceFrom === null) {
+      showToast(`${group.productName} todavía no tiene precio.`);
+      return;
+    }
+    addUnit({
+      variantId: highlight.variantId,
+      sku: null,
+      productName: group.productName,
+      variantName: highlight.shadeName ?? highlight.variantName,
+      unitPrice: group.priceFrom
+    });
+    showToast(`${group.productName} · ${highlight.shadeName ?? highlight.variantName} agregado`);
   }
 
   function changeQuantity(variantId: string, delta: number) {
@@ -451,7 +518,8 @@ export function SalesView() {
     setSourceChannel("in_store");
     setFulfillmentMethod("in_store");
     setPayments([newPayment()]);
-    setSelectedProduct(null);
+    setSplitPayment(false);
+    setOpenTones(null);
     setReservationMode(false);
     setOperationId(crypto.randomUUID());
   }
@@ -506,6 +574,10 @@ export function SalesView() {
       showToast(`Venta ${sale.saleNumber} registrada ✓`);
       await resolveAssistantInteractions({ saleId: sale.id });
       clearDraft();
+      // El circuito no termina al cobrar: termina cuando la clienta se lleva su
+      // nota y la vendedora puede empezar la siguiente. Esa pantalla es el
+      // cierre, y desde ella se vuelve a vender de un toque.
+      setJustSold(sale);
       await Promise.all([loadSales(), loadReservations()]);
     } catch (error) {
       handleApiError(error, "No se pudo registrar la venta.");
@@ -635,6 +707,52 @@ export function SalesView() {
   const totalUnits = evaluation?.totalUnits ?? lines.reduce((sum, line) => sum + line.quantity, 0);
   const canRegister = !saving && !evaluating && lines.length > 0 && total !== null && missing === 0;
 
+  /** Lo que la venta ya lleva, por variante. Es el único dueño de ese número:
+   *  la carta de tonos lo lee, no lo guarda. */
+  const counts = useMemo(
+    () => new Map(lines.map((line) => [line.variantId, line.quantity])),
+    [lines]
+  );
+
+  /**
+   * Los productos que se ofrecen como tarjeta, y las filas sueltas que quedan.
+   * Un esmalte con 164 tonos coincidentes no puede ocupar 164 filas: se
+   * convierte en «164 tonos · 34 disponibles → Ver los tonos».
+   */
+  const { cards, rows } = useMemo(() => {
+    const agrupados = groups.filter((group) => group.matchedVariants > MAX_FILAS_POR_PRODUCTO);
+    const tapados = new Set(agrupados.map((group) => group.productId));
+    return {
+      cards: agrupados,
+      rows: results.filter((item) => !tapados.has(item.productId))
+    };
+  }, [groups, results]);
+
+  /**
+   * Precio mayorista: se gana POR PRODUCTO sumando sus variantes, así que una
+   * línea de 2 unidades puede llevarlo. Marcar esa línea con «MAYORISTA» a
+   * secas parece un precio mal puesto; el motivo se explica una sola vez,
+   * agrupado, con las unidades reales y el mínimo del producto.
+   */
+  const wholesaleNotes = useMemo(() => {
+    if (!evaluation) return [];
+    const porProducto = new Map<string, { name: string; units: number; minimum: number }>();
+    for (const line of evaluation.lines) {
+      if (line.purchaseMode !== "wholesale") continue;
+      const actual = porProducto.get(line.productId);
+      if (actual) {
+        actual.units += line.quantity;
+      } else {
+        porProducto.set(line.productId, {
+          name: line.productName,
+          units: line.productQuantity || line.quantity,
+          minimum: line.wholesaleRule?.minimumQuantity ?? 0
+        });
+      }
+    }
+    return [...porProducto.values()];
+  }, [evaluation]);
+
   return (
     <div className="form-page br-fade order-page">
       <div className="form-head order-head">
@@ -658,9 +776,10 @@ export function SalesView() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             onKeyDown={(event) => {
-              // Enter agrega solo si el resultado es inequívoco. Con varios, no
-              // se adivina: elegir por la vendedora es peor que no hacer nada.
-              if (event.key === "Enter" && results.length === 1) {
+              // Enter agrega solo si el resultado es inequívoco —el caso del
+              // escáner—. Con varios no se adivina: elegir por la vendedora es
+              // peor que no hacer nada.
+              if (event.key === "Enter" && results.length === 1 && cards.length === 0) {
                 event.preventDefault();
                 addFound(results[0]);
               }
@@ -674,20 +793,75 @@ export function SalesView() {
             <div className="order-loading"><span className="spinner spinner--pink" /> Buscando…</div>
           ) : search.trim().length === 0 ? (
             <div className="order-empty">Busca por producto, marca, tono, SKU o escanea el código.</div>
-          ) : results.length === 0 ? (
+          ) : rows.length === 0 && cards.length === 0 ? (
             <div className="order-empty">Nada coincide con «{search.trim()}».</div>
           ) : (
             <div className="order-products">
-              {results.map((item) => {
-                const enVenta = lines.find((line) => line.variantId === item.variantId)?.quantity ?? 0;
-                const agotado = item.availability === "sold_out"
-                  || (item.tracksInventory && item.availableQuantity <= 0);
+              {/* Tercera velocidad: la clienta quiere elegir. Un esmalte con
+                  164 tonos se ofrece como carta, no como 164 filas. */}
+              {cards.map((group) => (
+                <div key={group.productId} className="pos-card">
+                  <div className="pos-card-head">
+                    <div className="pos-result-main">
+                      <span className="order-product-brand">{group.brandName}</span>
+                      <strong>{group.productName}</strong>
+                      <small>
+                        {[
+                          `${group.toneCount} tonos`,
+                          `${group.availableCount} disponibles`,
+                          group.presentation
+                        ].filter(Boolean).join(" · ")}
+                      </small>
+                    </div>
+                    <div className="pos-card-price">{priceRangeLabel(group)}</div>
+                  </div>
+
+                  {/* Tres tonos relevantes: lo que ESTA vendedora despachó hace
+                      poco y, si no, lo que más sale. Nunca los tres primeros
+                      alfabéticamente, que no le sirven a nadie. */}
+                  {group.highlights.length > 0 ? (
+                    <div className="pos-card-tones">
+                      {group.highlights.map((highlight) => (
+                        <button
+                          key={highlight.variantId}
+                          type="button"
+                          className="pos-card-tone"
+                          onClick={() => addHighlight(group, highlight)}
+                          title={`${highlight.shadeName ?? highlight.variantName}${highlight.reason === "reciente" ? " · lo despachaste hace poco" : " · de los más vendidos"}`}
+                        >
+                          {highlight.swatchPath ? (
+                            <img src={publicAssetUrl(highlight.swatchPath)} alt="" loading="lazy" />
+                          ) : (
+                            <span
+                              className="pos-card-tone-flat"
+                              style={{ background: toneTint({ referenceColor: highlight.referenceColor, familyValue: null }) ?? undefined }}
+                            />
+                          )}
+                          <span>{highlight.shadeName ?? highlight.variantName}</span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  <button
+                    type="button"
+                    className="pos-card-open"
+                    onClick={() => setOpenTones(group.productId)}
+                  >
+                    Ver los {group.toneCount} tonos →
+                  </button>
+                </div>
+              ))}
+
+              {rows.map((item) => {
+                const enVenta = counts.get(item.variantId) ?? 0;
+                const vendible = isSellable(item);
                 return (
                   <div key={item.variantId} className="order-product">
                     <div className="order-variant">
                       <span
                         className="pos-swatch"
-                        style={item.referenceColor ? { background: item.referenceColor } : undefined}
+                        style={{ background: toneTint({ referenceColor: item.referenceColor, familyValue: null }) ?? undefined }}
                         aria-hidden="true"
                       />
                       <div className="pos-result-main">
@@ -695,55 +869,30 @@ export function SalesView() {
                         <strong>{item.productName}</strong>
                         <small>
                           {[
-                            item.shadeName ?? item.variantName,
-                            item.shadeCode,
-                            item.presentation,
-                            item.tracksInventory ? `${item.availableQuantity} disp.` : null
+                            ...variantSubtitle(item),
+                            item.tracksInventory && vendible ? `${item.availableQuantity} disp.` : null
                           ].filter(Boolean).join(" · ")}
                         </small>
                       </div>
-                      <div className="order-variant-action">
-                        <span>{formatSoles(item.unitPrice)}</span>
-                        <button type="button" disabled={agotado} onClick={() => addFound(item)}>
-                          {agotado ? "Agotado" : enVenta ? `Agregar otra (${enVenta})` : "Agregar"}
-                        </button>
-                      </div>
+                      {/* Cuando no se puede vender, el motivo se dice UNA vez.
+                          Un precio «Sin precio» junto a un botón «Sin precio»
+                          es el mismo dato ocupando dos sitios. */}
+                      {vendible ? (
+                        <div className="order-variant-action">
+                          <span>{formatSoles(item.unitPrice)}</span>
+                          <button type="button" onClick={() => addFound(item)}>
+                            {enVenta ? `Agregar otra (${enVenta})` : "Agregar"}
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="pos-blocked">{availabilityLabel(item)}</span>
+                      )}
                     </div>
                   </div>
                 );
               })}
             </div>
           )}
-
-          {selectedProduct ? (
-            <div className="order-variants">
-              <div className="order-variants-head">
-                <div><b>{selectedProduct.name}</b><small>{selectedProduct.brand.name}</small></div>
-                <button type="button" onClick={() => setSelectedProduct(null)}>Cerrar</button>
-              </div>
-              {selectedProduct.variants.map((variant) => {
-                const inSale = lines.find((line) => line.variantId === variant.id)?.quantity ?? 0;
-                return (
-                  <div key={variant.id} className="order-variant">
-                    <div>
-                      <strong>{variant.name}</strong>
-                      <small>
-                        SKU {variant.sku} · {variant.availability === "available"
-                          ? "Disponible"
-                          : variant.availability === "sold_out" ? "Agotado" : "Precio por consultar"}
-                      </small>
-                    </div>
-                    <div className="order-variant-action">
-                      <span>{formatSoles(retailPrice(variant))}</span>
-                      <button type="button" disabled={variant.availability === "sold_out"} onClick={() => addVariant(selectedProduct, variant)}>
-                        {inSale ? `Agregar otra (${inSale})` : "Agregar"}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : null}
         </section>
 
         <section className="form-card order-draft" ref={draftRef}>
@@ -772,8 +921,16 @@ export function SalesView() {
                   <div key={line.variantId} className="order-line">
                     <div className="order-line-info">
                       <strong>{line.productName}</strong>
-                      <small>{line.variantName} · {line.sku}</small>
-                      <span>{evaluated?.purchaseMode === "wholesale" ? "Precio mayorista aplicado" : formatSoles(unitPrice)}</span>
+                      <small>{line.variantName}</small>
+                      {/* Solo un asterisco: el motivo del mayorista se explica
+                          una vez, abajo, con las unidades reales. Marcar aquí
+                          «MAYORISTA» sobre 2 unidades parece un precio mal
+                          puesto, porque el motivo (2+1 del mismo producto) no
+                          se ve desde la línea. */}
+                      <span>
+                        {formatSoles(unitPrice)}
+                        {evaluated?.purchaseMode === "wholesale" ? <b className="order-line-star"> *</b> : null}
+                      </span>
                     </div>
                     <div className="order-qty">
                       <button type="button" aria-label="Restar una unidad" onClick={() => changeQuantity(line.variantId, -1)}>−</button>
@@ -781,14 +938,38 @@ export function SalesView() {
                       <button type="button" aria-label="Sumar una unidad" onClick={() => changeQuantity(line.variantId, 1)}>+</button>
                     </div>
                     <div className="order-line-total">{formatSoles(evaluated?.subtotal ?? null)}</div>
+                    {/* Quitar una línea es inmediato: no se confirma lo que se
+                        deshace volviendo a tocar el tono. */}
+                    <button
+                      type="button"
+                      className="order-line-remove"
+                      aria-label={`Quitar ${line.productName} ${line.variantName}`}
+                      onClick={() => removeVariants([line.variantId])}
+                    >
+                      ×
+                    </button>
                   </div>
                 );
               })}
             </div>
           )}
 
+          {wholesaleNotes.length > 0 ? (
+            <div className="order-wholesale">
+              {wholesaleNotes.map((nota) => (
+                <span key={nota.name}>
+                  * Precio mayorista aplicado: {nota.name} — {nota.units} unid.
+                  {nota.minimum > 0 ? ` (mín. ${nota.minimum})` : ""}
+                </span>
+              ))}
+            </div>
+          ) : null}
+
           <div className="sale-totals">
-            <div><span>Bruto</span><b>{formatSoles(gross)}</b></div>
+            {/* Sin líneas no hay importe que consultar: es cero venta, no un
+                precio desconocido. `formatSoles(null)` dice «Consultar», que
+                aquí sería mentir sobre por qué no hay cifra. */}
+            <div><span>Bruto</span><b>{lines.length === 0 ? "—" : formatSoles(gross)}</b></div>
             <div>
               <span>Descuento</span>
               <input
@@ -799,7 +980,7 @@ export function SalesView() {
                 placeholder="0.00"
               />
             </div>
-            <div className="sale-totals-final"><span>Total</span><b>{formatSoles(total)}</b></div>
+            <div className="sale-totals-final"><span>Total</span><b>{lines.length === 0 ? "—" : formatSoles(total)}</b></div>
             <small>
               {evaluating
                 ? "Recalculando…"
@@ -995,8 +1176,34 @@ export function SalesView() {
             </label>
           ) : null}
 
+          {/* Vaciar la venta sí se confirma, y la confirmación dice qué se
+              pierde: es lo único de esta pantalla que no se deshace tocando
+              otra vez. */}
+          {confirmClear ? (
+            <div className="order-confirm">
+              <p>
+                Se quitan {totalUnits} {totalUnits === 1 ? "unidad" : "unidades"} y los datos de la clienta.
+                <br />
+                <small>No se cancela ninguna reserva ni se anula ninguna venta ya registrada.</small>
+              </p>
+              <div className="order-confirm-actions">
+                <button type="button" className="btn-soft" onClick={() => setConfirmClear(false)}>Seguir con la venta</button>
+                <button type="button" className="btn-cancel" onClick={() => { clearDraft(); setConfirmClear(false); }}>
+                  Vaciar venta
+                </button>
+              </div>
+            </div>
+          ) : null}
+
           <div className="order-actions">
-            <button type="button" className="btn-cancel" disabled={saving} onClick={clearDraft}>Limpiar</button>
+            <button
+              type="button"
+              className="btn-cancel"
+              disabled={saving || lines.length === 0}
+              onClick={() => setConfirmClear(true)}
+            >
+              Vaciar venta
+            </button>
             <button type="button" className="btn-soft" disabled={saving} onClick={() => setReservationMode((current) => !current)}>
               {reservationMode ? "Volver a venta" : "Guardar como reserva"}
             </button>
@@ -1114,6 +1321,52 @@ export function SalesView() {
           dejaría de verse justo cuando más se mira. Esta barra lo mantiene a la
           vista y lleva a la venta de un toque. Solo aparece con algo dentro:
           una barra vacía es ruido fijo en pantalla. */}
+      {/* Cierre del circuito: cobrada la venta, lo único que queda por decidir
+          es si se imprime la nota o se sigue vendiendo. Nada más. */}
+      {justSold ? createPortal(
+        <div className="tone-backdrop" role="dialog" aria-modal="true" aria-label="Venta registrada">
+          <section className="sale-done">
+            <div className="sale-done-mark" aria-hidden="true">✓</div>
+            <div className="sale-done-title">Venta {justSold.saleNumber} registrada</div>
+            <div className="sale-done-total">{formatSoles(justSold.total)}</div>
+            <div className="sale-done-detail">
+              {justSold.lines.reduce((sum, line) => sum + line.quantity, 0)} unidades ·{" "}
+              {justSold.payments.map((pago) => PAYMENT_METHOD_LABELS[pago.method]).join(" + ") || "sin cobro"}
+              {justSold.payments.some((pago) => (pago.change ?? 0) > 0)
+                ? ` · vuelto ${formatSoles(justSold.payments.reduce((sum, pago) => sum + (pago.change ?? 0), 0))}`
+                : ""}
+            </div>
+            <div className="sale-done-actions">
+              <a className="btn-save" href={`/admin/ventas/${justSold.id}/nota`} target="_blank" rel="noopener">
+                Nota de venta
+              </a>
+              <button
+                type="button"
+                className="btn-soft"
+                onClick={() => { setJustSold(null); searchRef.current?.focus(); }}
+              >
+                Nueva venta
+              </button>
+            </div>
+          </section>
+        </div>,
+        document.body
+      ) : null}
+
+      {openTones && branchId ? (
+        <ToneSheet
+          branchId={branchId}
+          productId={openTones}
+          counts={counts}
+          onPick={addTone}
+          onClearPicked={removeVariants}
+          onClose={() => {
+            setOpenTones(null);
+            searchRef.current?.focus();
+          }}
+        />
+      ) : null}
+
       {lines.length > 0 ? (
         <div className="pos-cartbar">
           <span className="pos-cartbar-count">

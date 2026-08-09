@@ -45,6 +45,7 @@ import type {
   registerGoodsReceiptSchema,
   registerSupplierPaymentSchema
 } from "@/lib/admin/purchasing";
+import type { PosSearchResult, PosToneSheet } from "@/lib/admin/pos";
 import type { z } from "zod";
 
 type AdjustInventoryInput = z.infer<typeof adjustInventorySchema>;
@@ -366,6 +367,19 @@ export const adminApi = {
   listSales: () =>
     request<{ items: SaleSummary[] }>("/api/admin/sales").then((result) => result.items),
   getSale: (id: string) => request<Sale>(`/api/admin/sales/${id}`),
+
+  // --- POS: las tres velocidades de la venta -------------------------------
+  // 1 y 2 («sé qué quiere» / «lo tengo en la mano») las resuelve la búsqueda,
+  // que devuelve la variante directa y, agrupados, los productos con muchos
+  // tonos. 3 («la clienta quiere elegir») abre la hoja de tonos.
+  searchPos: (branchId: string, query: string) => {
+    const parameters = new URLSearchParams({ branch: branchId, q: query });
+    return request<PosSearchResult>(`/api/admin/sales/search?${parameters.toString()}`);
+  },
+  getToneSheet: (branchId: string, productId: string) => {
+    const parameters = new URLSearchParams({ branch: branchId, product: productId });
+    return request<PosToneSheet>(`/api/admin/sales/tones?${parameters.toString()}`);
+  },
   registerSale: (payload: RegisterSaleInput) =>
     request<Sale>("/api/admin/sales", { method: "POST", body: JSON.stringify(payload) }),
   requestTaxDocument: (id: string, payload: { kind: TaxDocumentKind; receiver?: unknown }) =>

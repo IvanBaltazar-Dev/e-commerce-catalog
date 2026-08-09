@@ -4349,7 +4349,12 @@ a.pub-otros-btn:hover {
 
 .pub-ficha {
   display: grid;
-  grid-template-columns: 1fr;
+  /* `minmax(0, 1fr)` y no `1fr`: el mínimo automático de una pista de rejilla
+     es el contenido, así que cualquier hijo ancho —una fila de chips que se
+     desplaza, una tabla, un código largo— estira la columna por encima del
+     ancho del móvil y saca scroll horizontal a TODA la página. La variante de
+     escritorio ya lo hacía; esta se había quedado atrás. */
+  grid-template-columns: minmax(0, 1fr);
   gap: clamp(0px, 2vw, 34px);
   padding: 18px 22px 0;
   align-items: start;
@@ -6321,4 +6326,1003 @@ a.pub-tab--wa:hover {
 @media (max-width: 900px) {
   .inv-qty { text-align: left; min-width: 0; }
   .inv-actions { margin-left: 0; width: 100%; }
+}
+
+/* ═══════ carta de tonos pública (selector de variantes cromáticas) ═══════
+   La casilla es el color. 44px de área táctil —mínimo de la W3C— con el tono
+   ocupando el 80% del interior: lo que queda alrededor es el aire donde cabe
+   el anillo de selección sin empujar la rejilla.
+
+   El tamaño de casilla es un token porque de él dependen las dos cifras que
+   importan: cuántos tonos entran por fila y dónde empieza el scroll. 44px en
+   móvil dan 6 por fila; 56px en escritorio dan 10–11, la densidad de una carta
+   física. Cuatro filas visibles y la quinta asomando: el borde cortado es lo
+   que dice que hay más, sin necesidad de escribirlo. */
+.pub-tones {
+  margin-top: 18px;
+  --tone-cell: 44px;
+  --tone-gap: 6px;
+}
+
+.pub-tones-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.pub-tones-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: var(--fw-semibold);
+  color: var(--br-ink-strong);
+  letter-spacing: var(--track-title);
+}
+
+/* Un solo hueco para el recuento y para el nombre del tono apuntado: el nombre
+   existe sin gastar una línea propia y sin mover nada al aparecer. */
+.pub-tones-count {
+  font-size: 12.5px;
+  color: var(--br-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pub-tones-count--tone {
+  color: var(--rose-ink);
+  font-weight: var(--fw-semibold);
+}
+
+.pub-tones-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--br-input-line);
+  background: var(--surface);
+  border-radius: var(--r-sm);
+  padding: 0 10px;
+  height: 38px;
+  color: var(--br-muted);
+}
+
+.pub-tones-search:focus-within {
+  border-color: var(--br-pink);
+  box-shadow: var(--focus-ring);
+}
+
+.pub-tones-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-size: 14px;
+  color: var(--br-ink);
+  height: 100%;
+}
+
+.pub-tones-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.pub-tones-clear {
+  border: 0;
+  background: transparent;
+  color: var(--rose-ink);
+  font-size: 12.5px;
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  padding: 4px 2px;
+}
+
+/* Chips desplazables: en móvil catorce familias no caben, y apilarlas en cuatro
+   líneas gasta más alto que la propia rejilla. */
+.pub-tones-families {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pub-tones-chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--br-input-line);
+  background: var(--surface);
+  border-radius: var(--r-pill);
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: var(--fw-medium);
+  color: var(--br-ink);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pub-tones-chip:hover {
+  border-color: var(--br-pink-line);
+  background: var(--hover);
+}
+
+.pub-tones-chip--on {
+  border-color: var(--br-pink);
+  background: var(--br-pink-soft);
+  color: var(--rose-ink);
+  font-weight: var(--fw-semibold);
+}
+
+.pub-tones-chipnum {
+  font-size: 11px;
+  color: var(--br-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.pub-tones-chip--on .pub-tones-chipnum {
+  color: var(--rose-ink);
+}
+
+.pub-tones-finish {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--br-muted);
+}
+
+.pub-tones-finish select {
+  border: 1px solid var(--br-input-line);
+  background: var(--surface);
+  border-radius: var(--r-sm);
+  padding: 6px 10px;
+  font-size: 13px;
+  color: var(--br-ink);
+}
+
+.pub-tones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, var(--tone-cell));
+  justify-content: space-between;
+  gap: var(--tone-gap);
+  margin-top: 12px;
+  max-height: calc(4 * var(--tone-cell) + 3 * var(--tone-gap) + 26px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding-right: 2px;
+}
+
+.pub-tone {
+  width: var(--tone-cell);
+  height: var(--tone-cell);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.pub-tone:focus-visible {
+  outline: 2px solid var(--rose-deep);
+  outline-offset: 1px;
+}
+
+.pub-tone-chip {
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  background: var(--tone-fill, var(--line));
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+  /* Borde interior siempre: sin él, un blanco roto sobre fondo blanco deja de
+     existir como opción. En los oscuros no se ve, y no molesta. */
+  box-shadow: inset 0 0 0 1px rgba(36, 22, 33, 0.14);
+  transition: transform 120ms ease;
+}
+
+.pub-tone-chip img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pub-tone-chip svg {
+  position: relative;
+  z-index: 1;
+}
+
+.pub-tone:hover .pub-tone-chip {
+  transform: scale(1.09);
+}
+
+/* Los claros llevan borde más marcado: es la diferencia entre un tono y un
+   hueco vacío en la carta. */
+.pub-tone--pale .pub-tone-chip,
+.pub-tone-chip--pale {
+  box-shadow: inset 0 0 0 1px rgba(36, 22, 33, 0.32);
+}
+
+/* Color de respaldo por familia: se distingue del registrado con un rayado
+   tenue, para no presentar como cierto lo que solo es aproximado. */
+.pub-tone--ref .pub-tone-chip {
+  box-shadow: inset 0 0 0 1.5px rgba(36, 22, 33, 0.28);
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.34) 0 3px,
+    rgba(255, 255, 255, 0) 3px 6px
+  );
+}
+
+.pub-tone--out .pub-tone-chip {
+  opacity: 0.4;
+}
+
+/* Anillo fucsia con un hueco blanco entre medias: sobre una carta llena de
+   color, un borde pegado al tono se confunde con el tono. */
+.pub-tone--on .pub-tone-chip {
+  box-shadow:
+    inset 0 0 0 1px rgba(36, 22, 33, 0.14),
+    0 0 0 2px var(--surface),
+    0 0 0 4px var(--br-pink);
+  transform: scale(1.04);
+}
+
+.pub-tone--on.pub-tone--pale .pub-tone-chip {
+  box-shadow:
+    inset 0 0 0 1px rgba(36, 22, 33, 0.32),
+    0 0 0 2px var(--surface),
+    0 0 0 4px var(--br-pink);
+}
+
+.pub-tones-empty {
+  margin-top: 12px;
+  border: 1px dashed var(--br-input-line);
+  border-radius: var(--r);
+  padding: 20px 16px;
+  text-align: center;
+}
+
+.pub-tones-empty-title {
+  font-size: 14px;
+  font-weight: var(--fw-semibold);
+  color: var(--br-ink-strong);
+}
+
+.pub-tones-empty-sub {
+  font-size: 12.5px;
+  color: var(--br-muted);
+  margin-top: 3px;
+}
+
+.pub-tones-reset {
+  margin-top: 10px;
+  border: 1px solid var(--br-pink);
+  background: var(--surface);
+  color: var(--rose-ink);
+  border-radius: var(--r-sm);
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+}
+
+/* El pie es el único sitio donde el nombre del tono es permanente. */
+.pub-tones-picked {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-top: 12px;
+  border: 1px solid var(--br-pink-line);
+  background: var(--br-pink-soft);
+  border-radius: var(--r);
+  padding: 11px 13px;
+}
+
+.pub-tone-chip--lg {
+  width: 34px;
+  height: 34px;
+  flex: none;
+}
+
+.pub-tones-picked-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pub-tones-picked-name {
+  font-size: 14.5px;
+  font-weight: var(--fw-semibold);
+  color: var(--br-ink-strong);
+}
+
+.pub-tones-picked-meta {
+  font-size: 12.5px;
+  color: var(--rose-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.pub-tones-picked-ref {
+  font-size: 12px;
+  color: var(--gold-deep);
+  margin-top: 2px;
+}
+
+@media (min-width: 900px) {
+  .pub-tones {
+    --tone-cell: 56px;
+    --tone-gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pub-tone-chip,
+  .pub-tone:hover .pub-tone-chip,
+  .pub-tone--on .pub-tone-chip {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ═══════ POS · hoja de tonos (B1, tercera velocidad) ═══════ */
+
+/* «La clienta quiere elegir». Con 164 tonos la lista vertical no se puede
+   recorrer: se elige mirando. La regla que manda aquí es que la cuadrícula NO
+   se reordena ni se recarga mientras se selecciona, y por eso la lista visible
+   depende solo de los filtros — nunca de lo que ya se eligió. */
+
+.tone-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(36, 22, 33, 0.42);
+}
+
+.tone-sheet {
+  display: flex;
+  flex-direction: column;
+  width: min(880px, 100%);
+  height: min(88vh, 760px);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--e-overlay);
+  overflow: hidden;
+}
+
+.tone-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tone-head-main { flex: 1; min-width: 0; }
+
+.tone-title {
+  font-size: 16px;
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+  letter-spacing: var(--track-title);
+}
+
+.tone-sub {
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.tone-sub b { color: var(--ink-2); font-weight: var(--fw-semibold); }
+
+.tone-close {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink-3);
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tone-close:hover { background: var(--hover); color: var(--ink); }
+
+/* La deuda de precios se dice, no se disimula: un tono sin precio se ve en la
+   carta pero no se puede cobrar, y la vendedora tiene que saberlo antes. */
+.tone-warning {
+  margin: 0;
+  padding: 9px 16px;
+  font-size: 12.5px;
+  color: var(--gold-deep);
+  background: var(--gold-wash);
+  border-bottom: 1px solid rgba(169, 118, 46, 0.18);
+}
+
+.tone-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tone-search { width: 100%; }
+
+.tone-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.tone-tab {
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--ink-3);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.tone-tab:hover { background: var(--hover); color: var(--ink-2); }
+
+.tone-tab--on {
+  background: var(--rose-wash);
+  border-color: var(--line-rose);
+  color: var(--rose-ink);
+  font-weight: var(--fw-semibold);
+}
+
+.tone-toggle {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tone-toggle input { accent-color: var(--rose); }
+
+.tone-families {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+}
+
+.tone-family {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tone-family:hover { background: var(--hover); }
+
+.tone-family--on {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+  font-weight: var(--fw-medium);
+}
+
+.tone-family small {
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.tone-family--on small { color: rgba(255, 255, 255, 0.72); }
+
+.tone-family-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: var(--r-pill);
+  border: 1px solid rgba(36, 22, 33, 0.16);
+}
+
+.tone-grid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+  gap: 9px;
+  padding: 14px 20px 18px;
+  align-content: start;
+}
+
+.tone-empty {
+  grid-column: 1 / -1;
+  padding: 34px 8px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+/* Cada tono es una TARJETA, no un círculo suelto: en mostrador hace falta ver
+   a la vez el color, el nombre, el código que la clienta canta y cuántas
+   quedan. Un círculo con el nombre debajo obliga a abrir algo para saber si
+   se puede vender. */
+.tone-cell {
+  position: relative;
+  display: block;
+  padding: 10px 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  min-width: 0;
+  transition: border-color 0.13s ease, background 0.13s ease;
+}
+
+.tone-cell:hover:not(:disabled) {
+  border-color: var(--rose);
+  background: var(--rose-wash);
+}
+
+.tone-cell--picked {
+  border-color: var(--rose);
+  background: var(--rose-wash);
+  box-shadow: 0 0 0 2px var(--rose-wash);
+}
+
+.tone-cell--out {
+  opacity: 0.5;
+  background: var(--surface-2);
+  cursor: not-allowed;
+}
+
+.tone-head-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.tone-dot {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: var(--r-pill);
+  object-fit: cover;
+  display: block;
+  box-shadow: inset 0 0 0 1px rgba(36, 22, 33, 0.14);
+}
+
+.tone-dot--flat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-2);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 11px;
+  font-weight: var(--fw-bold);
+}
+
+.tone-name {
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  line-height: 1.2;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tone-code {
+  display: block;
+  margin-top: 7px;
+  font-size: 10.5px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* El acabado se NOMBRA siempre: un punto plano no distingue un glitter de un
+   cremoso, y es justo lo que la clienta pregunta. */
+.tone-finish {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 5px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--surface-2);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: var(--fw-semibold);
+  color: var(--ink-3);
+  vertical-align: 1px;
+}
+
+.tone-stock {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  color: var(--ink-2);
+}
+
+.tone-cell--out .tone-stock { color: var(--crit); }
+
+/* El contador es la única confirmación que necesita un toque: dice cuántas
+   unidades de ESE tono lleva la venta, sin abrir nada ni mover la rejilla. */
+.tone-badge {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: var(--r-pill);
+  background: var(--rose);
+  color: #fff;
+  font-size: 11px;
+  font-weight: var(--fw-bold);
+  line-height: 20px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.tone-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px calc(11px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.tone-foot-count {
+  flex: 1;
+  font-size: 13px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.tone-foot-count b { color: var(--ink); font-weight: var(--fw-semibold); }
+
+/* En móvil es una hoja que sube desde abajo y ocupa casi todo: elegir un tono
+   entre 164 con el pulgar necesita la pantalla entera, no un cuadro centrado. */
+@media (max-width: 720px) {
+  .tone-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .tone-sheet {
+    width: 100%;
+    max-height: 94vh;
+    border-radius: var(--r) var(--r) 0 0;
+    border-bottom: none;
+  }
+
+  .tone-grid {
+    grid-template-columns: repeat(auto-fill, minmax(146px, 1fr));
+    padding: 12px 12px 16px;
+  }
+
+  .tone-toggle { margin-left: 0; }
+}
+
+/* ═══════ POS · tarjeta de producto con carta de tonos (B1) ═══════ */
+
+/* Teclear «masglo» devolvía 164 filas iguales que tapaban todo lo demás. Ahora
+   ese producto se ofrece como una tarjeta: cuántos tonos tiene, cuántos se
+   pueden vender, tres tonos relevantes y la puerta a la carta completa. */
+.pos-card {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 11px 12px;
+  border: 1px solid var(--line-rose);
+  border-radius: var(--r);
+  background: var(--surface);
+}
+
+.pos-card + .pos-card { margin-top: 8px; }
+
+.pos-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.pos-card-price {
+  flex: none;
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pos-card-tones {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.pos-card-tone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 4px 10px 4px 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  max-width: 170px;
+}
+
+.pos-card-tone:hover { background: var(--hover); border-color: var(--line-2); }
+
+.pos-card-tone span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pos-card-tone img,
+.pos-card-tone-flat {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: var(--r-pill);
+  object-fit: cover;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px rgba(36, 22, 33, 0.14);
+}
+
+.pos-card-open {
+  align-self: flex-start;
+  padding: 7px 13px;
+  border: 1px solid var(--rose);
+  border-radius: var(--r-sm);
+  background: var(--rose-wash);
+  color: var(--rose-ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+}
+
+.pos-card-open:hover { background: var(--rose); color: #fff; }
+
+/* ═══════ POS · carrito definitivo (B1.3) ═══════ */
+
+.order-line { grid-template-columns: minmax(0, 1fr) auto 72px 24px; }
+
+.order-line-remove {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--ink-3);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.order-line-remove:hover { background: var(--crit-wash); color: var(--crit); }
+
+.order-line-star { color: var(--gold-deep); font-weight: var(--fw-bold); }
+
+/* El motivo del mayorista, una sola vez y agrupado por producto: la línea solo
+   lleva el asterisco porque 2 unidades con precio mayorista, explicadas en la
+   línea, parecen un error de precio. */
+.order-wholesale {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  background: var(--gold-wash);
+  color: var(--gold-deep);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.order-confirm {
+  margin-top: 10px;
+  padding: 11px 12px;
+  border: 1px solid var(--crit-line);
+  border-radius: var(--r-sm);
+  background: var(--crit-wash);
+}
+
+.order-confirm p {
+  margin: 0 0 9px;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.order-confirm small { color: var(--ink-3); font-size: 11.5px; }
+
+.order-confirm-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Motivo por el que una fila no se puede vender. Ocupa el sitio de la acción
+   porque sustituye a la acción: no hay botón que tocar. */
+.pos-blocked {
+  flex: none;
+  align-self: center;
+  padding: 4px 9px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--ink-3);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+/* ═══════ Nota de venta 80 mm (B1.5) ═══════ */
+
+/* Monoespaciado por alineación de importes y negro puro sobre blanco. Sin
+   grises, degradados, bordes redondeados ni sombras: la impresora térmica
+   imprime un punto o nada, y un gris sale como suciedad. */
+.ticket-stage {
+  display: flex;
+  justify-content: center;
+  padding: 22px 14px 50px;
+  background: var(--ground);
+}
+
+.ticket-paper {
+  width: 80mm;
+  padding: 4mm 4mm 6mm;
+  background: #fff;
+  box-shadow: 0 10px 40px rgba(36, 22, 33, 0.13);
+}
+
+.ticket {
+  width: 72mm;
+  margin: 0 auto;
+  font-family: "Courier New", Consolas, "DejaVu Sans Mono", monospace;
+  color: #000;
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.tk-c { text-align: center; }
+.tk-b { font-weight: 700; }
+.tk-sm { font-size: 10px; }
+.tk-biz { font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; }
+.tk-rule { border-top: 1px solid #000; margin: 1.6mm 0; }
+.tk-rule--dash { border-top: 1px dashed #000; }
+.tk-rule--thick { border-top: 2px solid #000; }
+.tk-kind { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; margin: 1mm 0 0.4mm; }
+.tk-folio { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; }
+.tk-meta { display: flex; justify-content: space-between; gap: 6px; font-size: 10.5px; }
+.tk-row { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.tk-r { text-align: right; white-space: nowrap; }
+.tk-head { font-size: 10px; font-weight: 700; letter-spacing: 0.04em; }
+
+/* Un bloque por producto: cabecera, tonos que fluyen y saltan solos, y UNA
+   línea económica. Un esmalte con 25 tonos ocupa un bloque, no 25. */
+.tk-prod { margin: 1.8mm 0; }
+.tk-pn { font-weight: 700; line-height: 1.25; }
+.tk-tones { font-size: 10.5px; line-height: 1.3; margin: 0.4mm 0 0.6mm; word-break: break-word; }
+.tk-tot { font-size: 15px; font-weight: 700; }
+.tk-totrow { display: flex; justify-content: space-between; align-items: baseline; margin: 1mm 0; }
+.tk-legend {
+  font-size: 9.5px;
+  line-height: 1.3;
+  text-align: center;
+  border: 1px solid #000;
+  padding: 1.5mm;
+  margin: 2mm 0;
+}
+.tk-thanks { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; }
+
+@page { size: 80mm auto; margin: 0; }
+
+@media print {
+  body { background: #fff; }
+  .ticket-noprint { display: none !important; }
+  .ticket-stage { display: block; padding: 0; margin: 0; background: #fff; }
+  .ticket-paper { width: 80mm; box-shadow: none; padding: 3mm 4mm 8mm; }
+  .ticket { width: auto; }
+}
+
+/* ═══════ POS · cierre de la venta (B1.5) ═══════ */
+
+/* Cobrada la venta solo quedan dos decisiones: imprimir o seguir vendiendo.
+   Cualquier otra cosa aquí retrasa a la siguiente clienta. */
+.sale-done {
+  width: min(420px, 100%);
+  padding: 26px 24px 22px;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--e-overlay);
+  text-align: center;
+}
+
+.sale-done-mark {
+  width: 46px;
+  height: 46px;
+  margin: 0 auto 12px;
+  border-radius: var(--r-pill);
+  background: var(--green-wash);
+  color: var(--green);
+  font-size: 24px;
+  line-height: 46px;
+  font-weight: var(--fw-bold);
+}
+
+.sale-done-title { font-size: 15px; font-weight: var(--fw-semibold); color: var(--ink); }
+
+.sale-done-total {
+  margin: 4px 0 2px;
+  font-size: 30px;
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--track-figure);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.sale-done-detail { font-size: 12.5px; color: var(--ink-3); }
+
+.sale-done-actions {
+  display: flex;
+  gap: 9px;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.sale-done-actions .btn-save,
+.sale-done-actions .btn-soft {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
