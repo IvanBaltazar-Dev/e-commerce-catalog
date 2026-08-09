@@ -347,6 +347,7 @@ export function normalizeListing(rows: BulkListingRow[]): NormalizeListingResult
       byPrefix.set(prefix, [...(byPrefix.get(prefix) ?? []), { clusterKey, item, suffix }]);
     }
   }
+  const movedItems = new Set<ExtractedRow>();
   for (const [prefix, members] of byPrefix) {
     const uniqueClusters = new Set(members.map((member) => member.clusterKey));
     if (uniqueClusters.size < 2) continue;
@@ -359,7 +360,13 @@ export function normalizeListing(rows: BulkListingRow[]): NormalizeListingResult
     if (chosen.size < 2) continue;
     const baseTokens = prefix.split("|")[2].split(" ");
     for (const { clusterKey, item, suffix } of chosen.values()) {
-      if (!clusters.has(clusterKey)) continue;
+      // Un ítem solo se muda una vez, y su clúster solo se desarma si sigue
+      // siendo el single original: una pasada anterior pudo haber fusionado
+      // otras filas bajo esa misma clave y borrarla las perdería.
+      if (movedItems.has(item)) continue;
+      const current = clusters.get(clusterKey);
+      if (!current || current.length !== 1 || current[0] !== item) continue;
+      movedItems.add(item);
       clusters.delete(clusterKey);
       item.baseTokens = baseTokens;
       item.baseKey = normalizeToken(baseTokens.join(" "));

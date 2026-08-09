@@ -86,7 +86,27 @@ export async function stageBulkImportBatch(
 
   const { records, issues } = normalizeListing(rows);
 
-  // --- Identidad contra la BD (escalera: sku → proveedor+código → código) ---
+  // --- Identidad contra la BD -----------------------------------------------
+  // Peldaño 0: la fila del Excel ya fue importada (committed) por CUALQUIER
+  // lote anterior. Es el ancla más fuerte: una fila committed jamás se
+  // re-importa, aunque el agrupador de hoy la clasificara distinto.
+  const committedRows = new Map<number, string>();
+  {
+    const rowNumbers = records.map((record) => record.source.row);
+    for (const chunk of chunked(rowNumbers)) {
+      const result = await supabase
+        .from("import_rows")
+        .select("row_number, import_batches!inner(source_name)")
+        .eq("status", "committed")
+        .like("import_batches.source_name", `${SOURCE_PREFIX}:%`)
+        .in("row_number", chunk);
+      if (result.error) fail("bulk_identity_lookup_failed", result.error.message);
+      for (const row of result.data ?? []) {
+        committedRows.set(Number(row.row_number), String((row.import_batches as unknown as { source_name: string }).source_name).replace(`${SOURCE_PREFIX}:`, ""));
+      }
+    }
+  }
+
   const internalCodes = [...new Set(records.map((record) => record.identity.internalCode).filter((code): code is string => Boolean(code)))];
   const productCodes = [...new Set(records.map((record) => record.grouping.productCode))];
 
@@ -102,23 +122,65 @@ export async function stageBulkImportBatch(
     if (result.error) fail("bulk_identity_lookup_failed", result.error.message);
     for (const product of result.data ?? []) existingProducts.set(String(product.code), product);
   }
-  const supplierLinks = await supabase.from("product_suppliers").select("variant_id, supplier_sku, suppliers!inner(trade_name)").eq("is_active", true);
+  const supplierLinks = await supabase
+    .from("product_suppliers")
+    .select("variant_id, supplier_sku, suppliers!inner(trade_name), product_variants!inner(sku, variant_key, products!inner(code))")
+    .eq("is_active", true);
   if (supplierLinks.error) fail("bulk_identity_lookup_failed", supplierLinks.error.message);
-  const existingSupplierOffers = new Set(
-    (supplierLinks.data ?? []).map((link) => `${String((link.suppliers as unknown as { trade_name: string }).trade_name).toLowerCase()}|${String(link.supplier_sku ?? "").toLowerCase()}`)
-  );
+  const existingSupplierOffers = new Map<string, { sku: string; variantKey: string; productCode: string }>();
+  for (const link of supplierLinks.data ?? []) {
+    const key = `${String((link.suppliers as unknown as { trade_name: string }).trade_name).toLowerCase()}|${String(link.supplier_sku ?? "").toLowerCase()}`;
+    const variant = link.product_variants as unknown as { sku: string | null; variant_key: string; products: { code: string } };
+    existingSupplierOffers.set(key, {
+      sku: String(variant.sku ?? ""),
+      variantKey: String(variant.variant_key),
+      productCode: String(variant.products.code)
+    });
+  }
 
   for (const record of records) {
     if (record.action === "skip" || record.action === "merge") continue;
+    const committedIn = committedRows.get(record.source.row);
+    if (committedIn) {
+      record.action = "skip";
+      record.review.push(`Fila ya importada por el lote ${committedIn}; se omite (idempotencia).`);
+      continue;
+    }
     const sku = record.identity.internalCode;
+    const offerKey = record.supplier?.supplierSku
+      ? `${(record.identity.supplierName ?? "").toLowerCase()}|${record.supplier.supplierSku.toLowerCase()}`
+      : null;
     if (sku && existingSkus.has(sku.toLowerCase())) {
-      const offerKey = `${(record.identity.supplierName ?? "").toLowerCase()}|${(record.identity.supplierCode ?? "").toLowerCase()}`;
-      if (record.supplier && !existingSupplierOffers.has(offerKey)) {
+      if (record.supplier && !(offerKey && existingSupplierOffers.has(offerKey))) {
         record.action = "update_variant";
         record.review.push(`El SKU ${sku} ya existe en la BD: solo se añadiría la oferta del proveedor ${record.supplier.name}.`);
       } else {
         record.action = "skip";
         record.review.push(`El SKU ${sku} ya está importado; la fila se omite (duplicado evitado).`);
+      }
+      continue;
+    }
+    // Regla 2 de identidad contra la BD: proveedor + código ya registrados en el
+    // catálogo identifican un artículo existente aunque la descripción y la
+    // familia difieran (el mismo polvo puede venir dos veces en el Excel).
+    if (offerKey && existingSupplierOffers.has(offerKey)) {
+      const linked = existingSupplierOffers.get(offerKey)!;
+      const sameIdentity = linked.productCode === record.grouping.productCode
+        && linked.variantKey.toLowerCase() === record.grouping.variantKey.toLowerCase();
+      if (sameIdentity) {
+        // Es exactamente esta fila, ya importada en una corrida anterior.
+        record.action = "skip";
+        record.review.push(`La oferta ${record.identity.supplierName}/${record.supplier?.supplierSku} ya está importada sobre esta misma variante (${linked.sku || linked.variantKey}).`);
+      } else {
+        record.action = "merge";
+        record.review.push(`El proveedor ${record.identity.supplierName} ya tiene el código ${record.supplier?.supplierSku} registrado sobre la variante ${linked.sku || "(sin SKU)"} de ${linked.productCode}.`);
+        issues.push({
+          row: record.source.row,
+          severity: "error",
+          code: "supplier_offer_exists",
+          field: "codigo_proveedor",
+          message: `Proveedor y código ya registrados en el catálogo (variante ${linked.sku || "sin SKU"} de ${linked.productCode}); probable duplicado entre familias del Excel. Decidir manualmente.`
+        });
       }
       continue;
     }
@@ -209,11 +271,15 @@ export async function stageBulkImportBatch(
       const original = rowByNumber.get(record.source.row);
       const rowIssues = issuesByRow.get(record.source.row) ?? [];
       const blocking = rowIssues.some((issue) => issue.severity === "error" || issue.severity === "blocking");
-      const status = record.action === "skip"
-        ? "skipped"
-        : blocking || record.review.length > 0 || record.action === "merge"
-          ? "needs_review"
-          : "normalized";
+      // Un skip con incidencia de error NO es un duplicado evitado: es una fila
+      // que exige decisión humana (familia sin mapa, descripción vacía…).
+      const status = blocking
+        ? "needs_review"
+        : record.action === "skip"
+          ? "skipped"
+          : record.review.length > 0 || record.action === "merge"
+            ? "needs_review"
+            : "normalized";
       return {
         batch_id: batchId,
         row_number: record.source.row,
@@ -671,6 +737,17 @@ export async function commitBulkBatch(
             attributes.push({ attributeDefinitionId: definition.id, optionId: option.id });
           }
         }
+        // Dos palabras de color en una descripción («ROSA TORNASOL») producen dos
+        // ejes del mismo atributo: la clave de variante los conserva a ambos como
+        // identidad, pero el valor tipado single_option solo admite uno.
+        const seenDefinitions = new Set<string>();
+        const dedupedAttributes = attributes.filter((value) => {
+          if (seenDefinitions.has(value.attributeDefinitionId)) return false;
+          seenDefinitions.add(value.attributeDefinitionId);
+          return true;
+        });
+        attributes.length = 0;
+        attributes.push(...dedupedAttributes);
         const exactMedia = record.media.matches.find((match) => match.target === "variant" && match.confidence !== "review");
         return {
           sku: variantSkuFor(record),
@@ -807,7 +884,31 @@ export async function commitBulkBatch(
           const links = await supabase.from("product_suppliers").select("id, supplier_id, is_preferred").eq("variant_id", variant.id).eq("is_active", true);
           if (links.error) fail("bulk_supplier_link_lookup_failed", links.error.message);
           const already = (links.data ?? []).some((link) => String(link.supplier_id) === supplierId);
-          if (!already) {
+          // El mismo código de proveedor solo puede vivir una vez (índice único
+          // supplier+sku): si otra variante ya lo tiene, se deja constancia sin
+          // tumbar el clúster — la fusión es decisión humana.
+          let conflictingSku: string | null = null;
+          if (!already && record.supplier.supplierSku) {
+            const conflict = await supabase
+              .from("product_suppliers")
+              .select("id, product_variants!inner(sku)")
+              .eq("supplier_id", supplierId)
+              .ilike("supplier_sku", record.supplier.supplierSku)
+              .neq("variant_id", variant.id)
+              .limit(1)
+              .maybeSingle();
+            if (conflict.error) fail("bulk_supplier_conflict_lookup_failed", conflict.error.message);
+            if (conflict.data) conflictingSku = String((conflict.data.product_variants as unknown as { sku: string | null }).sku ?? "(sin SKU)");
+          }
+          if (conflictingSku) {
+            await supabase.from("import_issues").insert({
+              import_row_id: member.id,
+              issue_code: "supplier_offer_conflict",
+              severity: "warning",
+              field_name: "codigo_proveedor",
+              message: `La oferta ${record.supplier.name}/${record.supplier.supplierSku} ya está registrada sobre la variante ${conflictingSku}; no se duplicó el vínculo. Revisar si ambas filas son el mismo artículo.`
+            });
+          } else if (!already) {
             // La regla de dominio exige un preferido cuando hay ofertas activas:
             // la primera oferta del lote queda como preferida.
             const hasPreferred = (links.data ?? []).some((link) => link.is_preferred);

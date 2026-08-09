@@ -70,16 +70,26 @@ const userId = login.data.user.id;
 
 const log = (label, value) => console.log(`\n== ${label} ==\n${typeof value === "string" ? value : JSON.stringify(value, null, 2)}`);
 
-async function currentBatchId() {
-  const batch = await service
+async function currentBatchId({ preferApprovedRows = false } = {}) {
+  const batches = await service
     .from("import_batches")
-    .select("id, status")
+    .select("id, status, created_at")
     .eq("source_name", `bulk_catalog_v2:${loteName}`)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (batch.error || !batch.data) throw new Error(`No hay lote ${loteName} en staging.`);
-  return String(batch.data.id);
+    .order("created_at", { ascending: false });
+  if (batches.error || !batches.data?.length) throw new Error(`No hay lote ${loteName} en staging.`);
+  if (preferApprovedRows) {
+    // El commit debe apuntar al lote que tiene filas aprobadas pendientes,
+    // aunque un segundo pase haya abierto un lote más nuevo después.
+    for (const batch of batches.data) {
+      const pending = await service
+        .from("import_rows")
+        .select("id", { count: "exact", head: true })
+        .eq("batch_id", batch.id)
+        .eq("status", "approved");
+      if ((pending.count ?? 0) > 0) return String(batch.id);
+    }
+  }
+  return String(batches.data[0].id);
 }
 
 async function loadWorkbook() {
@@ -118,7 +128,7 @@ function printPreview(preview) {
 async function reconcile(batchId, report) {
   const rows = await service
     .from("import_rows")
-    .select("status, proposed_action, target_product_id, target_variant_id, normalized_data")
+    .select("status, proposed_action, target_product_id, target_variant_id, normalized_data, import_issues(issue_code, status)")
     .eq("batch_id", batchId);
   if (rows.error) throw rows.error;
   const data = rows.data ?? [];
@@ -126,14 +136,19 @@ async function reconcile(batchId, report) {
   const byStatus = {};
   for (const row of data) byStatus[row.status] = (byStatus[row.status] ?? 0) + 1;
 
-  // R1 · cada fila del lote terminó en un estado contable.
+  // R1 · cada fila del lote terminó en un estado contable. Un commit puede ser
+  // incremental (reintento tras corregir filas): el reporte cuenta SU pasada y
+  // el lote acumula; la igualdad estricta solo aplica al primer commit.
   const contadas = (byStatus.committed ?? 0) + (byStatus.skipped ?? 0) + (byStatus.failed ?? 0) + (byStatus.needs_review ?? 0) + (byStatus.normalized ?? 0) + (byStatus.approved ?? 0);
   assert.equal(contadas, data.length, "R1: filas del lote sin estado contable");
-  assert.equal(byStatus.committed ?? 0, report.counts.filasProcesadas, "R1: filasProcesadas ≠ filas committed");
+  assert.ok((byStatus.committed ?? 0) >= report.counts.filasProcesadas, "R1: el lote tiene menos filas committed que las que el reporte dice haber procesado");
 
-  // R2 · productos del reporte = productos destino distintos.
+  // R2 · todo producto del reporte está entre los destinos del lote.
   const productIds = new Set(committed.map((row) => row.target_product_id).filter(Boolean));
-  assert.equal(productIds.size, report.productos.length, "R2: productos distintos ≠ productos del reporte");
+  assert.ok(productIds.size >= report.productos.length, "R2: el lote registra menos productos destino que el reporte");
+  for (const producto of report.productos) {
+    assert.ok(productIds.has(producto.id), `R2: el producto ${producto.code} del reporte no aparece como destino en el lote`);
+  }
 
   // R3 · variantes del reporte = suma por producto.
   const variantesReporte = report.productos.reduce((sum, producto) => sum + producto.variants, 0);
@@ -165,7 +180,12 @@ async function reconcile(batchId, report) {
   assert.equal(withShade, toneVariantIds.length, "R6: variantes con tono sin color_shade");
 
   // R7 · toda fila committed con proveedor tiene su oferta enlazada, sin duplicar.
-  const supplierRows = committed.filter((row) => row.normalized_data?.supplier?.name);
+  // Excepción explicada: filas con supplier_offer_conflict — el código ya vive
+  // en otra variante y el enlace se omitió a propósito, con issue que lo cuenta.
+  const supplierRows = committed.filter((row) =>
+    row.normalized_data?.supplier?.name
+    && !(row.import_issues ?? []).some((issue) => issue.issue_code === "supplier_offer_conflict")
+  );
   const supplierVariantIds = [...new Set(supplierRows.map((row) => row.target_variant_id))];
   let linked = 0;
   for (let offset = 0; offset < supplierVariantIds.length; offset += 80) {
@@ -224,7 +244,7 @@ if (flag("approve")) {
 }
 
 if (flag("commit")) {
-  const batchId = await currentBatchId();
+  const batchId = await currentBatchId({ preferApprovedRows: true });
   const report = await commitBulkBatch(developer, userId, batchId, "IMPORTAR LOTE");
   log("REPORTE DEL LOTE", report.counts);
   if (report.rechazadas.length) log("RECHAZADAS", report.rechazadas);

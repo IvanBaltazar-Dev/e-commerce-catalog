@@ -177,8 +177,59 @@ tiempo del proceso. Cada issue enlaza `import_row` → fila del Excel original.
       y verificados: catálogo público (anon), detalle con 74 tonos y 60 swatches
       reales, y búsqueda POS por tono («activista» → MAS014 directa).
       Runner permanente: `npm run bulk:lote -- --lote <n> --familias "A;B" --stage|--approve|--commit|--second-pass|--media-sync`.
+- [x] **Fase 1 del plan maestro COMPLETA en local (2026-08-09): los 9 lotes ejecutados.**
+      Ver §8.2 (acta global). Cobertura 1,500/1,500 filas: 1,432 importadas,
+      67 en decisión de la dueña, 1 duplicado puro omitido. Catálogo local:
+      1,045 productos · 1,428 variantes · 1,427 ofertas de proveedor · 163 tonos ·
+      184 marcas · 68 proveedores · CERO duplicados en los índices de identidad.
 - [ ] Lotes completos en entorno de prueba (staging sigue bloqueado por credenciales,
       ver `docs/staging-produccion.md` §0–§2) → reporte → carga definitiva.
+
+### 8.2 Acta global de la carga local (Fase 1 del plan maestro)
+
+| Lote | Importadas | Productos | Variantes | Revisión dueña |
+|------|-----------:|----------:|----------:|---------------:|
+| guantes-ui-01 (demo UI) | 11 | 8 | 11 | 0 |
+| unas-esmaltes-01 | 229 | 74 | 227 | 9 |
+| unas-sistemas-01 | 161 | 79 | 161 | 0 |
+| unas-decoracion-01 | 186 | 144 | 183 | 23 |
+| unas-herramientas-01 | 141 | 133 | 141 | 10 |
+| unas-equipos-01 | 128 | 122 | 127 | 1 |
+| cejas-pestanas-01 | 164 | 148 | 163 | 5 |
+| cabello-barberia-01 | 190 | 152 | 187 | 6 |
+| rostro-cuerpo-01 | 127 | 107 | 125 | 7 |
+| transversales-01 | 105 | 73+7 reutilizados | 95 | 1 |
+| pendientes-manual-01 | 0 | 0 | 0 | 6 |
+
+(La suma de importadas, 1,442, cubre 1,432 filas distintas: transversales
+re-procesó 10 filas de guantes ya committed añadiendo solo sus ofertas.)
+
+**Decisiones pendientes de la dueña (67 filas, navegables por issue):**
+40 `same_supplier_different_codes` (mismo proveedor, códigos distintos: artículos
+sin describir) · 18 `duplicate_supplier_code` (mismo proveedor y código en filas
+distintas) · 3 `conflicting_internal_codes` · 6 `family_unmapped` (las filas
+474–479 «Pendiente de clasificación», en el lote `pendientes-manual-01`) ·
+1 `empty_description` (fila 477).
+
+**Endurecimientos ganados durante la carga** (cada uno cazado por una fila real):
+1. Mismo proveedor + códigos distintos ya no se omite como duplicado (fila 1044).
+2. El primer proveedor de una variante queda como preferido (regla 0027).
+3. Dos palabras de color en una descripción ya no duplican el atributo tipado
+   («PINCEL LINER ROSA TORNASOL»).
+4. Proveedor+código se verifica también CONTRA LA BD: el mismo artículo en dos
+   familias del Excel se detecta (POLVO ESPEJO ↔ Polvo Aurora/Arcoiris), y el
+   commit registra el conflicto sin tumbar el clúster.
+5. La segunda pasada de colecciones ya no desarma clústeres fusionados (perdía
+   las filas 740–742 del pastillero LINDA JHADE).
+6. **Ancla de idempotencia definitiva: una fila del Excel committed jamás se
+   re-importa**, aunque el agrupador cambie entre versiones.
+7. Un skip con incidencia de error es revisión visible, no duplicado silencioso.
+
+**Verificación global final:** segundo pase del lote más antiguo contra el
+catálogo completo → cero cambios en 8 tablas. Integridad: 0 variantes sin
+producto, 0 ofertas duplicadas, 0 códigos de proveedor duplicados, 0 tonos sin
+shade. Deuda de imágenes explícita: 151 variantes `color`, 1,043 variantes y
+1,038 productos `pending` (el ZIP de fotos las irá saldando vía conciliación).
 
 ### 8.1 Decisiones pendientes de la dueña (lote unas-esmaltes-01)
 
