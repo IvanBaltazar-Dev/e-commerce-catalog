@@ -8,7 +8,20 @@ import { useApiError } from "@/components/admin/useApiError";
 import { adminApi, formatPrice, publicAssetUrl } from "@/lib/admin/api";
 import type { ApiProduct } from "@/lib/admin/types";
 
-const STATE_CHIPS = ["Todos", "Publicado", "Oculto"] as const;
+const STATE_CHIPS = ["Todos", "Publicados", "Borradores", "Ocultos"] as const;
+const ESTADO_PARAM: Record<(typeof STATE_CHIPS)[number], "publicado" | "borrador" | "oculto" | undefined> = {
+  Todos: undefined,
+  Publicados: "publicado",
+  Borradores: "borrador",
+  Ocultos: "oculto"
+};
+const EDITORIAL_BADGE: Record<string, string> = {
+  published: "Publicado",
+  draft: "Borrador",
+  in_review: "En revisión",
+  incomplete: "Incompleto",
+  hidden: "Oculto"
+};
 const ADMIN_PAGE_SIZE = 8;
 const VISIBLE_BRAND_FILTERS = 4;
 
@@ -16,7 +29,10 @@ export function ProductListView() {
   const showToast = useToast();
   const handleApiError = useApiError();
   const [products, setProducts] = useState<ApiProduct[] | null>(null);
+  const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [brands, setBrands] = useState<Array<{ id: string; name: string }>>([]);
   const [brandFilter, setBrandFilter] = useState("Todas");
   const [stateFilter, setStateFilter] = useState<(typeof STATE_CHIPS)[number]>("Todos");
   const [brandMenuOpen, setBrandMenuOpen] = useState(false);
@@ -24,19 +40,47 @@ export function ProductListView() {
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const rowsRef = useRef<HTMLDivElement>(null);
 
+  // El catálogo real supera el millar de productos: la lista pide cada página
+  // al servidor (búsqueda y filtros incluidos) en vez de recortar una sola
+  // respuesta de 100 en el cliente.
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    adminApi
+      .listBrands()
+      .then((items) => setBrands(items.filter((brand) => brand.is_active).map((brand) => ({ id: brand.id, name: brand.name }))))
+      .catch(() => setBrands([]));
+  }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, brandFilter, stateFilter]);
+
   useEffect(() => {
     let cancelled = false;
+    const brandId = brands.find((brand) => brand.name === brandFilter)?.id;
 
     adminApi
-      .listProducts()
-      .then((items) => {
+      .listProductsPage({
+        page,
+        pageSize: ADMIN_PAGE_SIZE,
+        q: debouncedSearch || undefined,
+        estado: ESTADO_PARAM[stateFilter],
+        brandId
+      })
+      .then((result) => {
         if (!cancelled) {
-          setProducts(items);
+          setProducts(result.items);
+          setTotal(result.total);
         }
       })
       .catch((error) => {
         if (!cancelled) {
           setProducts([]);
+          setTotal(0);
           handleApiError(error, "No se pudieron cargar los productos.");
         }
       });
@@ -44,59 +88,15 @@ export function ProductListView() {
     return () => {
       cancelled = true;
     };
-  }, [handleApiError]);
+  }, [page, debouncedSearch, brandFilter, stateFilter, brands, handleApiError]);
 
-  const brandChips = useMemo(() => {
-    const names = new Set<string>();
-
-    for (const product of products ?? []) {
-      if (product.brand?.name) {
-        names.add(product.brand.name);
-      }
-    }
-
-    return ["Todas", ...names];
-  }, [products]);
-
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase();
-
-    return (products ?? []).filter((product) => {
-      if (brandFilter !== "Todas" && product.brand?.name !== brandFilter) {
-        return false;
-      }
-
-      if (stateFilter !== "Todos") {
-        const published = stateFilter === "Publicado";
-
-        if (product.is_active !== published) {
-          return false;
-        }
-      }
-
-      if (!query) {
-        return true;
-      }
-
-      const haystack =
-        `${product.brand?.name ?? ""} ${product.name} ${product.code} ${product.product_type}`.toLowerCase();
-
-      return haystack.includes(query);
-    });
-  }, [products, search, brandFilter, stateFilter]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search, brandFilter, stateFilter]);
+  const brandChips = useMemo(() => ["Todas", ...brands.map((brand) => brand.name)], [brands]);
 
   const visibleBrandChips = brandChips.slice(0, VISIBLE_BRAND_FILTERS);
   const overflowBrandChips = brandChips.slice(VISIBLE_BRAND_FILTERS);
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ADMIN_PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
-  const paginatedProducts = filtered.slice(
-    (currentPage - 1) * ADMIN_PAGE_SIZE,
-    currentPage * ADMIN_PAGE_SIZE
-  );
+  const paginatedProducts = products ?? [];
 
   function changePage(nextPage: number) {
     setPage(nextPage);
@@ -122,7 +122,7 @@ export function ProductListView() {
     try {
       await adminApi.updateProduct(product.id, { isActive: nextActive });
       showToast(
-        nextActive ? `${product.name} publicado ✓` : `${product.name} oculto del catálogo`
+        nextActive ? `${product.name} activado ✓` : `${product.name} desactivado del catálogo`
       );
     } catch (error) {
       setProducts(
@@ -145,15 +145,13 @@ export function ProductListView() {
     );
   }
 
-  const publishedCount = products.filter((product) => product.is_active).length;
-
   return (
     <div className="br-fade">
       <div className="list-head">
         <div>
           <div className="page-title">Productos</div>
           <div className="page-sub">
-            {products.length} en catálogo · {publishedCount} publicados
+            {total.toLocaleString("es-PE")} en catálogo · página {currentPage} de {totalPages}
           </div>
         </div>
         <Link href="/admin/productos/nuevo" className="btn-primary">
@@ -274,7 +272,11 @@ export function ProductListView() {
               <div className="row-brand">{(product.brand?.name ?? "—").toUpperCase()}</div>
               <div className="row-name">{product.name}</div>
               <div className="row-meta">
-                {product.presentation} · {product.product_type}
+                {[product.presentation, product.product_type].filter(Boolean).join(" · ") || product.code}
+                {" · "}
+                <span className={product.editorial_status === "published" ? "badge badge--carta" : "badge badge--sin-carta"}>
+                  {EDITORIAL_BADGE[product.editorial_status] ?? product.editorial_status}
+                </span>
               </div>
             </div>
             <div className="row-prices">
@@ -302,7 +304,7 @@ export function ProductListView() {
               disabled={togglingId === product.id}
             >
               <span className="dot" />
-              {product.is_active ? "Publicado" : "Oculto"}
+              {product.is_active ? "Activo" : "Inactivo"}
             </button>
             <Link href={`/admin/productos/${product.id}`} className="btn-soft">
               <svg
@@ -330,13 +332,15 @@ export function ProductListView() {
         onPageChange={changePage}
       />
 
-      {filtered.length === 0 ? (
+      {paginatedProducts.length === 0 ? (
         <div className="empty-card">
           <div className="empty-title">
-            {products.length === 0 ? "Aún no hay productos" : "Sin resultados"}
+            {total === 0 && !debouncedSearch && stateFilter === "Todos" && brandFilter === "Todas"
+              ? "Aún no hay productos"
+              : "Sin resultados"}
           </div>
           <div className="empty-sub">
-            {products.length === 0
+            {total === 0 && !debouncedSearch && stateFilter === "Todos" && brandFilter === "Todas"
               ? "Crea el primer producto para armar tu catálogo."
               : "Prueba con otro término o limpia los filtros."}
           </div>

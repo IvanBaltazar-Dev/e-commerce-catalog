@@ -40,6 +40,7 @@ export type ApiProduct = {
   color_chart_image_path: string | null;
   color_chart_pdf_path: string | null;
   is_active: boolean;
+  editorial_status: "draft" | "in_review" | "published" | "hidden" | "incomplete";
   sort_order: number;
   created_at: string;
   updated_at: string;

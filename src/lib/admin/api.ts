@@ -147,6 +147,23 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export const adminApi = {
   listProducts: () =>
     request<{ items: ApiProduct[] }>("/api/admin/products?limit=100").then((r) => r.items),
+  // Lista paginada de verdad: con el catálogo real (1,000+ productos) la vista
+  // pide páginas al servidor en vez de recortar una sola respuesta.
+  listProductsPage: (params: {
+    page: number;
+    pageSize: number;
+    q?: string;
+    estado?: "publicado" | "borrador" | "oculto";
+    brandId?: string;
+  }) => {
+    const search = new URLSearchParams();
+    search.set("limit", String(params.pageSize));
+    search.set("offset", String((params.page - 1) * params.pageSize));
+    if (params.q) search.set("q", params.q);
+    if (params.estado) search.set("estado", params.estado);
+    if (params.brandId) search.set("brandId", params.brandId);
+    return request<{ items: ApiProduct[]; total: number }>(`/api/admin/products?${search.toString()}`);
+  },
   getProduct: (id: string) => request<ApiProduct>(`/api/admin/products/${id}`),
   createProduct: (payload: ProductPayload) =>
     request<ApiProduct>("/api/admin/products", {

@@ -12,7 +12,11 @@ const adminProductQuerySchema = paginationSchema.extend({
   active: z
     .enum(["true", "false"])
     .transform((value) => value === "true")
-    .optional()
+    .optional(),
+  // Estado editorial real: con 1,056 productos importados en borrador, un
+  // filtro por is_active etiquetado «Publicado» mentía.
+  estado: z.enum(["publicado", "borrador", "oculto"]).optional(),
+  brandId: z.string().uuid().optional()
 });
 
 function parseSearchParams(request: NextRequest) {
@@ -25,7 +29,7 @@ export async function GET(request: NextRequest) {
     const params = parseSearchParams(request);
     let query = supabase
       .from("products")
-      .select(PRODUCT_SELECT)
+      .select(PRODUCT_SELECT, { count: "exact" })
       .order("sort_order", { ascending: true })
       .order("name", { ascending: true })
       .range(params.offset, params.offset + params.limit - 1);
@@ -39,7 +43,19 @@ export async function GET(request: NextRequest) {
       query = query.eq("is_active", params.active);
     }
 
-    const { data, error } = await query;
+    if (params.estado === "publicado") {
+      query = query.eq("editorial_status", "published").eq("is_active", true);
+    } else if (params.estado === "borrador") {
+      query = query.in("editorial_status", ["draft", "in_review", "incomplete"]).eq("is_active", true);
+    } else if (params.estado === "oculto") {
+      query = query.or("editorial_status.eq.hidden,is_active.eq.false");
+    }
+
+    if (params.brandId) {
+      query = query.eq("brand_id", params.brandId);
+    }
+
+    const { data, error, count } = await query;
 
     if (error) {
       throw error;
@@ -47,6 +63,7 @@ export async function GET(request: NextRequest) {
 
     return ok({
       items: data ?? [],
+      total: count ?? 0,
       limit: params.limit,
       offset: params.offset
     });

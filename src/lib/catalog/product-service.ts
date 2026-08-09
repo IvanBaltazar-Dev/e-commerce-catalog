@@ -34,6 +34,7 @@ export const PRODUCT_SELECT = `
   color_chart_image_path,
   color_chart_pdf_path,
   is_active,
+  editorial_status,
   sort_order,
   created_at,
   updated_at,
