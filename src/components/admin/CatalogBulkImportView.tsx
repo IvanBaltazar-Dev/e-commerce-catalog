@@ -136,6 +136,24 @@ export function CatalogBulkImportView() {
     }
   }
 
+  // «Ver excepciones» de un lote pasado: recupera su preview (con la lista de
+  // filas en revisión y sus issues) sin volver a subir el Excel.
+  async function openBatchExceptions(batchId: string) {
+    setLoading(`exceptions-${batchId}`);
+    setError("");
+    try {
+      const result = await adminApi.getBulkImportPreview(batchId);
+      setPreview(result);
+      setReport(null);
+      setSelectedRows(new Set());
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (cause) {
+      setError(errorMessage(cause));
+    } finally {
+      setLoading(null);
+    }
+  }
+
   async function runMediaSync(batchId: string) {
     if (loading) return;
     setLoading(`media-${batchId}`);
@@ -355,7 +373,7 @@ export function CatalogBulkImportView() {
             <div className="bulk-table-scroll">
               <table className="bulk-table">
                 <thead>
-                  <tr><th>Lote</th><th>Estado</th><th>Filas</th><th>Procesadas</th><th>Errores</th><th>Fecha</th><th></th></tr>
+                  <tr><th>Lote</th><th>Estado</th><th>Filas</th><th>Procesadas</th><th>Pendientes</th><th>Fecha</th><th></th></tr>
                 </thead>
                 <tbody>
                   {batches.map((batch) => (
@@ -364,9 +382,31 @@ export function CatalogBulkImportView() {
                       <td>{batch.status}</td>
                       <td>{batch.total_rows}</td>
                       <td>{batch.processed_rows}</td>
-                      <td>{batch.error_rows}</td>
-                      <td>{new Date(batch.created_at).toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" })}</td>
                       <td>
+                        {batch.en_revision === 0 && batch.issues_abiertos === 0 ? (
+                          <span style={{ color: "var(--br-green, #2E7D32)", fontWeight: 600 }}>✓ al día</span>
+                        ) : (
+                          <span style={{ display: "inline-flex", gap: 6, flexWrap: "wrap" }}>
+                            {batch.en_revision > 0 ? (
+                              <span style={{ background: "#FFF4E0", color: "#8A5B00", borderRadius: 999, padding: "2px 10px", fontSize: 12, fontWeight: 600 }}>
+                                {batch.en_revision} en revisión
+                              </span>
+                            ) : null}
+                            {batch.issues_abiertos > 0 ? (
+                              <span style={{ background: "#FDE8E8", color: "#B03A3A", borderRadius: 999, padding: "2px 10px", fontSize: 12, fontWeight: 600 }}>
+                                {batch.issues_abiertos} errores abiertos
+                              </span>
+                            ) : null}
+                          </span>
+                        )}
+                      </td>
+                      <td>{new Date(batch.created_at).toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" })}</td>
+                      <td style={{ display: "flex", gap: 6 }}>
+                        {batch.en_revision > 0 || batch.issues_abiertos > 0 ? (
+                          <button type="button" className="btn-secondary" disabled={loading !== null} onClick={() => openBatchExceptions(batch.id)}>
+                            {loading === `exceptions-${batch.id}` ? "Abriendo…" : "Ver excepciones"}
+                          </button>
+                        ) : null}
                         {batch.status === "committed" ? (
                           <button type="button" className="btn-secondary" disabled={loading !== null} onClick={() => runMediaSync(batch.id)}>
                             {loading === `media-${batch.id}` ? "Conciliando…" : "Conciliar imágenes"}

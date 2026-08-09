@@ -289,7 +289,10 @@ export const adminApi = {
       body: JSON.stringify(payload)
     }),
   listBulkImportBatches: () =>
-    request<{ batches: Array<{ id: string; source_name: string; original_file_name: string | null; status: string; total_rows: number; processed_rows: number; error_rows: number; committed_at: string | null; created_at: string; summary: Record<string, unknown> }> }>("/api/admin/importaciones/bulk/report").then((result) => result.batches),
+    request<{ batches: Array<{ id: string; source_name: string; original_file_name: string | null; status: string; total_rows: number; processed_rows: number; error_rows: number; en_revision: number; issues_abiertos: number; committed_at: string | null; created_at: string; summary: Record<string, unknown> }> }>("/api/admin/importaciones/bulk/report").then((result) => result.batches),
+  // Reabre las excepciones de un lote pasado sin volver a subir el Excel.
+  getBulkImportPreview: (batchId: string) =>
+    request<import("@/lib/admin/catalog-bulk-import/types").BulkBatchPreview>(`/api/admin/importaciones/bulk/report?batchId=${encodeURIComponent(batchId)}&view=preview`),
   syncBulkImportMedia: (batchId: string) =>
     request<{ variantesConImagen: number; productosConImagen: number; sinCambio: number }>("/api/admin/importaciones/bulk/media-sync", {
       method: "POST",

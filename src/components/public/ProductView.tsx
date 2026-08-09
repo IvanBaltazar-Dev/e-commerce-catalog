@@ -9,6 +9,50 @@ import { publicAssetUrl } from "@/lib/admin/api";
 import type { CatalogMedia, CatalogProductDetail, PurchasableVariant } from "@/lib/catalog/contracts";
 import { formatSoles, publicApi, retailPrice, variantImage } from "@/lib/public/catalog";
 
+// Tintes por familia cromática: el respaldo visual cuando un tono aún no tiene
+// fotografía. Nunca sustituyen una foto real; solo evitan un círculo mudo.
+const FAMILY_TINTS: Record<string, string> = {
+  rojos: "#C0392B",
+  rosados: "#E38AA8",
+  morados: "#7D4B9E",
+  azules: "#3B6FB5",
+  verdes: "#5B8C5A",
+  "amarillos-dorados": "#D9A62E",
+  "naranjas-corales": "#E07B4F",
+  nude: "#D9B49B",
+  marrones: "#8A5A3B",
+  blancos: "#F2EEE9",
+  "negros-grises": "#4A4A4A",
+  metalicos: "#9FA8B5",
+  multicolor: "#C96A82",
+  "por-clasificar": "#CFC4BC"
+};
+
+function SwatchCircle({ item, active, size = 52 }: { item: PurchasableVariant; active: boolean; size?: number }) {
+  const photo = item.media.find((media) => media.role === "swatch" || media.role === "main")?.path ?? null;
+  const family = item.attributes.find((attribute) => attribute.code === "color_family")?.optionValue ?? null;
+  const tint = family ? FAMILY_TINTS[family] ?? "#CFC4BC" : "#E8E0DA";
+  const ring = active ? "0 0 0 3px var(--br-magenta, #A80D5C)" : "inset 0 0 0 1px rgba(0,0,0,0.12)";
+  if (photo) {
+    return (
+      <img
+        src={publicAssetUrl(photo)}
+        alt={item.name}
+        loading="lazy"
+        style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", boxShadow: ring, flexShrink: 0 }}
+      />
+    );
+  }
+  return (
+    <span
+      aria-hidden="true"
+      style={{ width: size, height: size, borderRadius: "50%", background: tint, boxShadow: ring, flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.32, color: "rgba(255,255,255,0.9)", fontWeight: 700 }}
+    >
+      {item.name.charAt(0).toUpperCase()}
+    </span>
+  );
+}
+
 function mediaFor(product: CatalogProductDetail, variant: PurchasableVariant) {
   const seen = new Set<string>();
   return [...variant.media, ...product.media].filter((item) => {
@@ -153,14 +197,48 @@ export function ProductView({ slug }: { slug: string }) {
 
           {product.variants.length > 1 ? (
             <div style={{ marginTop: 18 }}>
-              <div className="pub-modes-title">Elige una variante</div>
-              <div className="pub-modes">
-                {product.variants.map((item) => (
-                  <button key={item.id} type="button" className={item.id === variant.id ? "pub-mode pub-mode--active" : "pub-mode"} onClick={() => selectVariant(item)}>
-                    <span className="pub-mode-dot" /><span style={{ flex: 1 }}><span className="pub-mode-title">{item.name}</span><br /><span className="pub-mode-sub">SKU {item.sku} · {item.availability === "available" ? formatSoles(retailPrice(item)) : item.availability === "consult" ? "Consultar" : "Agotado"}</span></span>
-                  </button>
-                ))}
+              <div className="pub-modes-title">
+                Elige una variante · {product.variants.length} disponibles
               </div>
+              {product.variants.length > 12 ? (
+                // Con decenas de tonos, la lista vertical no se puede recorrer:
+                // rejilla de swatches (foto real; si no hay, tinte de su familia
+                // cromática) con el tono elegido siempre visible arriba.
+                <>
+                  <div className="pub-ficha-meta" style={{ margin: "6px 0 10px" }}>
+                    Elegido: <b>{variant.name}</b> · SKU {variant.sku}
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(72px, 1fr))", gap: 10, maxHeight: 380, overflowY: "auto", paddingRight: 4 }}>
+                    {product.variants.map((item) => {
+                      const active = item.id === variant.id;
+                      const soldOutItem = item.availability === "sold_out";
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => selectVariant(item)}
+                          title={`${item.name} · SKU ${item.sku}`}
+                          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer", padding: 4, opacity: soldOutItem ? 0.45 : 1 }}
+                        >
+                          <SwatchCircle item={item} active={active} />
+                          <span style={{ fontSize: 11, lineHeight: 1.2, textAlign: "center", color: active ? "var(--br-magenta, #A80D5C)" : "#5B5B5B", fontWeight: active ? 700 : 500, maxWidth: 76, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {item.name}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : (
+                <div className="pub-modes">
+                  {product.variants.map((item) => (
+                    <button key={item.id} type="button" className={item.id === variant.id ? "pub-mode pub-mode--active" : "pub-mode"} onClick={() => selectVariant(item)}>
+                      <SwatchCircle item={item} active={item.id === variant.id} size={34} />
+                      <span style={{ flex: 1, marginLeft: 10 }}><span className="pub-mode-title">{item.name}</span><br /><span className="pub-mode-sub">SKU {item.sku} · {item.availability === "available" ? formatSoles(retailPrice(item)) : item.availability === "consult" ? "Consultar" : "Agotado"}</span></span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           ) : null}
 

@@ -6,6 +6,12 @@
 > provisional. **Terminado significa: datos + reglas + UI del prototipo + móvil
 > + pruebas.**
 
+**Regla de interacción global (Ivan, 2026-08-09):** toda acción del usuario se
+completa en **3 pasos, máximo 4**. Un flujo que necesite más pasos no está
+terminado: se rediseña antes de darse por convergido. Ejemplos de referencia:
+vender = buscar → tocar variante → cobrar; elegir tono en público = tocar
+swatch → cantidad → agregar.
+
 La idea central: **no esperamos al final para cambiar el frontend.** Cada
 circuito se termina funcionalmente y se lleva de inmediato al diseño definitivo
 del prototipo antes de abrir demasiados módulos nuevos. El equipo deja de
