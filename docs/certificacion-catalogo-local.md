@@ -186,7 +186,9 @@ la ecuación se mantiene cerrada tras re-ejecutar.
 - [x] Segundo pase global sin cambios inesperados.
 - [x] `docs/certificacion-catalogo-local.md` terminado (este documento).
 - [x] Snapshot final del catálogo local (`backups/certificacion-1c/post-certificacion-1c.dump`).
-- [x] Commit y push de toda la evidencia y correcciones.
+- [x] Commit de toda la evidencia y correcciones (serie `0f320c8…`).
+- [ ] Push — bloqueado por permisos de la sesión; ejecutar:
+      `git -c credential.https://github.com.username=ivnp4 push origin feature/bellaroshe-platform-v2`
 
 **Fase 1 (datos) queda COMPLETA y certificada. Siguiente: Fase 2 —
 Convergencia Frontend #1 (Nueva venta B1 definitivo).**
