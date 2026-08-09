@@ -720,8 +720,12 @@ export async function commitBulkBatch(
         for (const axis of record.grouping.axes) {
           if (axis.code === "presentation") continue;
           if (axis.code === "tone") {
+            // El tono puede venir por su código oficial (TRA-ABRUMADORA) o por
+            // el slug de su nombre (abrumadora): ambas identidades son válidas.
+            const wanted = axis.value.toLowerCase();
             const shade = bootstrap.colorShades.find(
-              (entry) => entry.brandId === brandId && entry.productLineId === null && entry.code.toLowerCase() === axis.value.toLowerCase()
+              (entry) => entry.brandId === brandId && entry.productLineId === null
+                && (entry.code.toLowerCase() === wanted || slugify(entry.name) === wanted)
             );
             if (shade) {
               colorShadeId = shade.id;

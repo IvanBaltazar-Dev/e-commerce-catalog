@@ -1,0 +1,1008 @@
+{
+  "generado": "2026-08-09T00:58:10.040Z",
+  "fuenteOficial": {
+    "archivo": "F:\\Products_SIVAN\\Bellaroshe\\version-V2\\products\\01-masglo-tradicional\\plantilla_masglo_tradicional_lista_para_importar.xlsx",
+    "fechaArchivo": "2026-07-22T13:30:08.423Z",
+    "tonos": 157,
+    "variantes": 157,
+    "hexCompletos": true
+  },
+  "productoDB": {
+    "code": "MAS-ESM-4C95F3",
+    "variantes": 164
+  },
+  "erratasAplicadas": [
+    [
+      "trascedental",
+      "trascendental"
+    ],
+    [
+      "suceptible",
+      "susceptible"
+    ]
+  ],
+  "MATCH": 157,
+  "MISSING_IN_DB": 0,
+  "EXTRA_IN_DB": [
+    {
+      "slug": "inclusiva",
+      "skuDB": "MAS040",
+      "name": "Inclusiva"
+    },
+    {
+      "slug": "escarcha-plateado",
+      "skuDB": "MAS106",
+      "name": "Escarcha Plateado"
+    },
+    {
+      "slug": "granizado-dorado",
+      "skuDB": "MAS092",
+      "name": "Granizado Dorado"
+    },
+    {
+      "slug": "inconfundible",
+      "skuDB": "MAS041",
+      "name": "Inconfundible"
+    },
+    {
+      "slug": "escarcha-dorado",
+      "skuDB": "MAS105",
+      "name": "Escarcha Dorado"
+    },
+    {
+      "slug": "audaz",
+      "skuDB": "MAS021",
+      "name": "Audaz"
+    },
+    {
+      "slug": "ajena",
+      "skuDB": "MAS016",
+      "name": "Ajena"
+    }
+  ],
+  "detalleMissing": [],
+  "matchDetalle": [
+    {
+      "slug": "abrumadora",
+      "oficial": "TRA-ABRUMADORA",
+      "skuOficial": "312142",
+      "skuDB": "312142"
+    },
+    {
+      "slug": "activista",
+      "oficial": "TRA-ACTIVISTA",
+      "skuOficial": "313327",
+      "skuDB": "MAS014"
+    },
+    {
+      "slug": "actual",
+      "oficial": "TRA-ACTUAL",
+      "skuOficial": "310075",
+      "skuDB": "310075"
+    },
+    {
+      "slug": "adorable",
+      "oficial": "TRA-ADORABLE",
+      "skuOficial": "310292",
+      "skuDB": "MAS015"
+    },
+    {
+      "slug": "amable",
+      "oficial": "TRA-AMABLE",
+      "skuOficial": "311053",
+      "skuDB": "MAS018"
+    },
+    {
+      "slug": "amante",
+      "oficial": "TRA-AMANTE",
+      "skuOficial": "310059",
+      "skuDB": "MAS017"
+    },
+    {
+      "slug": "amigable",
+      "oficial": "TRA-AMIGABLE",
+      "skuOficial": "311021",
+      "skuDB": "MAS019"
+    },
+    {
+      "slug": "arriesgada",
+      "oficial": "TRA-ARRIESGADA",
+      "skuOficial": "313797",
+      "skuDB": "313797"
+    },
+    {
+      "slug": "artesana",
+      "oficial": "TRA-ARTESANA",
+      "skuOficial": "313791",
+      "skuDB": "313791"
+    },
+    {
+      "slug": "atractiva",
+      "oficial": "TRA-ATRACTIVA",
+      "skuOficial": "310153",
+      "skuDB": "MAS020"
+    },
+    {
+      "slug": "atrevida",
+      "oficial": "TRA-ATREVIDA",
+      "skuOficial": "310071",
+      "skuDB": "MAS070"
+    },
+    {
+      "slug": "ausente",
+      "oficial": "TRA-AUSENTE",
+      "skuOficial": "310114",
+      "skuDB": "MAS022"
+    },
+    {
+      "slug": "autentica",
+      "oficial": "TRA-AUTENTICA",
+      "skuOficial": "313793",
+      "skuDB": "313793"
+    },
+    {
+      "slug": "bailadora",
+      "oficial": "TRA-BAILADORA",
+      "skuOficial": "311059",
+      "skuDB": "MAS023"
+    },
+    {
+      "slug": "bella",
+      "oficial": "TRA-BELLA",
+      "skuOficial": "310070",
+      "skuDB": "MAS071"
+    },
+    {
+      "slug": "blanco-nacar",
+      "oficial": "TRA-BLANCO-NACAR",
+      "skuOficial": "310109",
+      "skuDB": "MAS024"
+    },
+    {
+      "slug": "burlona",
+      "oficial": "TRA-BURLONA",
+      "skuOficial": "313978",
+      "skuDB": "313978"
+    },
+    {
+      "slug": "buscona",
+      "oficial": "TRA-BUSCONA",
+      "skuOficial": "311058",
+      "skuDB": "311058"
+    },
+    {
+      "slug": "calmada",
+      "oficial": "TRA-CALMADA",
+      "skuOficial": "310147",
+      "skuDB": "310147"
+    },
+    {
+      "slug": "campeona",
+      "oficial": "TRA-CAMPEONA",
+      "skuOficial": "310915",
+      "skuDB": "310915"
+    },
+    {
+      "slug": "candidata",
+      "oficial": "TRA-CANDIDATA",
+      "skuOficial": "310171",
+      "skuDB": "MAS026"
+    },
+    {
+      "slug": "casquivana",
+      "oficial": "TRA-CASQUIVANA",
+      "skuOficial": "311052",
+      "skuDB": "311052"
+    },
+    {
+      "slug": "chic",
+      "oficial": "TRA-CHIC",
+      "skuOficial": "312131",
+      "skuDB": "312131"
+    },
+    {
+      "slug": "comica",
+      "oficial": "TRA-COMICA",
+      "skuOficial": "312411",
+      "skuDB": "MAS027"
+    },
+    {
+      "slug": "compulsiva",
+      "oficial": "TRA-COMPULSIVA",
+      "skuOficial": "311951",
+      "skuDB": "311951"
+    },
+    {
+      "slug": "conectada",
+      "oficial": "TRA-CONECTADA",
+      "skuOficial": "313957",
+      "skuDB": "313957"
+    },
+    {
+      "slug": "consentida",
+      "oficial": "TRA-CONSENTIDA",
+      "skuOficial": "310175",
+      "skuDB": "310175"
+    },
+    {
+      "slug": "controladora",
+      "oficial": "TRA-CONTROLADORA",
+      "skuOficial": "311950",
+      "skuDB": "311950"
+    },
+    {
+      "slug": "cool",
+      "oficial": "TRA-COOL",
+      "skuOficial": "313982",
+      "skuDB": "313982"
+    },
+    {
+      "slug": "dinamica",
+      "oficial": "TRA-DINAMICA",
+      "skuOficial": "310916",
+      "skuDB": "310916"
+    },
+    {
+      "slug": "distinguida",
+      "oficial": "TRA-DISTINGUIDA",
+      "skuOficial": "313983",
+      "skuDB": "313983"
+    },
+    {
+      "slug": "diva",
+      "oficial": "TRA-DIVA",
+      "skuOficial": "311057",
+      "skuDB": "311057"
+    },
+    {
+      "slug": "dominante",
+      "oficial": "TRA-DOMINANTE",
+      "skuOficial": "311291",
+      "skuDB": "MAS028"
+    },
+    {
+      "slug": "educada",
+      "oficial": "TRA-EDUCADA",
+      "skuOficial": "310099",
+      "skuDB": "310099"
+    },
+    {
+      "slug": "ejecutiva",
+      "oficial": "TRA-EJECUTIVA",
+      "skuOficial": "310173",
+      "skuDB": "MAS072"
+    },
+    {
+      "slug": "electrica",
+      "oficial": "TRA-ELECTRICA",
+      "skuOficial": "310461",
+      "skuDB": "310461"
+    },
+    {
+      "slug": "emocional",
+      "oficial": "TRA-EMOCIONAL",
+      "skuOficial": "311874",
+      "skuDB": "MAS029"
+    },
+    {
+      "slug": "empatica",
+      "oficial": "TRA-EMPATICA",
+      "skuOficial": "313328",
+      "skuDB": "313328"
+    },
+    {
+      "slug": "emprendedora",
+      "oficial": "TRA-EMPRENDEDORA",
+      "skuOficial": "311428",
+      "skuDB": "311428"
+    },
+    {
+      "slug": "encantadora",
+      "oficial": "TRA-ENCANTADORA",
+      "skuOficial": "313984",
+      "skuDB": "313984"
+    },
+    {
+      "slug": "entretenida",
+      "oficial": "TRA-ENTRETENIDA",
+      "skuOficial": "310534",
+      "skuDB": "310534"
+    },
+    {
+      "slug": "exagerada",
+      "oficial": "TRA-EXAGERADA",
+      "skuOficial": "311871",
+      "skuDB": "311871"
+    },
+    {
+      "slug": "expresiva",
+      "oficial": "TRA-EXPRESIVA",
+      "skuOficial": "312607",
+      "skuDB": "312607"
+    },
+    {
+      "slug": "extraordinaria",
+      "oficial": "TRA-EXTRAORDINARIA",
+      "skuOficial": "313795",
+      "skuDB": "MAS030"
+    },
+    {
+      "slug": "famosa",
+      "oficial": "TRA-FAMOSA",
+      "skuOficial": "310154",
+      "skuDB": "MAS031"
+    },
+    {
+      "slug": "fanatica",
+      "oficial": "TRA-FANATICA",
+      "skuOficial": "313977",
+      "skuDB": "313977"
+    },
+    {
+      "slug": "farandulera",
+      "oficial": "TRA-FARANDULERA",
+      "skuOficial": "313958",
+      "skuDB": "313958"
+    },
+    {
+      "slug": "fiera",
+      "oficial": "TRA-FIERA",
+      "skuOficial": "312836",
+      "skuDB": "MAS032"
+    },
+    {
+      "slug": "fiesta",
+      "oficial": "TRA-FIESTA",
+      "skuOficial": "310093",
+      "skuDB": "MAS033"
+    },
+    {
+      "slug": "frances",
+      "oficial": "TRA-FRANCES",
+      "skuOficial": "310054",
+      "skuDB": "MAS073"
+    },
+    {
+      "slug": "fresca",
+      "oficial": "TRA-FRESCA",
+      "skuOficial": "313979",
+      "skuDB": "313979"
+    },
+    {
+      "slug": "fufurufa",
+      "oficial": "TRA-FUFURUFA",
+      "skuOficial": "310148",
+      "skuDB": "310148"
+    },
+    {
+      "slug": "generosa",
+      "oficial": "TRA-GENEROSA",
+      "skuOficial": "312841",
+      "skuDB": "312841"
+    },
+    {
+      "slug": "gitana",
+      "oficial": "TRA-GITANA",
+      "skuOficial": "310095",
+      "skuDB": "MAS034"
+    },
+    {
+      "slug": "glamorosa",
+      "oficial": "TRA-GLAMOROSA",
+      "skuOficial": "310156",
+      "skuDB": "MAS035"
+    },
+    {
+      "slug": "golosa",
+      "oficial": "TRA-GOLOSA",
+      "skuOficial": "310079",
+      "skuDB": "MAS036"
+    },
+    {
+      "slug": "gomela",
+      "oficial": "TRA-GOMELA",
+      "skuOficial": "310064",
+      "skuDB": "MAS037"
+    },
+    {
+      "slug": "granizado",
+      "oficial": "TRA-GRANIZADO",
+      "skuOficial": "310905",
+      "skuDB": "310905"
+    },
+    {
+      "slug": "humana",
+      "oficial": "TRA-HUMANA",
+      "skuOficial": "312124",
+      "skuDB": "MAS038"
+    },
+    {
+      "slug": "idealista",
+      "oficial": "TRA-IDEALISTA",
+      "skuOficial": "312409",
+      "skuDB": "312409"
+    },
+    {
+      "slug": "ilusion",
+      "oficial": "TRA-ILUSION",
+      "skuOficial": "310028",
+      "skuDB": "310028"
+    },
+    {
+      "slug": "imponente",
+      "oficial": "TRA-IMPONENTE",
+      "skuOficial": "313321",
+      "skuDB": "MAS039"
+    },
+    {
+      "slug": "innovadora",
+      "oficial": "TRA-INNOVADORA",
+      "skuOficial": "312609",
+      "skuDB": "MAS042"
+    },
+    {
+      "slug": "inquieta",
+      "oficial": "TRA-INQUIETA",
+      "skuOficial": "310107",
+      "skuDB": "310107"
+    },
+    {
+      "slug": "insinuante",
+      "oficial": "TRA-INSINUANTE",
+      "skuOficial": "312531",
+      "skuDB": "MAS043"
+    },
+    {
+      "slug": "inspiradora",
+      "oficial": "TRA-INSPIRADORA",
+      "skuOficial": "313325",
+      "skuDB": "313325"
+    },
+    {
+      "slug": "intimidante",
+      "oficial": "TRA-INTIMIDANTE",
+      "skuOficial": "313322",
+      "skuDB": "313322"
+    },
+    {
+      "slug": "intrigante",
+      "oficial": "TRA-INTRIGANTE",
+      "skuOficial": "312406",
+      "skuDB": "MAS044"
+    },
+    {
+      "slug": "intuitiva",
+      "oficial": "TRA-INTUITIVA",
+      "skuOficial": "310473",
+      "skuDB": "310473"
+    },
+    {
+      "slug": "juguetona",
+      "oficial": "TRA-JUGUETONA",
+      "skuOficial": "311744",
+      "skuDB": "311744"
+    },
+    {
+      "slug": "liberada",
+      "oficial": "TRA-LIBERADA",
+      "skuOficial": "312979",
+      "skuDB": "MAS045"
+    },
+    {
+      "slug": "linda",
+      "oficial": "TRA-LINDA",
+      "skuOficial": "310082",
+      "skuDB": "MAS046"
+    },
+    {
+      "slug": "luchadora",
+      "oficial": "TRA-LUCHADORA",
+      "skuOficial": "311427",
+      "skuDB": "MAS047"
+    },
+    {
+      "slug": "lujuriosa",
+      "oficial": "TRA-LUJURIOSA",
+      "skuOficial": "312140",
+      "skuDB": "MAS048"
+    },
+    {
+      "slug": "magica",
+      "oficial": "TRA-MAGICA",
+      "skuOficial": "310111",
+      "skuDB": "MAS050"
+    },
+    {
+      "slug": "malvada",
+      "oficial": "TRA-MALVADA",
+      "skuOficial": "311054",
+      "skuDB": "MAS049"
+    },
+    {
+      "slug": "marinera",
+      "oficial": "TRA-MARINERA",
+      "skuOficial": "310097",
+      "skuDB": "310097"
+    },
+    {
+      "slug": "materialista",
+      "oficial": "TRA-MATERIALISTA",
+      "skuOficial": "311949",
+      "skuDB": "MAS051"
+    },
+    {
+      "slug": "matrimonio",
+      "oficial": "TRA-MATRIMONIO",
+      "skuOficial": "310174",
+      "skuDB": "MAS052"
+    },
+    {
+      "slug": "metodica",
+      "oficial": "TRA-METODICA",
+      "skuOficial": "312416",
+      "skuDB": "312416"
+    },
+    {
+      "slug": "mimada",
+      "oficial": "TRA-MIMADA",
+      "skuOficial": "310105",
+      "skuDB": "MAS053"
+    },
+    {
+      "slug": "morronga",
+      "oficial": "TRA-MORRONGA",
+      "skuOficial": "312838",
+      "skuDB": "312838"
+    },
+    {
+      "slug": "nativa",
+      "oficial": "TRA-NATIVA",
+      "skuOficial": "312835",
+      "skuDB": "312835"
+    },
+    {
+      "slug": "natural",
+      "oficial": "TRA-NATURAL",
+      "skuOficial": "312834",
+      "skuDB": "312834"
+    },
+    {
+      "slug": "negro",
+      "oficial": "TRA-NEGRO",
+      "skuOficial": "310051",
+      "skuDB": "MAS102"
+    },
+    {
+      "slug": "neurotica",
+      "oficial": "TRA-NEUROTICA",
+      "skuOficial": "313323",
+      "skuDB": "MAS054"
+    },
+    {
+      "slug": "nieve",
+      "oficial": "TRA-NIEVE",
+      "skuOficial": "310036",
+      "skuDB": "310036"
+    },
+    {
+      "slug": "novia",
+      "oficial": "TRA-NOVIA",
+      "skuOficial": "310027",
+      "skuDB": "MAS074"
+    },
+    {
+      "slug": "orgullosa",
+      "oficial": "TRA-ORGULLOSA",
+      "skuOficial": "311572",
+      "skuDB": "311572"
+    },
+    {
+      "slug": "original",
+      "oficial": "TRA-ORIGINAL",
+      "skuOficial": "312135",
+      "skuDB": "MAS055"
+    },
+    {
+      "slug": "paciente",
+      "oficial": "TRA-PACIENTE",
+      "skuOficial": "313980",
+      "skuDB": "313980"
+    },
+    {
+      "slug": "perfeccionista",
+      "oficial": "TRA-PERFECCIONISTA",
+      "skuOficial": "311948",
+      "skuDB": "311948"
+    },
+    {
+      "slug": "presumida",
+      "oficial": "TRA-PRESUMIDA",
+      "skuOficial": "313324",
+      "skuDB": "MAS056"
+    },
+    {
+      "slug": "primera-dama",
+      "oficial": "TRA-PRIMERA-DAMA",
+      "skuOficial": "311320",
+      "skuDB": "311320"
+    },
+    {
+      "slug": "prisionera",
+      "oficial": "TRA-PRISIONERA",
+      "skuOficial": "310077",
+      "skuDB": "310077"
+    },
+    {
+      "slug": "profesional",
+      "oficial": "TRA-PROFESIONAL",
+      "skuOficial": "310909",
+      "skuDB": "MAS057"
+    },
+    {
+      "slug": "provocadora",
+      "oficial": "TRA-PROVOCADORA",
+      "skuOficial": "312978",
+      "skuDB": "312978"
+    },
+    {
+      "slug": "provocativa",
+      "oficial": "TRA-PROVOCATIVA",
+      "skuOficial": "311289",
+      "skuDB": "311289"
+    },
+    {
+      "slug": "querendona",
+      "oficial": "TRA-QUERENDONA",
+      "skuOficial": "311295",
+      "skuDB": "311295"
+    },
+    {
+      "slug": "quisquillosa",
+      "oficial": "TRA-QUISQUILLOSA",
+      "skuOficial": "312417",
+      "skuDB": "MAS093"
+    },
+    {
+      "slug": "razonable",
+      "oficial": "TRA-RAZONABLE",
+      "skuOficial": "312611",
+      "skuDB": "MAS058"
+    },
+    {
+      "slug": "rebelde",
+      "oficial": "TRA-REBELDE",
+      "skuOficial": "310076",
+      "skuDB": "MAS075"
+    },
+    {
+      "slug": "recatada",
+      "oficial": "TRA-RECATADA",
+      "skuOficial": "312840",
+      "skuDB": "MAS059"
+    },
+    {
+      "slug": "refinada",
+      "oficial": "TRA-REFINADA",
+      "skuOficial": "313986",
+      "skuDB": "313986"
+    },
+    {
+      "slug": "regia",
+      "oficial": "TRA-REGIA",
+      "skuOficial": "311033",
+      "skuDB": "MAS060"
+    },
+    {
+      "slug": "revolucionaria",
+      "oficial": "TRA-REVOLUCIONARIA",
+      "skuOficial": "314001",
+      "skuDB": "314001"
+    },
+    {
+      "slug": "sangre-toro",
+      "oficial": "TRA-SANGRE-TORO",
+      "skuOficial": "310104",
+      "skuDB": "MAS061"
+    },
+    {
+      "slug": "serena",
+      "oficial": "TRA-SERENA",
+      "skuOficial": "313794",
+      "skuDB": "313794"
+    },
+    {
+      "slug": "sexy",
+      "oficial": "TRA-SEXY",
+      "skuOficial": "313796",
+      "skuDB": "MAS062"
+    },
+    {
+      "slug": "sofisticada",
+      "oficial": "TRA-SOFISTICADA",
+      "skuOficial": "310157",
+      "skuDB": "MAS063"
+    },
+    {
+      "slug": "solidaria",
+      "oficial": "TRA-SOLIDARIA",
+      "skuOficial": "311055",
+      "skuDB": "MAS064"
+    },
+    {
+      "slug": "soltera",
+      "oficial": "TRA-SOLTERA",
+      "skuOficial": "310060",
+      "skuDB": "310060"
+    },
+    {
+      "slug": "talentosa",
+      "oficial": "TRA-TALENTOSA",
+      "skuOficial": "313981",
+      "skuDB": "313981"
+    },
+    {
+      "slug": "tierna",
+      "oficial": "TRA-TIERNA",
+      "skuOficial": "310063",
+      "skuDB": "MAS076"
+    },
+    {
+      "slug": "tirana",
+      "oficial": "TRA-TIRANA",
+      "skuOficial": "311742",
+      "skuDB": "MAS065"
+    },
+    {
+      "slug": "tiza",
+      "oficial": "TRA-TIZA",
+      "skuOficial": "310053",
+      "skuDB": "MAS101"
+    },
+    {
+      "slug": "torera",
+      "oficial": "TRA-TORERA",
+      "skuOficial": "310130",
+      "skuDB": "310130"
+    },
+    {
+      "slug": "toxica",
+      "oficial": "TRA-TOXICA",
+      "skuOficial": "312839",
+      "skuDB": "MAS066"
+    },
+    {
+      "slug": "tranquila",
+      "oficial": "TRA-TRANQUILA",
+      "skuOficial": "310293",
+      "skuDB": "MAS067"
+    },
+    {
+      "slug": "trascendental",
+      "oficial": "TRA-TRASCENDENTAL",
+      "skuOficial": "313326",
+      "skuDB": "MAS068"
+    },
+    {
+      "slug": "astuta",
+      "oficial": "TRA-ASTUTA",
+      "skuOficial": "314162",
+      "skuDB": "314162"
+    },
+    {
+      "slug": "bombon",
+      "oficial": "TRA-BOMBON",
+      "skuOficial": "314163",
+      "skuDB": "314163"
+    },
+    {
+      "slug": "imparable",
+      "oficial": "TRA-IMPARABLE",
+      "skuOficial": "314161",
+      "skuDB": "314161"
+    },
+    {
+      "slug": "silenciosa",
+      "oficial": "TRA-SILENCIOSA",
+      "skuOficial": "313972",
+      "skuDB": "313972"
+    },
+    {
+      "slug": "tremenda",
+      "oficial": "TRA-TREMENDA",
+      "skuOficial": "314164",
+      "skuDB": "314164"
+    },
+    {
+      "slug": "amistosa",
+      "oficial": "TRA-AMISTOSA",
+      "skuOficial": "313933",
+      "skuDB": "313933"
+    },
+    {
+      "slug": "bendecida",
+      "oficial": "TRA-BENDECIDA",
+      "skuOficial": "314165",
+      "skuDB": "314165"
+    },
+    {
+      "slug": "estupenda",
+      "oficial": "TRA-ESTUPENDA",
+      "skuOficial": "314167",
+      "skuDB": "314167"
+    },
+    {
+      "slug": "exotica",
+      "oficial": "TRA-EXOTICA",
+      "skuOficial": "314168",
+      "skuDB": "314168"
+    },
+    {
+      "slug": "indomable",
+      "oficial": "TRA-INDOMABLE",
+      "skuOficial": "314166",
+      "skuDB": "314166"
+    },
+    {
+      "slug": "vanguardista",
+      "oficial": "TRA-VANGUARDISTA",
+      "skuOficial": "311952",
+      "skuDB": "311952"
+    },
+    {
+      "slug": "virginal",
+      "oficial": "TRA-VIRGINAL",
+      "skuOficial": "310918",
+      "skuDB": "MAS069"
+    },
+    {
+      "slug": "visos-plata",
+      "oficial": "TRA-VISOS-PLATA",
+      "skuOficial": "313988",
+      "skuDB": "313988"
+    },
+    {
+      "slug": "visos-rosa",
+      "oficial": "TRA-VISOS-ROSA",
+      "skuOficial": "313987",
+      "skuDB": "313987"
+    },
+    {
+      "slug": "zangana",
+      "oficial": "TRA-ZANGANA",
+      "skuOficial": "310460",
+      "skuDB": "310460"
+    },
+    {
+      "slug": "ajedrez",
+      "oficial": "TRA-BRI-AJEDREZ",
+      "skuOficial": "311156",
+      "skuDB": "311156"
+    },
+    {
+      "slug": "arcoiris",
+      "oficial": "TRA-BRI-ARCOIRIS",
+      "skuOficial": "312693",
+      "skuDB": "312693"
+    },
+    {
+      "slug": "benevolente",
+      "oficial": "TRA-BRI-BENEVOLENTE",
+      "skuOficial": "312410",
+      "skuDB": "312410"
+    },
+    {
+      "slug": "confianza",
+      "oficial": "TRA-BRI-CONFIANZA",
+      "skuOficial": "311406",
+      "skuDB": "311406"
+    },
+    {
+      "slug": "coral",
+      "oficial": "TRA-BRI-CORAL",
+      "skuOficial": "311032",
+      "skuDB": "311032"
+    },
+    {
+      "slug": "destellos",
+      "oficial": "TRA-BRI-DESTELLOS",
+      "skuOficial": "312691",
+      "skuDB": "312691"
+    },
+    {
+      "slug": "galactico",
+      "oficial": "TRA-BRI-GALACTICO",
+      "skuOficial": "313966",
+      "skuDB": "313966"
+    },
+    {
+      "slug": "rosa",
+      "oficial": "TRA-BRI-ROSA",
+      "skuOficial": "311148",
+      "skuDB": "311148"
+    },
+    {
+      "slug": "seda",
+      "oficial": "TRA-BRI-SEDA",
+      "skuOficial": "312692",
+      "skuDB": "312692"
+    },
+    {
+      "slug": "tres-oros",
+      "oficial": "TRA-BRI-TRES-OROS",
+      "skuOficial": "312690",
+      "skuDB": "312690"
+    },
+    {
+      "slug": "amarillo",
+      "oficial": "TRA-DEC-AMARILLO",
+      "skuOficial": "311746",
+      "skuDB": "311746"
+    },
+    {
+      "slug": "azul-rey",
+      "oficial": "TRA-DEC-AZUL-REY",
+      "skuOficial": "311747",
+      "skuDB": "311747"
+    },
+    {
+      "slug": "escarchado-dorado",
+      "oficial": "TRA-DEC-ESCARCHADO-DORADO",
+      "skuOficial": "311749",
+      "skuDB": "311749"
+    },
+    {
+      "slug": "escarchado-plata",
+      "oficial": "TRA-DEC-ESCARCHADO-PLATA",
+      "skuOficial": "311750",
+      "skuDB": "311750"
+    },
+    {
+      "slug": "negro-decoracion",
+      "oficial": "TRA-DEC-NEGRO",
+      "skuOficial": "311755",
+      "skuDB": "311755"
+    },
+    {
+      "slug": "tiza-decoracion",
+      "oficial": "TRA-DEC-TIZA",
+      "skuOficial": "311757",
+      "skuDB": "311757"
+    },
+    {
+      "slug": "adaptable",
+      "oficial": "TRA-FOT-ADAPTABLE",
+      "skuOficial": "312614",
+      "skuDB": "MAS077"
+    },
+    {
+      "slug": "bipolar",
+      "oficial": "TRA-FOT-BIPOLAR",
+      "skuOficial": "312212",
+      "skuDB": "MAS078"
+    },
+    {
+      "slug": "doble",
+      "oficial": "TRA-FOT-DOBLE",
+      "skuOficial": "312615",
+      "skuDB": "MAS079"
+    },
+    {
+      "slug": "inestable",
+      "oficial": "TRA-FOT-INESTABLE",
+      "skuOficial": "312613",
+      "skuDB": "MAS080"
+    },
+    {
+      "slug": "polifacetica",
+      "oficial": "TRA-FOT-POLIFACETICA",
+      "skuOficial": "312211",
+      "skuDB": "MAS081"
+    },
+    {
+      "slug": "susceptible",
+      "oficial": "TRA-FOT-SUSCEPTIBLE",
+      "skuOficial": "312213",
+      "skuDB": "MAS082"
+    }
+  ]
+}
