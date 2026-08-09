@@ -1,5 +1,5 @@
 {
-  "generado": "2026-08-09T00:52:02.058Z",
+  "generado": "2026-08-09T01:04:22.890Z",
   "fuente": {
     "listado": "F:\\Products_SIVAN\\Bellaroshe\\version-V2\\Listado_organizado_productos_Bellaroshe.xlsx",
     "filas": 1500,
@@ -16,11 +16,11 @@
   },
   "catalogo": {
     "productos": 1056,
-    "variantes": 1488,
+    "variantes": 1578,
     "ofertas": 1487,
     "marcas": 185,
     "proveedores": 68,
-    "tonos": 163
+    "tonos": 253
   },
   "checksE": {
     "producto_activo_sin_variante_activa": {
@@ -89,9 +89,9 @@
   },
   "checksE_ok": true,
   "tonosK": {
-    "total": 163,
+    "total": 253,
     "porMarca": {
-      "Masglo": 77,
+      "Masglo": 167,
       "Admiss": 75,
       "BIGEN": 11
     },
@@ -99,14 +99,32 @@
     "hexSinFuente": [],
     "shadesDuplicados": [],
     "medios": {
-      "foto_variante": 0,
-      "swatch_archivo": 61,
+      "foto_variante": 150,
+      "swatch_archivo": 8,
       "fallback_color": 0,
-      "pendiente": 102
+      "pendiente": 95
     },
-    "familia_por_clasificar": 159
+    "deudaGlobal": {
+      "variantes_con_foto_o_swatch": 158,
+      "variantes_fallback_color": 154,
+      "variantes_pendientes": 1037,
+      "productos_con_media": 3,
+      "productos_pendientes": 1050
+    },
+    "familia_por_clasificar": 93
   },
   "esmaltesF": [
+    {
+      "marca": "Masglo",
+      "producto": "Esmalte MASGLO",
+      "codigo": "MAS-ESM-4C95F3",
+      "presentacion": "13.5 ml",
+      "variantes": 164,
+      "tonos": 164,
+      "conFoto": 157,
+      "fallback": 0,
+      "pendientes": 7
+    },
     {
       "marca": "Admiss",
       "producto": "Esmalte ADMISS",
@@ -117,17 +135,6 @@
       "conFoto": 0,
       "fallback": 0,
       "pendientes": 75
-    },
-    {
-      "marca": "Masglo",
-      "producto": "Esmalte MASGLO",
-      "codigo": "MAS-ESM-4C95F3",
-      "presentacion": "13.5 ml",
-      "variantes": 74,
-      "tonos": 74,
-      "conFoto": 60,
-      "fallback": 0,
-      "pendientes": 14
     },
     {
       "marca": "Masglo",
@@ -968,7 +975,7 @@
       "familia": "Cepillos y peines",
       "filas": 60,
       "importadas": 60,
-      "productos": 37,
+      "productos": 38,
       "variantes": 59,
       "revision": 0,
       "issues": 0,
@@ -1018,7 +1025,7 @@
       "familia": "Accesorios y protección de peluquería",
       "filas": 49,
       "importadas": 49,
-      "productos": 46,
+      "productos": 44,
       "variantes": 48,
       "revision": 0,
       "issues": 0,
@@ -1040,8 +1047,8 @@
       "importadas": 39,
       "productos": 36,
       "variantes": 37,
-      "revision": 0,
-      "issues": 0,
+      "revision": 2,
+      "issues": 2,
       "mapeada": true
     },
     {

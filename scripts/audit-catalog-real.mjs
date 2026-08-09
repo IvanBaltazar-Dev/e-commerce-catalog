@@ -103,27 +103,39 @@ for (const m of productMedia) {
 // ---------------------------------------------------------------------------
 const RANK = { committed: 4, needs_review: 3, skipped: 2, approved: 1, normalized: 1, failed: 0 };
 const bestByRow = new Map();
+// La decisión humana pertenece a la FILA del Excel, no a una copia concreta:
+// se hereda desde cualquier copia que la tenga registrada.
+const decisionByRow = new Map();
 for (const r of stagingRows) {
   const current = bestByRow.get(r.row_number);
   if (!current || (RANK[r.status] ?? 0) > (RANK[current.status] ?? 0)) bestByRow.set(r.row_number, r);
+  for (const issue of r.import_issues ?? []) {
+    const resolution = issue.resolution;
+    if (resolution && typeof resolution === "object" && resolution.decision && ["confirm_duplicate", "exclude", "merge_into_existing"].includes(resolution.decision)) {
+      decisionByRow.set(r.row_number, { decision: resolution.decision, motivo: resolution.motivo ?? "" });
+    }
+  }
 }
 
 function finalState(st) {
   if (!st) return { estado: "SIN_STAGING", decision: "", motivo: "" };
   const issues = st.import_issues ?? [];
   const resolved = issues.find((i) => i.resolution && typeof i.resolution === "object" && i.resolution.decision);
-  const decision = resolved?.resolution?.decision ?? "";
-  const motivo = resolved?.resolution?.motivo ?? "";
+  const inherited = decisionByRow.get(st.row_number);
+  const decision = resolved?.resolution?.decision ?? inherited?.decision ?? "";
+  const motivo = resolved?.resolution?.motivo ?? inherited?.motivo ?? "";
   if (st.status === "committed") {
     if (decision === "merge_into_existing") return { estado: "MERGED_CONFIRMED", decision, motivo };
     return { estado: "IMPORTED", decision, motivo };
   }
+  // La decisión heredada manda sobre el estado de la copia que se esté mirando:
+  // una copia rezagada en needs_review no revive una fila ya decidida.
+  if (decision === "exclude") return { estado: "EXCLUDED_CONFIRMED", decision, motivo };
+  if (decision === "confirm_duplicate") return { estado: "DUPLICATE_CONFIRMED", decision, motivo };
   if (st.status === "skipped") {
-    if (decision === "exclude") return { estado: "EXCLUDED_CONFIRMED", decision, motivo };
-    if (decision === "confirm_duplicate") return { estado: "DUPLICATE_CONFIRMED", decision, motivo };
     const auto = (st.normalized_data?.review ?? []).join(" · ");
     // Skips del pipeline: duplicado exacto o fila cubierta por otro lote.
-    if (/ya importada|ya está importad|Duplicado exacto/i.test(auto)) return { estado: "DUPLICATE_CONFIRMED", decision: "regla_identidad", motivo: auto };
+    if (/ya importada|ya está importad|Duplicado exacto|Decisión previa/i.test(auto)) return { estado: "DUPLICATE_CONFIRMED", decision: "regla_identidad", motivo: auto };
     return { estado: "PENDING", decision: "", motivo: auto || "skip sin decisión registrada" };
   }
   return { estado: "PENDING", decision: "", motivo: (st.normalized_data?.review ?? []).join(" · ") };
@@ -278,6 +290,14 @@ for (const v of variants) {
   else if (v.media_backfill === "color") toneAudit.medios.fallback_color += 1;
   else toneAudit.medios.pendiente += 1;
 }
+// Deuda de medios global (todas las variantes y productos, catálogo ≠ stock).
+toneAudit.deudaGlobal = {
+  variantes_con_foto_o_swatch: variants.filter((v) => (mediaByVariant.get(String(v.id)) ?? []).length > 0).length,
+  variantes_fallback_color: variants.filter((v) => v.media_backfill === "color").length,
+  variantes_pendientes: variants.filter((v) => v.media_backfill === "pending").length,
+  productos_con_media: products.filter((p) => (mediaByProduct.get(String(p.id)) ?? []).length > 0).length,
+  productos_pendientes: products.filter((p) => p.media_backfill === "pending").length
+};
 const porClasificar = familyOptions.find((o) => o.value === "por-clasificar");
 toneAudit.familia_por_clasificar = shades.filter((s) => porClasificar && String(s.color_family_option_id) === String(porClasificar.id)).length;
 toneAudit.hexSinFuente = shades.filter((s) => s.reference_color && porClasificar && String(s.color_family_option_id) === String(porClasificar.id)).map((s) => s.code);

@@ -1,4 +1,4 @@
-# Auditoría del catálogo real — 2026-08-09T00:52:02.058Z
+# Auditoría del catálogo real — 2026-08-09T01:04:22.890Z
 
 Fuente: 1500 filas de Listado_organizado_productos_Bellaroshe.xlsx.
 
@@ -28,16 +28,16 @@ Fuente: 1500 filas de Listado_organizado_productos_Bellaroshe.xlsx.
 
 ## Tonos (K)
 
-- Variantes con tono: 163 · shades: 163 · familia «Por clasificar»: 159
-- Medios de tonos: foto 0 · swatch 61 · fallback color 0 · pendientes 102
+- Variantes con tono: 253 · shades: 253 · familia «Por clasificar»: 93
+- Medios de tonos: foto 150 · swatch 8 · fallback color 0 · pendientes 95
 - Incoherencias marca/shade: 0 · shades duplicados: 0 · hex sin fuente: 0
 
 ## Líneas de esmalte (F)
 
 | Marca | Producto | Presentación | Variantes | Tonos | Foto | Fallback | Pendientes |
 |---|---|---|---:|---:|---:|---:|---:|
+| Masglo | Esmalte MASGLO | 13.5 ml | 164 | 164 | 157 | 0 | 7 |
 | Admiss | Esmalte ADMISS | 10 ml | 75 | 75 | 0 | 0 | 75 |
-| Masglo | Esmalte MASGLO | 13.5 ml | 74 | 74 | 60 | 0 | 14 |
 | Masglo | Gel Evolution Demo | Rojo intenso | 3 | 3 | 1 | 0 | 0 |
 | ACRYLOVE | Gel Top | 14ML | 1 | 0 | 0 | 0 | 1 |
 | ACRYLOVE | Gel Base | 14ML | 1 | 0 | 0 | 0 | 1 |
@@ -119,14 +119,14 @@ Fuente: 1500 filas de Listado_organizado_productos_Bellaroshe.xlsx.
 | Esmaltes tradicionales y gel | 184 | 184 | 22 | 182 | 0 | 0 |
 | Decoración y nail art | 133 | 133 | 91 | 132 | 0 | 0 |
 | Sistema acrílico: polvos y monómeros | 96 | 96 | 23 | 96 | 0 | 0 |
-| Cepillos y peines | 60 | 60 | 37 | 59 | 0 | 0 |
+| Cepillos y peines | 60 | 60 | 38 | 59 | 0 | 0 |
 | Herramientas de manicure y pedicure | 59 | 59 | 49 | 59 | 0 | 0 |
 | Extensiones profesionales 1x1/volumen | 58 | 57 | 46 | 57 | 0 | 0 |
 | Bases, tops, brillos y finalizadores | 54 | 54 | 52 | 54 | 0 | 0 |
 | Pinceles y herramientas de diseño | 53 | 53 | 50 | 53 | 0 | 0 |
-| Accesorios y protección de peluquería | 49 | 49 | 46 | 48 | 0 | 0 |
+| Accesorios y protección de peluquería | 49 | 49 | 44 | 48 | 0 | 0 |
 | Maquillaje de ojos y rostro | 46 | 46 | 37 | 46 | 0 | 0 |
-| Tips, dual system y uñas para extensión | 41 | 39 | 36 | 37 | 0 | 0 |
+| Tips, dual system y uñas para extensión | 41 | 39 | 36 | 37 | 2 | 2 |
 | Limas, buffers y pulido manual | 39 | 39 | 38 | 39 | 0 | 0 |
 | Cuidado corporal, manos y pies | 36 | 36 | 27 | 36 | 0 | 0 |
 | Press on y uñas decoradas | 35 | 35 | 20 | 35 | 0 | 0 |

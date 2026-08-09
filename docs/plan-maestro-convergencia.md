@@ -140,6 +140,7 @@ credenciales rotadas · métricas fundamentales conciliadas.
 - [x] Segundo pase global sin duplicados.
 - [x] Reconciliación global del catálogo.
 - [x] Reporte final de importación local.
+- [x] **Fase 1C: catálogo certificado** — ver [certificacion-catalogo-local.md](certificacion-catalogo-local.md).
 
 ## POS / Venta
 - [ ] Implementar diseño definitivo de Nueva venta.

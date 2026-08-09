@@ -108,6 +108,29 @@ export async function stageBulkImportBatch(
     }
   }
 
+  // Peldaño 0b: una decisión humana previa (duplicado confirmado / exclusión)
+  // sobrevive a cualquier re-stage: la fila vuelve a salir como skip con su
+  // decisión, jamás como pendiente nueva.
+  const decidedRows = new Map<number, { decision: string; motivo: string }>();
+  {
+    const rowNumbers = records.map((record) => record.source.row);
+    for (const chunk of chunked(rowNumbers)) {
+      const result = await supabase
+        .from("import_issues")
+        .select("resolution, import_rows!inner(row_number, import_batches!inner(source_name))")
+        .eq("status", "resolved")
+        .like("import_rows.import_batches.source_name", `${SOURCE_PREFIX}:%`)
+        .in("import_rows.row_number", chunk)
+        .not("resolution", "is", null);
+      if (result.error) fail("bulk_identity_lookup_failed", result.error.message);
+      for (const issue of result.data ?? []) {
+        const resolution = issue.resolution as { decision?: string; motivo?: string } | null;
+        if (!resolution?.decision || !["confirm_duplicate", "exclude"].includes(resolution.decision)) continue;
+        decidedRows.set(Number((issue.import_rows as unknown as { row_number: number }).row_number), { decision: resolution.decision, motivo: resolution.motivo ?? "" });
+      }
+    }
+  }
+
   const internalCodes = [...new Set(records.map((record) => record.identity.internalCode).filter((code): code is string => Boolean(code)))];
   const productCodes = [...new Set(records.map((record) => record.grouping.productCode))];
 
@@ -145,6 +168,12 @@ export async function stageBulkImportBatch(
     if (committedIn) {
       record.action = "skip";
       record.review.push(`Fila ya importada por el lote ${committedIn}; se omite (idempotencia).`);
+      continue;
+    }
+    const decided = decidedRows.get(record.source.row);
+    if (decided) {
+      record.action = "skip";
+      record.review.push(`Decisión previa ${decided.decision}: ${decided.motivo}`);
       continue;
     }
     const sku = record.identity.internalCode;
