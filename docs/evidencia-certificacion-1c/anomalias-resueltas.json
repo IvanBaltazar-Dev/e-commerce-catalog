@@ -1,0 +1,39 @@
+{
+  "aplicado": "2026-08-09T15:58:15.566Z",
+  "decisor": "Ivan (certificación 1C)",
+  "acciones": [
+    {
+      "anomalia": "marca_fragmentada",
+      "decision": "REVE'L y REVEL son la misma marca; sobrevive REVEL.",
+      "productosMovidos": [
+        "REV-POL-65325D",
+        "REV-DEC-F0DC48",
+        "REV-PRE-1CAC61",
+        "REV-PRE-37424E",
+        "REV-PRE-F6CC02",
+        "REV-PRE-0CC9C5",
+        "REV-PRE-DAD5EC",
+        "REV-ADH-C7B6B7",
+        "REV-ACC-8E376E",
+        "REV-MAL-366120",
+        "REV-MAL-9D9CE6",
+        "REV-MAL-F0FE59",
+        "REV-MAL-00E7F1"
+      ],
+      "shadesMovidas": 0,
+      "marcaDesactivada": "reve-l"
+    },
+    {
+      "anomalia": "producto_nombre_casi_identico",
+      "decision": "Mismo producto comercial; las variantes viven en LIN-DEC-FA087F.",
+      "variantesMovidas": [
+        "Surtido · - → set_name:surtido"
+      ],
+      "filasReapuntadas": [
+        743
+      ],
+      "productoDesactivado": "LIN-DEC-F87EC1",
+      "nombreFinal": "Adorno P/uñas Pastillero"
+    }
+  ]
+}

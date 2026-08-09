@@ -1,5 +1,5 @@
 {
-  "generado": "2026-08-09T01:04:22.890Z",
+  "generado": "2026-08-09T15:59:15.398Z",
   "fuente": {
     "listado": "F:\\Products_SIVAN\\Bellaroshe\\version-V2\\Listado_organizado_productos_Bellaroshe.xlsx",
     "filas": 1500,
@@ -955,7 +955,7 @@
       "familia": "Decoración y nail art",
       "filas": 133,
       "importadas": 133,
-      "productos": 91,
+      "productos": 90,
       "variantes": 132,
       "revision": 0,
       "issues": 0,
@@ -1462,21 +1462,6 @@
       "mapeada": true
     }
   ],
-  "anomaliasL": [
-    {
-      "tipo": "marca_fragmentada",
-      "variantes": [
-        "REVE'L",
-        "REVEL"
-      ]
-    },
-    {
-      "tipo": "producto_nombre_casi_identico",
-      "codigos": [
-        "LIN-DEC-F87EC1",
-        "LIN-DEC-FA087F"
-      ]
-    }
-  ],
+  "anomaliasL": [],
   "pendientes": []
 }

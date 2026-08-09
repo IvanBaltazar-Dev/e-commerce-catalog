@@ -73,7 +73,7 @@ const products = await all("products", "id, code, slug, name, presentation, bran
 const variants = await all("product_variants", "id, product_id, sku, name, variant_key, is_default, is_active, color_shade_id, media_backfill");
 const offers = await all("product_suppliers", "id, supplier_id, variant_id, supplier_sku, is_active, is_preferred");
 const suppliers = await all("suppliers", "id, code, trade_name");
-const brands = await all("brands", "id, name, slug, is_generic");
+const brands = await all("brands", "id, name, slug, is_generic, is_active");
 const categories = await all("categories", "id, name, slug, parent_id, template_id");
 const templates = await all("attribute_templates", "id, code, name");
 const shades = await all("color_shades", "id, brand_id, product_line_id, name, code, reference_color, color_family_option_id, tone_option_id");
@@ -228,7 +228,9 @@ checks.default_distinto_de_uno = products.filter((p) => {
   checks.supplier_sku_duplicado = [...bySupplierSku.entries()].filter(([, n]) => n > 1).map(([k]) => k);
 }
 checks.variante_huerfana = variants.filter((v) => !productById.has(String(v.product_id))).map((v) => v.sku ?? v.id);
-checks.producto_sin_ninguna_variante = products.filter((p) => !(variantsByProduct.get(String(p.id)) ?? []).length).map((p) => p.code);
+// Un producto desactivado tras una fusión documentada puede quedar vacío: el
+// huérfano que bloquea es el ACTIVO sin ninguna variante.
+checks.producto_sin_ninguna_variante = products.filter((p) => p.is_active && !(variantsByProduct.get(String(p.id)) ?? []).length).map((p) => p.code);
 // Los productos demo previos a la importación no forman parte del objeto
 // certificado: se reportan aparte, no como fallo de la carga.
 const esPreImportacion = (p) => Date.parse(p.created_at) < firstImportAt && !importTrail.has(String(p.id));
@@ -257,7 +259,7 @@ checks.categoria_inexistente = products.filter((p) => !categoryById.has(String(p
   checks.variante_duplicada_trivial = dupTrivial;
 }
 checks.fila_committed_sin_destino = stagingRows.filter((r) => r.status === "committed" && (!r.target_product_id || !r.target_variant_id)).map((r) => r.row_number);
-checks.destino_import_sin_trazabilidad = products.filter((p) => Date.parse(p.created_at) >= firstImportAt && !importTrail.has(String(p.id))).map((p) => p.code);
+checks.destino_import_sin_trazabilidad = products.filter((p) => p.is_active && Date.parse(p.created_at) >= firstImportAt && !importTrail.has(String(p.id))).map((p) => p.code);
 // Las claves con «_» son informativas (fuera del alcance certificado), no gates.
 const checksFallidos = Object.entries(checks).filter(([k, v]) => !k.startsWith("_") && v.length > 0);
 
@@ -380,16 +382,17 @@ for (const f of familiaMatrix) {
   }
 }
 {
-  // Marcas fragmentadas por ortografía (nombres casi idénticos)
+  // Marcas fragmentadas por ortografía (solo activas: una fusión resuelta deja
+  // la marca perdedora desactivada, documentada en anomalias-resueltas.json).
   const byNorm = new Map();
-  for (const b of brands) {
-    const k = normalizeKey(b.name).replace(/\s+/g, "");
+  for (const b of brands.filter((b) => b.is_active !== false)) {
+    const k = normalizeKey(b.name).replace(/\s+/g, "").replace(/[^a-z0-9]/g, "");
     byNorm.set(k, [...(byNorm.get(k) ?? []), b.name]);
   }
   for (const [k, list] of byNorm) if (list.length > 1) anomalias.push({ tipo: "marca_fragmentada", variantes: list });
-  // Productos con nombre casi idéntico dentro de la misma marca
+  // Productos con nombre casi idéntico dentro de la misma marca (solo activos)
   const byProductNorm = new Map();
-  for (const p of products) {
+  for (const p of products.filter((p) => p.is_active)) {
     const k = `${p.brand_id}|${normalizeKey(p.name)}`;
     byProductNorm.set(k, [...(byProductNorm.get(k) ?? []), p.code]);
   }

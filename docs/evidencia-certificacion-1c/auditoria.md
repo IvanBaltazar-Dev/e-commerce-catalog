@@ -1,4 +1,4 @@
-# Auditoría del catálogo real — 2026-08-09T01:04:22.890Z
+# Auditoría del catálogo real — 2026-08-09T15:59:15.398Z
 
 Fuente: 1500 filas de Listado_organizado_productos_Bellaroshe.xlsx.
 
@@ -117,7 +117,7 @@ Fuente: 1500 filas de Listado_organizado_productos_Bellaroshe.xlsx.
 | Familia | Filas | Importadas | Productos | Variantes | Revisión | Issues |
 |---|---:|---:|---:|---:|---:|---:|
 | Esmaltes tradicionales y gel | 184 | 184 | 22 | 182 | 0 | 0 |
-| Decoración y nail art | 133 | 133 | 91 | 132 | 0 | 0 |
+| Decoración y nail art | 133 | 133 | 90 | 132 | 0 | 0 |
 | Sistema acrílico: polvos y monómeros | 96 | 96 | 23 | 96 | 0 | 0 |
 | Cepillos y peines | 60 | 60 | 38 | 59 | 0 | 0 |
 | Herramientas de manicure y pedicure | 59 | 59 | 49 | 59 | 0 | 0 |
@@ -169,7 +169,4 @@ Fuente: 1500 filas de Listado_organizado_productos_Bellaroshe.xlsx.
 | Dispensadores y recipientes generales | 1 | 1 | 1 | 1 | 0 | 0 |
 | Labios | 1 | 1 | 1 | 1 | 0 | 0 |
 
-## Cola de anomalías (L): 2
-
-- {"tipo":"marca_fragmentada","variantes":["REVE'L","REVEL"]}
-- {"tipo":"producto_nombre_casi_identico","codigos":["LIN-DEC-F87EC1","LIN-DEC-FA087F"]}
+## Cola de anomalías (L): 0
