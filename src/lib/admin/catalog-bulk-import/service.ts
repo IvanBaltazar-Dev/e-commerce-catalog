@@ -17,6 +17,7 @@ import type { AdminV2Bootstrap, AdminV2ProductInput } from "@/lib/admin/catalog-
 import type { CatalogRawWorkbook } from "@/lib/admin/catalog-import-xlsx";
 import { mapListingRows, normalizeListing } from "@/lib/admin/catalog-bulk-import/normalize";
 import { indexCatalogAssets, matchClusterMedia } from "@/lib/admin/catalog-bulk-import/media-match";
+import { bulkFamilyConfig, bulkFamilyCategoryPath } from "@/lib/admin/catalog-bulk-import/family-map";
 import { COLOR_LEXICON } from "@/lib/admin/catalog-bulk-import/lexicons";
 import { slugify } from "@/lib/catalog/slug";
 import type {
@@ -986,6 +987,131 @@ export async function commitBulkBatch(
 
   const loteName = ((batch.data.summary as { lote?: string })?.lote) ?? String(batch.data.source_name).replace(`${SOURCE_PREFIX}:`, "");
   return { batchId, loteName, counts, productos: productosReporte, rechazadas };
+}
+
+// ---------------------------------------------------------------------------
+// Resolución de excepciones (certificación): cada decisión humana regresa por
+// el staging con trazabilidad — nunca SQL directo sobre el catálogo.
+// ---------------------------------------------------------------------------
+
+export type BulkReviewDecision =
+  | { kind: "import_distinct"; ref?: string | null; dropSupplierSku?: boolean; motivo: string }
+  | { kind: "confirm_duplicate"; motivo: string }
+  | { kind: "exclude"; motivo: string }
+  | { kind: "reclassify"; familia: string; motivo: string };
+
+export async function resolveBulkReviewRow(
+  supabase: Supabase,
+  rowNumber: number,
+  decision: BulkReviewDecision,
+  actor: string
+) {
+  // La fila actuable es la needs_review más reciente de ese número de fila,
+  // siempre que ningún lote la tenga ya committed.
+  const committed = await supabase
+    .from("import_rows")
+    .select("id, import_batches!inner(source_name)")
+    .eq("row_number", rowNumber)
+    .eq("status", "committed")
+    .like("import_batches.source_name", `${SOURCE_PREFIX}:%`)
+    .limit(1)
+    .maybeSingle();
+  if (committed.error) fail("bulk_resolve_lookup_failed", committed.error.message);
+  if (committed.data) {
+    return { rowNumber, applied: "noop", reason: "La fila ya está committed; la decisión no aplica." };
+  }
+  const candidates = await supabase
+    .from("import_rows")
+    .select("id, batch_id, status, normalized_data, import_batches!inner(source_name, created_at)")
+    .eq("row_number", rowNumber)
+    .eq("status", "needs_review")
+    .like("import_batches.source_name", `${SOURCE_PREFIX}:%`);
+  if (candidates.error) fail("bulk_resolve_lookup_failed", candidates.error.message);
+  if (!candidates.data?.length) return { rowNumber, applied: "noop", reason: "No hay fila en revisión con ese número." };
+  const sorted = [...candidates.data].sort((a, b) =>
+    Date.parse(String((b.import_batches as unknown as { created_at: string }).created_at))
+    - Date.parse(String((a.import_batches as unknown as { created_at: string }).created_at))
+  );
+  const target = { data: sorted[0] };
+  // Una decisión cierra TODAS las copias de la fila: las de lotes anteriores
+  // quedan omitidas con la misma resolución para que ninguna siga «pendiente».
+  for (const stale of sorted.slice(1)) {
+    await supabase.from("import_rows").update({ status: "skipped", proposed_action: "skip" }).eq("id", stale.id);
+    await supabase
+      .from("import_issues")
+      .update({ status: "resolved", resolved_at: new Date().toISOString(), resolution: { decision: decision.kind, motivo: `Copia anterior de la fila ${rowNumber}; la decisión vive en el lote más reciente.`, por: actor } })
+      .eq("import_row_id", stale.id)
+      .eq("status", "open");
+  }
+
+  const record = target.data.normalized_data as unknown as BulkNormalizedRecord;
+  const resolution = { decision: decision.kind, motivo: decision.motivo, por: actor, fecha: new Date().toISOString() };
+  let newStatus: "approved" | "skipped";
+
+  if (decision.kind === "confirm_duplicate" || decision.kind === "exclude") {
+    newStatus = "skipped";
+    record.action = "skip";
+    record.review.push(`Decisión ${decision.kind}: ${decision.motivo}`);
+    if (decision.kind === "exclude") (resolution as Record<string, unknown>).decision = "exclude";
+    else (resolution as Record<string, unknown>).decision = "confirm_duplicate";
+  } else if (decision.kind === "import_distinct") {
+    // El artículo es distinto. Si sus ejes ya lo distinguen, basta con aprobar;
+    // si no, su referencia (código propio) pasa a ser el eje visible que el
+    // Excel no supo describir.
+    if (decision.ref) {
+      const refSlug = slugify(decision.ref);
+      if (!record.grouping.axes.some((axis) => axis.code === "set_name" && axis.value === refSlug)) {
+        record.grouping.axes.push({ code: "set_name", value: refSlug, label: `Ref. ${decision.ref}`, confidence: "high" });
+      }
+      const axisOrder: Record<string, number> = { tone: 1, color: 2, aroma: 3, size_label: 4, shape: 5, lash_length: 6, set_name: 7, presentation: 8 };
+      record.grouping.axes.sort((a, b) => (axisOrder[a.code] ?? 99) - (axisOrder[b.code] ?? 99));
+      record.grouping.variantKey = record.grouping.axes.map((axis) => `${axis.code}:${axis.value}`).join("|") || "unica";
+      record.grouping.variantName = record.grouping.axes.map((axis) => axis.label).join(" · ") || "Única";
+    }
+    if (decision.dropSupplierSku && record.supplier) {
+      record.supplier = { ...record.supplier, supplierSku: null };
+    }
+    record.action = record.action === "merge" ? "create_variant" : record.action;
+    if (record.action === "skip") record.action = "create_variant";
+    record.review.push(`Decisión import_distinct (${decision.ref}): ${decision.motivo}`);
+    newStatus = "approved";
+  } else {
+    // reclassify: la familia correcta reemplaza a la no mapeada y la identidad
+    // determinista se recalcula con su categoría real.
+    const config = bulkFamilyConfig(decision.familia);
+    if (!config) fail("bulk_resolve_family_unknown", `La familia «${decision.familia}» no está en el mapa.`);
+    record.classification = {
+      familia: decision.familia,
+      categoryPath: bulkFamilyCategoryPath(config),
+      templateCode: config.templateCode,
+      confidence: "high"
+    };
+    const hash = createHash("sha1").update(`${record.identity.brandSlug}|${decision.familia}|${record.naming.baseName.toUpperCase()}`).digest("hex").slice(0, 6).toUpperCase();
+    const prefix = (value: string, fallback: string) => (value.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9]/g, "").toUpperCase() || fallback).slice(0, 3).padEnd(3, "X");
+    record.grouping.productCode = `${prefix(record.identity.brandSlug ?? "GEN", "GEN")}-${prefix(config.categorySlug, "XXX")}-${hash}`;
+    record.grouping.productSlug = slugify(`${record.identity.brandSlug}-${record.naming.baseName}-${hash}`);
+    record.grouping.productKey = `${record.identity.brandSlug}|${decision.familia}|${record.naming.baseName.toUpperCase()}`;
+    record.action = "create_product";
+    record.review.push(`Decisión reclassify → ${decision.familia}: ${decision.motivo}`);
+    newStatus = "approved";
+  }
+
+  const update = await supabase
+    .from("import_rows")
+    .update({ status: newStatus, proposed_action: record.action, normalized_data: record as unknown as Record<string, unknown> })
+    .eq("id", target.data.id);
+  if (update.error) fail("bulk_resolve_update_failed", update.error.message);
+
+  const issues = await supabase
+    .from("import_issues")
+    .update({ status: "resolved", resolved_at: new Date().toISOString(), resolution })
+    .eq("import_row_id", target.data.id)
+    .eq("status", "open")
+    .in("severity", ["error", "blocking"]);
+  if (issues.error) fail("bulk_resolve_issue_failed", issues.error.message);
+
+  const lote = String((target.data.import_batches as unknown as { source_name: string }).source_name).replace(`${SOURCE_PREFIX}:`, "");
+  return { rowNumber, applied: decision.kind, lote, batchId: String(target.data.batch_id), status: newStatus };
 }
 
 // ---------------------------------------------------------------------------

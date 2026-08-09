@@ -48,7 +48,8 @@
     "dev:b": "node scripts/dev-b.mjs",
     "build:a": "node scripts/build-a.mjs",
     "serve:a": "node scripts/serve-a.mjs",
-    "bulk:lote": "node --conditions=react-server --experimental-transform-types scripts/run-bulk-lote.mjs --env .env.supabase.local"
+    "bulk:lote": "node --conditions=react-server --experimental-transform-types scripts/run-bulk-lote.mjs --env .env.supabase.local",
+    "audit:catalog-real": "node --conditions=react-server --experimental-transform-types scripts/audit-catalog-real.mjs --env .env.supabase.local"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",

@@ -1,0 +1,1295 @@
+{
+  "generado": "2026-08-09T00:49:13.934Z",
+  "politica": "certificacion-1c",
+  "resumen": {
+    "D3": 3,
+    "D1": 40,
+    "D2": 18,
+    "D4": 6
+  },
+  "decisiones": [
+    {
+      "fila": 142,
+      "descripcion": "NEUTRALIZANTE",
+      "codigo_interno": "WEL003",
+      "codigo_proveedor": "",
+      "proveedor": "MAY",
+      "marca": "WELLA",
+      "fila_espejo": 141,
+      "descripcion_espejo": "NEUTRALIZANTE",
+      "issues": [
+        "conflicting_internal_codes"
+      ],
+      "grupo": "D3",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "WEL003",
+        "motivo": "Código interno propio WEL003: unidad vendible distinta de la fila 141; el Excel repitió la descripción."
+      }
+    },
+    {
+      "fila": 163,
+      "descripcion": "PLANCHA P/ CABELLO 950·",
+      "codigo_interno": "",
+      "codigo_proveedor": "HR817",
+      "proveedor": "GRUP LEO PUNO",
+      "marca": "ROZIAPRO",
+      "fila_espejo": 162,
+      "descripcion_espejo": "PLANCHA P/ CABELLO 950·",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "HR817",
+        "motivo": "Código de proveedor propio HR817 (≠ fila 162): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 164,
+      "descripcion": "PLANCHA P/ CABELLO 950·",
+      "codigo_interno": "",
+      "codigo_proveedor": "HR823",
+      "proveedor": "GRUP LEO PUNO",
+      "marca": "ROZIAPRO",
+      "fila_espejo": 162,
+      "descripcion_espejo": "PLANCHA P/ CABELLO 950·",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "HR823",
+        "motivo": "Código de proveedor propio HR823 (≠ fila 162): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 165,
+      "descripcion": "PLANCHA P/ CABELLO 950·",
+      "codigo_interno": "",
+      "codigo_proveedor": "HR825",
+      "proveedor": "GRUP LEO PUNO",
+      "marca": "ROZIAPRO",
+      "fila_espejo": 162,
+      "descripcion_espejo": "PLANCHA P/ CABELLO 950·",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "HR825",
+        "motivo": "Código de proveedor propio HR825 (≠ fila 162): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 166,
+      "descripcion": "PLANCHA P/ CABELLO 950·",
+      "codigo_interno": "",
+      "codigo_proveedor": "HR863",
+      "proveedor": "GRUP LEO PUNO",
+      "marca": "ROZIAPRO",
+      "fila_espejo": 162,
+      "descripcion_espejo": "PLANCHA P/ CABELLO 950·",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "HR863",
+        "motivo": "Código de proveedor propio HR863 (≠ fila 162): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 171,
+      "descripcion": "TIJERA ENTRESACAR",
+      "codigo_interno": "",
+      "codigo_proveedor": "658B",
+      "proveedor": "CHINO PUNO",
+      "marca": "GOLDEN PHOENIX",
+      "fila_espejo": 170,
+      "descripcion_espejo": "TIJERA ENTRESACAR",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "658B",
+        "motivo": "Código de proveedor propio 658B (≠ fila 170): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 269,
+      "descripcion": "PESTAÑA FOXY X5 PARES",
+      "codigo_interno": "",
+      "codigo_proveedor": "CAT09",
+      "proveedor": "KELMAR PUNO",
+      "marca": "OTROS",
+      "fila_espejo": 268,
+      "descripcion_espejo": "PESTAÑA FOXY X5 PARES",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "CAT09",
+        "motivo": "Código de proveedor propio CAT09 (≠ fila 268): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 273,
+      "descripcion": "PESTAÑA ANIME 0.07C - 12MM",
+      "codigo_interno": "",
+      "codigo_proveedor": "R168615",
+      "proveedor": "ROSE&LIN",
+      "marca": "ROSE&LIN",
+      "fila_espejo": 272,
+      "descripcion_espejo": "PESTAÑA ANIME 0.07C - 10MM",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": null,
+        "dropSupplierSku": true,
+        "motivo": "El proveedor reutilizó el código R168615 para artículos distintos («PESTAÑA ANIME 0.07C - 12MM» vs «PESTAÑA ANIME 0.07C - 10MM»); se importa como artículo propio y el código queda registrado solo en la primera oferta."
+      }
+    },
+    {
+      "fila": 349,
+      "descripcion": "SET PESTAÑA X5par 3D",
+      "codigo_interno": "",
+      "codigo_proveedor": "7257",
+      "proveedor": "BEIFA",
+      "marca": "YEMIX",
+      "fila_espejo": 348,
+      "descripcion_espejo": "SET PESTAÑA X5par 3D",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "7257",
+        "motivo": "Código de proveedor propio 7257 (≠ fila 348): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 350,
+      "descripcion": "SET PESTAÑA X5par 3D",
+      "codigo_interno": "YEM004",
+      "codigo_proveedor": "7246",
+      "proveedor": "BEIFA",
+      "marca": "YEMIX",
+      "fila_espejo": 348,
+      "descripcion_espejo": "SET PESTAÑA X5par 3D",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "YEM004",
+        "motivo": "Código de proveedor propio 7246 (≠ fila 348): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 352,
+      "descripcion": "SET PESTAÑA X5par 6D",
+      "codigo_interno": "YEM003",
+      "codigo_proveedor": "7295",
+      "proveedor": "BEIFA",
+      "marca": "YEMIX",
+      "fila_espejo": 351,
+      "descripcion_espejo": "SET PESTAÑA X5par 6D",
+      "issues": [
+        "conflicting_internal_codes"
+      ],
+      "grupo": "D3",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "YEM003",
+        "motivo": "Código interno propio YEM003: unidad vendible distinta de la fila 351; el Excel repitió la descripción."
+      }
+    },
+    {
+      "fila": 474,
+      "descripcion": "FIGARO ROSADO",
+      "codigo_interno": "",
+      "codigo_proveedor": "",
+      "proveedor": "MAY",
+      "marca": "",
+      "fila_espejo": null,
+      "descripcion_espejo": null,
+      "issues": [
+        "family_unmapped"
+      ],
+      "grupo": "D4",
+      "decision": {
+        "kind": "exclude",
+        "motivo": "Descripción «FIGARO ROSADO» insuficiente para determinar familia/artículo sin conocimiento del negocio. Excluida explícitamente (no bajo «pendiente»); reincorporable con mejor fuente."
+      }
+    },
+    {
+      "fila": 475,
+      "descripcion": "PCI",
+      "codigo_interno": "",
+      "codigo_proveedor": "",
+      "proveedor": "MAY",
+      "marca": "ADELAS",
+      "fila_espejo": null,
+      "descripcion_espejo": null,
+      "issues": [
+        "family_unmapped"
+      ],
+      "grupo": "D4",
+      "decision": {
+        "kind": "exclude",
+        "motivo": "Descripción «PCI» insuficiente para determinar familia/artículo sin conocimiento del negocio. Excluida explícitamente (no bajo «pendiente»); reincorporable con mejor fuente."
+      }
+    },
+    {
+      "fila": 476,
+      "descripcion": "PEGAMENTO GOLLE",
+      "codigo_interno": "",
+      "codigo_proveedor": "",
+      "proveedor": "MAY",
+      "marca": "GOLLE",
+      "fila_espejo": null,
+      "descripcion_espejo": null,
+      "issues": [
+        "family_unmapped"
+      ],
+      "grupo": "D4",
+      "decision": {
+        "kind": "reclassify",
+        "familia": "Soft gel, press gel y adhesivos para uñas",
+        "motivo": "PEGAMENTO GOLLE es adhesivo para uñas; se clasifica en su familia real y se importa."
+      }
+    },
+    {
+      "fila": 477,
+      "descripcion": "",
+      "codigo_interno": "",
+      "codigo_proveedor": "",
+      "proveedor": "WEDOR",
+      "marca": "KONSUNG",
+      "fila_espejo": null,
+      "descripcion_espejo": null,
+      "issues": [
+        "family_unmapped",
+        "empty_description"
+      ],
+      "grupo": "D4",
+      "decision": {
+        "kind": "exclude",
+        "motivo": "Fila sin descripción: no existe artículo describible que importar. Excluida explícitamente; reincorporable si aparece la fuente."
+      }
+    },
+    {
+      "fila": 478,
+      "descripcion": "JUMBO",
+      "codigo_interno": "",
+      "codigo_proveedor": "",
+      "proveedor": "MAY",
+      "marca": "LUXOR",
+      "fila_espejo": null,
+      "descripcion_espejo": null,
+      "issues": [
+        "family_unmapped"
+      ],
+      "grupo": "D4",
+      "decision": {
+        "kind": "exclude",
+        "motivo": "Descripción «JUMBO» insuficiente para determinar familia/artículo sin conocimiento del negocio. Excluida explícitamente (no bajo «pendiente»); reincorporable con mejor fuente."
+      }
+    },
+    {
+      "fila": 479,
+      "descripcion": "BLEDO UNICORNIO",
+      "codigo_interno": "OTR103",
+      "codigo_proveedor": "",
+      "proveedor": "MAY",
+      "marca": "OTROS",
+      "fila_espejo": null,
+      "descripcion_espejo": null,
+      "issues": [
+        "family_unmapped"
+      ],
+      "grupo": "D4",
+      "decision": {
+        "kind": "exclude",
+        "motivo": "Descripción «BLEDO UNICORNIO» insuficiente para determinar familia/artículo sin conocimiento del negocio. Excluida explícitamente (no bajo «pendiente»); reincorporable con mejor fuente."
+      }
+    },
+    {
+      "fila": 508,
+      "descripcion": "CREMA HIDRATANTE CORPORAL 8OZ",
+      "codigo_interno": "",
+      "codigo_proveedor": "SH-171",
+      "proveedor": "REVEL",
+      "marca": "REVEL",
+      "fila_espejo": 507,
+      "descripcion_espejo": "CREMA HIDRATANTE CORPORAL 8OZ",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "SH-171",
+        "motivo": "Código de proveedor propio SH-171 (≠ fila 507): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 509,
+      "descripcion": "CREMA HIDRATANTE CORPORAL 8OZ",
+      "codigo_interno": "",
+      "codigo_proveedor": "SH-170",
+      "proveedor": "REVEL",
+      "marca": "REVEL",
+      "fila_espejo": 507,
+      "descripcion_espejo": "CREMA HIDRATANTE CORPORAL 8OZ",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "SH-170",
+        "motivo": "Código de proveedor propio SH-170 (≠ fila 507): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 510,
+      "descripcion": "CREMA HIDRATANTE CORPORAL 8OZ",
+      "codigo_interno": "",
+      "codigo_proveedor": "SH-163",
+      "proveedor": "REVEL",
+      "marca": "REVEL",
+      "fila_espejo": 507,
+      "descripcion_espejo": "CREMA HIDRATANTE CORPORAL 8OZ",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "SH-163",
+        "motivo": "Código de proveedor propio SH-163 (≠ fila 507): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 511,
+      "descripcion": "CREMA HIDRATANTE CORPORAL 8OZ",
+      "codigo_interno": "",
+      "codigo_proveedor": "SH-165",
+      "proveedor": "REVEL",
+      "marca": "REVEL",
+      "fila_espejo": 507,
+      "descripcion_espejo": "CREMA HIDRATANTE CORPORAL 8OZ",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "SH-165",
+        "motivo": "Código de proveedor propio SH-165 (≠ fila 507): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 524,
+      "descripcion": "MASCARILLA HIDRATANTE ARROZ",
+      "codigo_interno": "",
+      "codigo_proveedor": "LA-019",
+      "proveedor": "REVEL",
+      "marca": "CHOVEMOAR",
+      "fila_espejo": 523,
+      "descripcion_espejo": "MASCARILLA HIDRATANTE ALOE VERA",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": null,
+        "dropSupplierSku": true,
+        "motivo": "El proveedor reutilizó el código LA-019 para artículos distintos («MASCARILLA HIDRATANTE ARROZ» vs «MASCARILLA HIDRATANTE ALOE VERA»); se importa como artículo propio y el código queda registrado solo en la primera oferta."
+      }
+    },
+    {
+      "fila": 525,
+      "descripcion": "MASCARILLA HIDRATANTE LECHE",
+      "codigo_interno": "",
+      "codigo_proveedor": "LA-019",
+      "proveedor": "REVEL",
+      "marca": "CHOVEMOAR",
+      "fila_espejo": 523,
+      "descripcion_espejo": "MASCARILLA HIDRATANTE ALOE VERA",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": null,
+        "dropSupplierSku": true,
+        "motivo": "El proveedor reutilizó el código LA-019 para artículos distintos («MASCARILLA HIDRATANTE LECHE» vs «MASCARILLA HIDRATANTE ALOE VERA»); se importa como artículo propio y el código queda registrado solo en la primera oferta."
+      }
+    },
+    {
+      "fila": 526,
+      "descripcion": "MASCARILLA HIDRATANTE UVA",
+      "codigo_interno": "",
+      "codigo_proveedor": "LA-019",
+      "proveedor": "REVEL",
+      "marca": "CHOVEMOAR",
+      "fila_espejo": 523,
+      "descripcion_espejo": "MASCARILLA HIDRATANTE ALOE VERA",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": null,
+        "dropSupplierSku": true,
+        "motivo": "El proveedor reutilizó el código LA-019 para artículos distintos («MASCARILLA HIDRATANTE UVA» vs «MASCARILLA HIDRATANTE ALOE VERA»); se importa como artículo propio y el código queda registrado solo en la primera oferta."
+      }
+    },
+    {
+      "fila": 739,
+      "descripcion": "STICKERS PARA UÑAS",
+      "codigo_interno": "",
+      "codigo_proveedor": "SS-553",
+      "proveedor": "CHINO PUNO",
+      "marca": "JOYFUL NAIL",
+      "fila_espejo": 738,
+      "descripcion_espejo": "STICKERS PARA UÑAS",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "SS-553",
+        "motivo": "Código de proveedor propio SS-553 (≠ fila 738): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 758,
+      "descripcion": "ADORNO COLA SIRENA BOX X12",
+      "codigo_interno": "OTR117",
+      "codigo_proveedor": "DY-021",
+      "proveedor": "CHINO PUNO",
+      "marca": "OTROS",
+      "fila_espejo": 757,
+      "descripcion_espejo": "ADORNO COLA SIRENA BOX X12",
+      "issues": [
+        "conflicting_internal_codes"
+      ],
+      "grupo": "D3",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "OTR117",
+        "motivo": "Código interno propio OTR117: unidad vendible distinta de la fila 757; el Excel repitió la descripción."
+      }
+    },
+    {
+      "fila": 777,
+      "descripcion": "DECORACION CORAZON PASTILLERO",
+      "codigo_interno": "OTR220",
+      "codigo_proveedor": "DY-207",
+      "proveedor": "CHINO PUNO",
+      "marca": "OTROS",
+      "fila_espejo": 770,
+      "descripcion_espejo": "ADORNO UÑA CORAZONES",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": null,
+        "dropSupplierSku": true,
+        "motivo": "El proveedor reutilizó el código DY-207 para artículos distintos («DECORACION CORAZON PASTILLERO» vs «ADORNO UÑA CORAZONES»); se importa como artículo propio y el código queda registrado solo en la primera oferta."
+      }
+    },
+    {
+      "fila": 803,
+      "descripcion": "PEDRERIA P/UÑA CRISTAL",
+      "codigo_interno": "OTR140",
+      "codigo_proveedor": "A26-33",
+      "proveedor": "MAY",
+      "marca": "OTROS",
+      "fila_espejo": 804,
+      "descripcion_espejo": "PEDRERIA P/UÑA TORNASOL",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": null,
+        "dropSupplierSku": true,
+        "motivo": "El proveedor reutilizó el código A26-33 para artículos distintos («PEDRERIA P/UÑA CRISTAL» vs «PEDRERIA P/UÑA TORNASOL»); se importa como artículo propio y el código queda registrado solo en la primera oferta."
+      }
+    },
+    {
+      "fila": 806,
+      "descripcion": "PEDRERIA PASTILLERO",
+      "codigo_interno": "OTR068",
+      "codigo_proveedor": "MR-105 C1",
+      "proveedor": "MAY",
+      "marca": "OTROS",
+      "fila_espejo": 805,
+      "descripcion_espejo": "PEDRERIA PASTILLERO",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "OTR068",
+        "motivo": "Código de proveedor propio MR-105 C1 (≠ fila 805): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 807,
+      "descripcion": "PEDRERIA PASTILLERO",
+      "codigo_interno": "",
+      "codigo_proveedor": "MR-105 C3",
+      "proveedor": "MAY",
+      "marca": "OTROS",
+      "fila_espejo": 805,
+      "descripcion_espejo": "PEDRERIA PASTILLERO",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "MR-105 C3",
+        "motivo": "Código de proveedor propio MR-105 C3 (≠ fila 805): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 808,
+      "descripcion": "PEDRERIA PASTILLERO",
+      "codigo_interno": "OTR196",
+      "codigo_proveedor": "MR-125",
+      "proveedor": "MAY",
+      "marca": "OTROS",
+      "fila_espejo": 805,
+      "descripcion_espejo": "PEDRERIA PASTILLERO",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "OTR196",
+        "motivo": "Código de proveedor propio MR-125 (≠ fila 805): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 809,
+      "descripcion": "PEDRERIA PASTILLERO",
+      "codigo_interno": "",
+      "codigo_proveedor": "MR-129",
+      "proveedor": "MAY",
+      "marca": "OTROS",
+      "fila_espejo": 805,
+      "descripcion_espejo": "PEDRERIA PASTILLERO",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "MR-129",
+        "motivo": "Código de proveedor propio MR-129 (≠ fila 805): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 827,
+      "descripcion": "POLVO P/UÑAS",
+      "codigo_interno": "",
+      "codigo_proveedor": "4359",
+      "proveedor": "LINDA JHADE",
+      "marca": "OTROS",
+      "fila_espejo": 826,
+      "descripcion_espejo": "POLVO P/UÑAS",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "4359",
+        "motivo": "Código de proveedor propio 4359 (≠ fila 826): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 828,
+      "descripcion": "POLVO P/UÑAS",
+      "codigo_interno": "",
+      "codigo_proveedor": "4352",
+      "proveedor": "LINDA JHADE",
+      "marca": "OTROS",
+      "fila_espejo": 826,
+      "descripcion_espejo": "POLVO P/UÑAS",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "4352",
+        "motivo": "Código de proveedor propio 4352 (≠ fila 826): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 829,
+      "descripcion": "POLVO P/UÑAS",
+      "codigo_interno": "",
+      "codigo_proveedor": "4354",
+      "proveedor": "LINDA JHADE",
+      "marca": "OTROS",
+      "fila_espejo": 826,
+      "descripcion_espejo": "POLVO P/UÑAS",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "4354",
+        "motivo": "Código de proveedor propio 4354 (≠ fila 826): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 830,
+      "descripcion": "POLVO P/UÑAS",
+      "codigo_interno": "",
+      "codigo_proveedor": "4360",
+      "proveedor": "LINDA JHADE",
+      "marca": "OTROS",
+      "fila_espejo": 826,
+      "descripcion_espejo": "POLVO P/UÑAS",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "4360",
+        "motivo": "Código de proveedor propio 4360 (≠ fila 826): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 940,
+      "descripcion": "ESMALTE OJO DE GATO BOXx36",
+      "codigo_interno": "",
+      "codigo_proveedor": "B",
+      "proveedor": "BEIFA",
+      "marca": "BEIFA",
+      "fila_espejo": 939,
+      "descripcion_espejo": "ESMALTE OJO DE GATO BOXx36",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "B",
+        "motivo": "Código de proveedor propio B (≠ fila 939): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 945,
+      "descripcion": "ESMALTE CAT EYE GEL 10ML",
+      "codigo_interno": "",
+      "codigo_proveedor": "LC2536",
+      "proveedor": "ROSE&LIN",
+      "marca": "CHARM LIMIT",
+      "fila_espejo": 944,
+      "descripcion_espejo": "ESMALTE CAT EYE GEL 10ML",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "LC2536",
+        "motivo": "Código de proveedor propio LC2536 (≠ fila 944): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 947,
+      "descripcion": "ESMALTE CAT EYE GEL 12ML",
+      "codigo_interno": "",
+      "codigo_proveedor": "LC2516",
+      "proveedor": "ROSE&LIN",
+      "marca": "CHARM LIMIT",
+      "fila_espejo": 946,
+      "descripcion_espejo": "ESMALTE CAT EYE GEL 12ML",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "LC2516",
+        "motivo": "Código de proveedor propio LC2516 (≠ fila 946): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 950,
+      "descripcion": "ESMALTE GEL CAT EYE",
+      "codigo_interno": "",
+      "codigo_proveedor": "LC2545",
+      "proveedor": "ROSE&LIN",
+      "marca": "CHARM LIMIT",
+      "fila_espejo": 949,
+      "descripcion_espejo": "ESMALTE GEL CAT EYE",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "LC2545",
+        "motivo": "Código de proveedor propio LC2545 (≠ fila 949): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 951,
+      "descripcion": "ESMALTE GEL CAT EYE",
+      "codigo_interno": "",
+      "codigo_proveedor": "LC2546",
+      "proveedor": "ROSE&LIN",
+      "marca": "CHARM LIMIT",
+      "fila_espejo": 949,
+      "descripcion_espejo": "ESMALTE GEL CAT EYE",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "LC2546",
+        "motivo": "Código de proveedor propio LC2546 (≠ fila 949): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 952,
+      "descripcion": "ESMALTE GEL CAT EYE",
+      "codigo_interno": "",
+      "codigo_proveedor": "LC2547",
+      "proveedor": "ROSE&LIN",
+      "marca": "CHARM LIMIT",
+      "fila_espejo": 949,
+      "descripcion_espejo": "ESMALTE GEL CAT EYE",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "LC2547",
+        "motivo": "Código de proveedor propio LC2547 (≠ fila 949): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 953,
+      "descripcion": "ESMALTE GEL CAT EYE",
+      "codigo_interno": "",
+      "codigo_proveedor": "LC2518",
+      "proveedor": "ROSE&LIN",
+      "marca": "CHARM LIMIT",
+      "fila_espejo": 949,
+      "descripcion_espejo": "ESMALTE GEL CAT EYE",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "LC2518",
+        "motivo": "Código de proveedor propio LC2518 (≠ fila 949): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 954,
+      "descripcion": "ESMALTE GEL CAT EYE",
+      "codigo_interno": "",
+      "codigo_proveedor": "LC2519",
+      "proveedor": "ROSE&LIN",
+      "marca": "CHARM LIMIT",
+      "fila_espejo": 949,
+      "descripcion_espejo": "ESMALTE GEL CAT EYE",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "LC2519",
+        "motivo": "Código de proveedor propio LC2519 (≠ fila 949): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 1044,
+      "descripcion": "ESMALTE RUBBER 20ML",
+      "codigo_interno": "",
+      "codigo_proveedor": "SH-236B",
+      "proveedor": "REVEL",
+      "marca": "REVEL",
+      "fila_espejo": 1043,
+      "descripcion_espejo": "ESMALTE RUBBER 20ML",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "SH-236B",
+        "motivo": "Código de proveedor propio SH-236B (≠ fila 1043): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 1064,
+      "descripcion": "REPUJADOR PROFESIONAL",
+      "codigo_interno": "",
+      "codigo_proveedor": "SS-612",
+      "proveedor": "CHINO PUNO",
+      "marca": "GN&HM",
+      "fila_espejo": 1063,
+      "descripcion_espejo": "REPUJADOR PROFESIONAL",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "SS-612",
+        "motivo": "Código de proveedor propio SS-612 (≠ fila 1063): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 1065,
+      "descripcion": "REPUJADOR PROFESIONAL",
+      "codigo_interno": "",
+      "codigo_proveedor": "SS-613",
+      "proveedor": "CHINO PUNO",
+      "marca": "GN&HM",
+      "fila_espejo": 1063,
+      "descripcion_espejo": "REPUJADOR PROFESIONAL",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "SS-613",
+        "motivo": "Código de proveedor propio SS-613 (≠ fila 1063): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 1066,
+      "descripcion": "REPUJADOR PROFESIONAL",
+      "codigo_interno": "",
+      "codigo_proveedor": "SS-611",
+      "proveedor": "CHINO PUNO",
+      "marca": "GN&HM",
+      "fila_espejo": 1063,
+      "descripcion_espejo": "REPUJADOR PROFESIONAL",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "SS-611",
+        "motivo": "Código de proveedor propio SS-611 (≠ fila 1063): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 1071,
+      "descripcion": "ALICATE PROFESIONAL 5MM",
+      "codigo_interno": "",
+      "codigo_proveedor": "SHEY-152",
+      "proveedor": "MAY",
+      "marca": "LRIS",
+      "fila_espejo": 1070,
+      "descripcion_espejo": "ALICATE PROFESIONAL 4MM",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": null,
+        "dropSupplierSku": true,
+        "motivo": "El proveedor reutilizó el código SHEY-152 para artículos distintos («ALICATE PROFESIONAL 5MM» vs «ALICATE PROFESIONAL 4MM»); se importa como artículo propio y el código queda registrado solo en la primera oferta."
+      }
+    },
+    {
+      "fila": 1085,
+      "descripcion": "SET DE MANICURE X12PZA. ECON. DURAZNO",
+      "codigo_interno": "",
+      "codigo_proveedor": "310067",
+      "proveedor": "AJI",
+      "marca": "OTROS",
+      "fila_espejo": 1084,
+      "descripcion_espejo": "SET DE MANICURE X12PZA. ECON. AZUL",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": null,
+        "dropSupplierSku": true,
+        "motivo": "El proveedor reutilizó el código 310067 para artículos distintos («SET DE MANICURE X12PZA. ECON. DURAZNO» vs «SET DE MANICURE X12PZA. ECON. AZUL»); se importa como artículo propio y el código queda registrado solo en la primera oferta."
+      }
+    },
+    {
+      "fila": 1086,
+      "descripcion": "SET DE MANICURE X12PZA. ECON. LILA",
+      "codigo_interno": "OTR165",
+      "codigo_proveedor": "310067",
+      "proveedor": "AJI",
+      "marca": "OTROS",
+      "fila_espejo": 1084,
+      "descripcion_espejo": "SET DE MANICURE X12PZA. ECON. AZUL",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": null,
+        "dropSupplierSku": true,
+        "motivo": "El proveedor reutilizó el código 310067 para artículos distintos («SET DE MANICURE X12PZA. ECON. LILA» vs «SET DE MANICURE X12PZA. ECON. AZUL»); se importa como artículo propio y el código queda registrado solo en la primera oferta."
+      }
+    },
+    {
+      "fila": 1087,
+      "descripcion": "SET DE MANICURE X12PZA. ECON. NEGRO",
+      "codigo_interno": "OTR164",
+      "codigo_proveedor": "310067",
+      "proveedor": "AJI",
+      "marca": "OTROS",
+      "fila_espejo": 1084,
+      "descripcion_espejo": "SET DE MANICURE X12PZA. ECON. AZUL",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": null,
+        "dropSupplierSku": true,
+        "motivo": "El proveedor reutilizó el código 310067 para artículos distintos («SET DE MANICURE X12PZA. ECON. NEGRO» vs «SET DE MANICURE X12PZA. ECON. AZUL»); se importa como artículo propio y el código queda registrado solo en la primera oferta."
+      }
+    },
+    {
+      "fila": 1088,
+      "descripcion": "SET DE MANICURE X12PZA. ECON. VERDE CLARO",
+      "codigo_interno": "",
+      "codigo_proveedor": "310067",
+      "proveedor": "AJI",
+      "marca": "OTROS",
+      "fila_espejo": 1084,
+      "descripcion_espejo": "SET DE MANICURE X12PZA. ECON. AZUL",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": null,
+        "dropSupplierSku": true,
+        "motivo": "El proveedor reutilizó el código 310067 para artículos distintos («SET DE MANICURE X12PZA. ECON. VERDE CLARO» vs «SET DE MANICURE X12PZA. ECON. AZUL»); se importa como artículo propio y el código queda registrado solo en la primera oferta."
+      }
+    },
+    {
+      "fila": 1137,
+      "descripcion": "LIMAS S/N 180/180",
+      "codigo_interno": "",
+      "codigo_proveedor": "DY-174",
+      "proveedor": "CHINO PUNO",
+      "marca": "OTROS",
+      "fila_espejo": 1136,
+      "descripcion_espejo": "LIMAS S/N 100/100",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "DY-174-1137",
+        "dropSupplierSku": true,
+        "motivo": "El proveedor reutilizó el código DY-174 para artículos distintos («LIMAS S/N 180/180» vs «LIMAS S/N 100/100»); se importa como artículo propio y el código queda registrado solo en la primera oferta."
+      }
+    },
+    {
+      "fila": 1138,
+      "descripcion": "LIMAS S/N 240/240",
+      "codigo_interno": "",
+      "codigo_proveedor": "DY-174",
+      "proveedor": "CHINO PUNO",
+      "marca": "OTROS",
+      "fila_espejo": 1136,
+      "descripcion_espejo": "LIMAS S/N 100/100",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "DY-174-1138",
+        "dropSupplierSku": true,
+        "motivo": "El proveedor reutilizó el código DY-174 para artículos distintos («LIMAS S/N 240/240» vs «LIMAS S/N 100/100»); se importa como artículo propio y el código queda registrado solo en la primera oferta."
+      }
+    },
+    {
+      "fila": 1149,
+      "descripcion": "LAMPARA LINTERNA  WHITE",
+      "codigo_interno": "",
+      "codigo_proveedor": "SHEY-251",
+      "proveedor": "MAY",
+      "marca": "OTROS",
+      "fila_espejo": 1151,
+      "descripcion_espejo": "LAMPARA LINTERNA PINK",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "SHEY-251-1149",
+        "dropSupplierSku": true,
+        "motivo": "El proveedor reutilizó el código SHEY-251 para artículos distintos («LAMPARA LINTERNA  WHITE» vs «LAMPARA LINTERNA PINK»); se importa como artículo propio y el código queda registrado solo en la primera oferta."
+      }
+    },
+    {
+      "fila": 1291,
+      "descripcion": "UÑAS CUADR. GEL COLOR X30",
+      "codigo_interno": "",
+      "codigo_proveedor": "CEL-381A",
+      "proveedor": "REVEL",
+      "marca": "BELLESPA",
+      "fila_espejo": 1290,
+      "descripcion_espejo": "UÑAS CUADR. GEL COLOR X30",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "CEL-381A",
+        "motivo": "Código de proveedor propio CEL-381A (≠ fila 1290): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 1297,
+      "descripcion": "LLAVERO DE UÑAS CUADRADO TRANS.",
+      "codigo_interno": "OTR177",
+      "codigo_proveedor": "SS-025",
+      "proveedor": "CHINO PUNO",
+      "marca": "OTROS",
+      "fila_espejo": 1296,
+      "descripcion_espejo": "LLAVERO DE UÑAS CUADRADO NAT.",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": null,
+        "dropSupplierSku": true,
+        "motivo": "El proveedor reutilizó el código SS-025 para artículos distintos («LLAVERO DE UÑAS CUADRADO TRANS.» vs «LLAVERO DE UÑAS CUADRADO NAT.»); se importa como artículo propio y el código queda registrado solo en la primera oferta."
+      }
+    },
+    {
+      "fila": 1312,
+      "descripcion": "UÑAS CAT EYE X12",
+      "codigo_interno": "",
+      "codigo_proveedor": "R269681F",
+      "proveedor": "ROSE&LIN",
+      "marca": "ROSE&LIN",
+      "fila_espejo": 1311,
+      "descripcion_espejo": "UÑAS CAT EYE X12",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "R269681F",
+        "motivo": "Código de proveedor propio R269681F (≠ fila 1311): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 1313,
+      "descripcion": "UÑAS CAT EYE X12",
+      "codigo_interno": "",
+      "codigo_proveedor": "R269678B",
+      "proveedor": "ROSE&LIN",
+      "marca": "ROSE&LIN",
+      "fila_espejo": 1311,
+      "descripcion_espejo": "UÑAS CAT EYE X12",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "R269678B",
+        "motivo": "Código de proveedor propio R269678B (≠ fila 1311): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 1314,
+      "descripcion": "UÑAS CAT EYE X12",
+      "codigo_interno": "",
+      "codigo_proveedor": "R269679",
+      "proveedor": "ROSE&LIN",
+      "marca": "ROSE&LIN",
+      "fila_espejo": 1311,
+      "descripcion_espejo": "UÑAS CAT EYE X12",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "R269679",
+        "motivo": "Código de proveedor propio R269679 (≠ fila 1311): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 1315,
+      "descripcion": "UÑAS CAT EYE X12",
+      "codigo_interno": "",
+      "codigo_proveedor": "R269681E",
+      "proveedor": "ROSE&LIN",
+      "marca": "ROSE&LIN",
+      "fila_espejo": 1311,
+      "descripcion_espejo": "UÑAS CAT EYE X12",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "R269681E",
+        "motivo": "Código de proveedor propio R269681E (≠ fila 1311): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 1316,
+      "descripcion": "UÑAS CAT EYE X12",
+      "codigo_interno": "",
+      "codigo_proveedor": "R269681D",
+      "proveedor": "ROSE&LIN",
+      "marca": "ROSE&LIN",
+      "fila_espejo": 1311,
+      "descripcion_espejo": "UÑAS CAT EYE X12",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "R269681D",
+        "motivo": "Código de proveedor propio R269681D (≠ fila 1311): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 1318,
+      "descripcion": "UÑAS DECORADAS X12",
+      "codigo_interno": "",
+      "codigo_proveedor": "R269719",
+      "proveedor": "ROSE&LIN",
+      "marca": "ROSE&LIN",
+      "fila_espejo": 1317,
+      "descripcion_espejo": "UÑAS DECORADAS X12",
+      "issues": [
+        "same_supplier_different_codes"
+      ],
+      "grupo": "D1",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "R269719",
+        "motivo": "Código de proveedor propio R269719 (≠ fila 1317): artículo distinto cuya diferencia descriptiva perdió el Excel; se representa por su referencia."
+      }
+    },
+    {
+      "fila": 1486,
+      "descripcion": "UÑAS DUAL SISTEM X50 Nº3",
+      "codigo_interno": "",
+      "codigo_proveedor": "SS-376",
+      "proveedor": "CHINO PUNO",
+      "marca": "OTROS",
+      "fila_espejo": 1485,
+      "descripcion_espejo": "UÑAS DUAL SISTEM X50 Nº16",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "import_distinct",
+        "ref": "SS-376-1486",
+        "dropSupplierSku": true,
+        "motivo": "El proveedor reutilizó el código SS-376 para artículos distintos («UÑAS DUAL SISTEM X50 Nº3» vs «UÑAS DUAL SISTEM X50 Nº16»); se importa como artículo propio y el código queda registrado solo en la primera oferta."
+      }
+    },
+    {
+      "fila": 1489,
+      "descripcion": "UÑAS SOFT GEL BLISTER X 240 ALMOND",
+      "codigo_interno": "",
+      "codigo_proveedor": "SS-532",
+      "proveedor": "CHINO PUNO",
+      "marca": "OTROS",
+      "fila_espejo": 1487,
+      "descripcion_espejo": "UÑAS SOFT GEL ALMOND X240",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "confirm_duplicate",
+        "motivo": "«UÑAS SOFT GEL BLISTER X 240 ALMOND» = «UÑAS SOFT GEL ALMOND X240» (fila 1487): mismo artículo re-escrito; mismo código SS-532."
+      }
+    },
+    {
+      "fila": 1491,
+      "descripcion": "UÑAS SOFT GEL BLISTER X 240 STILETO",
+      "codigo_interno": "",
+      "codigo_proveedor": "SS-533",
+      "proveedor": "CHINO PUNO",
+      "marca": "OTROS",
+      "fila_espejo": 1492,
+      "descripcion_espejo": "UÑAS SOFT GEL STILETTO X240",
+      "issues": [
+        "duplicate_supplier_code"
+      ],
+      "grupo": "D2",
+      "decision": {
+        "kind": "confirm_duplicate",
+        "motivo": "«UÑAS SOFT GEL BLISTER X 240 STILETO» = «UÑAS SOFT GEL STILETTO X240» (fila 1492): mismo artículo re-escrito; mismo código SS-533."
+      }
+    }
+  ]
+}

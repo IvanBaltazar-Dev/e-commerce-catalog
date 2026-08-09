@@ -1,0 +1,1475 @@
+{
+  "generado": "2026-08-09T00:52:02.058Z",
+  "fuente": {
+    "listado": "F:\\Products_SIVAN\\Bellaroshe\\version-V2\\Listado_organizado_productos_Bellaroshe.xlsx",
+    "filas": 1500,
+    "curatedMasglo": null
+  },
+  "ecuacion": {
+    "filas": 1500,
+    "IMPORTED": 1492,
+    "MERGED_CONFIRMED": 0,
+    "DUPLICATE_CONFIRMED": 3,
+    "EXCLUDED_CONFIRMED": 5,
+    "PENDING": 0,
+    "cierra": true
+  },
+  "catalogo": {
+    "productos": 1056,
+    "variantes": 1488,
+    "ofertas": 1487,
+    "marcas": 185,
+    "proveedores": 68,
+    "tonos": 163
+  },
+  "checksE": {
+    "producto_activo_sin_variante_activa": {
+      "fallos": 0,
+      "ejemplos": []
+    },
+    "default_distinto_de_uno": {
+      "fallos": 0,
+      "ejemplos": []
+    },
+    "sku_duplicado": {
+      "fallos": 0,
+      "ejemplos": []
+    },
+    "codigo_interno_en_dos_variantes": {
+      "fallos": 0,
+      "ejemplos": []
+    },
+    "oferta_identica_duplicada": {
+      "fallos": 0,
+      "ejemplos": []
+    },
+    "supplier_sku_duplicado": {
+      "fallos": 0,
+      "ejemplos": []
+    },
+    "variante_huerfana": {
+      "fallos": 0,
+      "ejemplos": []
+    },
+    "producto_sin_ninguna_variante": {
+      "fallos": 0,
+      "ejemplos": []
+    },
+    "producto_template_categoria_incompatible": {
+      "fallos": 0,
+      "ejemplos": []
+    },
+    "_preexistentes_fuera_de_alcance": {
+      "fallos": 2,
+      "ejemplos": [
+        "DEMO-REP-001",
+        "DEMO-ACC-001"
+      ]
+    },
+    "marca_inexistente": {
+      "fallos": 0,
+      "ejemplos": []
+    },
+    "categoria_inexistente": {
+      "fallos": 0,
+      "ejemplos": []
+    },
+    "variante_duplicada_trivial": {
+      "fallos": 0,
+      "ejemplos": []
+    },
+    "fila_committed_sin_destino": {
+      "fallos": 0,
+      "ejemplos": []
+    },
+    "destino_import_sin_trazabilidad": {
+      "fallos": 0,
+      "ejemplos": []
+    }
+  },
+  "checksE_ok": true,
+  "tonosK": {
+    "total": 163,
+    "porMarca": {
+      "Masglo": 77,
+      "Admiss": 75,
+      "BIGEN": 11
+    },
+    "incoherencias": [],
+    "hexSinFuente": [],
+    "shadesDuplicados": [],
+    "medios": {
+      "foto_variante": 0,
+      "swatch_archivo": 61,
+      "fallback_color": 0,
+      "pendiente": 102
+    },
+    "familia_por_clasificar": 159
+  },
+  "esmaltesF": [
+    {
+      "marca": "Admiss",
+      "producto": "Esmalte ADMISS",
+      "codigo": "ADM-ESM-CA6EEA",
+      "presentacion": "10 ml",
+      "variantes": 75,
+      "tonos": 75,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 75
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Esmalte MASGLO",
+      "codigo": "MAS-ESM-4C95F3",
+      "presentacion": "13.5 ml",
+      "variantes": 74,
+      "tonos": 74,
+      "conFoto": 60,
+      "fallback": 0,
+      "pendientes": 14
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Gel Evolution Demo",
+      "codigo": "DEMO-ESM-001",
+      "presentacion": "Rojo intenso",
+      "variantes": 3,
+      "tonos": 3,
+      "conFoto": 1,
+      "fallback": 0,
+      "pendientes": 0
+    },
+    {
+      "marca": "ACRYLOVE",
+      "producto": "Gel Top",
+      "codigo": "ACR-BAS-A95913",
+      "presentacion": "14ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "ACRYLOVE",
+      "producto": "Gel Base",
+      "codigo": "ACR-BAS-D0A39C",
+      "presentacion": "14ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Admiss",
+      "producto": "Brillo",
+      "codigo": "ADM-BAS-95AA3A",
+      "presentacion": "Brillo",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Admiss",
+      "producto": "Brillo Ambar",
+      "codigo": "ADM-BAS-7A12A4",
+      "presentacion": "Brillo Ambar",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "CHARM LIMIT",
+      "producto": "Esmalte Cat Eye Gel",
+      "codigo": "CHA-ESM-EBFCEF",
+      "presentacion": "10ML",
+      "variantes": 5,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Cherimoya",
+      "producto": "Esmalte Gel",
+      "codigo": "CHE-ESM-DDEA00",
+      "presentacion": "15ML",
+      "variantes": 2,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Mystyle",
+      "producto": "Esmalte Gel C/gliter Box48",
+      "codigo": "MYS-ESM-5A303C",
+      "presentacion": "Esmalte Gel C/gliter Box48",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Admiss",
+      "producto": "Brillo Cosmico",
+      "codigo": "ADM-BAS-19A8D1",
+      "presentacion": "Brillo Cosmico",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "CHARM LIMIT",
+      "producto": "Top Coat",
+      "codigo": "CHA-BAS-B30049",
+      "presentacion": "10ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Admiss",
+      "producto": "Brillo Fiesta",
+      "codigo": "ADM-BAS-109588",
+      "presentacion": "Brillo Fiesta",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "CHARM LIMIT",
+      "producto": "Base Coat",
+      "codigo": "CHA-BAS-6AEFBB",
+      "presentacion": "10ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Admiss",
+      "producto": "Brillo Secante",
+      "codigo": "ADM-BAS-EE4980",
+      "presentacion": "Brillo Secante",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Admiss",
+      "producto": "Brillo Gel",
+      "codigo": "ADM-BAS-00D0CD",
+      "presentacion": "10ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Admiss",
+      "producto": "Brillo Hielo",
+      "codigo": "ADM-BAS-01A1F2",
+      "presentacion": "Brillo Hielo",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Admiss",
+      "producto": "Brillo Luke",
+      "codigo": "ADM-BAS-8E21A7",
+      "presentacion": "Brillo Luke",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Admiss",
+      "producto": "Brillo Super Star",
+      "codigo": "ADM-BAS-978CF5",
+      "presentacion": "Brillo Super Star",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Admiss",
+      "producto": "Brillo Platino",
+      "codigo": "ADM-BAS-92B367",
+      "presentacion": "Brillo Platino",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Cherimoya",
+      "producto": "Base Coat",
+      "codigo": "CHE-BAS-1B01A6",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Candy Secret",
+      "producto": "Top Coat",
+      "codigo": "CAN-BAS-D53D66",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "CHARM LIMIT",
+      "producto": "Base Coat Moñito",
+      "codigo": "CHA-BAS-37BAA1",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "CHARM LIMIT",
+      "producto": "Top Coat Moñito",
+      "codigo": "CHA-BAS-59320D",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Cherimoya",
+      "producto": "Top Finish Gel",
+      "codigo": "CHE-BAS-85E537",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Cherimoya",
+      "producto": "Top Coat",
+      "codigo": "CHE-BAS-A4062C",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Cherimoya",
+      "producto": "Matte Top Coat",
+      "codigo": "CHE-BAS-8A5448",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "CIANNY",
+      "producto": "Top Coat High Viscosity",
+      "codigo": "CIA-BAS-F185BD",
+      "presentacion": "Top Coat High Viscosity",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "L&D",
+      "producto": "Base Rubber Moñito",
+      "codigo": "LDX-BAS-6598E9",
+      "presentacion": "Base Rubber Moñito",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "DEMERT",
+      "producto": "Secante de Uñas Spray",
+      "codigo": "DEM-BAS-6955C5",
+      "presentacion": "Secante de Uñas Spray",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "P&W",
+      "producto": "Top Coat",
+      "codigo": "PWX-BAS-5A6534",
+      "presentacion": "20ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Flower Secret",
+      "producto": "Base Coat",
+      "codigo": "FLO-BAS-51F7B6",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Base Nutritiva",
+      "codigo": "MAS-BAS-5CA25A",
+      "presentacion": "Base Nutritiva",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Brillo Secante",
+      "codigo": "MAS-BAS-227150",
+      "presentacion": "Brillo Secante",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "MC NAILS",
+      "producto": "Top Coat Dazz Cover",
+      "codigo": "MCN-BAS-877D54",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Mystyle",
+      "producto": "Top Coat Ultra Gloss",
+      "codigo": "MYS-BAS-F56418",
+      "presentacion": "Fucsia · 15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 1,
+      "pendientes": 0
+    },
+    {
+      "marca": "BEIFA",
+      "producto": "Esmalte Ojo de Gato",
+      "codigo": "BEI-ESM-ECDCF2",
+      "presentacion": "Nude · X12",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 1,
+      "pendientes": 0
+    },
+    {
+      "marca": "REVEL",
+      "producto": "Top Rubber",
+      "codigo": "REV-BAS-BCE17C",
+      "presentacion": "20ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "VOGGUE",
+      "producto": "Esmalte Voggue X Docena",
+      "codigo": "VOG-ESM-FF1719",
+      "presentacion": "Esmalte Voggue X Docena",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Mystyle",
+      "producto": "Esmalte Gel Ojo de Gato Box48",
+      "codigo": "MYS-ESM-494BDB",
+      "presentacion": "Esmalte Gel Ojo de Gato Box48",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "GABY",
+      "producto": "Recuperador de Esmalte",
+      "codigo": "GAB-ESM-385E96",
+      "presentacion": "30ML",
+      "variantes": 2,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "FANTASY NAILS",
+      "producto": "Glam Gel Finalizador",
+      "codigo": "FAN-BAS-8C2A80",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Flower Secret",
+      "producto": "Top Coat",
+      "codigo": "FLO-BAS-8134DF",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Base Uñas Fuertes",
+      "codigo": "MAS-BAS-60D634",
+      "presentacion": "Base Uñas Fuertes",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "BEIFA",
+      "producto": "Esmalte Ojo de Gato Rojos",
+      "codigo": "BEI-ESM-F1395F",
+      "presentacion": "X12",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "MC NAILS",
+      "producto": "Gel Top Glam Shimmer",
+      "codigo": "MCN-BAS-687BEF",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Mystyle",
+      "producto": "Esmalte Gel Aurora Box48",
+      "codigo": "MYS-ESM-0C346C",
+      "presentacion": "Esmalte Gel Aurora Box48",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "D'NAILS",
+      "producto": "Esmalte Gel Box24 Tonos",
+      "codigo": "DNA-ESM-76C9A5",
+      "presentacion": "Rojo · 15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 1,
+      "pendientes": 0
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Base Ajos y Limon",
+      "codigo": "MAS-BAS-9D7615",
+      "presentacion": "Base Ajos y Limon",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Brillo Ajedrez",
+      "codigo": "MAS-BAS-4A5948",
+      "presentacion": "Brillo Ajedrez",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Sellante de Acrilico",
+      "codigo": "MAS-BAS-F9578C",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Brillo Benevolente",
+      "codigo": "MAS-BAS-EA67FB",
+      "presentacion": "Brillo Benevolente",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Candy Secret",
+      "producto": "Esmalte Gel",
+      "codigo": "CAN-ESM-4FDD29",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Brillo Gel Tapa",
+      "codigo": "MAS-BAS-5BE36A",
+      "presentacion": "Negro",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 1,
+      "pendientes": 0
+    },
+    {
+      "marca": "Mystyle",
+      "producto": "Top Coat",
+      "codigo": "MYS-BAS-28FCE9",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Brillo Tres Oros",
+      "codigo": "MAS-BAS-298094",
+      "presentacion": "Brillo Tres Oros",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Brillo Arcoiris",
+      "codigo": "MAS-BAS-47031A",
+      "presentacion": "Brillo Arcoiris",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Brillo Confianza",
+      "codigo": "MAS-BAS-AA8352",
+      "presentacion": "Brillo Confianza",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Brillo Seda",
+      "codigo": "MAS-BAS-C07AEC",
+      "presentacion": "Brillo Seda",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "GLEE",
+      "producto": "Esmalte Glee",
+      "codigo": "GLE-ESM-A199B2",
+      "presentacion": "Esmalte Glee",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Brillo",
+      "codigo": "MAS-BAS-485F70",
+      "presentacion": "Coral",
+      "variantes": 2,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 2,
+      "pendientes": 0
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Brillo Destellos",
+      "codigo": "MAS-BAS-A87DF1",
+      "presentacion": "Brillo Destellos",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "REVEL",
+      "producto": "Esmalte Rubber",
+      "codigo": "REV-ESM-F86234",
+      "presentacion": "20ML",
+      "variantes": 2,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "D'NAILS",
+      "producto": "Esmalte Gel Ojo de Gato Box24",
+      "codigo": "DNA-ESM-69CE9D",
+      "presentacion": "12ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Brillo Mancora",
+      "codigo": "MAS-BAS-2F4E4B",
+      "presentacion": "Brillo Mancora",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Matificador",
+      "codigo": "MAS-BAS-F09780",
+      "presentacion": "Matificador",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "MC NAILS",
+      "producto": "Gel Base Foundation",
+      "codigo": "MCN-BAS-9B2DA9",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Mystyle",
+      "producto": "Esmalte Gel Metalico Liner Box48",
+      "codigo": "MYS-ESM-371299",
+      "presentacion": "Esmalte Gel Metalico Liner Box48",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "P&W",
+      "producto": "Base Coat",
+      "codigo": "PWX-BAS-135BF0",
+      "presentacion": "20ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Masglo",
+      "producto": "Total Care",
+      "codigo": "MAS-BAS-DD366D",
+      "presentacion": "Nude",
+      "variantes": 2,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 2,
+      "pendientes": 0
+    },
+    {
+      "marca": "MC NAILS",
+      "producto": "Gel Mate",
+      "codigo": "MCN-ESM-1426D4",
+      "presentacion": "15ML",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Mystyle",
+      "producto": "Esmalte Gel Pasteles Box48",
+      "codigo": "MYS-ESM-7AFAFE",
+      "presentacion": "Esmalte Gel Pasteles Box48",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "Mystyle",
+      "producto": "Esmalte Gel Reflectivo Box48",
+      "codigo": "MYS-ESM-966064",
+      "presentacion": "Esmalte Gel Reflectivo Box48",
+      "variantes": 1,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "CHARM LIMIT",
+      "producto": "Esmalte Gel Cat Eye",
+      "codigo": "CHA-ESM-A812B9",
+      "presentacion": "Esmalte Gel Cat Eye",
+      "variantes": 6,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    },
+    {
+      "marca": "BEIFA",
+      "producto": "Esmalte Ojo de Gato Boxx36",
+      "codigo": "BEI-ESM-8EB31B",
+      "presentacion": "Esmalte Ojo de Gato Boxx36",
+      "variantes": 2,
+      "tonos": 0,
+      "conFoto": 0,
+      "fallback": 0,
+      "pendientes": 1
+    }
+  ],
+  "familiasL": [
+    {
+      "familia": "Esmaltes tradicionales y gel",
+      "filas": 184,
+      "importadas": 184,
+      "productos": 22,
+      "variantes": 182,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Decoración y nail art",
+      "filas": 133,
+      "importadas": 133,
+      "productos": 91,
+      "variantes": 132,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Sistema acrílico: polvos y monómeros",
+      "filas": 96,
+      "importadas": 96,
+      "productos": 23,
+      "variantes": 96,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Cepillos y peines",
+      "filas": 60,
+      "importadas": 60,
+      "productos": 37,
+      "variantes": 59,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Herramientas de manicure y pedicure",
+      "filas": 59,
+      "importadas": 59,
+      "productos": 49,
+      "variantes": 59,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Extensiones profesionales 1x1/volumen",
+      "filas": 58,
+      "importadas": 57,
+      "productos": 46,
+      "variantes": 57,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Bases, tops, brillos y finalizadores",
+      "filas": 54,
+      "importadas": 54,
+      "productos": 52,
+      "variantes": 54,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Pinceles y herramientas de diseño",
+      "filas": 53,
+      "importadas": 53,
+      "productos": 50,
+      "variantes": 53,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Accesorios y protección de peluquería",
+      "filas": 49,
+      "importadas": 49,
+      "productos": 46,
+      "variantes": 48,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Maquillaje de ojos y rostro",
+      "filas": 46,
+      "importadas": 46,
+      "productos": 37,
+      "variantes": 46,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Tips, dual system y uñas para extensión",
+      "filas": 41,
+      "importadas": 39,
+      "productos": 36,
+      "variantes": 37,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Limas, buffers y pulido manual",
+      "filas": 39,
+      "importadas": 39,
+      "productos": 38,
+      "variantes": 39,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Cuidado corporal, manos y pies",
+      "filas": 36,
+      "importadas": 36,
+      "productos": 27,
+      "variantes": 36,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Press on y uñas decoradas",
+      "filas": 35,
+      "importadas": 35,
+      "productos": 20,
+      "variantes": 35,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Coloración y procesos químicos",
+      "filas": 34,
+      "importadas": 34,
+      "productos": 21,
+      "variantes": 33,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Lámparas UV/LED y linternas",
+      "filas": 34,
+      "importadas": 34,
+      "productos": 33,
+      "variantes": 34,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Cuidado facial",
+      "filas": 33,
+      "importadas": 33,
+      "productos": 30,
+      "variantes": 33,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Ceras depilatorias",
+      "filas": 29,
+      "importadas": 29,
+      "productos": 10,
+      "variantes": 29,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Herramientas y consumibles para pestañas",
+      "filas": 26,
+      "importadas": 26,
+      "productos": 25,
+      "variantes": 26,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Pestañas en tira, banda y magnéticas",
+      "filas": 24,
+      "importadas": 24,
+      "productos": 17,
+      "variantes": 24,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Drills, extractores y equipos",
+      "filas": 24,
+      "importadas": 24,
+      "productos": 23,
+      "variantes": 23,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Cuidado de cutícula, manos y pies",
+      "filas": 22,
+      "importadas": 22,
+      "productos": 22,
+      "variantes": 22,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Remoción y limpieza química",
+      "filas": 22,
+      "importadas": 22,
+      "productos": 17,
+      "variantes": 22,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Lifting, rizado y laminado",
+      "filas": 20,
+      "importadas": 20,
+      "productos": 19,
+      "variantes": 19,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Moldes, práctica y exhibición",
+      "filas": 20,
+      "importadas": 20,
+      "productos": 18,
+      "variantes": 20,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Polygel, gel constructor y soluciones",
+      "filas": 20,
+      "importadas": 20,
+      "productos": 16,
+      "variantes": 20,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Diseño, tinturación y mapeo de cejas",
+      "filas": 19,
+      "importadas": 19,
+      "productos": 18,
+      "variantes": 19,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Espejos y accesorios personales",
+      "filas": 18,
+      "importadas": 18,
+      "productos": 14,
+      "variantes": 16,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Tratamiento, lavado y estilizado",
+      "filas": 17,
+      "importadas": 17,
+      "productos": 17,
+      "variantes": 17,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Brocas y repuestos de drill",
+      "filas": 17,
+      "importadas": 17,
+      "productos": 15,
+      "variantes": 17,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Planchas, rizadores, secadoras y cepillos eléctricos",
+      "filas": 15,
+      "importadas": 15,
+      "productos": 11,
+      "variantes": 15,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Rizadores de pestañas y repuestos",
+      "filas": 14,
+      "importadas": 14,
+      "productos": 14,
+      "variantes": 14,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Maletines, neceseres y mochilas",
+      "filas": 14,
+      "importadas": 14,
+      "productos": 14,
+      "variantes": 14,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Organizadores y carros auxiliares",
+      "filas": 13,
+      "importadas": 13,
+      "productos": 13,
+      "variantes": 13,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Algodón, gasas y wipes",
+      "filas": 12,
+      "importadas": 12,
+      "productos": 11,
+      "variantes": 12,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Preparadores y adherencia",
+      "filas": 12,
+      "importadas": 12,
+      "productos": 12,
+      "variantes": 12,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Recipientes y accesorios de trabajo",
+      "filas": 12,
+      "importadas": 12,
+      "productos": 12,
+      "variantes": 12,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Tijeras, navajas y herramientas",
+      "filas": 11,
+      "importadas": 11,
+      "productos": 10,
+      "variantes": 11,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Guantes y protección",
+      "filas": 11,
+      "importadas": 11,
+      "productos": 8,
+      "variantes": 11,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Soft gel, press gel y adhesivos para uñas",
+      "filas": 11,
+      "importadas": 11,
+      "productos": 11,
+      "variantes": 11,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Máquinas de corte y afeitado",
+      "filas": 9,
+      "importadas": 9,
+      "productos": 9,
+      "variantes": 9,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Adhesivos, removedores y preparadores",
+      "filas": 9,
+      "importadas": 9,
+      "productos": 9,
+      "variantes": 9,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Campos, toallas y desechables",
+      "filas": 8,
+      "importadas": 8,
+      "productos": 6,
+      "variantes": 8,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Bandas y consumibles",
+      "filas": 6,
+      "importadas": 6,
+      "productos": 6,
+      "variantes": 6,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Revisión manual",
+      "filas": 6,
+      "importadas": 1,
+      "productos": 1,
+      "variantes": 1,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": false
+    },
+    {
+      "familia": "Lámparas de mesa e iluminación",
+      "filas": 4,
+      "importadas": 4,
+      "productos": 4,
+      "variantes": 4,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Cremas depilatorias",
+      "filas": 3,
+      "importadas": 3,
+      "productos": 3,
+      "variantes": 3,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Equipos para cera",
+      "filas": 3,
+      "importadas": 3,
+      "productos": 3,
+      "variantes": 3,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Sanitización y esterilización",
+      "filas": 2,
+      "importadas": 2,
+      "productos": 2,
+      "variantes": 2,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Desinfección y mantenimiento de máquinas",
+      "filas": 1,
+      "importadas": 1,
+      "productos": 1,
+      "variantes": 1,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Dispensadores y recipientes generales",
+      "filas": 1,
+      "importadas": 1,
+      "productos": 1,
+      "variantes": 1,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    },
+    {
+      "familia": "Labios",
+      "filas": 1,
+      "importadas": 1,
+      "productos": 1,
+      "variantes": 1,
+      "revision": 0,
+      "issues": 0,
+      "mapeada": true
+    }
+  ],
+  "anomaliasL": [
+    {
+      "tipo": "marca_fragmentada",
+      "variantes": [
+        "REVE'L",
+        "REVEL"
+      ]
+    },
+    {
+      "tipo": "producto_nombre_casi_identico",
+      "codigos": [
+        "LIN-DEC-F87EC1",
+        "LIN-DEC-FA087F"
+      ]
+    }
+  ],
+  "pendientes": []
+}

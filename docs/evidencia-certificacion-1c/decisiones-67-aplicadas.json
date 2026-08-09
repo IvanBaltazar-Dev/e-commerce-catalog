@@ -1,0 +1,478 @@
+{
+  "aplicado": "2026-08-09T00:51:26.435Z",
+  "resultados": [
+    {
+      "fila": 142,
+      "grupo": "D3",
+      "rowNumber": 142,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 163,
+      "grupo": "D1",
+      "rowNumber": 163,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 164,
+      "grupo": "D1",
+      "rowNumber": 164,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 165,
+      "grupo": "D1",
+      "rowNumber": 165,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 166,
+      "grupo": "D1",
+      "rowNumber": 166,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 171,
+      "grupo": "D1",
+      "rowNumber": 171,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 269,
+      "grupo": "D1",
+      "rowNumber": 269,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 273,
+      "grupo": "D2",
+      "rowNumber": 273,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 349,
+      "grupo": "D1",
+      "rowNumber": 349,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 350,
+      "grupo": "D1",
+      "rowNumber": 350,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 352,
+      "grupo": "D3",
+      "rowNumber": 352,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 474,
+      "grupo": "D4",
+      "rowNumber": 474,
+      "applied": "noop",
+      "reason": "No hay fila en revisión con ese número."
+    },
+    {
+      "fila": 475,
+      "grupo": "D4",
+      "rowNumber": 475,
+      "applied": "noop",
+      "reason": "No hay fila en revisión con ese número."
+    },
+    {
+      "fila": 476,
+      "grupo": "D4",
+      "rowNumber": 476,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 477,
+      "grupo": "D4",
+      "rowNumber": 477,
+      "applied": "noop",
+      "reason": "No hay fila en revisión con ese número."
+    },
+    {
+      "fila": 478,
+      "grupo": "D4",
+      "rowNumber": 478,
+      "applied": "noop",
+      "reason": "No hay fila en revisión con ese número."
+    },
+    {
+      "fila": 479,
+      "grupo": "D4",
+      "rowNumber": 479,
+      "applied": "noop",
+      "reason": "No hay fila en revisión con ese número."
+    },
+    {
+      "fila": 508,
+      "grupo": "D1",
+      "rowNumber": 508,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 509,
+      "grupo": "D1",
+      "rowNumber": 509,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 510,
+      "grupo": "D1",
+      "rowNumber": 510,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 511,
+      "grupo": "D1",
+      "rowNumber": 511,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 524,
+      "grupo": "D2",
+      "rowNumber": 524,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 525,
+      "grupo": "D2",
+      "rowNumber": 525,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 526,
+      "grupo": "D2",
+      "rowNumber": 526,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 739,
+      "grupo": "D1",
+      "rowNumber": 739,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 758,
+      "grupo": "D3",
+      "rowNumber": 758,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 777,
+      "grupo": "D2",
+      "rowNumber": 777,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 803,
+      "grupo": "D2",
+      "rowNumber": 803,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 806,
+      "grupo": "D1",
+      "rowNumber": 806,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 807,
+      "grupo": "D1",
+      "rowNumber": 807,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 808,
+      "grupo": "D1",
+      "rowNumber": 808,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 809,
+      "grupo": "D1",
+      "rowNumber": 809,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 827,
+      "grupo": "D1",
+      "rowNumber": 827,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 828,
+      "grupo": "D1",
+      "rowNumber": 828,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 829,
+      "grupo": "D1",
+      "rowNumber": 829,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 830,
+      "grupo": "D1",
+      "rowNumber": 830,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 940,
+      "grupo": "D1",
+      "rowNumber": 940,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 945,
+      "grupo": "D1",
+      "rowNumber": 945,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 947,
+      "grupo": "D1",
+      "rowNumber": 947,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 950,
+      "grupo": "D1",
+      "rowNumber": 950,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 951,
+      "grupo": "D1",
+      "rowNumber": 951,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 952,
+      "grupo": "D1",
+      "rowNumber": 952,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 953,
+      "grupo": "D1",
+      "rowNumber": 953,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 954,
+      "grupo": "D1",
+      "rowNumber": 954,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1044,
+      "grupo": "D1",
+      "rowNumber": 1044,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1064,
+      "grupo": "D1",
+      "rowNumber": 1064,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1065,
+      "grupo": "D1",
+      "rowNumber": 1065,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1066,
+      "grupo": "D1",
+      "rowNumber": 1066,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1071,
+      "grupo": "D2",
+      "rowNumber": 1071,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1085,
+      "grupo": "D2",
+      "rowNumber": 1085,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1086,
+      "grupo": "D2",
+      "rowNumber": 1086,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1087,
+      "grupo": "D2",
+      "rowNumber": 1087,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1088,
+      "grupo": "D2",
+      "rowNumber": 1088,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1137,
+      "grupo": "D2",
+      "rowNumber": 1137,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1138,
+      "grupo": "D2",
+      "rowNumber": 1138,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1149,
+      "grupo": "D2",
+      "rowNumber": 1149,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1291,
+      "grupo": "D1",
+      "rowNumber": 1291,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1297,
+      "grupo": "D2",
+      "rowNumber": 1297,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1312,
+      "grupo": "D1",
+      "rowNumber": 1312,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1313,
+      "grupo": "D1",
+      "rowNumber": 1313,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1314,
+      "grupo": "D1",
+      "rowNumber": 1314,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1315,
+      "grupo": "D1",
+      "rowNumber": 1315,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1316,
+      "grupo": "D1",
+      "rowNumber": 1316,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1318,
+      "grupo": "D1",
+      "rowNumber": 1318,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1486,
+      "grupo": "D2",
+      "rowNumber": 1486,
+      "applied": "noop",
+      "reason": "La fila ya está committed; la decisión no aplica."
+    },
+    {
+      "fila": 1489,
+      "grupo": "D2",
+      "rowNumber": 1489,
+      "applied": "confirm_duplicate",
+      "lote": "unas-decoracion-01",
+      "batchId": "8ec291d9-a9bb-4cc8-88e6-3a9cc8e75526",
+      "status": "skipped"
+    },
+    {
+      "fila": 1491,
+      "grupo": "D2",
+      "rowNumber": 1491,
+      "applied": "confirm_duplicate",
+      "lote": "unas-decoracion-01",
+      "batchId": "8ec291d9-a9bb-4cc8-88e6-3a9cc8e75526",
+      "status": "skipped"
+    }
+  ]
+}
