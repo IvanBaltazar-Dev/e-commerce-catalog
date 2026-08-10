@@ -2,36 +2,21 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BackIcon, ExpandIcon, WaIcon } from "@/components/public/icons";
 import { useSelection } from "@/components/public/SelectionProvider";
+import { ToneSwatchPicker } from "@/components/public/ToneSwatchPicker";
 import { publicAssetUrl } from "@/lib/admin/api";
 import type { CatalogMedia, CatalogProductDetail, PurchasableVariant } from "@/lib/catalog/contracts";
 import { formatSoles, publicApi, retailPrice, variantImage } from "@/lib/public/catalog";
-
-// Tintes por familia cromática: el respaldo visual cuando un tono aún no tiene
-// fotografía. Nunca sustituyen una foto real; solo evitan un círculo mudo.
-const FAMILY_TINTS: Record<string, string> = {
-  rojos: "#C0392B",
-  rosados: "#E38AA8",
-  morados: "#7D4B9E",
-  azules: "#3B6FB5",
-  verdes: "#5B8C5A",
-  "amarillos-dorados": "#D9A62E",
-  "naranjas-corales": "#E07B4F",
-  nude: "#D9B49B",
-  marrones: "#8A5A3B",
-  blancos: "#F2EEE9",
-  "negros-grises": "#4A4A4A",
-  metalicos: "#9FA8B5",
-  multicolor: "#C96A82",
-  "por-clasificar": "#CFC4BC"
-};
+import { FAMILY_TINTS, isToneAxis } from "@/lib/public/tones";
 
 function SwatchCircle({ item, active, size = 52 }: { item: PurchasableVariant; active: boolean; size?: number }) {
   const photo = item.media.find((media) => media.role === "swatch" || media.role === "main")?.path ?? null;
-  const family = item.attributes.find((attribute) => attribute.code === "color_family")?.optionValue ?? null;
-  const tint = family ? FAMILY_TINTS[family] ?? "#CFC4BC" : "#E8E0DA";
+  const family = item.shade?.familyValue
+    ?? item.attributes.find((attribute) => attribute.code === "color_family")?.optionValue
+    ?? null;
+  const tint = item.shade?.referenceColor ?? (family ? FAMILY_TINTS[family] ?? "#CFC4BC" : "#E8E0DA");
   const ring = active ? "0 0 0 3px var(--br-magenta, #A80D5C)" : "inset 0 0 0 1px rgba(0,0,0,0.12)";
   if (photo) {
     return (
@@ -81,13 +66,24 @@ export function ProductView({ slug }: { slug: string }) {
   const [lightbox, setLightbox] = useState(false);
   const [sending, setSending] = useState(false);
 
+  // El parámetro `variante` se lee UNA vez por producto, no en cada cambio.
+  // Con `searchParams` en las dependencias, elegir un tono reescribía la URL,
+  // eso reejecutaba el efecto y la ficha volvía a pedir el producto entero:
+  // 164 variantes con precios y medios descargadas otra vez por cada clic en
+  // un círculo. Elegir un tono es un cambio de estado local; la URL solo
+  // conserva el enlace para poder compartirlo.
+  const bootRef = useRef<{ slug: string; requested: string | null } | null>(null);
+  if (!bootRef.current || bootRef.current.slug !== slug) {
+    bootRef.current = { slug, requested: searchParams.get("variante") };
+  }
+
   useEffect(() => {
     let cancelled = false;
+    const requested = bootRef.current?.requested ?? null;
     setMissing(false);
     publicApi.getProduct(slug).then((data) => {
       if (cancelled) return;
       setProduct(data);
-      const requested = searchParams.get("variante");
       const selected = data.variants.find((item) => item.id === requested || item.sku === requested)
         ?? data.variants.find((item) => item.isDefault)
         ?? data.variants[0];
@@ -96,7 +92,7 @@ export function ProductView({ slug }: { slug: string }) {
       if (!cancelled) setMissing(true);
     });
     return () => { cancelled = true; };
-  }, [slug, searchParams]);
+  }, [slug]);
 
   const variant = useMemo(
     () => product?.variants.find((item) => item.id === variantId) ?? product?.variants[0] ?? null,
@@ -104,6 +100,7 @@ export function ProductView({ slug }: { slug: string }) {
   );
   const media = useMemo(() => product && variant ? mediaFor(product, variant) : [], [product, variant]);
   const currentMedia = media[mediaIndex] ?? null;
+  const toneAxis = useMemo(() => (product ? isToneAxis(product.variants) : false), [product]);
 
   useEffect(() => setMediaIndex(0), [variantId]);
 
@@ -129,7 +126,13 @@ export function ProductView({ slug }: { slug: string }) {
     setQty(1);
     const params = new URLSearchParams(searchParams.toString());
     params.set("variante", next.sku);
-    router.replace(`/producto/${currentProduct.slug}?${params.toString()}`, { scroll: false });
+    // `history.replaceState` y no `router.replace`: el enlace compartible se
+    // actualiza igual, pero sin pedirle nada al servidor. Con `router.replace`
+    // cada tono elegido dispara una petición RSC de la ruta, y aquí elegir un
+    // tono ocurre tanto como mover el dedo por una carta de colores —también
+    // con las flechas del teclado. Next admite la History API nativa justo
+    // para esto; nada de la ficha depende del servidor al cambiar de tono.
+    window.history.replaceState(null, "", `/producto/${currentProduct.slug}?${params.toString()}`);
   }
 
   function addCurrent() {
@@ -190,46 +193,27 @@ export function ProductView({ slug }: { slug: string }) {
           <div className="pub-ficha-head">
             <div className="pub-ficha-brand">{product.brand.name.toUpperCase()} · {product.category.name}</div>
             <div className="pub-ficha-title">{product.name}</div>
-            <div className="pub-ficha-meta">SKU {variant.sku} · {variant.name}</div>
+            {/* Con carta de tonos, el SKU y el nombre del tono los muestra el
+                pie del selector. Repetirlos aquí crea dos dueños del mismo
+                dato y obliga a mirar dos sitios para saber qué está elegido. */}
+            {toneAxis ? null : <div className="pub-ficha-meta">SKU {variant.sku} · {variant.name}</div>}
             {product.shortDescription ? <div className="pub-ficha-desc">{product.shortDescription}</div> : null}
             {product.description ? <div className="pub-ficha-desc">{product.description}</div> : null}
           </div>
 
+          {/* Dos selectores, y la diferencia no es el número de variantes sino
+              su naturaleza. Si el eje es el color, la carta de tonos gana: el
+              dato que distingue las opciones ES visible. Si el eje es el
+              gramaje o la talla, un círculo no dice nada y la lista con nombre
+              y precio sigue siendo la forma correcta de elegir. */}
           {product.variants.length > 1 ? (
-            <div style={{ marginTop: 18 }}>
-              <div className="pub-modes-title">
-                Elige una variante · {product.variants.length} disponibles
-              </div>
-              {product.variants.length > 12 ? (
-                // Con decenas de tonos, la lista vertical no se puede recorrer:
-                // rejilla de swatches (foto real; si no hay, tinte de su familia
-                // cromática) con el tono elegido siempre visible arriba.
-                <>
-                  <div className="pub-ficha-meta" style={{ margin: "6px 0 10px" }}>
-                    Elegido: <b>{variant.name}</b> · SKU {variant.sku}
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(72px, 1fr))", gap: 10, maxHeight: 380, overflowY: "auto", paddingRight: 4 }}>
-                    {product.variants.map((item) => {
-                      const active = item.id === variant.id;
-                      const soldOutItem = item.availability === "sold_out";
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => selectVariant(item)}
-                          title={`${item.name} · SKU ${item.sku}`}
-                          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer", padding: 4, opacity: soldOutItem ? 0.45 : 1 }}
-                        >
-                          <SwatchCircle item={item} active={active} />
-                          <span style={{ fontSize: 11, lineHeight: 1.2, textAlign: "center", color: active ? "var(--br-magenta, #A80D5C)" : "#5B5B5B", fontWeight: active ? 700 : 500, maxWidth: 76, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                            {item.name}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </>
-              ) : (
+            toneAxis ? (
+              <ToneSwatchPicker variants={product.variants} selectedId={currentVariant.id} onSelect={selectVariant} />
+            ) : (
+              <div style={{ marginTop: 18 }}>
+                <div className="pub-modes-title">
+                  Elige una variante · {product.variants.length} disponibles
+                </div>
                 <div className="pub-modes">
                   {product.variants.map((item) => (
                     <button key={item.id} type="button" className={item.id === variant.id ? "pub-mode pub-mode--active" : "pub-mode"} onClick={() => selectVariant(item)}>
@@ -238,8 +222,8 @@ export function ProductView({ slug }: { slug: string }) {
                     </button>
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )
           ) : null}
 
           <div className="pub-pricecards">

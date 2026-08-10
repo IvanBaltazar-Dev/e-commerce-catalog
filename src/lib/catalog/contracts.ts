@@ -73,6 +73,23 @@ export type CatalogVariantPrice = {
   currency: string;
 };
 
+// El tono de la biblioteca cromática, tal como lo devuelve la ficha desde la
+// migración 0051. `referenceColor` es el color REGISTRADO del esmalte, no uno
+// deducido de la foto del envase: se calcula una vez y se reutiliza.
+export type CatalogVariantShade = {
+  name: string;
+  code: string;
+  referenceColor: string | null;
+  familyValue: string | null;
+  familyLabel: string | null;
+  familySort: number;
+};
+
+export type CatalogVariantFinish = {
+  value: string;
+  label: string;
+};
+
 export type PurchasableVariant = {
   id: string;
   sku: string;
@@ -80,6 +97,10 @@ export type PurchasableVariant = {
   variantKey: string;
   availability: AvailabilityStatus;
   isDefault: boolean;
+  // Nulos cuando la variante no es cromática (un polvo por gramaje no tiene
+  // tono) o cuando el acabado aún no se ha cargado.
+  shade?: CatalogVariantShade | null;
+  finish?: CatalogVariantFinish | null;
   attributes: CatalogAttribute[];
   prices: CatalogVariantPrice[];
   media: CatalogMedia[];

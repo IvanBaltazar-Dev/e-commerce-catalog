@@ -2,19 +2,34 @@
 
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { adminApi, publicAssetUrl } from "@/lib/admin/api";
+import { adminApi } from "@/lib/admin/api";
 import { useApiError } from "@/components/admin/useApiError";
 import {
   availabilityLabel,
-  foldText,
   isSellable,
   priceRangeLabel,
   toneTint,
   type PosTone,
   type PosToneSheet
 } from "@/lib/admin/pos";
+import { foldText } from "@/lib/public/tones";
 
 type Tab = "recientes" | "vendidos" | "todos";
+
+/**
+ * Un círculo plano representa bien un cremoso y mal un glitter, un metálico o
+ * un translúcido. Hasta que exista el recorte real del esmalte aplicado, el
+ * acabado se insinúa con un degradado sobre el color registrado —como en el
+ * prototipo— y se nombra siempre al lado, que es lo que no admite ambigüedad.
+ */
+function finishClass(finishLabel: string | null) {
+  const f = (finishLabel ?? "").toLowerCase();
+  if (f.includes("glitter") || f.includes("escarcha")) return " tone-dot--glitter";
+  if (f.includes("metal") || f.includes("crom")) return " tone-dot--metal";
+  if (f.includes("perl") || f.includes("nacar") || f.includes("tornasol")) return " tone-dot--pearl";
+  if (f.includes("transl") || f.includes("transp") || f.includes("jelly")) return " tone-dot--sheer";
+  return "";
+}
 
 const TABS: Array<{ key: Tab; label: string }> = [
   { key: "recientes", label: "Tus recientes" },
@@ -34,18 +49,23 @@ const TABS: Array<{ key: Tab; label: string }> = [
 const ToneCell = memo(function ToneCell({
   tone,
   count,
-  onPick
+  onPick,
+  onUnpick
 }: {
   tone: PosTone;
   count: number;
   onPick: (tone: PosTone) => void;
+  onUnpick: (tone: PosTone) => void;
 }) {
   const vendible = isSellable(tone);
   const tint = toneTint(tone);
-  const foto = tone.swatchPath ? publicAssetUrl(tone.swatchPath) : null;
   const nombre = tone.shadeName ?? tone.variantName;
 
+  // La tarjeta es un <div> y no un <button> porque lleva dentro sus propios
+  // botones, y un botón no puede anidar otro. La zona de tocar sigue siendo
+  // toda la tarjeta.
   return (
+    <div className={`tone-cell-wrap${count > 0 ? " tone-cell-wrap--picked" : ""}${vendible ? "" : " tone-cell-wrap--out"}`}>
     <button
       type="button"
       className={`tone-cell${count > 0 ? " tone-cell--picked" : ""}${vendible ? "" : " tone-cell--out"}`}
@@ -54,13 +74,17 @@ const ToneCell = memo(function ToneCell({
       title={`${nombre}${tone.shadeCode ? ` · ${tone.shadeCode}` : ""} · ${availabilityLabel(tone)}`}
     >
       <span className="tone-head-row">
-        {foto ? (
-          <img className="tone-dot" src={foto} alt="" loading="lazy" decoding="async" />
-        ) : (
-          <span className="tone-dot tone-dot--flat" style={tint ? { background: tint } : undefined}>
-            {tint ? null : nombre.charAt(0).toUpperCase()}
-          </span>
-        )}
+        {/* El círculo es SIEMPRE color plano, nunca la foto de la variante.
+            Las fotos que hay son del envase entero —tapa, etiqueta, reflejo del
+            vidrio— y metidas en 22px devuelven el azul de la tapa, no el
+            esmalte: justo lo que este selector viene a resolver. El acabado no
+            se pierde, se insinúa con el degradado y se nombra al lado. */}
+        <span
+          className={`tone-dot tone-dot--flat${finishClass(tone.finishLabel)}`}
+          style={tint ? { background: tint } : undefined}
+        >
+          {tint ? null : nombre.charAt(0).toUpperCase()}
+        </span>
         <span className="tone-name">{nombre}</span>
       </span>
       <span className="tone-code">
@@ -76,8 +100,39 @@ const ToneCell = memo(function ToneCell({
               ? `${tone.availableQuantity} disponibles`
               : "Disponible"}
       </span>
-      {count > 0 ? <b className="tone-badge">{count}</b> : null}
     </button>
+
+      {/* La fila de cantidad va DENTRO de la tarjeta y ocupa sitio siempre,
+          esté o no elegido el tono: así todas las tarjetas miden lo mismo y la
+          rejilla no se descoloca al ir sumando.
+          Sin elegir, la tarjeta entera agrega y no hay botones que estorben.
+          Con algo elegido aparecen los dos, menos y más, uno a cada lado del
+          número: quitar deja de ser un control aparte que hay que buscar. */}
+      <div className="tone-qty" aria-hidden={count === 0}>
+        {count > 0 ? (
+          <>
+            <button
+              type="button"
+              className="tone-qty-btn"
+              onClick={() => onUnpick(tone)}
+              aria-label={`Quitar una unidad de ${nombre}. Llevas ${count}.`}
+            >
+              −
+            </button>
+            <span className="tone-qty-n">{count}</span>
+            <button
+              type="button"
+              className="tone-qty-btn"
+              onClick={() => onPick(tone)}
+              disabled={!vendible}
+              aria-label={`Agregar otra unidad de ${nombre}. Llevas ${count}.`}
+            >
+              +
+            </button>
+          </>
+        ) : null}
+      </div>
+    </div>
   );
 });
 
@@ -97,6 +152,7 @@ export function ToneSheet({
   productId,
   counts,
   onPick,
+  onUnpick,
   onClearPicked,
   onClose
 }: {
@@ -106,6 +162,8 @@ export function ToneSheet({
    *  propio de cantidades: el carrito es el único dueño de ese número. */
   counts: Map<string, number>;
   onPick: (tone: PosTone, sheet: PosToneSheet) => void;
+  /** Quita UNA unidad. La carta no decide cuántas quedan: solo pide restar. */
+  onUnpick: (tone: PosTone) => void;
   onClearPicked: (variantIds: string[]) => void;
   onClose: () => void;
 }) {
@@ -168,6 +226,7 @@ export function ToneSheet({
    * por eso la cuadrícula no puede reordenarse ni encogerse mientras la clienta
    * elige: es imposible por construcción, no por cuidado al escribir el código.
    */
+
   const visible = useMemo(() => {
     if (!sheet) return [] as PosTone[];
     // Sin tildes: media carta de Masglo las lleva («Arcoíris», «Auténtica»,
@@ -299,30 +358,62 @@ export function ToneSheet({
             </label>
           </div>
 
+
+        </div>
+
+        {/* Riel de familias JUNTO a la rejilla, no encima de ella.
+         *
+         * Las catorce quedan visibles sin desplegar ni arrastrar, y al vivir en
+         * una columna lateral no le quitan alto a los tonos, que es lo que se
+         * viene a mirar. El orden de lectura es el que importa: se baja por la
+         * columna de colores y solo se lee la fila a la que ya se apunta —el
+         * color busca, la palabra confirma—. Cada fila lleva su cuenta pegada,
+         * así que color, cantidad y estado entran de un golpe de vista.
+         *
+         * En celular no caben 176px de riel: pasa a dos columnas encima de la
+         * rejilla, con las mismas filas y el mismo orden. Lo resuelve el CSS,
+         * no un segundo componente. */}
+        <div className="tone-main">
           {sheet && sheet.families.length > 1 ? (
-            <div className="tone-families">
+            <nav className="tone-rail" aria-label="Familia cromática">
+              {/* Tocar una familia lleva SIEMPRE a «Todos».
+                *
+                * El riel significa «todos los tonos de esta gama», y su cuenta
+                * está calculada sobre el producto entero. Si al tocarlo siguiera
+                * activa la pestaña «Tus recientes», el riel prometería 20 rojos
+                * y la rejilla enseñaría dos: el número dejaría de creerse. */}
               <button
                 type="button"
-                className={family === null ? "tone-family tone-family--on" : "tone-family"}
-                onClick={() => setFamily(null)}
+                className="tone-rail-btn"
+                aria-pressed={family === null}
+                onClick={() => { setFamily(null); setTab("todos"); }}
               >
-                Todas
+                <span className="tone-rail-all" aria-hidden="true" />
+                <span className="tone-rail-txt">Todas</span>
+                <span className="tone-rail-n">
+                  {onlyAvailable
+                    ? sheet.tones.filter((tone) => isSellable(tone)).length
+                    : sheet.tones.length}
+                </span>
               </button>
               {sheet.families.map((item) => (
                 <button
                   key={item.value}
                   type="button"
-                  className={family === item.value ? "tone-family tone-family--on" : "tone-family"}
-                  onClick={() => setFamily(family === item.value ? null : item.value)}
+                  className="tone-rail-btn"
+                  aria-pressed={family === item.value}
+                  onClick={() => { setFamily(family === item.value ? null : item.value); setTab("todos"); }}
                 >
-                  <span className="tone-family-dot" style={{ background: toneTint({ referenceColor: null, familyValue: item.value }) ?? undefined }} />
-                  {item.label}
-                  <small>{onlyAvailable ? item.availableCount : item.toneCount}</small>
+                  <span
+                    className={`tone-family-dot${item.value === "multicolor" ? " tone-family-dot--multi" : ""}`}
+                    style={{ background: toneTint({ referenceColor: null, familyValue: item.value }) ?? undefined }}
+                  />
+                  <span className="tone-rail-txt">{item.label}</span>
+                  <span className="tone-rail-n">{onlyAvailable ? item.availableCount : item.toneCount}</span>
                 </button>
               ))}
-            </div>
+            </nav>
           ) : null}
-        </div>
 
         <div className="tone-grid" ref={gridRef} onScroll={(event) => { scrollTopRef.current = event.currentTarget.scrollTop; }}>
           {loading ? (
@@ -344,9 +435,11 @@ export function ToneSheet({
                 tone={tone}
                 count={counts.get(tone.variantId) ?? 0}
                 onPick={pick}
+                onUnpick={onUnpick}
               />
             ))
           )}
+        </div>
         </div>
 
         <footer className="tone-foot">
