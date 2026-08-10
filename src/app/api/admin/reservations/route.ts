@@ -66,7 +66,10 @@ export async function POST(request: Request) {
       p_expires_at: input.expiresAt,
       p_client_operation_id: input.clientOperationId,
       p_advance: input.advance ?? null,
-      p_notes: input.notes ?? null
+      p_notes: input.notes ?? null,
+      // La clienta enlazada, cuando la hay. Los campos customer_* siguen siendo
+      // la instantánea de cómo se escribió su nombre al reservar.
+      p_person_id: input.personId ?? null
     });
 
     if (error) throw new HttpError(400, "reservation_create_failed", error.message);
