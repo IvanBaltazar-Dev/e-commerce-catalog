@@ -46,24 +46,30 @@ export async function GET(request: NextRequest) {
       if (!relationTemplateIds.length) return ok([]);
     }
 
-    let query = supabase
+    // El contrato decide qué coincide y en qué orden, con la misma
+    // normalización que el POS y el catálogo. Los filtros de plantilla siguen
+    // aquí porque dependen del propósito de la relación, que es de esta ruta.
+    const plantillas = adhesiveTemplateId ? [adhesiveTemplateId] : relationTemplateIds;
+    const { data: ids, error: errorBusqueda } = await supabase.rpc("admin_relation_search", {
+      p_query: input.q ?? null,
+      p_template_ids: plantillas ?? null,
+      p_exclude: input.exclude ?? null,
+      p_limit: 50
+    });
+    if (errorBusqueda) throw errorBusqueda;
+
+    const idsCoincidentes: string[] = ids ?? [];
+    if (!idsCoincidentes.length) return ok([]);
+
+    const { data, error } = await supabase
       .from("products")
       .select("id, code, name, slug, brand_id, product_line_id, template_id, category_id")
-      .eq("is_active", true)
-      .order("name")
-      .limit(50);
-
-    if (input.q) {
-      const pattern = `%${input.q.replace(/[%_,]/g, "")}%`;
-      query = query.or(`name.ilike.${pattern},code.ilike.${pattern}`);
-    }
-    if (input.exclude) query = query.neq("id", input.exclude);
-    if (adhesiveTemplateId) query = query.eq("template_id", adhesiveTemplateId);
-    if (relationTemplateIds) query = query.in("template_id", relationTemplateIds);
-
-    const { data, error } = await query;
+      .in("id", idsCoincidentes);
     if (error) throw error;
-    const products = data ?? [];
+
+    // El orden es del contrato; `in` no lo conserva.
+    const porId = new Map((data ?? []).map((product) => [product.id, product]));
+    const products = idsCoincidentes.map((id) => porId.get(id)).filter(Boolean) as NonNullable<typeof data>;
     if (!products.length) return ok([]);
 
     const productIds = products.map((product) => product.id);

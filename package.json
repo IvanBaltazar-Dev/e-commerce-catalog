@@ -58,7 +58,8 @@
     "bulk:lote": "node --conditions=react-server --experimental-transform-types scripts/run-bulk-lote.mjs --env .env.supabase.local",
     "audit:catalog-real": "node --conditions=react-server --experimental-transform-types scripts/audit-catalog-real.mjs --env .env.supabase.local",
     "gate:busqueda": "node scripts/gate-busqueda.mjs",
-    "catalog:enrichment:stage": "node scripts/catalog-enrichment-stage.mjs --env .env.supabase.local"
+    "catalog:enrichment:stage": "node scripts/catalog-enrichment-stage.mjs --env .env.supabase.local",
+    "test:admin-search": "node scripts/test-admin-search-contracts.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",

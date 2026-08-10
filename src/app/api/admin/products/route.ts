@@ -27,43 +27,46 @@ export async function GET(request: NextRequest) {
   try {
     const { supabase } = await requireAdmin();
     const params = parseSearchParams(request);
-    let query = supabase
-      .from("products")
-      .select(PRODUCT_SELECT, { count: "exact" })
-      .order("sort_order", { ascending: true })
-      .order("name", { ascending: true })
-      .range(params.offset, params.offset + params.limit - 1);
 
-    if (params.q) {
-      const pattern = `%${params.q.replace(/[%_,]/g, "")}%`;
-      query = query.or(`name.ilike.${pattern},code.ilike.${pattern},product_type.ilike.${pattern}`);
+    // QUÉ productos y en qué orden lo decide el contrato, no esta ruta. Antes
+    // buscaba con `.or(name.ilike, code.ilike, product_type.ilike)` desde aquí:
+    // sin índice, sin quitar tildes —«lámpara» no encontraba «lampara»— y con
+    // reglas distintas a las del POS y el catálogo. Una superficie de búsqueda
+    // sin contrato no puede cumplir una regla que vive en el contrato.
+    const { data: busqueda, error: errorBusqueda } = await supabase.rpc("admin_product_search", {
+      p_query: params.q ?? null,
+      p_estado: params.estado ?? null,
+      p_active: params.active ?? null,
+      p_brand_id: params.brandId ?? null,
+      p_limit: params.limit,
+      p_offset: params.offset
+    });
+
+    if (errorBusqueda) {
+      throw errorBusqueda;
     }
 
-    if (params.active !== undefined) {
-      query = query.eq("is_active", params.active);
+    const ids: string[] = busqueda?.ids ?? [];
+    const total: number = busqueda?.total ?? 0;
+
+    if (ids.length === 0) {
+      return ok({ items: [], total, limit: params.limit, offset: params.offset });
     }
 
-    if (params.estado === "publicado") {
-      query = query.eq("editorial_status", "published").eq("is_active", true);
-    } else if (params.estado === "borrador") {
-      query = query.in("editorial_status", ["draft", "in_review", "incomplete"]).eq("is_active", true);
-    } else if (params.estado === "oculto") {
-      query = query.or("editorial_status.eq.hidden,is_active.eq.false");
-    }
-
-    if (params.brandId) {
-      query = query.eq("brand_id", params.brandId);
-    }
-
-    const { data, error, count } = await query;
+    // La forma anidada —marca, categoría, galería— la construye PostgREST, que
+    // ya sabe hacerlo. La lista de ids está acotada al tamaño de la página.
+    const { data, error } = await supabase.from("products").select(PRODUCT_SELECT).in("id", ids);
 
     if (error) {
       throw error;
     }
 
+    // PostgREST no garantiza el orden de un `in`, y el orden es del contrato.
+    const porId = new Map((data ?? []).map((product) => [product.id, product]));
+
     return ok({
-      items: data ?? [],
-      total: count ?? 0,
+      items: ids.map((id) => porId.get(id)).filter(Boolean),
+      total,
       limit: params.limit,
       offset: params.offset
     });
