@@ -354,7 +354,9 @@ select public.create_reservation(
   jsonb_build_object('name', 'Clienta que cancela'),
   now() + interval '3 days',
   gen_random_uuid(),
-  jsonb_build_object('method', 'yape', 'amount', 10.00)
+  -- Desde 0065 un adelanto por Yape lleva su número de operación, igual que un
+  -- cobro: es el mismo dinero entrando por el mismo sitio.
+  jsonb_build_object('method', 'yape', 'amount', 10.00, 'reference', '00445566')
 ) as detail;
 
 select is(
