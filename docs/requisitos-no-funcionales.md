@@ -3,7 +3,37 @@
 Reglas que **no** dependen de qué pantalla se esté haciendo. Nada se aprueba sin
 cumplirlas, igual que ninguna migración se cierra sin `audit:security` en verde.
 
-## RNF-1 · Ninguna búsqueda pasa de 3 segundos
+## RNF-1 · Ninguna búsqueda pasa de 3 segundos — **CERRADO el 2026-08-10**
+
+Cerrado en `58a894b`, que queda como **línea base**: todo lo que venga después
+tiene que demostrar que no lo rompe. El gate de búsqueda deja de ser del bloque
+de búsqueda y pasa a ser **transversal del catálogo**.
+
+**Condiciones congeladas del cierre:**
+
+| | |
+|---|---|
+| Volumen validado | 100 000 productos · 201 578 variantes · 500 930 valores de atributo |
+| Superficies bajo 3 s | 19 de 19, peor caso de 5 corridas |
+| Planes verificados | 4 — el índice se usa, no es un tiempo bueno por accidente |
+| Invariantes semánticos | 4 — qué encuentra y qué NO |
+| `test:admin-search` (HTTP autenticado) | 14 de 14 |
+| `pgTAP` | 693, PASS |
+| `audit:security` | 0 violaciones, sobre compilación de **producción** |
+| `typecheck` · `eslint` | limpios |
+| Catálogo real | 1 056 productos · 1 578 variantes, restaurado |
+| Residuo del volumen sintético | cero |
+
+**Referencia de regresión.** Si una de estas cifras se dispara, algo cambió de
+sitio aunque el gate siga en verde:
+
+```
+Catálogo listado ....... 1 756 ms      POS «esmalte» ....... 747 ms
+Catálogo «esmalte» ..... 1 297 ms      POS «ml» ............ 252 ms
+Catálogo «ml» ..........   400 ms      POS clientas ........  12 ms
+```
+
+## RNF-1 · La regla, para cuando haya que volver a comprobarla
 
 **Regla.** Toda superficie de búsqueda responde en **menos de 3 000 ms en el peor
 caso**, con un catálogo de **100 000 productos**. No la mediana: el peor caso.
@@ -23,12 +53,13 @@ anterior se dejaba tres.
 | Catálogo público, listado | `catalog_list_v2` |
 | Catálogo público, búsqueda | `catalog_list_v2` con término |
 | Tablero de existencias | `inventory_board` |
-| Lista de productos del admin | `/api/admin/products` — **sin contrato**, va por PostgREST |
-| Buscador de relaciones | `/api/admin/catalog-v2/relations` — **sin contrato** |
+| Lista de productos del admin | `admin_product_search` |
+| Buscador de relaciones | `admin_relation_search` |
 
-Las dos últimas hacen `.or(name.ilike, code.ilike, …)` desde la aplicación, sin
-pasar por ninguna función de la base. Eso es deuda aparte: una superficie de
-búsqueda sin contrato no puede cumplir una regla que vive en el contrato.
+Las dos últimas iban sueltas por PostgREST con `.or(name.ilike, code.ilike, …)`
+hasta 0083. Una superficie de búsqueda sin contrato no puede cumplir una regla
+que vive en el contrato: no quitaban tildes ni tenían la regla de términos
+cortos, y no había dónde arreglarlo.
 
 **El patrón, desde 0072.** Un **documento de búsqueda** por fila con todo lo
 buscable ya normalizado (minúsculas, sin tildes), y **un índice GIN trigrama**
@@ -97,47 +128,13 @@ cualquiera supera el umbral. Lo que falla imprime su `EXPLAIN (ANALYZE, BUFFERS)
 catálogo real ya tiene 1 578 variantes y todo responde en milisegundos; el
 problema aparece con dos órdenes de magnitud más, y es ahí donde hay que medir.
 
-**Estado medido el 2026-08-10** con 100 000 productos publicados, 201 578
-variantes y 500 930 valores de atributo. Peor caso de 5 corridas:
+**La deuda que había, y cómo se ve que estaba mal contada.** Queda aquí como
+historia: es la mejor explicación de por qué un índice sobre una expresión
+distinta de la que se compara es un índice que nunca se usa.
 
-| Superficie | Antes | Ahora | |
-|---|---|---|---|
-| POS · buscador de clientas | sin índice | **14 ms** | ✓ |
-| Existencias · tablero con término | — | **28 ms** | ✓ |
-| POS · carta de tonos | — | **77 ms** | ✓ |
-| POS · término muy selectivo (SKU) | — | **550 ms** | ✓ |
-| POS · por talla | no existía | **502 ms** | ✓ |
-| POS · por color | no existía | **1 959 ms** | ✓ |
-| Catálogo · búsqueda muy selectiva | — | **1 646 ms** | ✓ |
-| Catálogo · búsqueda con tilde | no encontraba | **1 970 ms** | ✓ |
-| Catálogo · búsqueda poco selectiva | 12 933 ms | **2 111 ms** | ✓ |
-| Catálogo · búsqueda por color | 11 642 ms | **2 476 ms** | ✓ |
-| Catálogo · listado sin término | 41 582 ms | **3 966 ms** | ✗ |
-| Catálogo · término de dos letras | — | **5 096 ms** | ✗ |
-| POS · término poco selectivo | — | **7 191 ms** | ✗ |
-| POS · término poco selectivo con tilde | no encontraba | **7 055 ms** | ✗ |
-
-Diez de catorce cumplen. Las cuatro que faltan y **por qué no es un problema de
-índice en ninguna**:
-
-- **POS con término poco selectivo.** «esmalte» casa con 20 278 variantes. El
-  buscador calcula el precio y la disponibilidad de CADA una —dos funciones por
-  fila— y solo después corta a 24. Es el mismo error que tenía el catálogo:
-  construir caro antes de cortar. No se arregla moviendo código: el orden pone
-  lo agotado al final, así que hay que conocer la disponibilidad de las 20 278
-  antes de poder ordenar. **O se desnormaliza la disponibilidad, o cambia el
-  criterio de orden. Es una decisión de producto.**
-- **Listado del catálogo sin término.** Quedan las facetas, que preguntan qué
-  opciones existen recorriendo el catálogo entero. Sin ningún filtro puesto, esa
-  respuesta es global y no cambia entre peticiones: **cabe cachearla**.
-- **Términos de una o dos letras.** El trigrama no puede indexarlos —no hay
-  trigramas que buscar— y además «ml» casa con casi todo. Hay que decidir si por
-  debajo de tres caracteres se busca solo por prefijo de SKU y código.
-
-**Deuda conocida, contada columna a columna el 2026-08-10.**
-`pos_variant_search` hace **diez comparaciones `lower(columna) LIKE '%término%'`
-sobre diez columnas de cinco tablas**. De las diez, **solo una** tiene un índice
-que el planificador pueda usar:
+`pos_variant_search` hacía **diez comparaciones `lower(columna) LIKE '%término%'`
+sobre diez columnas de cinco tablas**. De las diez, **solo una** tenía un índice
+que el planificador pudiera usar:
 
 | Columna comparada | Índice trigrama | ¿Sirve? |
 |---|---|---|
@@ -195,3 +192,36 @@ pero nunca es la única.
 pantalla actual. Ver `sale_payment_problem`, `sale_fulfillment_gaps`,
 `payment_requires_reference` y `tax_document_problem`: cada una es la definición
 única de su regla y la consultan tanto el contrato como el disparador.
+
+## RNF-5 · `session_replication_role = replica` no es una limpieza inocua
+
+**Regla.** Ningún script de volumen ni de prueba puede usar
+`session_replication_role = replica` sin una **fase explícita de reconciliación
+de dependencias** que se ejecute después. Si el script no dice qué reconcilia,
+no puede usarlo.
+
+**Por qué.** No desactiva «los disparadores de negocio»: desactiva **todos** los
+disparadores, y en PostgreSQL la integridad referencial está implementada con
+disparadores de sistema. Eso incluye los `on delete cascade`. Un borrado que
+parece limpio deja las filas dependientes en su sitio, sin nada que las señale.
+
+**Lo que costó descubrirlo.** El gate de búsqueda lo usaba para retirar su
+volumen sintético —legítimo: validar fila a fila 100 000 productos cuesta veinte
+minutos y no prueba nada que pgTAP no pruebe ya—. Pero al no reconciliar
+después, cada corrida dejaba **700 000 filas huérfanas**: 200 000 documentos de
+búsqueda, 400 000 códigos y 100 000 filas de catálogo, más 395 opciones de
+faceta fantasma que no colgaban de ningún producto. El síntoma no fue un error:
+fue que la batería pgTAP pasó de 18 a 122 segundos y dos pruebas empezaron a
+fallar por una causa que no tenía nada que ver con lo que afirmaban.
+
+**Cómo se aplica.** Quien lo use, en la misma función:
+
+1. Borra a mano las filas de proyección que dependen de lo borrado, ANTES.
+2. Reconstruye lo que no cuelga por clave foránea —`catalog_facet_presence`
+   apunta a `attribute_definitions` y `attribute_options`, así que nada la
+   limpia sola—.
+3. Deja `analyze` de lo tocado, o la siguiente medición miente por
+   estadísticas viejas.
+
+Ver `limpiarVolumen()` en `scripts/gate-busqueda.mjs`, que lo hace y explica por
+qué en cada paso.
