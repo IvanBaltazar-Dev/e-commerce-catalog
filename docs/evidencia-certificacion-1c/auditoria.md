@@ -1,4 +1,4 @@
-# Auditoría del catálogo real — 2026-08-09T15:59:15.398Z
+# Auditoría del catálogo real — 2026-08-09T16:45:35.971Z
 
 Fuente: 1500 filas de Listado_organizado_productos_Bellaroshe.xlsx.
 

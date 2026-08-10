@@ -154,6 +154,13 @@ async function setup() {
         }),
         `crear sede ${code}`
       );
+    } else {
+      // Se reactivan para esta ejecución —la anterior las apagó al terminar— y
+      // se vuelven a apagar en el `finally`.
+      must(
+        await service.from("branches").update({ is_active: true }).eq("code", code),
+        `reactivar sede ${code}`
+      );
     }
   }
 
@@ -317,7 +324,8 @@ async function run(fx) {
     p_lines: [{ variantId: fx.v1, quantity: 4 }],
     p_payments: [
       { method: "cash", amount: 30.0, tenderedAmount: 50.0 },
-      { method: "yape", amount: 25.0 }
+      // Desde 0057 un cobro por Yape lleva su número de operación.
+      { method: "yape", amount: 25.0, reference: "00445599" }
     ],
     p_client_operation_id: randomUUID(),
     p_source_channel: "in_store",
@@ -339,7 +347,8 @@ async function run(fx) {
     p_customer: { name: "Clienta que reserva" },
     p_expires_at: new Date(Date.now() + 86400000).toISOString(),
     p_client_operation_id: randomUUID(),
-    p_advance: { method: "yape", amount: 20.0 }
+    // Y desde 0065, el adelanto también: es el mismo dinero por el mismo medio.
+    p_advance: { method: "yape", amount: 20.0, reference: "00445600" }
   });
 
   const reservedStock = await stockOf(fx.v2, fx.branch);
@@ -379,10 +388,15 @@ async function run(fx) {
     p_explanation: "La clienta se arrepintió antes de salir"
   });
 
-  const refundsOfCancel = must(
-    await service.from("refunds").select("amount, sale_cancellation_id").not("sale_cancellation_id", "is", null),
-    "reembolsos de anulación"
-  );
+  // Los reembolsos DE ESTA anulación, no los de todas las que existan en la
+  // base. Sumando todas, la comprobación crecía con cada anulación de cualquier
+  // otra prueba y acababa fallando por algo que no era lo que afirma.
+  const refundsOfCancel = await sql(`
+    select r.amount
+    from public.refunds r
+    join public.sale_cancellations c on c.id = r.sale_cancellation_id
+    where c.sale_id = '${sale2.id}';
+  `);
 
   check("anular devuelve el dinero por el importe cobrado",
     money(refundsOfCancel.reduce((sum, r) => sum + Number(r.amount), 0)) === 30.0,
@@ -517,9 +531,12 @@ async function reconcile(fx) {
       (select count(*)::int from public.inventory_valuation
         where quantity_valued < 0 or total_value < 0
            or ((quantity_valued = 0) <> (total_value = 0))) as bad_valuation,
+      -- Desde 0063 «cobrada» depende de las condiciones de pago: una venta
+      -- contra entrega despachada con su adelanto está bien aunque no sume el
+      -- total. Se consulta la MISMA regla que aplica la base en vez de repetir
+      -- aquí una comparación que ya no es cierta para todas las ventas.
       (select count(*)::int from public.sales s
-        where coalesce((select sum(p.amount) from public.sale_payments p where p.sale_id = s.id), 0)
-              <> s.total) as unpaid_sales,
+        where public.sale_payment_problem(s.id) is not null) as unpaid_sales,
       (select count(*)::int from public.sales s
         where coalesce((select sum(l.discount_amount) from public.sale_lines l where l.sale_id = s.id), 0)
               <> s.discount_total) as bad_discounts,
@@ -650,6 +667,15 @@ try {
   await reconcile(scenario);
 } finally {
   await asAdmin.auth.signOut().catch(() => undefined);
+
+  // Las sedes de la prueba se DESACTIVAN al terminar. Se quedaban activas para
+  // siempre, y como la dueña ve todas las sedes activas, el panel le ofrecía
+  // «Sede integral» y «Sede integral destino» junto a la suya: dos sedes que no
+  // existen, en el desplegable con el que se registra una venta. No se borran
+  // —tienen ventas y kardex colgando— pero dejan de aparecer.
+  await service.from("branches")
+    .update({ is_active: false })
+    .in("code", [BRANCH_CODE, DEST_BRANCH_CODE]);
 }
 
 console.log(failures === 0

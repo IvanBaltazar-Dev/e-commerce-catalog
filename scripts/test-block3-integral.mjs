@@ -76,6 +76,51 @@ function browserSession() {
 }
 
 async function cleanPreviousRun() {
+  // LO PRIMERO, y el motivo de que esta función necesitara arreglo: las
+  // atribuciones ABIERTAS de este teléfono. El índice único solo admite una por
+  // contacto sin venta, así que una ejecución que abortó a mitad —cualquiera de
+  // las de más abajo que fallara— deja una y la siguiente ya no arranca.
+  //
+  // El resto de esta limpieza borraba «por si acaso» sin mirar el resultado, y
+  // ahí estaba el problema: cuando una atribución la referencia una venta, la
+  // clave foránea impide borrarla, el error se perdía y la fila seguía ahí.
+  //
+  // Dos casos y dos tratamientos:
+  //   · si no la referencia ninguna venta, se borra;
+  //   · si sí, se DESVINCULA del contacto en vez de borrarse. La fila se
+  //     conserva para la venta que la necesita y deja de bloquear el índice.
+  const contactosPrevios = must(
+    await service.from("channel_contacts").select("id").eq("phone_normalized", PHONE),
+    "contactos previos"
+  );
+
+  for (const contacto of contactosPrevios) {
+    const abiertas = must(
+      await service
+        .from("channel_attributions")
+        .select("id")
+        .eq("channel_contact_id", contacto.id)
+        .is("sale_id", null),
+      "atribuciones abiertas previas"
+    );
+
+    for (const atribucion of abiertas) {
+      const referida = must(
+        await service.from("sales").select("id").eq("attribution_id", atribucion.id).limit(1),
+        "ventas que referencian la atribución"
+      );
+
+      if (referida.length === 0) {
+        must(await service.from("channel_attributions").delete().eq("id", atribucion.id),
+          "borrar atribución abierta huérfana");
+      } else {
+        must(await service.from("channel_attributions")
+          .update({ channel_contact_id: null }).eq("id", atribucion.id),
+          "desvincular atribución abierta en uso");
+      }
+    }
+  }
+
   const campaign = must(
     await service.from("marketing_campaigns").select("id").eq("code", CAMPAIGN_CODE),
     "campaña previa"
@@ -274,7 +319,9 @@ const reservation = await rpc("convert_cart_to_reservation", {
   p_customer: { name: "Clienta Integral", phone: `+${PHONE}` },
   p_expires_at: new Date(Date.now() + 86400000).toISOString(),
   p_client_operation_id: randomUUID(),
-  p_advance: { method: "yape", amount: 20.0 }
+  // Desde 0065 un adelanto por Yape lleva su número de operación, venga por
+  // donde venga: es el mismo dinero entrando por el mismo medio.
+  p_advance: { method: "yape", amount: 20.0, reference: "00445588" }
 });
 
 check("el carrito se convierte en reserva del Bloque 2",
@@ -300,7 +347,10 @@ const sale = await rpc("register_sale", {
   p_customer: null,
   p_discount_total: 0,
   p_notes: null,
-  p_reservation_id: reservation.id
+  p_reservation_id: reservation.id,
+  // Desde 0061 un recojo declara quién viene a retirarlo. Viene la misma clienta
+  // que reservó: `isBuyer` lo dice sin repetir su nombre.
+  p_parties: [{ role: "pickup_authorized", isBuyer: true }]
 });
 
 check("la reserva se convierte en venta pagada exacta", money(sale.total) === 45.0,

@@ -290,7 +290,7 @@ export function PurchasingView() {
         <div>
           <div className="form-title">Abastecimiento</div>
           <div className="field-hint">
-            La orden no mueve inventario; la recepción sí. El costo real y el promedio ponderado los resuelve PostgreSQL.
+            La orden no mueve inventario; la recepción sí. El costo real y el promedio ponderado se calculan al recibir.
           </div>
         </div>
         <div className="order-delivery" style={{ margin: 0, minWidth: 260 }}>

@@ -48,3 +48,5 @@ backups/
 # builds aislados por sesión de desarrollo (ver scripts/serve-a.mjs)
 .next-a/
 .next-b/
+.next-c/
+.next-d/

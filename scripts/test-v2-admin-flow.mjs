@@ -161,6 +161,8 @@ try {
       sourceChannel: "in_store",
       fulfillmentMethod: "pickup",
       customer: { name: "Cliente prueba V2", phone: "999999999" },
+      // Desde 0061 un recojo dice quién lo retira. Lo recoge la propia clienta.
+      parties: [{ role: "pickup_authorized", isBuyer: true }],
       discountTotal: 0,
       notes: "Venta temporal E2E",
       lines: [{ variantId: response.body.data.variants[0].id, quantity: 3 }],
