@@ -253,7 +253,7 @@ select throws_ok(
 select throws_ok(
   format($$ select public.register_sale(%L::uuid,
       jsonb_build_array(jsonb_build_object('variantId', %L::uuid, 'quantity', 1)),
-      jsonb_build_array(jsonb_build_object('method', 'yape', 'amount', 20.00)),
+      jsonb_build_array(jsonb_build_object('method', 'yape', 'amount', 20.00, 'reference', '00123457')),
       gen_random_uuid()) $$,
     (select b1 from fx), (select v_seguida from fx)),
   '23514',
@@ -291,14 +291,22 @@ select public.register_sale(
     jsonb_build_object('variantId', (select v_libre from fx), 'quantity', 1)
   ),
   jsonb_build_array(
-    jsonb_build_object('method', 'yape', 'amount', 20.00),
+    jsonb_build_object('method', 'yape', 'amount', 20.00, 'reference', '00123456'),
     jsonb_build_object('method', 'cash', 'amount', 20.00, 'tenderedAmount', 20.00)
   ),
   '10000000-0000-4000-8000-000000000002'::uuid,
   'whatsapp'::public.sale_source_channel,
-  'delivery'::public.fulfillment_method,
-  jsonb_build_object('name', 'Clienta de prueba'),
-  5.00
+  'local_delivery'::public.fulfillment_method,
+  jsonb_build_object('name', 'Clienta de prueba', 'phone', '999000111'),
+  5.00,
+  null, null, null,
+  'store_quick'::public.sale_entry_mode, null, null,
+  -- Desde 0061 un delivery declara a quién se le entrega. Aquí lo recibe la
+  -- propia clienta: `isBuyer` lo dice sin repetir un solo dato suyo, y la
+  -- dirección es de ESTA entrega.
+  jsonb_build_array(jsonb_build_object(
+    'role', 'recipient', 'isBuyer', true, 'address', 'Av. Siempre Viva 742'
+  ))
 ) as detail;
 
 select is(
@@ -405,7 +413,9 @@ select public.create_reservation(
   jsonb_build_object('name', 'Clienta que reserva', 'phone', '999888777'),
   now() + interval '2 days',
   '20000000-0000-4000-8000-000000000001'::uuid,
-  jsonb_build_object('method', 'yape', 'amount', 20.00, 'receivedAt', (now() - interval '30 days')::text)
+  -- Desde 0065 el adelanto lleva su número de operación, igual que un cobro.
+  jsonb_build_object('method', 'yape', 'amount', 20.00, 'reference', '00445577',
+                     'receivedAt', (now() - interval '30 days')::text)
 ) as detail;
 
 select results_eq(
@@ -436,7 +446,11 @@ select public.register_sale(
   'in_store'::public.sale_source_channel,
   'pickup'::public.fulfillment_method,
   null, 0, null,
-  ((select detail ->> 'id' from res1))::uuid
+  ((select detail ->> 'id' from res1))::uuid,
+  null, 'store_quick'::public.sale_entry_mode, null, null,
+  -- Desde 0061 un recojo declara quién viene a retirarlo. Aquí viene la misma
+  -- clienta que reservó: el nombre lo aporta la reserva, no hace falta repetirlo.
+  jsonb_build_array(jsonb_build_object('role', 'pickup_authorized', 'isBuyer', true))
 ) as detail;
 
 select results_eq(
