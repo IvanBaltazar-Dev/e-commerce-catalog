@@ -43,6 +43,46 @@ SKU, código de barras) y **los valores de los atributos marcados
 `is_searchable`** — que es lo que permite buscar por color, talla o tipo. Antes
 ninguna superficie lo hacía.
 
+**No se añade un sistema por atributo.** Cuando mañana haya que buscar por curva
+de pestaña o por grosor, se marca `is_searchable` en su definición y entra
+solo. No se toca código ni se añade otro `ILIKE`. El modelo ya declaraba los
+atributos como datos; esto hace que esa declaración signifique algo.
+
+### Las cuatro decisiones que sostienen el patrón
+
+**1. Encontrar es barato; lo caro es lo que se calcula después.** Encontrar
+«esmalte» entre 100 000 productos cuesta 53 ms y devuelve 20 278 variantes. La
+búsqueda entera costaba 7 191 ms porque, por cada una de esas 20 278, el POS
+volvía a leer la disponibilidad —que ya tenía unida— y calculaba el precio —que
+solo necesitan las 24 que se muestran—. **Lo que interviene en el orden se
+calcula para todas; lo que no, después del corte.**
+
+**2. El orden del POS no se negocia.** Lo disponible va primero y lo agotado al
+final. Bajar de 7 s quitando ese criterio sería arreglar un problema técnico
+rompiendo la pantalla: quien vende necesita ver antes lo que puede vender. Como
+ordenar así exige conocer la disponibilidad de todas las coincidencias, la
+disponibilidad se lee de `inventory_stock` —cuya clave es
+`(variant_id, branch_id)`, o sea que la fila del join ES la posición— en vez de
+volver a consultarla por fila. **La fuente de verdad sigue siendo el
+inventario**; aquí no se guarda ninguna copia.
+
+**3. Lo que no cambia entre peticiones se precalcula.** Las facetas del catálogo
+—qué opciones existen— son la misma respuesta en todas las visitas mientras no
+haya un filtro que estreche el conjunto. Viven en `catalog_facet_presence`,
+mantenida por disparador y reconstruida **solo para las definiciones afectadas**:
+reconstruirla entera cuesta ~1 s con 100 000 productos, y hacerlo en cada
+edición de un producto habría movido el segundo de la lectura a la escritura.
+Con filtros puestos se calculan al vuelo, porque entonces el conjunto es pequeño
+—filtrar por marca deja el listado en 163 ms—.
+
+**4. Una o dos letras no son una búsqueda difusa.** Por debajo de tres
+caracteres no se busca por subcadena en nombres ni descripciones: se busca por
+**prefijo de SKU, código de barras, código interno y código de tono, más
+coincidencia exacta de marca**. Teclear «R4» y ver el tono R4 es lo que se
+espera; teclear «ml» y ver 60 000 filas porque las presentaciones dicen
+«Frasco 8 ml», no. A partir de tres caracteres entra el trigrama normal. Es
+mejor búsqueda, no una limitación.
+
 **Cómo se comprueba.**
 
 ```bash

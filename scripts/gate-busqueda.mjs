@@ -91,6 +91,7 @@ function limpiarVolumen() {
     delete from public.variant_prices where variant_id in (select id from volq_ids);
     delete from public.product_variants where id in (select id from volq_ids);
     delete from public.products where code like 'VOLQ-%';
+    delete from public.persons where full_name like 'VOLQ Clienta %';
     set local session_replication_role = default;
     commit;
     analyze public.products;
@@ -179,12 +180,55 @@ function sembrarVolumen(cuantos) {
     update public.products set is_active = true, editorial_status = 'published'
     where code like 'VOLQ-%';
 
+    -- Clientas. Sin volumen aquí, comprobar que el buscador de personas usa su
+    -- índice no prueba nada: con tres filas, recorrer la tabla ES el plan
+    -- correcto y la comprobación pasa o falla por el motivo equivocado.
+    insert into public.persons (full_name, phone_normalized, document_number)
+    select 'VOLQ Clienta ' || n,
+           '519' || lpad(n::text, 8, '0'),
+           lpad((40000000 + n)::text, 8, '0')
+    from generate_series(1, 20000) n;
+
     set local session_replication_role = default;
     commit;
   `);
 
-  console.log("  reconstruyendo el documento de búsqueda del volumen…");
-  psql(`select public.rebuild_variant_search_documents();`, { timeoutMs: 1_800_000 });
+  // Las tres proyecciones que el sembrado masivo no rellena, porque va con los
+  // disparadores apagados. En una base real las mantienen los disparadores; aquí
+  // se reconstruyen a mano una vez, y con los disparadores apagados también:
+  // reconstruir el precio inicial de 100 000 productos con la auditoría y los
+  // metadatos del catálogo activos costaba más de diez minutos.
+  // También con los disparadores apagados, y por una razón que conviene tener
+  // escrita: `search_document` es una columna de `product_variants`, así que
+  // escribirla es un UPDATE normal sobre esa tabla y arrastra TODA su pila de
+  // disparadores — validación de publicación fila a fila, auditoría, precio
+  // inicial, facetas. Con 200 000 variantes eso no termina.
+  //
+  // Aquí se apaga porque el volumen es sintético. En producción no se puede
+  // apagar nada, así que la deuda real es que el documento debería vivir en su
+  // propia tabla de proyección, donde escribir no dispara reglas de negocio.
+  console.log("  reconstruyendo el documento de búsqueda…");
+  psql(
+    `begin;
+     set local session_replication_role = replica;
+     select public.rebuild_variant_search_documents();
+     set local session_replication_role = default;
+     commit;`,
+    { timeoutMs: 1_800_000 }
+  );
+
+  console.log("  reconstruyendo el precio inicial…");
+  psql(
+    `begin;
+     set local session_replication_role = replica;
+     select public.rebuild_product_starting_prices();
+     set local session_replication_role = default;
+     commit;`,
+    { timeoutMs: 1_800_000 }
+  );
+
+  console.log("  reconstruyendo la presencia de facetas…");
+  psql(`select public.rebuild_catalog_facet_presence();`, { timeoutMs: 1_800_000 });
 
   console.log("  analizando…");
   psql(`
@@ -246,7 +290,62 @@ function verificarVolumen() {
 }
 
 // ---------------------------------------------------------------------------
-// 2. Mediciones
+// 2. Que los planes usen los índices
+// ---------------------------------------------------------------------------
+// Un tiempo bueno con un plan malo es un tiempo bueno por accidente: cambia el
+// volumen o las estadísticas y se cae. Estas comprobaciones fijan el PLAN, no
+// el reloj. Si un día el planificador deja de usar el índice trigrama, falla
+// aquí con el motivo, en vez de fallar dentro de seis meses con un cronómetro.
+
+const PLANES = [
+  {
+    nombre: "documento de variante → índice trigrama",
+    sql: `select count(*) from public.product_variants v where v.search_document like '%esmalte%';`,
+    espera: "product_variants_search_document_trgm_idx"
+  },
+  {
+    nombre: "documento de producto → índice trigrama",
+    sql: `select count(*) from public.products p where p.search_text like '%esmalte%';`,
+    espera: "products_search_text_trgm_idx"
+  },
+  {
+    nombre: "documento de persona → índice trigrama",
+    sql: `select count(*) from public.persons p where p.search_document like '%ros%';`,
+    espera: "persons_search_document_trgm_idx"
+  },
+  {
+    nombre: "término corto → índice de prefijo de la proyección de códigos",
+    sql: `select count(*) from public.variant_search_codes c
+          where c.normalized_code like 'r4%';`,
+    espera: "variant_search_codes_prefix_idx"
+  }
+];
+
+function comprobarPlanes() {
+  console.log("\nPlanes (que el índice se use, no solo que el reloj salga bien):\n");
+  const fallos = [];
+  for (const caso of PLANES) {
+    let plan = "";
+    try {
+      plan = psql(`explain (analyze, buffers) ${caso.sql}`);
+    } catch (error) {
+      fallos.push({ ...caso, motivo: error.message });
+      console.log(`✗ ${caso.nombre}: no se pudo planificar`);
+      continue;
+    }
+    const usa = plan.includes(caso.espera);
+    if (!usa) fallos.push({ ...caso, plan });
+    console.log(`${usa ? "✓" : "✗"} ${caso.nombre}`);
+    if (!usa) {
+      console.log(`    esperaba «${caso.espera}» y el plan fue:`);
+      console.log(plan.split("\n").slice(0, 6).map((l) => `    ${l}`).join("\n"));
+    }
+  }
+  return fallos;
+}
+
+// ---------------------------------------------------------------------------
+// 3. Mediciones
 // ---------------------------------------------------------------------------
 
 async function cronometrar(fn) {
@@ -291,7 +390,9 @@ async function medirTodo() {
       ["poco selectivo", "esmalte"],
       ["muy selectivo", "VOLQ-050000"],
       ["por color", "rojo"],
+      ["por tipo", "torno"],
       ["con tilde", "lámpara"],
+      ["sin tilde", "lampara"],
       ["de dos letras", "ml"]
     ].map(([forma, termino]) => ({
       nombre: `Catálogo público · búsqueda ${forma} («${termino}»)`,
@@ -306,7 +407,10 @@ async function medirTodo() {
       ["muy selectivo", "VOLQ-050000"],
       ["por color", "rojo"],
       ["por talla", "mediano"],
-      ["con tilde", "lámpara"]
+      ["por tipo", "torno"],
+      ["con tilde", "lámpara"],
+      ["sin tilde", "lampara"],
+      ["de dos letras", "ml"]
     ].map(([forma, termino]) => ({
       nombre: `POS · buscador ${forma} («${termino}»)`,
       correr: async () => must(await asAdmin.rpc("pos_variant_search", {
@@ -368,9 +472,11 @@ async function medirTodo() {
 // ---------------------------------------------------------------------------
 
 let filas = [];
+let fallosDePlan = [];
 try {
   if (!SKIP_SEED) sembrarVolumen(PRODUCTOS);
   verificarVolumen();
+  fallosDePlan = comprobarPlanes();
 
   const volumen = psql(`
     select (select count(*) from public.products where is_active and editorial_status='published')
@@ -415,6 +521,11 @@ console.log("Evidencia: test-results/gate-busqueda.md");
 const fallos = filas.filter((f) => !f.pasa);
 if (fallos.length > 0) {
   console.error(`\n${fallos.length} superficie(s) por encima de ${UMBRAL_MS} ms en el peor caso.`);
-  process.exit(1);
 }
-console.log(`\nTODAS las superficies por debajo de ${UMBRAL_MS} ms en el peor caso.`);
+if (fallosDePlan.length > 0) {
+  console.error(`${fallosDePlan.length} consulta(s) no usan el índice que deberían.`);
+}
+if (fallos.length > 0 || fallosDePlan.length > 0) process.exit(1);
+
+console.log(`\nTODAS las superficies por debajo de ${UMBRAL_MS} ms en el peor caso,`);
+console.log("y todas las consultas comprobadas usan su índice.");
