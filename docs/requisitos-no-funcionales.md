@@ -12,7 +12,8 @@ caso**, con un catálogo de **100 000 productos**. No la mediana: el peor caso.
 veces y a 6 segundos la décima es, para quien vende, una búsqueda que se cuelga.
 La clienta está delante y no le importa la mediana.
 
-**Qué superficies cubre.**
+**Qué superficies cubre.** Inventariadas una a una el 2026-08-10; el documento
+anterior se dejaba tres.
 
 | Superficie | Contrato |
 |---|---|
@@ -21,6 +22,26 @@ La clienta está delante y no le importa la mediana.
 | Buscador de clientas | `pos_search_persons` |
 | Catálogo público, listado | `catalog_list_v2` |
 | Catálogo público, búsqueda | `catalog_list_v2` con término |
+| Tablero de existencias | `inventory_board` |
+| Lista de productos del admin | `/api/admin/products` — **sin contrato**, va por PostgREST |
+| Buscador de relaciones | `/api/admin/catalog-v2/relations` — **sin contrato** |
+
+Las dos últimas hacen `.or(name.ilike, code.ilike, …)` desde la aplicación, sin
+pasar por ninguna función de la base. Eso es deuda aparte: una superficie de
+búsqueda sin contrato no puede cumplir una regla que vive en el contrato.
+
+**El patrón, desde 0072.** Un **documento de búsqueda** por fila con todo lo
+buscable ya normalizado (minúsculas, sin tildes), y **un índice GIN trigrama**
+sobre él. Diez comparaciones sobre cinco tablas pasan a ser una comparación
+sobre una columna indexada. La normalización es una sola función,
+`search_normalize`, y la usan tanto el documento como el término: si solo uno de
+los dos pasara por ella, «lámpara» no encontraría «lampara».
+
+Lo que entra en el documento de una variante: producto (código, nombre,
+presentación, tipo), marca, línea, tono (nombre y código), variante (nombre,
+SKU, código de barras) y **los valores de los atributos marcados
+`is_searchable`** — que es lo que permite buscar por color, talla o tipo. Antes
+ninguna superficie lo hacía.
 
 **Cómo se comprueba.**
 
@@ -35,6 +56,43 @@ cualquiera supera el umbral. Lo que falla imprime su `EXPLAIN (ANALYZE, BUFFERS)
 **Qué NO cuenta como cumplirlo.** Medir con 1 500 productos y extrapolar. El
 catálogo real ya tiene 1 578 variantes y todo responde en milisegundos; el
 problema aparece con dos órdenes de magnitud más, y es ahí donde hay que medir.
+
+**Estado medido el 2026-08-10** con 100 000 productos publicados, 201 578
+variantes y 500 930 valores de atributo. Peor caso de 5 corridas:
+
+| Superficie | Antes | Ahora | |
+|---|---|---|---|
+| POS · buscador de clientas | sin índice | **14 ms** | ✓ |
+| Existencias · tablero con término | — | **28 ms** | ✓ |
+| POS · carta de tonos | — | **77 ms** | ✓ |
+| POS · término muy selectivo (SKU) | — | **550 ms** | ✓ |
+| POS · por talla | no existía | **502 ms** | ✓ |
+| POS · por color | no existía | **1 959 ms** | ✓ |
+| Catálogo · búsqueda muy selectiva | — | **1 646 ms** | ✓ |
+| Catálogo · búsqueda con tilde | no encontraba | **1 970 ms** | ✓ |
+| Catálogo · búsqueda poco selectiva | 12 933 ms | **2 111 ms** | ✓ |
+| Catálogo · búsqueda por color | 11 642 ms | **2 476 ms** | ✓ |
+| Catálogo · listado sin término | 41 582 ms | **3 966 ms** | ✗ |
+| Catálogo · término de dos letras | — | **5 096 ms** | ✗ |
+| POS · término poco selectivo | — | **7 191 ms** | ✗ |
+| POS · término poco selectivo con tilde | no encontraba | **7 055 ms** | ✗ |
+
+Diez de catorce cumplen. Las cuatro que faltan y **por qué no es un problema de
+índice en ninguna**:
+
+- **POS con término poco selectivo.** «esmalte» casa con 20 278 variantes. El
+  buscador calcula el precio y la disponibilidad de CADA una —dos funciones por
+  fila— y solo después corta a 24. Es el mismo error que tenía el catálogo:
+  construir caro antes de cortar. No se arregla moviendo código: el orden pone
+  lo agotado al final, así que hay que conocer la disponibilidad de las 20 278
+  antes de poder ordenar. **O se desnormaliza la disponibilidad, o cambia el
+  criterio de orden. Es una decisión de producto.**
+- **Listado del catálogo sin término.** Quedan las facetas, que preguntan qué
+  opciones existen recorriendo el catálogo entero. Sin ningún filtro puesto, esa
+  respuesta es global y no cambia entre peticiones: **cabe cachearla**.
+- **Términos de una o dos letras.** El trigrama no puede indexarlos —no hay
+  trigramas que buscar— y además «ml» casa con casi todo. Hay que decidir si por
+  debajo de tres caracteres se busca solo por prefijo de SKU y código.
 
 **Deuda conocida, contada columna a columna el 2026-08-10.**
 `pos_variant_search` hace **diez comparaciones `lower(columna) LIKE '%término%'`
