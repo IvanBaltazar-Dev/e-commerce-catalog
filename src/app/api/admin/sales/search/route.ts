@@ -7,7 +7,9 @@ export const dynamic = "force-dynamic";
 
 const querySchema = z.object({
   branch: z.string().uuid("Falta la sede desde la que se vende."),
-  q: z.string().trim().min(1).max(120),
+  // Vacío es una consulta LEGÍTIMA desde 0056: significa «¿qué se vende más
+  // aquí?», que es lo que la pantalla muestra al abrirse.
+  q: z.string().trim().max(120).optional().default(""),
   limit: z.coerce.number().int().min(1).max(60).optional()
 });
 
@@ -31,7 +33,7 @@ export async function GET(request: Request) {
 
     const { data, error } = await supabase.rpc("pos_variant_search", {
       p_branch_id: parsed.data.branch,
-      p_query: parsed.data.q,
+      p_query: parsed.data.q || null,
       p_limit: parsed.data.limit ?? 24
     });
 

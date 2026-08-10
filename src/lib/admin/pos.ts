@@ -2,41 +2,12 @@
  * Contratos del POS (B1). Todo lo que aquí se declara lo resuelve PostgreSQL:
  * la pantalla no calcula precios, ni disponibilidad, ni qué tono es relevante.
  *
- * Cómo se PINTA un tono (respaldo por familia cromática, plegado de tildes) se
- * declara aquí y también en `lib/public/tones`, que la ficha pública está
- * construyendo en paralelo. Es duplicación consciente y temporal: en cuanto esa
- * pieza aterrice, esto se sustituye por su import. Un mismo esmalte no puede
- * verse de un color en la ficha pública y de otro en la venta.
+ * Cómo se PINTA un tono es de `lib/public/tones` y se importa desde ahí: un
+ * mismo esmalte no puede verse de un color en la ficha pública y de otro en la
+ * pantalla de venta.
  */
 
-/**
- * Tintes por familia cromática: el respaldo visual cuando un tono todavía no
- * tiene ni fotografía ni color registrado. Nunca sustituyen a la foto real;
- * solo evitan un círculo mudo que obliga a leer 164 nombres.
- */
-export const FAMILY_TINTS: Record<string, string> = {
-  rojos: "#C0392B",
-  rosados: "#E38AA8",
-  morados: "#7D4B9E",
-  azules: "#3B6FB5",
-  verdes: "#5B8C5A",
-  "amarillos-dorados": "#D9A62E",
-  "naranjas-corales": "#E07B4F",
-  nude: "#D9B49B",
-  marrones: "#8A5A3B",
-  blancos: "#F2EEE9",
-  "negros-grises": "#4A4A4A",
-  metalicos: "#9FA8B5",
-  transparentes: "#E4E9EC",
-  multicolor: "#C96A82",
-  "por-clasificar": "#CFC4BC"
-};
-
-/** Sin tilde y en minúscula: media carta de Masglo las lleva («Arcoíris»,
- *  «Auténtica», «Bombón») y en mostrador nadie las teclea. */
-export function foldText(value: string) {
-  return value.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
-}
+import { FAMILY_TINTS } from "@/lib/public/tones";
 
 export type PosAvailability = "available" | "sold_out" | "consult";
 
@@ -95,6 +66,10 @@ export type PosProductGroup = {
   priceFrom: number | null;
   priceTo: number | null;
   withoutPrice: number;
+  /** Precio mayorista más bajo del producto. Se anuncia en la tarjeta ANTES de
+   *  que el descuento se active: si no, nadie sabe que existe hasta que ya lo
+   *  activó por casualidad. */
+  wholesalePrice: number | null;
   wholesaleMinQuantity: number | null;
   /** Cuántas variantes coincidieron con lo tecleado. */
   matchedVariants: number;
