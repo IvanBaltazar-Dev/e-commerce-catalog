@@ -89,14 +89,36 @@ function limpiarVolumen() {
     create index on volq_ids(id);
     delete from public.variant_attribute_values where variant_id in (select id from volq_ids);
     delete from public.variant_prices where variant_id in (select id from volq_ids);
+    -- Las proyecciones se borran A MANO y ANTES. Sus claves foráneas son
+    -- «on delete cascade», pero session_replication_role = replica desactiva
+    -- también las de integridad referencial, así que el cascade NO dispara.
+    -- Sin esto quedaban 700 000 filas huérfanas —200 000 documentos, 400 000
+    -- códigos y 100 000 productos— que sobrevivían a la limpieza y envenenaban
+    -- la siguiente corrida y las baterías pgTAP.
+    delete from public.variant_search_codes where variant_id in (select id from volq_ids);
+    delete from public.variant_search_projection where variant_id in (select id from volq_ids);
+    delete from public.product_catalog_projection
+      where product_id in (select id from public.products where code like 'VOLQ-%');
+
     delete from public.product_variants where id in (select id from volq_ids);
     delete from public.products where code like 'VOLQ-%';
     delete from public.persons where full_name like 'VOLQ Clienta %';
     set local session_replication_role = default;
     commit;
+
+    -- La presencia de facetas no cuelga de products ni de product_variants
+    -- —sus claves foráneas van a attribute_definitions y attribute_options— así
+    -- que nada la limpia sola: hay que reconstruirla. Quedaban 395 opciones
+    -- fantasma del volumen retirado.
+    select public.rebuild_catalog_facet_presence();
+
     analyze public.products;
     analyze public.product_variants;
     analyze public.variant_attribute_values;
+    analyze public.variant_search_projection;
+    analyze public.variant_search_codes;
+    analyze public.product_catalog_projection;
+    analyze public.catalog_facet_presence;
   `);
 }
 
@@ -345,7 +367,73 @@ function comprobarPlanes() {
 }
 
 // ---------------------------------------------------------------------------
-// 3. Mediciones
+// 3. Qué debe encontrar y qué NO
+// ---------------------------------------------------------------------------
+// El gate mide tiempo, pero un buscador rapidísimo que devuelve medio catálogo
+// no sirve. Estas comprobaciones fijan el SIGNIFICADO de la búsqueda corta,
+// para que dentro de tres migraciones nadie la «mejore» y «ml» vuelva a
+// devolver miles de resultados.
+//
+// La marca corta y el prefijo de SKU se descubren de la base, no se escriben a
+// mano: si un día no hubiera ninguna marca de una o dos letras, la comprobación
+// lo dice en vez de pasar sin comprobar nada.
+
+function comprobarSemantica() {
+  console.log("\nSemántica de la búsqueda (qué encuentra y qué no):\n");
+  const fallos = [];
+  const afirmar = (descripcion, condicion, detalle = "") => {
+    const ok = Boolean(condicion);
+    if (!ok) fallos.push(descripcion);
+    console.log(`${ok ? "✓" : "✗"} ${descripcion}${detalle ? ` — ${detalle}` : ""}`);
+  };
+
+  const total = (termino) =>
+    Number(psql(`select (public.admin_product_search(${termino === null ? "null" : `'${termino}'`}, null, null, null, 1, 0) ->> 'total');`));
+
+  const marcaCorta = psql(`
+    select public.search_normalize(name) from public.brands
+    where is_active and length(public.search_normalize(name)) between 1 and 2
+    order by name limit 1;
+  `).trim();
+
+  const prefijoSku = psql(`
+    select left(normalized_code, 2) from public.variant_search_codes
+    where code_type = 'sku' group by 1 order by count(*) desc limit 1;
+  `).trim();
+
+  const catalogo = total(null);
+
+  if (marcaCorta) {
+    afirmar(`una marca corta exacta encuentra («${marcaCorta}»)`, total(marcaCorta) > 0,
+      `${total(marcaCorta)} productos`);
+  } else {
+    afirmar("hay una marca de una o dos letras con la que comprobar", false,
+      "sin ella, la coincidencia exacta de marca no se está comprobando");
+  }
+
+  if (prefijoSku) {
+    afirmar(`un prefijo corto de SKU sigue encontrando («${prefijoSku}»)`, total(prefijoSku) > 0,
+      `${total(prefijoSku)} productos`);
+  } else {
+    afirmar("hay un prefijo de SKU con el que comprobar", false);
+  }
+
+  // «ml» es el caso que motivó la regla: cientos de presentaciones dicen
+  // «Frasco 8 ml», y con subcadena difusa devolvía medio catálogo.
+  const fragmento = total("ml");
+  afirmar("un fragmento corto arbitrario NO encuentra («ml»)", fragmento === 0,
+    `${fragmento} de ${catalogo}`);
+
+  const conTilde = total("lámpara");
+  const sinTilde = total("lampara");
+  afirmar("la tilde no cambia el resultado («lámpara» = «lampara»)",
+    conTilde === sinTilde && conTilde > 0, `${conTilde} vs ${sinTilde}`);
+
+  return fallos;
+}
+
+// ---------------------------------------------------------------------------
+// 4. Mediciones
 // ---------------------------------------------------------------------------
 
 async function cronometrar(fn) {
@@ -473,10 +561,12 @@ async function medirTodo() {
 
 let filas = [];
 let fallosDePlan = [];
+let fallosDeSemantica = [];
 try {
   if (!SKIP_SEED) sembrarVolumen(PRODUCTOS);
   verificarVolumen();
   fallosDePlan = comprobarPlanes();
+  fallosDeSemantica = comprobarSemantica();
 
   const volumen = psql(`
     select (select count(*) from public.products where is_active and editorial_status='published')
@@ -525,7 +615,14 @@ if (fallos.length > 0) {
 if (fallosDePlan.length > 0) {
   console.error(`${fallosDePlan.length} consulta(s) no usan el índice que deberían.`);
 }
-if (fallos.length > 0 || fallosDePlan.length > 0) process.exit(1);
+if (fallosDeSemantica.length > 0) {
+  console.error(`${fallosDeSemantica.length} comprobación(es) de significado fallidas:`);
+  for (const f of fallosDeSemantica) console.error(`  · ${f}`);
+}
+if (fallos.length > 0 || fallosDePlan.length > 0 || fallosDeSemantica.length > 0) {
+  process.exit(1);
+}
 
 console.log(`\nTODAS las superficies por debajo de ${UMBRAL_MS} ms en el peor caso,`);
-console.log("y todas las consultas comprobadas usan su índice.");
+console.log("todas las consultas comprobadas usan su índice,");
+console.log("y la búsqueda corta encuentra lo que debe y solo lo que debe.");
