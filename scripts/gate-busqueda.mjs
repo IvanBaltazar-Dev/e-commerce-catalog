@@ -198,36 +198,22 @@ function sembrarVolumen(cuantos) {
   // se reconstruyen a mano una vez, y con los disparadores apagados también:
   // reconstruir el precio inicial de 100 000 productos con la auditoría y los
   // metadatos del catálogo activos costaba más de diez minutos.
-  // También con los disparadores apagados, y por una razón que conviene tener
-  // escrita: `search_document` es una columna de `product_variants`, así que
-  // escribirla es un UPDATE normal sobre esa tabla y arrastra TODA su pila de
-  // disparadores — validación de publicación fila a fila, auditoría, precio
-  // inicial, facetas. Con 200 000 variantes eso no termina.
-  //
-  // Aquí se apaga porque el volumen es sintético. En producción no se puede
-  // apagar nada, así que la deuda real es que el documento debería vivir en su
-  // propia tabla de proyección, donde escribir no dispara reglas de negocio.
-  console.log("  reconstruyendo el documento de búsqueda…");
-  psql(
-    `begin;
-     set local session_replication_role = replica;
-     select public.rebuild_variant_search_documents();
-     set local session_replication_role = default;
-     commit;`,
-    { timeoutMs: 1_800_000 }
-  );
+  // Las proyecciones, que el sembrado masivo no rellena porque va con los
+  // disparadores apagados. Ya NO hace falta apagar nada para reconstruirlas:
+  // desde 0078 viven en sus propias tablas, así que escribirlas no arrastra la
+  // pila de reglas de `product_variants`. Cuando el documento era una columna
+  // de esa tabla, esto mismo no terminaba en diecisiete minutos.
+  console.log("  reconstruyendo variant_search_projection…");
+  psql(`select public.rebuild_variant_search_projection();`, { timeoutMs: 1_800_000 });
 
-  console.log("  reconstruyendo el precio inicial…");
-  psql(
-    `begin;
-     set local session_replication_role = replica;
-     select public.rebuild_product_starting_prices();
-     set local session_replication_role = default;
-     commit;`,
-    { timeoutMs: 1_800_000 }
-  );
+  console.log("  reconstruyendo variant_search_codes…");
+  psql(`select public.rebuild_variant_search_codes();`, { timeoutMs: 1_800_000 });
 
-  console.log("  reconstruyendo la presencia de facetas…");
+  console.log("  reconstruyendo product_catalog_projection…");
+  psql(`select public.rebuild_product_catalog_search();`, { timeoutMs: 1_800_000 });
+  psql(`select public.rebuild_product_catalog_price();`, { timeoutMs: 1_800_000 });
+
+  console.log("  reconstruyendo catalog_facet_presence…");
   psql(`select public.rebuild_catalog_facet_presence();`, { timeoutMs: 1_800_000 });
 
   console.log("  analizando…");
@@ -270,7 +256,19 @@ function verificarVolumen() {
                           and ta.attribute_definition_id = vav.attribute_definition_id)
       union all
       select 'variante del volumen sin documento de busqueda', count(*)
-      from public.product_variants v where v.sku like 'VOLQ-%' and v.search_document is null
+      from public.product_variants v
+      where v.sku like 'VOLQ-%'
+        and not exists (select 1 from public.variant_search_projection p where p.variant_id = v.id)
+      union all
+      select 'variante del volumen sin sus codigos', count(*)
+      from public.product_variants v
+      where v.sku like 'VOLQ-%'
+        and not exists (select 1 from public.variant_search_codes c where c.variant_id = v.id)
+      union all
+      select 'producto del volumen sin fila en el catalogo', count(*)
+      from public.products p
+      where p.code like 'VOLQ-%'
+        and not exists (select 1 from public.product_catalog_projection c where c.product_id = p.id)
     ) z order by 1;
   `);
 
@@ -299,14 +297,16 @@ function verificarVolumen() {
 
 const PLANES = [
   {
-    nombre: "documento de variante → índice trigrama",
-    sql: `select count(*) from public.product_variants v where v.search_document like '%esmalte%';`,
-    espera: "product_variants_search_document_trgm_idx"
+    nombre: "documento de variante → índice trigrama de la proyección",
+    sql: `select count(*) from public.variant_search_projection p
+          where p.search_document like '%esmalte%';`,
+    espera: "variant_search_projection_trgm_idx"
   },
   {
-    nombre: "documento de producto → índice trigrama",
-    sql: `select count(*) from public.products p where p.search_text like '%esmalte%';`,
-    espera: "products_search_text_trgm_idx"
+    nombre: "documento de producto → índice trigrama de la proyección",
+    sql: `select count(*) from public.product_catalog_projection p
+          where p.search_document like '%esmalte%';`,
+    espera: "product_catalog_projection_trgm_idx"
   },
   {
     nombre: "documento de persona → índice trigrama",
