@@ -6698,6 +6698,14 @@ a.pub-tab--wa:hover {
   background: rgba(36, 22, 33, 0.42);
 }
 
+/* La capa que se abre ENCIMA de otra ventana ya abierta. Va DESPUÉS de la regla
+   base a propósito: misma especificidad, gana la última, y puesta antes no
+   servía de nada. La pantalla de «venta registrada» y la hoja del comprobante
+   compartían capa, y como aquella se pinta por portal quedaba delante: se
+   pulsaba «Documento», la hoja se abría donde no se veía y la pantalla quedaba
+   tapada y sin salida. */
+.tone-backdrop--top { z-index: 140; }
+
 .tone-sheet {
   display: flex;
   flex-direction: column;
@@ -6750,6 +6758,985 @@ a.pub-tab--wa:hover {
 }
 
 .tone-close:hover { background: var(--hover); color: var(--ink); }
+
+/* Reservas y carritos pendientes reutilizan la ventana de la carta de tonos:
+   es la misma idea —algo que se abre de un clic, se resuelve y se cierra— y
+   tener dos sistemas de ventana en la misma pantalla se nota. Solo cambia el
+   alto, porque aquí la lista es corta y una ventana de 88vh medio vacía
+   parece un error. */
+.tone-sheet--pending { height: auto; max-height: min(80vh, 620px); }
+
+.tone-pending-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 16px 16px;
+}
+
+/* La entrada a las reservas desde la venta: presente pero callada. Compite con
+   «Registrar venta», que es lo que la vendedora viene a hacer. */
+.order-pending-open {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  /* 44px es el mínimo táctil de la W3C, el mismo que usa la carta de tonos.
+     En mostrador esto se toca con la clienta delante y a veces con las manos
+     ocupadas: un objetivo de 38px se falla. */
+  min-height: 44px;
+  margin-bottom: 10px;
+  padding: 9px 12px;
+  border: 1px dashed var(--line);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--ink-3);
+  font-size: 13px;
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  text-align: left;
+}
+
+.order-pending-open:hover { background: var(--hover); color: var(--ink-2); border-style: solid; }
+
+/* ------------------------------------------------------------------------
+   La clienta: una fila, no una sección
+   ------------------------------------------------------------------------ */
+.order-client-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 10px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2, transparent);
+}
+
+.order-client-mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-pill);
+  background: var(--rose-soft, var(--hover));
+  color: var(--rose);
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+}
+
+.order-client-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.order-client-body b { font-size: 13.5px; font-weight: var(--fw-semibold); color: var(--ink); }
+.order-client-body small { font-size: 12px; color: var(--ink-3); }
+
+.order-client-action {
+  flex: none;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 12.5px;
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+
+.order-client-action:hover { background: var(--hover); color: var(--ink); }
+
+.order-client-results { margin: 12px 0; display: flex; flex-direction: column; gap: 6px; }
+
+.order-client-hit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+}
+
+.order-client-hit:hover { background: var(--hover); }
+
+/* ------------------------------------------------------------------------
+   Entrega: una excepción que se declara, no una pregunta del flujo
+   ------------------------------------------------------------------------ */
+.order-fulfillment { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+
+.order-fulfillment-pick {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink-3);
+  font-size: 12.5px;
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+
+.order-fulfillment-pick:hover { background: var(--hover); color: var(--ink-2); }
+
+.order-fulfillment-pick--on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--surface);
+}
+
+/* ------------------------------------------------------------------------
+   Datos de entrega
+   ------------------------------------------------------------------------
+   Solo aparece cuando el método de entrega necesita a alguien, y solo pide los
+   campos que ese método exige. Va encajada, no como tarjeta flotante: es una
+   excepción dentro del cobro, no una segunda pantalla. */
+.entrega {
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface-2);
+}
+
+.entrega-quien {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.entrega-k {
+  color: var(--br-label);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.entrega-opts { display: flex; gap: 6px; }
+
+.entrega-opt {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink-3);
+  font-size: 12.5px;
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+
+.entrega-opt:hover { background: var(--hover); color: var(--ink-2); }
+
+.entrega-opt--on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--surface);
+}
+
+/* El nombre de la clienta se muestra, no se vuelve a pedir: ya se sabe. */
+.entrega-clienta {
+  margin-bottom: 10px;
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: var(--fw-medium);
+}
+
+.entrega-nota { color: var(--ink-3); font-size: 12px; }
+
+/* Contra entrega: separada del resto de la entrega por una línea, porque es una
+   decisión sobre el dinero y no sobre a quién se le lleva. */
+.entrega-quien--pago {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  margin-bottom: 8px;
+}
+
+/* Las tres cifras juntas y en una sola línea: lo que cuesta, lo que se cobra
+   hoy y lo que queda. Separadas, quien vende tendría que restar. */
+.entrega-saldo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink-3);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.entrega-saldo b { color: var(--ink); font-weight: var(--fw-medium); }
+
+/* ------------------------------------------------------------------------
+   Pendientes — el centro operativo, no una lista de reservas
+   ------------------------------------------------------------------------
+   Reúne tres cosas que antes no vivían juntas: reservas vivas, pedidos por
+   entregar y ventas por cobrar. Los chips recortan la MISMA lista en vez de
+   partirla en cuatro pantallas. */
+/* Un campo obligatorio todavía vacío. No es un error —nadie se ha equivocado
+   aún—, así que se señala con el color de aviso y no con el de fallo: es «esto
+   falta», no «esto está mal». */
+.input--falta {
+  border-color: var(--gold);
+  background: var(--gold-wash);
+}
+
+.input--falta:focus {
+  border-color: var(--gold-deep);
+  background: var(--surface);
+}
+
+.pend-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 16px 0;
+}
+
+.pend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink-3);
+  font-size: 12.5px;
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+
+.pend-chip:hover { background: var(--hover); color: var(--ink-2); }
+
+.pend-chip--on { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+
+/* El contador va dentro del chip: cuántos hay es parte de la pregunta. */
+.pend-chip i {
+  font-style: normal;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.65;
+}
+
+.pend-list { display: flex; flex-direction: column; gap: 8px; }
+
+.pend-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+}
+
+.pend-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pend-main b { color: var(--ink); font-size: 13.5px; font-weight: var(--fw-medium); }
+.pend-meta { color: var(--ink-3); font-size: 11.5px; }
+
+.pend-money {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pend-total { color: var(--ink-2); font-size: 13px; }
+/* Lo que se debe es lo que hace que la fila esté ahí: se dice en su color. */
+.pend-debe { color: var(--gold-deep); font-size: 11.5px; font-weight: var(--fw-medium); }
+
+/* Las acciones ocupan la fila entera debajo: en un teléfono, apretarlas contra
+   el importe deja dos objetivos táctiles pegados y se pulsa el que no era. */
+.pend-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.pend-actions button { min-height: 40px; }
+
+@media (min-width: 640px) {
+  .pend-row { grid-template-columns: 1fr auto auto; align-items: center; }
+  .pend-actions { grid-column: auto; margin-top: 0; }
+}
+
+/* Lo que falta se dice mientras aún se puede preguntar, no al cobrar. */
+.entrega-falta {
+  margin: 2px 0 0;
+  padding: 7px 10px;
+  border-radius: var(--r-sm);
+  background: var(--gold-wash);
+  color: var(--gold-deep);
+  font-size: 12px;
+  font-weight: var(--fw-medium);
+}
+
+/* ------------------------------------------------------------------------
+   Estado vacío y sin resultados del buscador
+   ------------------------------------------------------------------------ */
+.order-section-note {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: var(--fw-medium);
+  color: var(--ink-3);
+}
+
+.order-empty--nohit { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.order-empty--nohit b { font-size: 14px; color: var(--ink); }
+
+.order-suggestions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 4px; }
+
+.order-suggestion {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 12.5px;
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+
+.order-suggestion:hover { background: var(--hover); color: var(--ink); }
+
+/* ==========================================================================
+   POS · copiado del prototipo aprobado (artifact 027064bb)
+   ========================================================================== */
+
+/* --- El acabado se insinúa en el círculo; nunca se usa la foto del envase --- */
+.tone-dot--glitter {
+  background-image:
+    radial-gradient(circle at 28% 30%, rgba(255,255,255,.95) 0 1.2px, transparent 1.3px),
+    radial-gradient(circle at 68% 58%, rgba(255,255,255,.85) 0 1.1px, transparent 1.2px),
+    radial-gradient(circle at 46% 78%, rgba(255,255,255,.8) 0 1px, transparent 1.1px),
+    radial-gradient(circle at 78% 26%, rgba(255,255,255,.7) 0 .9px, transparent 1px);
+}
+.tone-dot--metal { background-image: linear-gradient(135deg, rgba(255,255,255,.6), transparent 42%, rgba(0,0,0,.22)); }
+.tone-dot--pearl { background-image: linear-gradient(140deg, rgba(255,255,255,.45), transparent 58%); }
+.tone-dot--sheer { opacity: .72; }
+
+/* --- Cabecera del carrito y «Vaciar venta» en color de advertencia --- */
+.order-cart-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.order-cart-meta { display: inline-flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--ink-3); }
+
+.btn-empty-sale {
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: var(--crit);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-empty-sale:hover:not(:disabled) { background: var(--crit-wash); }
+.btn-empty-sale:disabled { color: var(--ink-3); cursor: not-allowed; }
+
+/* --- La clienta, arriba del carrito --- */
+.clientrow {
+  margin: 13px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+}
+
+.clientrow--has { background: var(--plum-wash); border-color: #E6D2E0; }
+
+.clientrow-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-3);
+  flex: 0 0 auto;
+}
+
+.clientrow--has .clientrow-mark { background: var(--plum); color: #fff; border-color: var(--plum); }
+
+.clientrow-body { flex: 1 1 auto; min-width: 0; }
+.clientrow-name {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.clientrow-sub { margin: 1px 0 0; font-size: 11.5px; color: var(--ink-2); }
+
+.clientrow-action {
+  background: none;
+  border: 0;
+  color: var(--rose-deep);
+  font-family: var(--font);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  min-height: 44px;
+  flex: 0 0 auto;
+}
+
+.clientrow-action:hover { background: var(--rose-wash); }
+
+/* --- La acción principal del carrito --- */
+.cta-charge {
+  width: 100%;
+  min-height: 52px;
+  margin: 14px 0 10px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: var(--rose);
+  color: #fff;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  cursor: pointer;
+}
+
+.cta-charge:hover:not(:disabled) { background: var(--rose-deep); }
+.cta-charge:disabled { background: var(--line-2); color: var(--surface); cursor: not-allowed; }
+
+.order-actions--secondary { justify-content: flex-end; }
+
+/* --- La ventana de cobro --- */
+.ov {
+  position: fixed;
+  inset: 0;
+  background: rgba(36, 22, 33, .42);
+  z-index: 140;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.sheet {
+  background: var(--surface);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 460px;
+  max-height: 92vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(36, 22, 33, .28);
+}
+
+.shead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  border-radius: 12px 12px 0 0;
+  z-index: 2;
+}
+
+.shead h2 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
+
+.xbtn {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--ink-3);
+  padding: 5px 9px;
+  border-radius: 6px;
+  font-size: 19px;
+  line-height: 1;
+}
+
+.xbtn:hover { background: var(--surface-2); color: var(--ink); }
+
+/* Columna flexible para poder ORDENAR sin trocear el JSX: lo que bloquea el
+   cobro (medio + N.º de operación) queda arriba, y la entrega —que casi nunca
+   se toca— baja justo antes del botón. */
+.sbody { padding: 18px 20px 20px; display: flex; flex-direction: column; }
+
+.sbody > .order-fulfillment--after,
+.sbody > .entrega { order: 1; }
+.sbody > .pay-confirm { order: 2; }
+.sbody > .payalt { order: 3; }
+
+.order-fulfillment--after { margin-top: 4px; }
+
+/* El mayorista bajo el precio de lista, en gris: informa sin competir con la
+   cifra que se va a cobrar hoy. */
+.pos-card-wholesale {
+  display: block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Aviso de posible duplicada: orienta, no interrumpe. Aparece solo cuando hay
+   algo que decir y se resuelve de un toque. */
+.client-maybe {
+  margin: 12px 0 4px;
+  padding: 10px 11px;
+  border: 1px solid var(--gold-wash, #F8F0DF);
+  border-radius: var(--r-sm);
+  background: var(--gold-wash, #F8F0DF);
+}
+
+.client-maybe-title {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--gold-deep, #8A5F22);
+}
+
+.client-maybe-why {
+  margin: 2px 0 9px;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--gold-deep, #8A5F22);
+  opacity: .82;
+}
+
+/* Bloque, no inline: con <span> el nombre y el número salían pegados
+   («Rosa Prueba999111222»). */
+.client-maybe-data {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.client-maybe-data b {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.client-maybe-data small {
+  font-size: 11.5px;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.client-maybe-hit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 7px 9px;
+  margin-bottom: 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font);
+}
+
+.client-maybe-hit:last-child { margin-bottom: 0; }
+.client-maybe-hit:hover { border-color: var(--rose); background: var(--rose-wash); }
+
+.client-maybe-use {
+  flex: 0 0 auto;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--rose-deep);
+}
+
+.sale-discount-capped {
+  display: block;
+  margin-top: 2px;
+  color: var(--crit);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+/* El importe manda: es lo primero que se mira y lo que la clienta pregunta. */
+.amtbig { text-align: center; padding: 6px 0 18px; }
+.amtbig .k {
+  font-size: 11.5px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.amtbig .v {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+  margin-top: 4px;
+}
+
+.btn-full { width: 100%; }
+
+/* Elegir el medio: rejilla de 3, botones grandes. Es la única decisión de esta
+   pantalla, así que ocupa toda la pantalla. */
+.paygrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-bottom: 12px; }
+
+.paym {
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  padding: 16px 8px;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  transition: border-color .14s, background .14s;
+}
+
+.paym:hover { border-color: var(--rose); background: var(--rose-wash); color: var(--rose-deep); }
+
+.linkline {
+  width: 100%;
+  background: none;
+  border: 1px dashed var(--line-2);
+  color: var(--ink-2);
+  border-radius: var(--r-sm);
+  height: 44px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.linkline:hover { border-color: var(--rose); color: var(--rose-deep); }
+
+/* Lo elegido, confirmado en verde con su importe. */
+.chosen {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  background: var(--green-wash);
+  border: 1px solid var(--green-line);
+  border-radius: var(--r-sm);
+  padding: 14px 15px;
+  margin-bottom: 14px;
+}
+
+.chosen .ck {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.chosen .cm { flex: 1 1 auto; font-size: 15px; font-weight: 600; color: var(--ink); }
+.chosen .ca { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+
+.payalt { display: flex; justify-content: center; margin-top: 10px; }
+
+.linkbtn2 {
+  background: none;
+  border: 0;
+  color: var(--ink-2);
+  font-family: var(--font);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  min-height: 44px;
+}
+
+.linkbtn2:hover { background: var(--surface-2); color: var(--rose-deep); }
+
+/* La tarjeta de un tono: el borde y el fondo viven en el contenedor, no en el
+   botón, para que la fila de cantidad quede DENTRO del mismo recuadro. */
+/* Bloque, no flex: son dos cajas apiladas y `flex` las hacía encogerse contra
+   la altura de la fila de la rejilla, que aplastaba la tarjeta a 47px. */
+.tone-cell-wrap {
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  transition: border-color .13s, background .13s;
+}
+
+.tone-cell-wrap:hover { border-color: var(--rose); background: var(--rose-wash); }
+
+.tone-cell-wrap--picked { border-color: var(--rose); background: var(--rose-wash); }
+.tone-cell-wrap--out { opacity: .5; background: var(--surface-2); }
+.tone-cell-wrap--out:hover { border-color: var(--line); background: var(--surface-2); }
+
+/* El botón interior pierde su propio recuadro: ahora lo pone el contenedor. */
+.tone-cell-wrap .tone-cell {
+  width: 100%;
+  border: 0;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.tone-cell-wrap .tone-cell:hover,
+.tone-cell-wrap .tone-cell--picked { background: none; box-shadow: none; }
+
+/* La fila de cantidad ocupa alto SIEMPRE, haya o no tono elegido: es lo que
+   mantiene todas las tarjetas del mismo tamaño mientras se va sumando. */
+.tone-qty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 44px;
+  border-top: 1px solid transparent;
+}
+
+.tone-cell-wrap--picked .tone-qty { border-top-color: rgba(211, 52, 138, .22); }
+
+.tone-qty-btn {
+  width: 38px;
+  height: 34px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tone-qty-btn:hover:not(:disabled) { border-color: var(--rose); color: var(--rose-deep); background: var(--rose-wash); }
+.tone-qty-btn:disabled { color: var(--line-2); cursor: not-allowed; }
+
+.tone-qty-n {
+  min-width: 22px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* Con el dedo, los dos botones al mínimo de la W3C. Caben: en celular la
+   rejilla baja a 2 columnas y la tarjeta ronda los 190px de ancho. */
+@media (pointer: coarse) {
+  .tone-qty { height: 52px; }
+  .tone-qty-btn { width: 46px; height: 44px; font-size: 19px; }
+}
+
+/* ---------------------------------------------------------------------------
+   Riel de familias cromáticas (propuesta A)
+   ---------------------------------------------------------------------------
+   Las catorce familias en columna fija junto a la rejilla: visibles sin
+   desplegar ni arrastrar, y sin robarle alto a los tonos. Se baja por la
+   columna de colores y solo se lee la fila a la que ya se apunta.
+   Cada fila lleva su cuenta pegada: color, cantidad y estado de un vistazo. */
+.tone-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+/* Densidad calculada, no elegida a ojo: la ventana deja 481px para el riel y
+   las quince filas necesitaban 588. A 29px de fila más 1 de separación caben
+   las quince sin desplazar —que es el punto entero de este diseño—. Es la
+   densidad de un panel de capas de escritorio; en táctil sube a 44 abajo. */
+.tone-rail {
+  flex: 0 0 176px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 8px;
+  border-right: 1px solid var(--line);
+  background: var(--surface-2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.tone-rail-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 29px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--ink-2);
+  font-family: var(--font);
+  font-size: 12.5px;
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  text-align: left;
+}
+
+.tone-rail-btn:hover { background: var(--hover); color: var(--ink); }
+
+.tone-rail-btn[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.tone-rail-btn[aria-pressed="true"] .tone-rail-n { color: var(--surface); opacity: .72; }
+
+.tone-rail-txt {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tone-rail-n {
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: var(--fw-bold, 700);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* «Todas» no tiene un color propio: lleva las familias reales en degradado, con
+   los mismos valores de FAMILY_TINTS. No se inventa un color para el conjunto. */
+.tone-rail-all {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--r-pill);
+  box-shadow: inset 0 0 0 1px rgba(36, 22, 33, 0.18);
+  background: conic-gradient(#C0392B, #E07B4F, #D9A62E, #5B8C5A, #3B6FB5, #7D4B9E, #E38AA8, #C0392B);
+}
+
+.tone-rail .tone-family-dot { width: 16px; height: 16px; flex: 0 0 auto; }
+
+/* «Multicolor y efectos» no tiene un color: pintarla de rosa la hacía
+   indistinguible de «Rosados». El degradado la nombra sin leer. El hex de
+   FAMILY_TINTS sigue debajo como respaldo para los cálculos de contraste. */
+.tone-family-dot--multi {
+  background-image: conic-gradient(
+    from 210deg,
+    #E02A22, #FF6B3D, #F0B01F, #2FA14D, #2A6FE0, #8B3DC7, #F04E92, #E02A22
+  ) !important;
+}
+
+/* En celular no caben 176px de riel: pasa a dos columnas ENCIMA de la rejilla,
+   mismas filas y mismo orden. Sin arrastre lateral. */
+@media (max-width: 720px) {
+  .tone-main { flex-direction: column; }
+
+  .tone-rail {
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    max-height: 168px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .tone-rail-btn { min-height: 44px; }
+}
+
+/* Filtro colapsado anterior: se sustituyó por el riel. */
+.tone-fams { margin: 11px 0 0; }
+
+.tone-fams-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-family: var(--font);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tone-fams-toggle:hover { border-color: var(--line-2); color: var(--ink); }
+.tone-fams-toggle small { color: var(--ink-3); font-weight: 600; font-variant-numeric: tabular-nums; }
+.tone-fams-caret { font-size: 9px; color: var(--ink-3); }
+
+.tone-fams-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 10px 0 2px;
+}
+
+.tone-fam-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  cursor: pointer;
+  font-family: var(--font);
+}
+
+.tone-fam-chip:hover { border-color: var(--line-2); background: var(--hover); }
+
+.tone-fam-chip--on {
+  border-color: var(--ink);
+  background: var(--ink);
+}
+
+.tone-fam-chip {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.tone-fam-chip--on { color: #fff; }
+.tone-fam-chip--on small { color: rgba(255, 255, 255, .75); }
+
+.tone-fam-chip small {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Alta de clienta desde la venta: lo mínimo para volver a reconocerla. */
+.newclient { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.newclient .sale-field i { font-style: normal; color: var(--ink-3); font-weight: 500; }
+.newclient-actions { display: flex; gap: 8px; justify-content: flex-end; }
 
 /* La deuda de precios se dice, no se disimula: un tono sin precio se ve en la
    carta pero no se puede cobrar, y la vendedora tiene que saberlo antes. */
@@ -7218,6 +8205,7 @@ a.pub-tab--wa:hover {
 
 .ticket-paper {
   width: 80mm;
+  box-sizing: border-box;
   padding: 4mm 4mm 6mm;
   background: #fff;
   box-shadow: 0 10px 40px rgba(36, 22, 33, 0.13);
@@ -7236,6 +8224,30 @@ a.pub-tab--wa:hover {
 .tk-b { font-weight: 700; }
 .tk-sm { font-size: 10px; }
 .tk-biz { font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; }
+
+/* El logo, con la proporción del original (360×209) intacta: ancho fijo y alto
+   automático. Deformarlo se nota más impreso que en pantalla, porque al lado no
+   hay nada más de la marca con qué compararlo. */
+.tk-logo {
+  display: block;
+  width: 34mm;
+  height: auto;
+  margin: 0 auto 1.2mm;
+}
+
+/* Una venta anulada lo grita. Un ticket reimpreso idéntico al de una venta viva
+   es el que acaba usándose para reclamar una entrega que ya no existe. */
+.tk-void {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  border: 2px solid #000;
+  padding: 0.8mm 0;
+  margin: 1mm 0 0;
+}
+
+/* Lo que falta por pagar no es dinero recibido, y no puede leerse como tal. */
+.tk-debe { border-top: 1px solid #000; padding-top: 0.8mm; margin-top: 0.6mm; }
 .tk-rule { border-top: 1px solid #000; margin: 1.6mm 0; }
 .tk-rule--dash { border-top: 1px dashed #000; }
 .tk-rule--thick { border-top: 2px solid #000; }
@@ -7264,13 +8276,92 @@ a.pub-tab--wa:hover {
 .tk-thanks { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; }
 
 @page { size: 80mm auto; margin: 0; }
+@page thermal-80 { size: 80mm auto; margin: 0; }
+@page thermal-58 { size: 58mm auto; margin: 0; }
+
+/* La página de impresión no tiene panel: la nota vive en su propio grupo de
+   rutas, `admin/(print)`, sin barra superior ni navegación. Este contenedor es
+   todo el marco que hay. */
+.print-shell {
+  min-height: 100vh;
+  padding: 18px 16px 32px;
+  background: var(--ground);
+}
+
+.ticket-paper-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.ticket-paper-select select {
+  border: 1px solid var(--line-input);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 7px 8px;
+}
+
+.ticket-setup {
+  max-width: 720px;
+  margin: 0 auto 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.ticket-setup summary {
+  cursor: pointer;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.ticket-setup p { margin: 8px 0 0; }
 
 @media print {
-  body { background: #fff; }
+  /* 80 mm es el rollo de la impresora térmica del mostrador. En una A4 sale la
+     misma tira estrecha arriba a la izquierda, que es como se ve un ticket en
+     una hoja: legible y sin recortes. */
+  @page { size: 80mm auto; margin: 0; }
+
+  html, body { margin: 0; padding: 0; background: #fff; }
+
+  /* Lo único que NO se imprime de esta página es su barra de controles, y es lo
+     único que hay aparte del ticket. No es una lista de exclusión del panel: el
+     panel no está aquí. */
   .ticket-noprint { display: none !important; }
+
+  /* El marco de la página no aporta nada al papel: se aplana entero para que el
+     ticket empiece en el borde del rollo y no a tres centímetros. */
+  .print-shell, .print-shell .form-page {
+    min-height: 0;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+    background: #fff;
+    animation: none;
+  }
+  .print-page--80 { width: 80mm; }
+  .print-page--58 { width: 58mm; }
   .ticket-stage { display: block; padding: 0; margin: 0; background: #fff; }
-  .ticket-paper { width: 80mm; box-shadow: none; padding: 3mm 4mm 8mm; }
+  .print-page--80 .ticket-paper { width: 80mm; page: thermal-80; }
+  .print-page--58 .ticket-paper { width: 58mm; page: thermal-58; padding: 3mm 3mm 8mm; }
   .ticket { width: auto; }
+  .print-page--58 .tk-logo { width: 27mm; }
+
+  /* El logo se imprime: sin esto, el navegador puede descartar imágenes y
+     fondos «decorativos» y la nota sale sin marca. */
+  .tk-logo { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+
+  /* Un bloque partido entre dos trozos de papel obliga a leer el ticket en dos
+     manos. Se cortan por donde el ticket ya tiene separaciones. */
+  .tk-prod, .tk-totrow, .tk-legend { break-inside: avoid; }
 }
 
 /* ═══════ POS · cierre de la venta (B1.5) ═══════ */

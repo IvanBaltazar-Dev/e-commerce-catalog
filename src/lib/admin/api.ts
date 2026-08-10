@@ -6,10 +6,15 @@ import type { ApiPdfExport, ApiProduct, ApiTaxonomy, ProductPayload } from "@/li
 import type { AdminV2Bootstrap, AdminV2Product, AdminV2ProductInput } from "@/lib/admin/catalog-v2";
 import type {
   CreateReservationInput,
+  FulfillmentRequirement,
+  MarkFulfillmentInput,
+  PendingOperations,
   RegisterSaleInput,
   Reservation,
   Sale,
-  TaxDocumentKind
+  SettleSaleBalanceInput,
+  TaxDocumentKind,
+  TaxDocumentRequirement
 } from "@/lib/admin/sales";
 import type {
   CashMovement,
@@ -102,6 +107,14 @@ export type OperableBranch = {
   name: string;
   district: string | null;
   isDefault: boolean;
+};
+
+/** Una clienta encontrada desde el mostrador. Lo mínimo para reconocerla. */
+export type PersonMatch = {
+  id: string;
+  fullName: string;
+  phone: string | null;
+  document: string | null;
 };
 
 export class AdminApiError extends Error {
@@ -382,8 +395,29 @@ export const adminApi = {
   },
   registerSale: (payload: RegisterSaleInput) =>
     request<Sale>("/api/admin/sales", { method: "POST", body: JSON.stringify(payload) }),
+  // Qué pedir en cada método de entrega. Sale de la base, no de una constante:
+  // es la misma regla que después impide cerrar una venta incompleta.
+  listFulfillmentRequirements: () =>
+    request<{ items: FulfillmentRequirement[] }>("/api/admin/sales/entrega").then((result) => result.items),
+  // Lo que queda por hacer: reservas vivas, pedidos por entregar y ventas por
+  // cobrar. El saldo llega resuelto de PostgreSQL; aquí no se resta nada.
+  listPendingOperations: () => request<PendingOperations>("/api/admin/pendientes"),
+  settleSaleBalance: (id: string, payload: SettleSaleBalanceInput) =>
+    request<Sale>(`/api/admin/sales/${id}/saldo`, { method: "POST", body: JSON.stringify(payload) }),
+  markSaleFulfillment: (id: string, payload: MarkFulfillmentInput) =>
+    request<Sale>(`/api/admin/sales/${id}/entrega`, { method: "POST", body: JSON.stringify(payload) }),
+  // Qué exige cada comprobante. Sale de la base, no de una constante: son
+  // reglas de la SUNAT y cambian sin avisarnos.
+  listTaxDocumentRequirements: () =>
+    request<{ items: TaxDocumentRequirement[] }>("/api/admin/sales/comprobante").then((r) => r.items),
   requestTaxDocument: (id: string, payload: { kind: TaxDocumentKind; receiver?: unknown }) =>
     request<Sale>(`/api/admin/sales/${id}`, { method: "POST", body: JSON.stringify(payload) }),
+  // Asociar clienta es opcional: esto solo se llama si la vendedora abre la
+  // ventana, nunca al cargar la pantalla de venta.
+  searchPersons: (q: string) =>
+    request<PersonMatch[]>(`/api/admin/personas?q=${encodeURIComponent(q)}`),
+  createPerson: (payload: { fullName: string; phone?: string | null; document?: string | null }) =>
+    request<PersonMatch>("/api/admin/personas", { method: "POST", body: JSON.stringify(payload) }),
   listReservations: (status?: string) =>
     request<{ items: ReservationSummary[] }>(
       status ? `/api/admin/reservations?status=${status}` : "/api/admin/reservations"

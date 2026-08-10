@@ -85,7 +85,21 @@ export async function POST(request: Request) {
       p_discount_total: input.discountTotal,
       p_notes: input.notes ?? null,
       p_reservation_id: input.reservationId ?? null,
-      p_source_reference: input.sourceReference ?? null
+      p_source_reference: input.sourceReference ?? null,
+      // Lo único que esta capa sabe del origen. El resto —captación, campaña,
+      // anuncio, click_id— lo resuelve `resolve_sale_attribution` leyendo la
+      // cadena: mandarlo desde aquí sería volver a poner un desplegable de
+      // «Origen» delante de la vendedora, por la puerta de atrás.
+      p_entry_mode: input.entryMode,
+      p_conversation_id: input.conversationId ?? null,
+      p_person_id: input.personId ?? null,
+      // Quién recibe y quién puede recoger. Si falta algo que el método exige,
+      // el disparador diferido de 0061 aborta la transacción entera al cerrar:
+      // aquí no se comprueba nada por segunda vez.
+      p_parties: input.parties ?? [],
+      // Contra entrega. Si el método no la admite o falta el adelanto,
+      // `register_sale` lo rechaza en el acto: aquí no se comprueba nada.
+      p_payment_terms: input.paymentTerms
     });
 
     if (error) throw new HttpError(400, "sale_register_failed", error.message);
