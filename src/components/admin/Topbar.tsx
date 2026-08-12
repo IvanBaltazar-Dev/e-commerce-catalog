@@ -12,8 +12,6 @@ type Entrada = {
   label: string;
   /** Sin esto, la entrada es de todo el personal. */
   soloAdmin?: boolean;
-  /** Solo con el flag de importaciones encendido. */
-  soloImportaciones?: boolean;
 };
 
 type Area = { id: string; label: string; entradas: Entrada[] };
@@ -60,11 +58,11 @@ const AREAS: Area[] = [
     label: "Catálogo",
     entradas: [
       { href: "/admin/productos", label: "Productos", soloAdmin: true },
+      { href: "/admin/catalogo/revisar", label: "Revisar", soloAdmin: true },
       // Estructura NO va aquí: /admin/estructura es un stub que redirige al
       // alta de productos, no una pantalla. Ofrecerla sería prometer algo que
       // deja al usuario en otro sitio sin explicación.
-      { href: "/admin/pdf", label: "Catálogo PDF", soloAdmin: true },
-      { href: "/admin/importaciones", label: "Importaciones", soloAdmin: true, soloImportaciones: true }
+      { href: "/admin/pdf", label: "Catálogo PDF", soloAdmin: true }
     ]
   },
   {
@@ -98,14 +96,13 @@ const AREAS: Area[] = [
   }
 ];
 
-function areasVisibles(role: Rol, importsEnabled: boolean): Area[] {
+function areasVisibles(role: Rol): Area[] {
   const esAdmin = role !== "seller";
   return AREAS
     .map((area) => ({
       ...area,
       entradas: area.entradas.filter((e) => {
         if (e.soloAdmin && !esAdmin) return false;
-        if (e.soloImportaciones && !(role === "developer" && importsEnabled)) return false;
         return true;
       })
     }))
@@ -114,11 +111,11 @@ function areasVisibles(role: Rol, importsEnabled: boolean): Area[] {
     .filter((area) => area.entradas.length > 0);
 }
 
-export function Topbar({ role, importsEnabled }: { role: Rol; importsEnabled: boolean }) {
+export function Topbar({ role }: { role: Rol }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const areas = areasVisibles(role, importsEnabled);
+  const areas = areasVisibles(role);
   const activa = areas.find((area) => area.entradas.some((e) => pathname.startsWith(e.href)));
 
   async function handleLogout() {

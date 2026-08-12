@@ -34,6 +34,148 @@ function attributeRow(owner: { product_id?: string; variant_id?: string }, value
   };
 }
 
+function stableJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, item]) => `${JSON.stringify(key)}:${stableJson(item)}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value ?? null);
+}
+
+function attributeValueKey(row: Record<string, unknown>, ownerColumn: "product_id" | "variant_id") {
+  return stableJson([
+    row[ownerColumn],
+    row.attribute_definition_id,
+    row.option_id ?? null,
+    row.value_text ?? null,
+    row.value_number === null || row.value_number === undefined ? null : Number(row.value_number),
+    row.value_boolean ?? null,
+    row.value_date ?? null,
+    row.value_json ?? null,
+  ]);
+}
+
+async function syncAttributeValues(
+  supabase: Supabase,
+  table: "product_attribute_values" | "variant_attribute_values",
+  ownerColumn: "product_id" | "variant_id",
+  ownerIds: string[],
+  desiredRows: Array<Record<string, unknown>>,
+  errorPrefix: string,
+) {
+  if (!ownerIds.length) return;
+  const existingResult = await supabase
+    .from(table)
+    .select(`id,${ownerColumn},attribute_definition_id,option_id,value_text,value_number,value_boolean,value_date,value_json,provenance_id,needs_review`)
+    .in(ownerColumn, ownerIds);
+  fail(`${errorPrefix}_lookup_failed`, existingResult.error);
+
+  const existingByKey = new Map<string, Array<{ id: string }>>();
+  for (const row of existingResult.data ?? []) {
+    const key = attributeValueKey(row, ownerColumn);
+    const entries = existingByKey.get(key) ?? [];
+    entries.push({ id: String(row.id) });
+    existingByKey.set(key, entries);
+  }
+
+  const retained = new Set<string>();
+  const pendingInsert: Array<Record<string, unknown>> = [];
+  for (const row of desiredRows) {
+    const match = existingByKey.get(attributeValueKey(row, ownerColumn))?.shift();
+    if (match) retained.add(match.id);
+    else pendingInsert.push(row);
+  }
+
+  const removedRows = (existingResult.data ?? [])
+    .filter((row) => !retained.has(String(row.id)));
+  const replacedSourcedFacts = new Set(
+    removedRows
+      .filter((row) => row.provenance_id)
+      .map((row) => `${(row as Record<string, unknown>)[ownerColumn]}:${row.attribute_definition_id}`),
+  );
+  if (removedRows.length) {
+    fail(`${errorPrefix}_delete_failed`, (
+      await supabase.from(table).delete().in("id", removedRows.map((row) => row.id))
+    ).error);
+  }
+  if (pendingInsert.length) {
+    const reviewedRows = pendingInsert.map((row) => (
+      replacedSourcedFacts.has(`${row[ownerColumn]}:${row.attribute_definition_id}`)
+        ? { ...row, needs_review: true }
+        : row
+    ));
+    fail(`${errorPrefix}_insert_failed`, (await supabase.from(table).insert(reviewedRows)).error);
+  }
+}
+
+async function syncProductRelations(supabase: Supabase, productId: string, input: AdminV2ProductInput) {
+  const existingResult = await supabase
+    .from("product_relations")
+    .select("id,target_product_id,relation_type,compatibility_status,knowledge_status")
+    .eq("source_product_id", productId)
+    .not("target_product_id", "is", null)
+    .eq("is_active", true);
+  fail("catalog_v2_relations_lookup_failed", existingResult.error);
+
+  const existingById = new Map((existingResult.data ?? []).map((row) => [String(row.id), row]));
+  const retained = new Set<string>();
+
+  for (const [index, relation] of input.relations.entries()) {
+    const existing = relation.id ? existingById.get(relation.id) : undefined;
+    const semanticChanged = existing && (
+      existing.target_product_id !== relation.targetProductId
+      || existing.relation_type !== relation.relationType
+      || existing.compatibility_status !== relation.compatibilityStatus
+    );
+    const row = {
+      source_product_id: productId,
+      target_product_id: relation.targetProductId,
+      relation_type: relation.relationType,
+      compatibility_status: relation.compatibilityStatus,
+      notes: clean(relation.notes),
+      sort_order: index,
+      ...(semanticChanged ? {
+        knowledge_status: "needs_evidence",
+        evidence_set_id: null,
+        decided_by: null,
+        decided_at: null,
+      } : {}),
+    };
+
+    if (existing) {
+      fail("catalog_v2_relation_update_failed", (
+        await supabase.from("product_relations").update(row).eq("id", existing.id)
+      ).error);
+      retained.add(String(existing.id));
+    } else {
+      fail("catalog_v2_relation_insert_failed", (
+        await supabase.from("product_relations").insert(row)
+      ).error);
+    }
+  }
+
+  const removed = (existingResult.data ?? []).filter((row) => !retained.has(String(row.id)));
+  const approvedIds = removed.filter((row) => row.knowledge_status === "approved").map((row) => row.id);
+  const discardableIds = removed.filter((row) => row.knowledge_status !== "approved").map((row) => row.id);
+  if (approvedIds.length) {
+    fail("catalog_v2_relations_supersede_failed", (
+      await supabase.from("product_relations").update({
+        knowledge_status: "superseded",
+        is_active: false,
+        decided_at: new Date().toISOString(),
+      }).in("id", approvedIds)
+    ).error);
+  }
+  if (discardableIds.length) {
+    fail("catalog_v2_relations_delete_failed", (
+      await supabase.from("product_relations").delete().in("id", discardableIds)
+    ).error);
+  }
+}
+
 function mapAttributeValue(row: Record<string, unknown>): AdminV2AttributeValue {
   return {
     attributeDefinitionId: String(row.attribute_definition_id),
@@ -284,13 +426,25 @@ async function createMediaAsset(supabase: Supabase, path: string, mimeType?: str
 
 async function replaceCatalogV2Details(supabase: Supabase, productId: string, input: AdminV2ProductInput, variantIds: Map<AdminV2VariantInput, string>) {
   const ids = [...variantIds.values()];
-  fail("catalog_v2_product_attributes_delete_failed", (await supabase.from("product_attribute_values").delete().eq("product_id", productId)).error);
-  if (input.productAttributes.length) fail("catalog_v2_product_attributes_insert_failed", (await supabase.from("product_attribute_values").insert(input.productAttributes.map((value) => attributeRow({ product_id: productId }, value)))).error);
+  await syncAttributeValues(
+    supabase,
+    "product_attribute_values",
+    "product_id",
+    [productId],
+    input.productAttributes.map((value) => attributeRow({ product_id: productId }, value)),
+    "catalog_v2_product_attributes",
+  );
 
   if (ids.length) {
-    fail("catalog_v2_variant_attributes_delete_failed", (await supabase.from("variant_attribute_values").delete().in("variant_id", ids)).error);
     const rows = input.variants.flatMap((variant) => variant.attributes.map((value) => attributeRow({ variant_id: variantIds.get(variant)! }, value)));
-    if (rows.length) fail("catalog_v2_variant_attributes_insert_failed", (await supabase.from("variant_attribute_values").insert(rows)).error);
+    await syncAttributeValues(
+      supabase,
+      "variant_attribute_values",
+      "variant_id",
+      ids,
+      rows,
+      "catalog_v2_variant_attributes",
+    );
   }
 
   fail("catalog_v2_prices_delete_failed", (await supabase.from("variant_prices").delete().in("variant_id", ids)).error);
@@ -333,8 +487,7 @@ async function replaceCatalogV2Details(supabase: Supabase, productId: string, in
     fail("catalog_v2_variant_media_insert_failed", (await supabase.from("product_media").insert({ variant_id: variantIds.get(variant), media_asset_id: assetId, media_role: "main", is_primary: true })).error);
   }
 
-  fail("catalog_v2_relations_delete_failed", (await supabase.from("product_relations").delete().eq("source_product_id", productId)).error);
-  if (input.relations.length) fail("catalog_v2_relations_insert_failed", (await supabase.from("product_relations").insert(input.relations.map((relation, index) => ({ source_product_id: productId, target_product_id: relation.targetProductId, relation_type: relation.relationType, compatibility_status: relation.compatibilityStatus, notes: clean(relation.notes), sort_order: index })))).error);
+  await syncProductRelations(supabase, productId, input);
 }
 
 export async function saveCatalogV2Product(supabase: Supabase, input: AdminV2ProductInput, productId?: string) {

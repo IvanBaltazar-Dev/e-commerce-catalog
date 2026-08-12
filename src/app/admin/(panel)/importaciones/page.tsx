@@ -1,12 +1,7 @@
-import type { Metadata } from "next";
-import { ImportacionesTabs } from "@/components/admin/ImportacionesTabs";
-import { requireCatalogImportPage } from "@/lib/auth/catalog-import";
+import { redirect } from "next/navigation";
+import { requirePanelRole } from "@/lib/auth/panel";
 
-export const metadata: Metadata = {
-  title: "Importaciones · Bellaroshé"
-};
-
-export default async function CatalogImportPage() {
-  await requireCatalogImportPage();
-  return <ImportacionesTabs />;
+export default async function LegacyCatalogImportPage() {
+  await requirePanelRole(["admin", "developer"]);
+  redirect("/admin/catalogo/revisar");
 }
