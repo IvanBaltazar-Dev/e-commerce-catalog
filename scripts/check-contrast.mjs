@@ -7,11 +7,8 @@
  * así quedar ilegible sobre la superficie donde acaba usándose.
  */
 import puppeteer from "puppeteer";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { resolveBrowserExecutable } from "./lib/resolve-browser.mjs";
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const BASE_URL = process.env.UI_BASE_URL ?? "http://localhost:3002";
 const ADMIN_EMAIL = "demo-admin@local.invalid";
 const ADMIN_PASSWORD = "Demo-Admin-2026!";

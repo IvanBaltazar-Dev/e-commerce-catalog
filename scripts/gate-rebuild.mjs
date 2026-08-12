@@ -4,7 +4,8 @@
  * Sobre una base COMPLETAMENTE vacía prueba que el repositorio, por sí solo,
  * reconstruye el sistema entero:
  *
- *   0001→0046 → seeds mínimos → pgTAP completo → integrales B1/B2/B3/B4
+ *   manifiesto → 0001→0100 → checkpoint de datos → seeds mínimos
+ *   → pgTAP completo → integrales B1/B2/B3/B4
  *   → concurrencias → typecheck → lint → build de producción
  *
  * No acepta una base previamente usada: el primer paso ES el reset. La
@@ -21,11 +22,16 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const BASE_URL = process.env.UI_BASE_URL ?? "http://localhost:3002";
+// Las integrales antiguas usan E2E_BASE_URL y las superficies nuevas usan
+// UI_BASE_URL. El gate tiene un solo servidor y propaga esa identidad a ambas.
+process.env.E2E_BASE_URL ??= BASE_URL;
 
 const STEPS = [
-  { name: "Base vacía → migraciones 0001–0046 + seed base", cmd: "npx", args: ["supabase", "db", "reset", "--local"] },
+  { name: "Artefactos locales del checkpoint verificados", cmd: "npm", args: ["run", "catalog:storage:verify"] },
+  { name: "Base vacía → migraciones 0001–0100 + seed base", cmd: "npx", args: ["supabase", "db", "reset", "--local"] },
+  { name: "Restaurar catálogo, investigación y Mesa del checkpoint", cmd: "npm", args: ["run", "checkpoint:restore:local"] },
   { name: "Seeds mínimos de operación", cmd: "npm", args: ["run", "seed:demo-operation"] },
-  { name: "pgTAP completo (20 suites)", cmd: "npx", args: ["supabase", "test", "db", "--local"] },
+  { name: "pgTAP completo", cmd: "npx", args: ["supabase", "test", "db", "--local"] },
   { name: "Integral B1 · contratos del catálogo V2", cmd: "npm", args: ["run", "test:contracts"] },
   { name: "Integral B2 · circuito económico", cmd: "npm", args: ["run", "test:block2"] },
   { name: "Integral B3 · omnicanal de punta a punta", cmd: "npm", args: ["run", "test:block3"] },
@@ -35,7 +41,10 @@ const STEPS = [
   { name: "Concurrencia · ventas y caja", cmd: "npm", args: ["run", "test:sales-concurrency"] },
   { name: "Concurrencia · omnicanal", cmd: "npm", args: ["run", "test:omnichannel-concurrency"] },
   { name: "Typecheck", cmd: "npx", args: ["tsc", "--noEmit"] },
-  { name: "Lint", cmd: "npx", args: ["next", "lint"] },
+  // El mismo comando que se teclea a mano: `next lint` está deprecado, muere en
+  // Next 16 y solo miraba los directorios de fuente de la app, así que scripts/
+  // nunca entró al gate.
+  { name: "Lint", cmd: "npm", args: ["run", "lint"] },
   { name: "Build de producción", cmd: "npm", args: ["run", "build"] }
 ];
 

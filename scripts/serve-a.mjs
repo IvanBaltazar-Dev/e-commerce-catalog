@@ -8,9 +8,8 @@
 // Uso: node scripts/serve-a.mjs   (construir antes con npm run build:a)
 import { spawn } from "node:child_process";
 
-const child = spawn("npx", ["next", "start", "-p", "3002"], {
+const child = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "-p", "3002"], {
   stdio: "inherit",
-  shell: process.platform === "win32",
   env: { ...process.env, NEXT_DIST_DIR: ".next-a" }
 });
 child.on("exit", (code) => process.exit(code ?? 0));

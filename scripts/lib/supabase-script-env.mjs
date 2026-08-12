@@ -7,7 +7,7 @@ const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost"]);
 
 // La guarda comprueba que el destino sea verdaderamente local, no que use un puerto
 // fijo: los puertos del stack local son configurables en supabase/config.toml.
-// Ver docs/riesgos-v2.md, R-01.
+// Ver docs/calidad-y-riesgos.md y docs/operacion.md.
 function isLocalTarget(url, env) {
   // Un host que no sea loopback exacto es remoto por definición.
   if (!LOCAL_HOSTS.has(url.hostname.toLowerCase())) return false;

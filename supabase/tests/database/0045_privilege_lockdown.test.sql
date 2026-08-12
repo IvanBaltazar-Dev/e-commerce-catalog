@@ -52,7 +52,7 @@ select is(
   '3 · Ninguna relación anon-legible carece de política pública: ACL y RLS alineados'
 );
 
--- 4-6 · Contratos: exactamente 14 funciones DEL PRODUCTO (las internas de
+-- 4-6 · Contratos: exactamente 16 funciones DEL PRODUCTO (las internas de
 --        extensiones — btree_gist, pg_trgm — pertenecen a supabase_admin,
 --        son maquinaria de índices y quedan fuera del contrato).
 select is(
@@ -64,8 +64,8 @@ select is(
        select 1 from pg_depend dep
        where dep.classid = 'pg_proc'::regclass and dep.objid = p.oid and dep.deptype = 'e'
      )),
-  14,
-  '4 · anon ejecuta EXACTAMENTE 14 funciones del producto: 10 contratos + 4 helpers'
+  16,
+  '4 · anon ejecuta EXACTAMENTE 16 funciones del producto: catálogo base + 2 recomendaciones de sistema'
 );
 
 select is(
@@ -76,7 +76,8 @@ select is(
                        'get_or_create_public_cart', 'public_cart_detail', 'set_public_cart_item',
                        'sync_public_cart', 'touch_anonymous_visitor', 'record_attribution_touch',
                        'is_admin', 'is_public_catalog_product', 'is_public_catalog_variant',
-                       'is_public_catalog_media', 'variant_effective_availability')),
+                       'is_public_catalog_media', 'variant_effective_availability',
+                       'get_catalog_system_coverage_v1', 'get_catalog_system_recommendations_v1')),
   true,
   '5 · …los del catálogo, el carrito, la atribución y sus helpers'
 );

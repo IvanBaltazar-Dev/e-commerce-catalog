@@ -3,8 +3,11 @@
 import sharp from "sharp";
 import { readdir, stat } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { configuredCatalogPath } from "./lib/catalog-research-paths.mjs";
 
-const SRC = "F:\\products\\Bella Roshe\\Catalogo";
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const SRC = configuredCatalogPath("CATALOG_ASSET_SOURCE_DIR", ROOT, "local", "inputs", "catalogo");
 const LOGO = path.join(SRC, "ChatGPT Image 13 jul 2026, 01_42_50 a.m.png");
 const PRODUCTS = path.join(SRC, "imagenes_productos");
 

@@ -31,7 +31,8 @@ async function rpc(name, parameters) {
 const list = await rpc("catalog_list_v2", {
   p_page: 1,
   p_page_size: 2,
-  p_sort: "name_asc"
+  p_sort: "name_asc",
+  p_search: "Demo"
 });
 
 assert(Array.isArray(list.items) && list.items.length === 2, "el listado no respeta page_size=2");
@@ -60,6 +61,7 @@ assert(invalidSort.error?.code === "22023", "un orden invalido debe producir un 
 const filtered = await rpc("catalog_list_v2", {
   p_page: 1,
   p_page_size: 24,
+  p_search: "Demo",
   p_attribute_filters: { shape: ["coffin"] }
 });
 

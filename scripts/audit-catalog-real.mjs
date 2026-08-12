@@ -18,6 +18,7 @@ import { pathToFileURL } from "node:url";
 import { registerHooks } from "node:module";
 import { createClient } from "@supabase/supabase-js";
 import { loadSupabaseScriptEnv } from "./lib/supabase-script-env.mjs";
+import { configuredCatalogPath } from "./lib/catalog-research-paths.mjs";
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/(.:)/, "$1")), "..");
 const { env, isLocal } = loadSupabaseScriptEnv({ rootDir: root, scriptName: "audit-catalog-real", allowedFlags: ["--listado"] });
@@ -38,8 +39,17 @@ const { bulkFamilyConfig } = await import("../src/lib/admin/catalog-bulk-import/
 
 const args = process.argv.slice(2);
 const listadoIndex = args.indexOf("--listado");
-const LISTADO = listadoIndex >= 0 ? args[listadoIndex + 1] : "F:\\Products_SIVAN\\Bellaroshe\\version-V2\\Listado_organizado_productos_Bellaroshe.xlsx";
-const CURATED_MASGLO = "F:\\Products_SIVAN\\Bellaroshe\\version-V2\\products\\01-masglo-tradicional\\plantilla_importacion_masglo_tradicional_sku_oficial_precios.xlsx";
+const LISTADO = listadoIndex >= 0
+  ? path.resolve(args[listadoIndex + 1])
+  : configuredCatalogPath("CATALOG_SOURCE_WORKBOOK", root, "local", "inputs", "Listado_organizado_productos_Bellaroshe.xlsx");
+const CURATED_MASGLO = configuredCatalogPath(
+  "CATALOG_MASGLO_CURATED_WORKBOOK",
+  root,
+  "local",
+  "inputs",
+  "masglo",
+  "plantilla_masglo.xlsx",
+);
 const OUT_DIR = path.join(root, "docs", "evidencia-certificacion-1c");
 await fs.mkdir(OUT_DIR, { recursive: true });
 
@@ -66,7 +76,6 @@ const workbook = await parseCatalogXlsxRaw({ name: path.basename(LISTADO), size:
 const { rows: sourceRows } = mapListingRows(workbook.sheets);
 
 const batches = await all("import_batches", "id, source_name, status, created_at, summary", (q) => q.like("source_name", "bulk_catalog_v2:%"));
-const batchById = new Map(batches.map((b) => [String(b.id), b]));
 const stagingRows = await all("import_rows", "id, batch_id, row_number, status, proposed_action, target_product_id, target_variant_id, normalized_data, import_issues(id, issue_code, severity, status, message, resolution)", (q) => q.in("batch_id", batches.map((b) => b.id)));
 
 const products = await all("products", "id, code, slug, name, presentation, brand_id, category_id, template_id, editorial_status, is_active, media_backfill, created_at");
@@ -85,8 +94,6 @@ const productById = new Map(products.map((p) => [String(p.id), p]));
 const variantById = new Map(variants.map((v) => [String(v.id), v]));
 const supplierById = new Map(suppliers.map((s) => [String(s.id), s]));
 const categoryById = new Map(categories.map((c) => [String(c.id), c]));
-const templateById = new Map(templates.map((t) => [String(t.id), t]));
-const familyOptionById = new Map(familyOptions.map((o) => [String(o.id), o]));
 const variantsByProduct = new Map();
 for (const v of variants) variantsByProduct.set(String(v.product_id), [...(variantsByProduct.get(String(v.product_id)) ?? []), v]);
 const offersByVariant = new Map();
@@ -389,7 +396,7 @@ for (const f of familiaMatrix) {
     const k = normalizeKey(b.name).replace(/\s+/g, "").replace(/[^a-z0-9]/g, "");
     byNorm.set(k, [...(byNorm.get(k) ?? []), b.name]);
   }
-  for (const [k, list] of byNorm) if (list.length > 1) anomalias.push({ tipo: "marca_fragmentada", variantes: list });
+  for (const [, list] of byNorm) if (list.length > 1) anomalias.push({ tipo: "marca_fragmentada", variantes: list });
   // Productos con nombre casi idéntico dentro de la misma marca (solo activos)
   const byProductNorm = new Map();
   for (const p of products.filter((p) => p.is_active)) {

@@ -6,10 +6,11 @@ import { readdir, mkdir, copyFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PRODUCTS, PAYMENTS } from "./catalog-data.mjs";
+import { configuredCatalogPath } from "./lib/catalog-research-paths.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
-const SRC = "F:\\products\\Bella Roshe\\Catalogo";
+const SRC = configuredCatalogPath("CATALOG_ASSET_SOURCE_DIR", ROOT, "local", "inputs", "catalogo");
 const LOGO_SRC = path.join(SRC, "ChatGPT Image 13 jul 2026, 01_42_50 a.m.png");
 const PRODUCTS_SRC = path.join(SRC, "imagenes_productos");
 const PAY_SRC = path.join(SRC, "metodos_pago");

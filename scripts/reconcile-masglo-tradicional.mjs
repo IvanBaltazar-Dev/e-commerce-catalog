@@ -15,6 +15,7 @@ import { pathToFileURL } from "node:url";
 import { registerHooks } from "node:module";
 import { createClient } from "@supabase/supabase-js";
 import { loadSupabaseScriptEnv } from "./lib/supabase-script-env.mjs";
+import { configuredCatalogPath } from "./lib/catalog-research-paths.mjs";
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/(.:)/, "$1")), "..");
 const { env, isLocal } = loadSupabaseScriptEnv({ rootDir: root, scriptName: "reconcile-masglo", allowedFlags: ["--aplicar"] });
@@ -33,8 +34,22 @@ const { parseCatalogImportXlsx } = await import("../src/lib/admin/catalog-import
 const { commitBulkBatch } = await import("../src/lib/admin/catalog-bulk-import/service.ts");
 const { slugify } = await import("../src/lib/catalog/slug.ts");
 
-const CURATED = "F:\\Products_SIVAN\\Bellaroshe\\version-V2\\products\\01-masglo-tradicional\\plantilla_masglo_tradicional_lista_para_importar.xlsx";
-const SWATCH_DIR = "F:\\Products_SIVAN\\Bellaroshe\\version-V2\\products\\01-masglo-tradicional\\masglo_tradicional_media_envases_reales_catalog_assets\\productos\\MAS-TRA-135\\tonos";
+const CURATED = configuredCatalogPath(
+  "CATALOG_MASGLO_CURATED_WORKBOOK",
+  root,
+  "local",
+  "inputs",
+  "masglo",
+  "plantilla_masglo.xlsx",
+);
+const SWATCH_DIR = configuredCatalogPath(
+  "CATALOG_MASGLO_SWATCH_DIR",
+  root,
+  "local",
+  "inputs",
+  "masglo",
+  "tonos",
+);
 const PRODUCT_CODE = "MAS-ESM-4C95F3";
 const LOTE = "masglo-completar-01";
 

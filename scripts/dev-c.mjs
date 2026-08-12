@@ -4,9 +4,8 @@
 // ranuras (dev, dev:b, dev:c) caben tres sin negociar puerto ni carpeta.
 import { spawn } from "node:child_process";
 
-const child = spawn("npx", ["next", "dev", "-p", "3006"], {
+const child = spawn(process.execPath, ["node_modules/next/dist/bin/next", "dev", "--turbopack", "-p", "3006"], {
   stdio: "inherit",
-  shell: process.platform === "win32",
   env: { ...process.env, NEXT_DIST_DIR: ".next-c" }
 });
 child.on("exit", (code) => process.exit(code ?? 0));

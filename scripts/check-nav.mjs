@@ -36,6 +36,7 @@ const ESPERADO = [
   { ruta: "/admin/conversaciones", area: "Clientes", sub: "Conversaciones" },
   { ruta: "/admin/carritos", area: "Clientes", sub: "Carritos" },
   { ruta: "/admin/productos", area: "Catálogo", sub: "Productos" },
+  { ruta: "/admin/catalogo/revisar", area: "Catálogo", sub: "Revisar" },
   { ruta: "/admin/pdf", area: "Catálogo", sub: "Catálogo PDF" },
   { ruta: "/admin/compras", area: "Compras", sub: "Órdenes" },
   { ruta: "/admin/gastos", area: "Compras", sub: "Gastos" },
@@ -49,7 +50,7 @@ const ESPERADO = [
 // Rutas que existen pero NO son pantalla, y por eso no están en la barra.
 const NO_SON_PANTALLA = [
   { ruta: "/admin/estructura", porque: "stub que redirige al alta de productos", destino: "/admin/productos/nuevo" },
-  { ruta: "/admin/importaciones", porque: "solo developer con el flag encendido", http: 404 }
+  { ruta: "/admin/importaciones", porque: "entrada antigua que redirige a Revisar", destino: "/admin/catalogo/revisar" }
 ];
 
 const browser = await puppeteer.launch({
@@ -91,20 +92,34 @@ try {
   // ── Propietaria ──
   const page = await browser.newPage();
   await page.setViewport({ width: 1440, height: 900 });
+  const inventoryBoardClientRequests = [];
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname === "/api/admin/inventory/board") {
+      inventoryBoardClientRequests.push(request.url());
+    }
+  });
   if (!await entrar(page, CUENTAS.admin)) throw new Error("sin sesión de propietaria");
 
   console.log("Propietaria · las rutas no se movieron y cada una marca su área\n");
   for (const esperado of ESPERADO) {
+    const startedAt = performance.now();
     const resp = await page.goto(`${BASE_URL}${esperado.ruta}`, { waitUntil: "domcontentloaded", timeout: 60000 });
     await new Promise((r) => setTimeout(r, 500));
+    const elapsedMs = Math.round(performance.now() - startedAt);
     const real = await page.evaluate(leerNav);
     const problemas = [];
     if (resp.status() >= 400) problemas.push(`HTTP ${resp.status()}`);
     if (real.ruta !== esperado.ruta) problemas.push(`redirigida a ${real.ruta}`);
     if (real.area !== esperado.area) problemas.push(`área "${real.area}" ≠ "${esperado.area}"`);
     if (esperado.sub && real.sub !== esperado.sub) problemas.push(`sub "${real.sub}" ≠ "${esperado.sub}"`);
-    ok(problemas.length === 0, `${esperado.ruta.padEnd(22)} → ${esperado.area}`, problemas.join(" · "));
+    if (elapsedMs > 3000) problemas.push(`navegación ${elapsedMs} ms > 3000 ms`);
+    ok(problemas.length === 0, `${esperado.ruta.padEnd(24)} → ${esperado.area} · ${elapsedMs} ms`, problemas.join(" · "));
   }
+  ok(
+    inventoryBoardClientRequests.length === 0,
+    "Inventario y Reposición llegan hidratados, sin segunda petición inicial",
+    `${inventoryBoardClientRequests.length} petición(es) inesperada(s)`,
+  );
 
   console.log("\nRutas que existen pero no son pantalla (y por eso no están en la barra)\n");
   for (const caso of NO_SON_PANTALLA) {

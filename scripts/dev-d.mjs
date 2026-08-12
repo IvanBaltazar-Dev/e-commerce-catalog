@@ -4,9 +4,8 @@
 // sirviendo.
 import { spawn } from "node:child_process";
 
-const child = spawn("npx", ["next", "dev", "-p", "3007"], {
+const child = spawn(process.execPath, ["node_modules/next/dist/bin/next", "dev", "--turbopack", "-p", "3007"], {
   stdio: "inherit",
-  shell: process.platform === "win32",
   env: { ...process.env, NEXT_DIST_DIR: ".next-d" }
 });
 child.on("exit", (code) => process.exit(code ?? 0));

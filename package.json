@@ -6,9 +6,13 @@
     "node": "24.x"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
+    "dev:webpack": "next dev --webpack",
     "build": "next build",
     "start": "next start",
+    "prototype": "npm run prototype:build && npm run prototype:start",
+    "prototype:build": "node scripts/build-prototype.mjs",
+    "prototype:start": "node scripts/serve-prototype.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "db:reset:local": "supabase db reset --local",
@@ -59,7 +63,12 @@
     "audit:catalog-real": "node --conditions=react-server --experimental-transform-types scripts/audit-catalog-real.mjs --env .env.supabase.local",
     "gate:busqueda": "node scripts/gate-busqueda.mjs",
     "catalog:enrichment:stage": "node scripts/catalog-enrichment-stage.mjs --env .env.supabase.local",
-    "test:admin-search": "node scripts/test-admin-search-contracts.mjs"
+    "catalog:storage:verify": "node research/catalog-master/verify-local-storage.mjs",
+    "checkpoint:restore:local": "node scripts/checkpoint-restore-local.mjs",
+    "test:catalog-review-rerun": "node scripts/test-catalog-review-rerun.mjs --env .env.supabase.local",
+    "gate:enriquecimiento": "node scripts/gate-enriquecimiento.mjs --env .env.supabase.local",
+    "test:admin-search": "node scripts/test-admin-search-contracts.mjs",
+    "test:admin-nav": "node scripts/check-nav.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",

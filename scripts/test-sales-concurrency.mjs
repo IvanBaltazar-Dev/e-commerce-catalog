@@ -3,7 +3,7 @@
 //
 // Uso: node scripts/test-sales-concurrency.mjs
 //
-// Escenarios (pruebas críticas 1, 2, 9 y 13 de docs/bloque-2-modelo.md §10):
+// Escenarios derivados de los invariantes de venta de docs/arquitectura.md:
 //   1. Doble confirmación literal —el mismo client_operation_id en dos
 //      sesiones simultáneas— debe dar UNA venta, UN descuento de existencia y
 //      UN correlativo. El índice único solo no basta: sin el candado consultivo

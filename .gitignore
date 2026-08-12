@@ -17,6 +17,8 @@ credentials.txt
 
 *.log
 *.tsbuildinfo
+__pycache__/
+*.py[cod]
 .DS_Store
 Thumbs.db
 # Local assistant/tool metadata
@@ -26,13 +28,19 @@ Thumbs.db
 .claude/
 
 # Private Bellaroshe catalog source material copied locally only
-# Source of truth lives outside this repo: F:\products\Bella Roshe\Catalogo
-Catalogo/
+# La ubicación se configura; nunca debe quedar codificada a una unidad personal.
+/Catalogo/
 imagenes_productos/
 metodos_pago/
 output/
 outputs/
 tmp/
+
+# Inteligencia de catálogo: snapshots RAW, tablas derivadas, binarios e inputs
+# locales. Git conserva código, contratos y el manifiesto SHA-256, no payloads.
+/research/catalog-master/data/
+/research/catalog-master/sources/
+/research/catalog-master/local/
 
 # Scratch de Supabase Studio: consultas locales con ids de la máquina
 supabase/snippets/
@@ -50,3 +58,4 @@ backups/
 .next-b/
 .next-c/
 .next-d/
+.next-prototype/

@@ -1,0 +1,261 @@
+/**
+ * Reconstruye el corte local de Etapa 0 sobre una base ya migrada y vacía.
+ *
+ * El SQL pesado permanece fuera de Git. Su identidad (ruta lógica, tamaño y
+ * SHA-256) vive en local-storage.manifest.json. Solo se reproducen las tablas
+ * maestras del catálogo; el staging se regenera desde los artefactos RAW/derivados.
+ */
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const MANIFEST_PATH = path.join(ROOT, "research", "catalog-master", "local-storage.manifest.json");
+const MIGRATION_PATH = path.join(ROOT, "supabase", "migrations", "0091_acrylic_knowledge_vertical.sql");
+const CORRECTION_MIGRATION_PATH = path.join(ROOT, "supabase", "migrations", "0093_acrylic_deep_research_corrections.sql");
+const WORDING_MIGRATION_PATH = path.join(ROOT, "supabase", "migrations", "0095_acrylic_gap_wording_hardening.sql");
+const QUEUES_MIGRATION_PATH = path.join(ROOT, "supabase", "migrations", "0096_acrylic_reconciliation_work_queues.sql");
+const IDENTITY_REDIRECT_MIGRATION_PATH = path.join(ROOT, "supabase", "migrations", "0100_catalog_review_identity_redirect.sql");
+const CONTAINER = process.env.SUPABASE_DB_CONTAINER ?? "supabase_db_e-commerce-catalog";
+
+const CATALOG_TABLES = new Set([
+  "attribute_definitions",
+  "attribute_options",
+  "attribute_templates",
+  "media_assets",
+  "brands",
+  "brand_product_families",
+  "catalog_metadata",
+  "categories",
+  "product_lines",
+  "color_shades",
+  "suppliers",
+  "products",
+  "product_variants",
+  "product_suppliers",
+  "price_lists",
+  "product_attribute_values",
+  "product_images",
+  "product_line_product_families",
+  "product_media",
+  "product_relations",
+  "template_attributes",
+  "template_attribute_comparisons",
+  "template_attribute_conditions",
+  "variant_attribute_values",
+  "variant_prices",
+  "wholesale_rules",
+]);
+
+function sha256(filePath) {
+  return crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex");
+}
+
+function run(command, args, options = {}) {
+  const result = spawnSync(command, args, {
+    cwd: ROOT,
+    encoding: "utf8",
+    maxBuffer: 128 * 1024 * 1024,
+    timeout: 20 * 60 * 1000,
+    ...options,
+  });
+  if (result.error) throw result.error;
+  if (result.status !== 0) {
+    throw new Error(`${command} ${args.join(" ")} falló:\n${result.stderr || result.stdout}`);
+  }
+  return result.stdout.trim();
+}
+
+function psql(sql) {
+  return run(
+    "docker",
+    ["exec", "-i", CONTAINER, "psql", "-U", "postgres", "-d", "postgres", "-v", "ON_ERROR_STOP=1", "-q", "-A", "-t"],
+    { input: sql },
+  );
+}
+
+function extractStatement(source, start, end) {
+  const startIndex = source.indexOf(start);
+  const endIndex = source.indexOf(end, startIndex + start.length);
+  if (startIndex < 0 || endIndex < 0) throw new Error(`No se pudo extraer el bloque canónico: ${start}`);
+  return source.slice(startIndex, endIndex).trim();
+}
+
+const manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf8"));
+const expected = (manifest.checkpoint_files ?? []).find((file) => file.class === "database_checkpoint_data");
+if (!expected) throw new Error("El manifiesto no declara database_checkpoint_data.");
+
+const backupPath = path.resolve(process.env.CATALOG_CHECKPOINT_DATA_SQL || path.join(ROOT, expected.path));
+if (!fs.existsSync(backupPath)) throw new Error(`Falta el volcado requerido: ${backupPath}`);
+const stat = fs.statSync(backupPath);
+const digest = sha256(backupPath);
+if (stat.size !== expected.bytes || digest !== expected.sha256) {
+  throw new Error(`El volcado no coincide con el checkpoint: bytes=${stat.size}, sha256=${digest}`);
+}
+
+const dump = fs.readFileSync(backupPath, "utf8");
+const copyPattern = /^COPY public\.([a-z0-9_]+) \([^\r\n]+\) FROM stdin;\r?\n[\s\S]*?^\\\.\r?$/gm;
+const blocks = [];
+const foundTables = new Set();
+for (const match of dump.matchAll(copyPattern)) {
+  if (!CATALOG_TABLES.has(match[1])) continue;
+  blocks.push(match[0]);
+  foundTables.add(match[1]);
+}
+const missingTables = [...CATALOG_TABLES].filter((table) => !foundTables.has(table));
+if (missingTables.length) throw new Error(`El volcado no contiene: ${missingTables.join(", ")}`);
+
+const migration = fs.readFileSync(MIGRATION_PATH, "utf8");
+const memberships = extractStatement(migration, "with memberships(product_code, class_code, evidence_key) as (", "\n\nwith assignments(product_code, stage_code, role_code, required_role, evidence_key) as (");
+const assignments = extractStatement(migration, "with assignments(product_code, stage_code, role_code, required_role, evidence_key) as (", "\n\n-- La regla conceptual");
+const gaps = extractStatement(migration, "with acrylic as (\n  select id from public.catalog_systems where code = 'ACRYLIC'\n), gaps(", "\n\ncreate or replace view public.catalog_acrylic_knowledge_gap_queue_v1");
+
+const tableArray = [...CATALOG_TABLES].map((table) => `'${table}'`).join(", ");
+const clearStatements = [...CATALOG_TABLES]
+  .reverse()
+  .map((table) => `delete from public.${table};`)
+  .join("\n");
+const restoreSql = `
+begin;
+set local session_replication_role = replica;
+-- DELETE con los triggers de FK suspendidos evita que TRUNCATE CASCADE borre
+-- fuentes, evidencia y contratos sembrados por las migraciones 0074–0100.
+delete from public.catalog_facet_presence;
+delete from public.product_catalog_projection;
+delete from public.variant_search_codes;
+delete from public.variant_search_projection;
+${clearStatements}
+${blocks.join("\n\n")}
+
+-- El UUID de la empresa nace en cada reset; los proveedores del corte se
+-- enlazan de nuevo a la empresa canónica sin alterar su propia identidad.
+update public.suppliers
+set company_id = (select id from public.companies order by created_at, id limit 1);
+
+-- El volcado conserva el indicador de inventario de la demo, pero el kardex
+-- operativo se reconstruye por el contrato load_initial_inventory en el paso
+-- siguiente del gate. Se marca pendiente para no fabricar stock por COPY.
+update public.product_variants
+set tracks_inventory = false
+where sku in ('DEMO-ESM-ROJO', 'DEMO-ESM-NUDE', 'DEMO-ACC-001-UNICA');
+
+set local session_replication_role = origin;
+
+-- Reasocia las fuentes oficiales cuyos brand_id quedaron nulos por el TRUNCATE.
+update public.catalog_sources source
+set brand_id = brand.id
+from public.brands brand
+where (source.source_key, lower(brand.name)) in (
+  ('masglo-es-official', 'masglo'),
+  ('admiss-co-official', 'admiss'),
+  ('acrylove-official', 'acrylove'),
+  ('mc-nails-mx-official', 'mc nails'),
+  ('cherimoya-pe-official', 'cherimoya'),
+  ('bigen-usa-official', 'bigen'),
+  ('acrylove-official-education', 'acrylove'),
+  ('mc-nails-official-acrylic', 'mc nails'),
+  ('masglo-official-acrylic', 'masglo'),
+  ('mia-secret-official-acrylic', 'mia secret'),
+  ('cherimoya-official-acrylic', 'cherimoya')
+);
+
+-- Ajusta secuencias serial/identity de las tablas restauradas.
+do $checkpoint$
+declare
+  sequence_column record;
+  sequence_name text;
+  maximum_value bigint;
+begin
+  for sequence_column in
+    select table_name, column_name
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name in (${tableArray})
+      and (column_default like 'nextval(%' or is_identity = 'YES')
+  loop
+    sequence_name := pg_get_serial_sequence(
+      format('public.%I', sequence_column.table_name),
+      sequence_column.column_name
+    );
+    if sequence_name is not null then
+      execute format(
+        'select coalesce(max(%I), 0) from public.%I',
+        sequence_column.column_name,
+        sequence_column.table_name
+      ) into maximum_value;
+      perform setval(sequence_name, greatest(maximum_value, 1), maximum_value > 0);
+    end if;
+  end loop;
+end;
+$checkpoint$;
+
+${memberships}
+${assignments}
+${gaps}
+
+do $checkpoint$
+begin
+  if to_regprocedure('public.rebuild_variant_search_projection()') is not null then
+    perform public.rebuild_variant_search_projection();
+  end if;
+  if to_regprocedure('public.rebuild_variant_search_codes()') is not null then
+    perform public.rebuild_variant_search_codes();
+  end if;
+  if to_regprocedure('public.rebuild_product_catalog_search()') is not null then
+    perform public.rebuild_product_catalog_search();
+  end if;
+  if to_regprocedure('public.rebuild_product_catalog_price()') is not null then
+    perform public.rebuild_product_catalog_price();
+  end if;
+  if to_regprocedure('public.rebuild_catalog_facet_presence()') is not null then
+    perform public.rebuild_catalog_facet_presence();
+  end if;
+end;
+$checkpoint$;
+commit;
+`;
+
+console.log(`Restaurando ${blocks.length} tablas desde un volcado verificado (${digest.slice(0, 12)}…).`);
+psql(restoreSql);
+
+// 0093 retiró tres asignaciones demasiado amplias y 0095 endureció una
+// brecha. Se reaplican porque el replay canónico de 0091 acaba de materializar
+// filas que no existían cuando las migraciones corrieron sobre la base vacía.
+psql(fs.readFileSync(CORRECTION_MIGRATION_PATH, "utf8"));
+psql(fs.readFileSync(WORDING_MIGRATION_PATH, "utf8"));
+psql(fs.readFileSync(QUEUES_MIGRATION_PATH, "utf8"));
+
+console.log("Regenerando staging, reconciliación y Mesa desde almacenamiento administrado.");
+run(process.execPath, ["scripts/catalog-enrichment-stage.mjs", "--env", ".env.supabase.local"]);
+
+// La corrección de alcance de AUSENTE depende de la candidata que acaba de
+// generar el staging. Solo se repite el bloque de datos de 0100, no su trigger.
+const identityRedirectMigration = fs.readFileSync(IDENTITY_REDIRECT_MIGRATION_PATH, "utf8");
+const identityScopeCorrection = extractStatement(
+  identityRedirectMigration,
+  "do $migration$",
+  "\n\ncommit;",
+);
+psql(`${identityScopeCorrection}\n`);
+
+const counts = psql(`
+select jsonb_build_object(
+  'products', (select count(*) from public.products),
+  'variants', (select count(*) from public.product_variants),
+  'suppliers', (select count(*) from public.suppliers),
+  'source_records', (select count(*) from public.catalog_source_records),
+  'review_items', (select count(*) from public.catalog_review_work_items),
+  'acrylic_roles', (
+    select count(*) from public.product_system_roles role
+    join public.catalog_systems system on system.id = role.system_id
+    where system.code = 'ACRYLIC' and role.decision_status = 'approved'
+  )
+)::text;
+`);
+const reconstructed = JSON.parse(counts);
+if (reconstructed.products !== 1056 || reconstructed.variants !== 1578 || reconstructed.acrylic_roles !== 45) {
+  throw new Error(`Conteos reconstruidos inesperados: ${counts}`);
+}
+console.log(JSON.stringify({ checkpoint: "restored", sha256: digest, ...reconstructed }, null, 2));

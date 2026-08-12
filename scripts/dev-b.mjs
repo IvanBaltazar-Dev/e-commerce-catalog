@@ -2,9 +2,8 @@
 // .next de otra sesión de desarrollo activa en la misma carpeta.
 import { spawn } from "node:child_process";
 
-const child = spawn("npx", ["next", "dev", "-p", "3005"], {
+const child = spawn(process.execPath, ["node_modules/next/dist/bin/next", "dev", "--turbopack", "-p", "3005"], {
   stdio: "inherit",
-  shell: process.platform === "win32",
   env: { ...process.env, NEXT_DIST_DIR: ".next-b" }
 });
 child.on("exit", (code) => process.exit(code ?? 0));

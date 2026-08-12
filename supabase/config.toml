@@ -8,7 +8,7 @@ project_id = "e-commerce-catalog"
 enabled = true
 # Port to use for the API URL.
 # Banda 55320-55329: Windows reserva el rango TCP 54234-54333 (Hyper-V/WSL), que
-# contenía los puertos por defecto de Supabase. Ver docs/riesgos-v2.md, R-01.
+# contenía los puertos por defecto de Supabase. Ver docs/operacion.md.
 port = 55321
 # Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
 # endpoints. `public` and `graphql_public` schemas are included by default.

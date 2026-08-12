@@ -1,0 +1,271 @@
+{
+  "schema_version": 2,
+  "storage_contract": "catalog-research-local-v1",
+  "files": [
+    {
+      "path": "data/bellaroshe_attributes_internal.csv",
+      "class": "derived",
+      "bytes": 72015,
+      "sha256": "f98c1ca6fa37fd588c64a212377fc2152750bb5a5a267fd4de1764e061336fe9"
+    },
+    {
+      "path": "data/bellaroshe_brand_coverage_internal.csv",
+      "class": "derived",
+      "bytes": 13659,
+      "sha256": "eed8f663b6f5651bd967f4d5a482442a221c2f5a77aa22b98483f6cec58499f6"
+    },
+    {
+      "path": "data/bellaroshe_brand_research_queue.csv",
+      "class": "derived",
+      "bytes": 22344,
+      "sha256": "6391a6d3f189702a201d774e57213e1078a0f9d2d8fa5bcd493ac279fa7ce670"
+    },
+    {
+      "path": "data/bellaroshe_catalog_flat.csv",
+      "class": "derived",
+      "bytes": 605169,
+      "sha256": "7f5b89eed24e82e482c6d17d3df7eb7b9a3d4fc5557558ad713954582a513150"
+    },
+    {
+      "path": "data/bellaroshe_relations_internal.csv",
+      "class": "derived",
+      "bytes": 757,
+      "sha256": "f328030d98d9b6cfa1ddce0162fae86783527469bd116c232626dccde4fab8ca"
+    },
+    {
+      "path": "data/bellaroshe_source_catalog.csv",
+      "class": "derived",
+      "bytes": 227891,
+      "sha256": "8837a929f18686437f950b904827ae346b8ef07300020bd45e27e98e3aaf3ab6"
+    },
+    {
+      "path": "data/bellaroshe_source_families.csv",
+      "class": "derived",
+      "bytes": 10144,
+      "sha256": "eb7f8a0cd8305a15672ec64ad06c2cc24fa5e6d70384c7cf1c6ba125313b2f85"
+    },
+    {
+      "path": "data/brand_coverage_master.csv",
+      "class": "derived",
+      "bytes": 29765,
+      "sha256": "0fb58d181e9d260a99f8bd7569f536ebc8f1b1094907e5ea7b6f71efc4777b93"
+    },
+    {
+      "path": "data/brand_resolution_registry.csv",
+      "class": "derived",
+      "bytes": 41428,
+      "sha256": "ab72c5c495d10f7aa3335149caf4e2269373249364e3486b6d11c46a5fd90906"
+    },
+    {
+      "path": "data/canonical_taxonomy.csv",
+      "class": "derived",
+      "bytes": 17011,
+      "sha256": "c1ac4d7cd52fe6411ed1b952cbed2a51a507d31d1eba5fbf78e6b9d21b1d417d"
+    },
+    {
+      "path": "data/catalog_taxonomy_tree.csv",
+      "class": "derived",
+      "bytes": 14200,
+      "sha256": "d82d6ed2eb175f9eef95d00e7ff2f1f0d268b41844545d5a15b28c44e324e4c3"
+    },
+    {
+      "path": "data/collection_tone_coverage.csv",
+      "class": "derived",
+      "bytes": 32405,
+      "sha256": "ccdf5dff7d6959a5771dd61c05d299ed0f9b6d54457992d7d92ec4958cb3a0da"
+    },
+    {
+      "path": "data/enrichment_metrics.json",
+      "class": "derived",
+      "bytes": 233,
+      "sha256": "cf68087fe0abee8d0503b74708866da6cb519555f1cfa908709b6d6210474b43"
+    },
+    {
+      "path": "data/external_official_images.csv",
+      "class": "derived",
+      "bytes": 1454327,
+      "sha256": "1adf8851362f38d5e5253d401191930eea176649c4cafe62dde5b980e15f910e"
+    },
+    {
+      "path": "data/external_official_lines.csv",
+      "class": "derived",
+      "bytes": 27996,
+      "sha256": "14d985fcbebf0c773026065a550b1b7c5e485048b51aacb2ce3de535170749fd"
+    },
+    {
+      "path": "data/external_official_metrics.json",
+      "class": "derived",
+      "bytes": 1583,
+      "sha256": "0349c024e46c678d82596412cd1c03b2920e7a4b49ebbf4ac1f8d9b447a4d620"
+    },
+    {
+      "path": "data/external_official_products_enriched.csv",
+      "class": "derived",
+      "bytes": 2147619,
+      "sha256": "17d675164123f5f225a0a5db391c84619e1fd4badabafc819a522e9ec414388b"
+    },
+    {
+      "path": "data/external_official_products.csv",
+      "class": "derived",
+      "bytes": 2079687,
+      "sha256": "a5d97534e3b2928f76b737587d93e5eb03932131b86b72c79972514bd71ba8e9"
+    },
+    {
+      "path": "data/external_official_sources_summary.csv",
+      "class": "derived",
+      "bytes": 528,
+      "sha256": "5f645045d4de7b74e3a1922abe4a01942904dffff66137d5b5cddf216291806e"
+    },
+    {
+      "path": "data/external_official_variants.csv",
+      "class": "derived",
+      "bytes": 798381,
+      "sha256": "6ad9fb9dbb6222e9f86055c965aaaccfaabc85a0fc60d080db584f468583a193"
+    },
+    {
+      "path": "data/image_pending_queue.csv",
+      "class": "derived",
+      "bytes": 429418,
+      "sha256": "b8cc603a15b87c7e7a10b07bcea688823f8206dacafd8250482e80b927d57864"
+    },
+    {
+      "path": "data/internal_metrics.json",
+      "class": "derived",
+      "bytes": 442,
+      "sha256": "46570f31930f2f9c96c3945faa971499c1ec0a1742b79ae005f9bdc9f1ead879"
+    },
+    {
+      "path": "data/internal_official_product_reconciliation.csv",
+      "class": "derived",
+      "bytes": 53870,
+      "sha256": "9c7f69c1f825db996d6ca5cac288cb3186acea95127ea19fd582654e5bd231d0"
+    },
+    {
+      "path": "data/internal_official_tone_coverage.csv",
+      "class": "derived",
+      "bytes": 334,
+      "sha256": "57b57e6b45d0e7a23de246fee7609c74395b78a30173e46f2d398c0fd47d60d7"
+    },
+    {
+      "path": "data/internal_official_tone_reconciliation.csv",
+      "class": "derived",
+      "bytes": 107080,
+      "sha256": "eecf9f924eb1dd0afdf1d385c0ab664f5108b8f4af17fc672172ada1c4fdd5bd"
+    },
+    {
+      "path": "data/masglo_local_asset_manifest_audited.csv",
+      "class": "derived",
+      "bytes": 55442,
+      "sha256": "32315754139e2ed47c735cbcd6a5709b4e5345930d27e6302d61b34a0e12c8ee"
+    },
+    {
+      "path": "data/master_exception_register.csv",
+      "class": "derived",
+      "bytes": 417683,
+      "sha256": "1571a28ce4642415b5ad695c98e4ef91ebab0633f9545a1f82bdf290ea78fcad"
+    },
+    {
+      "path": "data/master_tables_metrics.json",
+      "class": "derived",
+      "bytes": 163,
+      "sha256": "6e7a4b95dc913f65bd733529a77a4fde25b67176919451af09808460d9a7bd67"
+    },
+    {
+      "path": "data/media_metrics.json",
+      "class": "derived",
+      "bytes": 485,
+      "sha256": "a90b92d9c96ef7e104b28490de069bd60a11d71123d53fbe91e8f316e6a9d2df"
+    },
+    {
+      "path": "data/official_image_inventory.csv",
+      "class": "derived",
+      "bytes": 2009933,
+      "sha256": "2ad943f240c14a6b618d470956db33afac92067d9320765db19e33eca01e5a81"
+    },
+    {
+      "path": "data/physical_capture_checklist.csv",
+      "class": "derived",
+      "bytes": 234577,
+      "sha256": "5c2c3b6dd4a2d4493ce5acd50ababfdfbe31e03dcba71748d51a7faff0a7999d"
+    },
+    {
+      "path": "data/product_relation_candidates.csv",
+      "class": "derived",
+      "bytes": 117123,
+      "sha256": "19c88348479b6710c3d3d35303b8806aef552c55b469552c37c5ad574d957f77"
+    },
+    {
+      "path": "data/reconciliation_metrics.json",
+      "class": "derived",
+      "bytes": 440,
+      "sha256": "d0d14d5b7ded599042fd5b8eab25d1cd5bcbd00d1662b9c7a3a9e8aeadd8ac93"
+    },
+    {
+      "path": "data/source_reconciliation_metrics.json",
+      "class": "derived",
+      "bytes": 257,
+      "sha256": "d1dc8d417e0cb1db89975c98daf988f599c7580022b2ffe7e6527d807b16f943"
+    },
+    {
+      "path": "data/source_row_reconciliation.csv",
+      "class": "derived",
+      "bytes": 597475,
+      "sha256": "39dfb1543f8ab403551c744a02ed9c82eedbef4692059116d39fd4ce5c3e9cc3"
+    },
+    {
+      "path": "sources/acrylove/products-2026-08-10.json",
+      "class": "raw",
+      "bytes": 1101442,
+      "sha256": "e1114b7839afb3ce02a46e2110e0478ca1acb9fdbba7705c6a9aab32dd091381"
+    },
+    {
+      "path": "sources/admiss/products-2026-08-10.json",
+      "class": "raw",
+      "bytes": 322923,
+      "sha256": "bd23046be50ebfb27f2ded5ea5e3a8b0dc5531eacc4ac431b1bd3b2571830dc5"
+    },
+    {
+      "path": "sources/bigen/products-2026-08-10.json",
+      "class": "raw",
+      "bytes": 451087,
+      "sha256": "c2fd103200109e282e5d77d3606660f0c609581ca5529a37b128e031eed7c168"
+    },
+    {
+      "path": "sources/cherimoya/products-2026-08-10.json",
+      "class": "raw",
+      "bytes": 7729714,
+      "sha256": "1d233c9cea6c2a8616a62d98aef6aa7062065d4921a03d698efdcbaf5acef10c"
+    },
+    {
+      "path": "sources/masglo/products-2026-08-10.json",
+      "class": "raw",
+      "bytes": 1048752,
+      "sha256": "9b142eeb3c8584e213c2ea2b358d8abba15ca3982b7a21fe9fff02a5acf33021"
+    },
+    {
+      "path": "sources/mc-nails/products-2026-08-10.json",
+      "class": "raw",
+      "bytes": 2283516,
+      "sha256": "04541536fa968c70232232de19ceeb8ea5e13bcd67846fe0e0a5f162f0215820"
+    }
+  ],
+  "checkpoint_files": [
+    {
+      "path": "backups/pre-reset-20260810-0359-datos.sql",
+      "class": "database_checkpoint_data",
+      "bytes": 76381170,
+      "sha256": "e1f2582d8e815a3c1244a2b4a2c16c351455e4e5becd9433fbcb45c8e739acc2"
+    },
+    {
+      "path": "backups/bellaroshe-2026-08-12T10-42-24.dump",
+      "class": "database_recovery_dump",
+      "bytes": 5137537,
+      "sha256": "5236ff2d7f4b7f488f31895665331fa3423cd8deb8c9d56bf4e8ac382cf66796"
+    }
+  ],
+  "totals": {
+    "files": 41,
+    "bytes": 24559298,
+    "fingerprint": "a9ea4650827b6b3d6b9a8061494013f40229640eb8010673f2e12d035a1b21db"
+  }
+}

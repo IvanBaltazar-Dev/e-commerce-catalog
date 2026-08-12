@@ -95,7 +95,11 @@ for (const [rowNumber, row] of [...pendingByRow.entries()].sort(([a], [b]) => a 
       // inventa sufijo; si colisionaría con la espejo, la referencia manda:
       // código interno propio > código de proveedor + fila.
       const ownKey = row.normalized_data?.grouping?.variantKey ?? null;
-      const mirrorBest = rows.filter((r) => r.row_number === mirrorRow).sort((a, b) => (a.status === "committed" ? -1 : 1))[0];
+      // De las filas espejo manda la ya consolidada y, si ninguna lo está, la
+      // primera. Antes era un sort() cuyo comparador nunca miraba el segundo
+      // operando: el orden lo decidía el motor, no esta regla.
+      const mirrorRows = rows.filter((r) => r.row_number === mirrorRow);
+      const mirrorBest = mirrorRows.find((r) => r.status === "committed") ?? mirrorRows[0];
       const mirrorKey = mirrorBest?.normalized_data?.grouping?.variantKey ?? null;
       const collides = ownKey !== null && mirrorKey !== null && String(ownKey).toLowerCase() === String(mirrorKey).toLowerCase();
       const ref = collides ? (raw.codigo || `${raw.codigoProveedor}-${rowNumber}`) : null;

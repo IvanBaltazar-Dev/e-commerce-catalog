@@ -10,7 +10,7 @@
 // Uso:
 //   npm run test:bulk-import-pilot            (limpia al final)
 //   npm run test:bulk-import-pilot -- --keep  (deja el lote para inspección)
-//   npm run test:bulk-import-pilot -- --listado "F:\\ruta\\al\\Listado.xlsx"
+//   npm run test:bulk-import-pilot -- --listado "ruta/al/Listado.xlsx"
 
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
@@ -19,6 +19,7 @@ import { pathToFileURL } from "node:url";
 import { registerHooks } from "node:module";
 import { createClient } from "@supabase/supabase-js";
 import { loadSupabaseScriptEnv } from "./lib/supabase-script-env.mjs";
+import { configuredCatalogPath } from "./lib/catalog-research-paths.mjs";
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/(.:)/, "$1")), "..");
 const { env, isLocal } = loadSupabaseScriptEnv({ rootDir: root, scriptName: "test-bulk-import-pilot" });
@@ -38,14 +39,14 @@ const [{ parseCatalogXlsxRaw }, bulkService, { mapListingRows, normalizeListing 
   import("../src/lib/admin/catalog-bulk-import/service.ts"),
   import("../src/lib/admin/catalog-bulk-import/normalize.ts")
 ]);
-const { stageBulkImportBatch, approveBulkBatch, commitBulkBatch, buildBulkPreview, bulkBatchReport, syncBulkBatchMedia } = bulkService;
+const { stageBulkImportBatch, approveBulkBatch, commitBulkBatch, bulkBatchReport, syncBulkBatchMedia } = bulkService;
 
 const args = process.argv.slice(2);
 const keep = args.includes("--keep");
 const listadoArg = args.indexOf("--listado");
 const listadoPath = listadoArg >= 0
-  ? args[listadoArg + 1]
-  : "F:\\Products_SIVAN\\Bellaroshe\\version-V2\\Listado_organizado_productos_Bellaroshe.xlsx";
+  ? path.resolve(args[listadoArg + 1])
+  : configuredCatalogPath("CATALOG_SOURCE_WORKBOOK", root, "local", "inputs", "Listado_organizado_productos_Bellaroshe.xlsx");
 
 const LOTE = "piloto-01";
 const FAMILIAS = [
@@ -207,7 +208,6 @@ try {
   // Casos difíciles visibles en el staging:
   const crocodile = preview1.productos.find((producto) => producto.productName.toLowerCase().includes("cocodrilo"));
   assert.ok(crocodile, "CROCODILE (misma descripción, dos proveedores) debe estar en el lote");
-  const excepcionesFilas = new Set(preview1.excepciones.map((excepcion) => excepcion.row));
   assert.ok(preview1.excepciones.length > 0, "El piloto debe producir excepciones para revisar");
   const admissPreview = preview1.productos.find((producto) => producto.productCode === admissCode);
   assert.ok(admissPreview && admissPreview.variantCount > 20, `ADMISS debe agrupar decenas de tonos como variantes (obtuvo ${admissPreview?.variantCount})`);

@@ -137,7 +137,7 @@ const catalogRows = must(
     id, sku, name,
     products!inner(id, name, is_active, brands(name), categories(name)),
     color_shades(name)
-  `).eq("is_active", true).eq("products.is_active", true).limit(400),
+  `).eq("is_active", true).eq("products.is_active", true).like("sku", "DEMO-%").limit(400),
   "catálogo real"
 );
 const one = (value) => (Array.isArray(value) ? value[0] ?? null : value);
@@ -154,7 +154,9 @@ const catalog = catalogRows.map((row) => ({
 }));
 if (catalog.length === 0) throw new Error("Catálogo vacío: corre seed:demo-operation.");
 
-const correcto = interpretOrderText("tres rojo intenso", catalog);
+// El checkpoint real puede contener muchos tonos homónimos. El caso claro se
+// identifica por SKU, que es precisamente el primer identificador contractual.
+const correcto = interpretOrderText("tres DEMO-ESM-ROJO", catalog);
 check("Pedido CORRECTO: una línea clara con cantidad 3",
   correcto.lineas.length === 1 && correcto.lineas[0].cantidad === 3 &&
   correcto.ambiguedades.length === 0,
@@ -181,7 +183,7 @@ const salesBefore = await countSales();
 const interactionId = must(
   await asSeller.rpc("record_ai_interaction", {
     p_kind: "audio_order",
-    p_input_summary: "[B4-INTEGRAL] tres rojo intenso",
+    p_input_summary: "[B4-INTEGRAL] tres DEMO-ESM-ROJO",
     p_proposal: { lineas: correcto.lineas },
     p_provider_status: "degraded"
   }),
@@ -233,7 +235,7 @@ check("Confirmar sin venta también es válido (asistencia informativa)", crossR
 const humanInteraction = must(
   await asSeller.rpc("record_ai_interaction", {
     p_kind: "audio_order",
-    p_input_summary: "[B4-INTEGRAL] un rojo intenso para la clienta",
+    p_input_summary: "[B4-INTEGRAL] un DEMO-ESM-ROJO para la clienta",
     p_proposal: { lineas: [{ ...correcto.lineas[0], cantidad: 1 }] },
     p_provider_status: "degraded"
   }),

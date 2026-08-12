@@ -23,6 +23,7 @@ import { pathToFileURL } from "node:url";
 import { registerHooks } from "node:module";
 import { createClient } from "@supabase/supabase-js";
 import { loadSupabaseScriptEnv } from "./lib/supabase-script-env.mjs";
+import { configuredCatalogPath } from "./lib/catalog-research-paths.mjs";
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/(.:)/, "$1")), "..");
 const { env, isLocal } = loadSupabaseScriptEnv({
@@ -56,7 +57,9 @@ const option = (name) => {
 };
 const loteName = option("lote");
 const familias = (option("familias") ?? "").split(";").map((item) => item.trim()).filter(Boolean);
-const listadoPath = option("listado") ?? "F:\\Products_SIVAN\\Bellaroshe\\version-V2\\Listado_organizado_productos_Bellaroshe.xlsx";
+const listadoPath = option("listado")
+  ? path.resolve(option("listado"))
+  : configuredCatalogPath("CATALOG_SOURCE_WORKBOOK", root, "local", "inputs", "Listado_organizado_productos_Bellaroshe.xlsx");
 const skipRows = (option("skip-rows") ?? "").split(",").map((item) => Number(item.trim())).filter(Number.isFinite);
 if (!loteName) throw new Error("Falta --lote <nombre>.");
 
