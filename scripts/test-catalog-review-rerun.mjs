@@ -88,11 +88,17 @@ function runStage() {
   }
 }
 
+const before = await snapshot();
 runStage();
 const first = await snapshot();
 runStage();
 const second = await snapshot();
 
+assert.deepEqual(
+  first,
+  before,
+  "La primera recarga de evidencia idéntica alteró el estado existente.",
+);
 assert.deepEqual(
   second,
   first,
@@ -103,7 +109,7 @@ console.log(
   JSON.stringify(
     {
       result: "PASS",
-      assertion: "dos recargas idénticas conservan estado, historia y proyección",
+      assertion: "cada recarga idéntica conserva estado, historia y proyección",
       snapshot: second,
     },
     null,

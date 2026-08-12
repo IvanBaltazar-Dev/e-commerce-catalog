@@ -42,6 +42,7 @@ try {
     "brand_differences",
     "knowledge_gaps_and_contradictions",
     "review_cases",
+    "review_reprocess_status",
     "research_report",
     "graph_status",
   ];
@@ -61,13 +62,14 @@ try {
   // Pregunta integral de aceptación desde un cliente/proceso nuevo:
   // “¿Qué sabemos de ADMISS, qué cambió, qué coincide o contradice el catálogo,
   //  dónde están ZAC 314094 y AJO Y LIMON, qué falta revisar y cómo está el grafo?”
-  const [status, context, lastRun, zac, gaps, review, graph] = await Promise.all([
+  const [status, context, lastRun, zac, gaps, review, reprocess, graph] = await Promise.all([
     call("catalog_status"),
     call("brand_context", { brand: "ADMISS" }),
     call("last_research_run", { brand: "ADMISS" }),
     call("reference_universe_search", { brand: "ADMISS", query: "314094", limit: 10 }),
     call("knowledge_gaps_and_contradictions", { brand: "ADMISS" }),
     call("review_cases", { brand: "ADMISS", status: "open", limit: 100 }),
+    call("review_reprocess_status"),
     call("graph_status"),
   ]);
 
@@ -94,6 +96,9 @@ try {
     throw new Error(`El último delta no prueba repetición sin cambios: ${JSON.stringify(lastRun.delta)}`);
   }
   if (!graph.live?.connected) throw new Error("Neo4j no está conectado desde el MCP.");
+  if (reprocess.latestRun?.status !== "applied") {
+    throw new Error("El MCP no recuperó el último reproceso aplicado de la Mesa.");
+  }
 
   process.stdout.write(`${JSON.stringify({
     freshProcess: true,
@@ -110,6 +115,7 @@ try {
       zac: zac.variants.find((variant) => variant.sku === "314094"),
       ajoContradiction: ajo,
       openReviewCases: review.cases.length,
+      reviewReprocess: reprocess,
       graph: graph.live,
     },
     dataSource: "PostgreSQL contracts + Neo4j live status",
@@ -119,4 +125,3 @@ try {
 } finally {
   await client.close();
 }
-

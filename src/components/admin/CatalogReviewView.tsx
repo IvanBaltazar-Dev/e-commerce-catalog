@@ -476,7 +476,7 @@ export function CatalogReviewView({ initial }: { initial: CatalogReviewBootstrap
         {notice ? <NoticeBlock notice={notice} onClose={() => setNotice(null)} /> : null}
 
         <section className="cr-metrics" aria-label="Estado de la revisión">
-          <Metric label="Por revisar" value={summary.reviewable} detail="Decisiones disponibles ahora" tone="rose" />
+          <Metric label="Por revisar" value={summary.reviewable} detail={`${Math.round(summary.humanShareOfActive * 100)} % del trabajo activo`} tone="rose" />
           <Metric label="Necesitan captura" value={summary.capture} detail="Requieren evidencia física" tone="sand" />
           <Metric label="En espera" value={summary.waiting} detail="Dependen de una fuente externa" tone="blue" />
           <Metric label="Completados" value={summary.completed} detail="Decisiones cerradas" tone="green" />
@@ -489,6 +489,7 @@ export function CatalogReviewView({ initial }: { initial: CatalogReviewBootstrap
               <span className="cr-overline">Por qué empezar ahora</span>
               <h2>Las decisiones disponibles pueden mover {formatNumber(summary.potentialUnlocks)} trabajos.</h2>
               <p>{formatNumber(summary.blocked)} trabajos dependen de decisiones anteriores. No necesitas abrirlos: aparecerán cuando realmente puedan resolverse.</p>
+              <p>{formatNumber(summary.automaticDebt)} señales se conservan como deuda automática y no compiten por tu atención.</p>
             </div>
           </section>
           <section className="cr-card cr-today-card">

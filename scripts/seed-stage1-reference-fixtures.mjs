@@ -422,6 +422,12 @@ for (const [researchRunId, runKey, , , inputFingerprint] of runs) {
   );
 }
 
+// El fixture deja el mismo estado que produciría una recarga posterior: las
+// fuentes sintéticas se proyectan en la Mesa y sus dependencias antes de que
+// cualquier gate tome una fotografía o calcule un fingerprint.
+must(await admin.rpc("sync_catalog_review_work_items_v1"), "sync review work items");
+must(await admin.rpc("refresh_catalog_review_dependencies_v1"), "refresh review dependencies");
+
 const after = {
   products: await count("products"),
   variants: await count("product_variants"),

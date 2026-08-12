@@ -662,6 +662,8 @@ export async function getCatalogReviewSummary(supabase: Supabase): Promise<Catal
     completed: number(result.data.completed_count),
     blocked: number(result.data.blocked_count),
     potentialUnlocks: number(result.data.reviewable_unlock_count),
+    automaticDebt: number(result.data.automatic_debt_count),
+    humanShareOfActive: number(result.data.human_share_of_active),
   };
 }
 

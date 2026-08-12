@@ -306,14 +306,68 @@ const officialBrandName = {
   BIGEN: "Bigen",
   "MC NAILS": "MC Nails",
 };
+
+// Cuando una ficha oficial ya identifica de forma exacta una sola variante del
+// producto interno, el caso de identidad debe conservar ese alcance. Volver a
+// proyectarlo contra el producto base reabriría una contradicción que ya fue
+// resuelta (y, en familias grandes, mezclaría todas sus variantes).
+const internalVariantIds = [...new Set(
+  confirmedTones.map((row) => row.internal_variant_id).filter(Boolean),
+)];
+const internalVariantProducts = new Map();
+for (let offset = 0; offset < internalVariantIds.length; offset += 500) {
+  const { data, error } = await admin
+    .from("product_variants")
+    .select("id, product_id")
+    .in("id", internalVariantIds.slice(offset, offset + 500));
+  if (error) throw new Error(`product_variants exact scope: ${error.message}`);
+  for (const variant of data) internalVariantProducts.set(variant.id, variant.product_id);
+}
+
+const exactVariantCandidates = new Map();
+for (const tone of confirmedTones) {
+  if (Number(tone.match_score) !== 1 || !tone.internal_variant_id) continue;
+  const internalProductId = internalVariantProducts.get(tone.internal_variant_id);
+  if (!internalProductId || !tone.official_product_id) continue;
+  const key = `${internalProductId}:${tone.official_product_id}`;
+  const variantsForOfficialProduct = exactVariantCandidates.get(key) || new Set();
+  variantsForOfficialProduct.add(tone.internal_variant_id);
+  exactVariantCandidates.set(key, variantsForOfficialProduct);
+}
+
+// Solo preserva un alcance de variante que ya fue establecido por una decisión
+// trazable. En la primera reconstrucción se proyecta el caso original y la
+// migración de corrección conserva su evidencia histórica; las recargas
+// posteriores no lo degradan otra vez al producto base.
+const existingVariantScopes = await selectAll(
+  "catalog_reconciliation_cases",
+  "source_record_id, variant_id",
+  (query) => query
+    .eq("algorithm", "official_product_name_and_code_v1")
+    .eq("entity_type", "variant")
+    .in("status", ["proposed", "needs_review", "approved"]),
+);
+const existingVariantScopeKeys = new Set(
+  existingVariantScopes.map((row) => `${row.source_record_id}:${row.variant_id}`),
+);
+
 const desiredProductCases = productMatches.map((row) => {
   const brand = officialBrandName[row.internal_brand] || row.internal_brand;
   const externalId = `p:${row.official_product_id}`;
   const sourceRecordId = sourceRecordIds.get(`${brand}:product:${externalId}`);
   if (!sourceRecordId) throw new Error(`Missing product source record for ${brand}/${externalId}`);
+  const exactVariants = exactVariantCandidates.get(
+    `${row.internal_product_id}:${row.official_product_id}`,
+  );
+  const exactVariantCandidate = exactVariants?.size === 1 ? [...exactVariants][0] : null;
+  const exactVariantId = exactVariantCandidate
+    && existingVariantScopeKeys.has(`${sourceRecordId}:${exactVariantCandidate}`)
+    ? exactVariantCandidate
+    : null;
   return {
-    entity_type: "product",
-    product_id: row.internal_product_id,
+    entity_type: exactVariantId ? "variant" : "product",
+    product_id: exactVariantId ? null : row.internal_product_id,
+    variant_id: exactVariantId,
     source_record_id: sourceRecordId,
     algorithm: "official_product_name_and_code_v1",
     score: Number(row.match_score),

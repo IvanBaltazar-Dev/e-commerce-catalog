@@ -81,7 +81,9 @@
     "research:official-brand": "node scripts/research-official-brand.mjs --env .env.supabase.local",
     "mcp:catalog-intelligence": "node --experimental-transform-types scripts/catalog-intelligence-mcp.mjs --env .env.supabase.local",
     "test:mcp:catalog-intelligence": "node scripts/test-catalog-intelligence-mcp.mjs",
-    "test:stage2:admiss": "node scripts/test-stage2-admiss-acceptance.mjs --env .env.supabase.local"
+    "test:stage2:admiss": "node scripts/test-stage2-admiss-acceptance.mjs --env .env.supabase.local",
+    "review:reprocess": "node scripts/catalog-review-reprocess.mjs --env .env.supabase.local",
+    "test:review-reprocess": "node scripts/test-catalog-review-reprocess.mjs --env .env.supabase.local"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",

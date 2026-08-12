@@ -4,7 +4,7 @@
  * Sobre una base COMPLETAMENTE vacía prueba que el repositorio, por sí solo,
  * reconstruye el sistema entero:
  *
- *   manifiesto → 0001→0107 → checkpoint de datos → seeds mínimos
+ *   manifiesto → 0001→0108 → checkpoint de datos → seeds mínimos
  *   → pgTAP completo → integrales B1/B2/B3/B4
  *   → concurrencias → typecheck → lint → build de producción
  *
@@ -28,7 +28,7 @@ process.env.E2E_BASE_URL ??= BASE_URL;
 
 const STEPS = [
   { name: "Artefactos locales del checkpoint verificados", cmd: "npm", args: ["run", "catalog:storage:verify"] },
-  { name: "Base vacía → migraciones 0001–0107 + seed base", cmd: "npx", args: ["supabase", "db", "reset", "--local"] },
+  { name: "Base vacía → migraciones 0001–0108 + seed base", cmd: "npx", args: ["supabase", "db", "reset", "--local"] },
   { name: "Restaurar catálogo, investigación y Mesa del checkpoint", cmd: "npm", args: ["run", "checkpoint:restore:local"] },
   { name: "Seeds mínimos de operación", cmd: "npm", args: ["run", "seed:demo-operation"] },
   { name: "Fixtures sintéticos del Universo de Referencia", cmd: "npm", args: ["run", "stage1:fixtures"] },

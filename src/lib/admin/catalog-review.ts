@@ -5,6 +5,8 @@ export type CatalogReviewSummary = {
   completed: number;
   blocked: number;
   potentialUnlocks: number;
+  automaticDebt: number;
+  humanShareOfActive: number;
 };
 
 export type CatalogReviewActivity = {

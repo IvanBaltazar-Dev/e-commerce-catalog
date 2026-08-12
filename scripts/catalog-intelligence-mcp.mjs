@@ -212,19 +212,32 @@ registerReadTool(server, "review_cases", {
   inputSchema: {
     brand: z.string().min(1).max(120),
     status: z.enum(["open", "in_progress", "resolved", "superseded", "cancelled"]).optional(),
+    handlingClass: z.enum([
+      "human_exception", "automatic_debt", "physical_capture", "waiting_external",
+    ]).default("human_exception"),
     limit: z.number().int().min(1).max(100).default(50),
   },
-}, async ({ brand: brandName, status, limit }) => {
+}, async ({ brand: brandName, status, handlingClass, limit }) => {
   const brand = await resolveBrand(brandName);
-  let query = database.from("catalog_review_work_items")
-    .select("id, work_key, source_type, source_id, work_kind, purpose, status, priority_tier, risk_level, has_contradiction, business_relevance, question, recommendation, context, created_at, updated_at")
+  let query = database.from("catalog_review_operational_queue_v1")
+    .select("id, work_key, source_type, source_id, work_kind, purpose, status, handling_class, queue_state, human_actionable, priority_tier, risk_level, has_contradiction, business_relevance, question, recommendation, context, created_at, updated_at")
     .eq("group_key", `brand:${brand.id}`)
+    .eq("handling_class", handlingClass)
     .order("has_contradiction", { ascending: false })
     .order("business_relevance", { ascending: false })
     .limit(limit);
   if (status) query = query.eq("status", status);
   return { brand, cases: must(await query, "review cases") };
 });
+
+registerReadTool(server, "review_reprocess_status", {
+  title: "Estado del Reprocesamiento de Mesa",
+  description: "Consulta métricas, huellas, clasificación y último preview/apply de la Mesa; no resuelve decisiones.",
+  inputSchema: {},
+}, async () => must(
+  await database.rpc("get_catalog_review_reprocess_report_v1"),
+  "review reprocess report",
+));
 
 registerReadTool(server, "research_report", {
   title: "Informe de Investigación",
@@ -260,4 +273,3 @@ registerReadTool(server, "graph_status", {
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
-
