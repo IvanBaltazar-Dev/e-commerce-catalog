@@ -1,9 +1,9 @@
 # Bellaroshé · Plan vivo de Inteligencia de Catálogo
 
-**Versión:** 1.1 · checkpoint de Etapa 0 cerrado
+**Versión:** 1.2 · Etapa 1 cerrada
 **Última actualización:** 2026-08-12
 **Fuente de verdad:** PostgreSQL/Supabase
-**Estado:** Etapa 0 completada; Etapa 1 lista y no iniciada
+**Estado:** Etapas 0 y 1 completadas; Etapa 2 no iniciada
 
 Este documento dirige la construcción de la Inteligencia de Catálogo Bellaroshé. MCP es un adaptador de acceso; no es el sistema ni contiene lógica de negocio exclusiva.
 
@@ -296,7 +296,39 @@ Desde una base reconstruida:
 PostgreSQL → graph rebuild → Neo4j → graph verify
 ```
 
-`graph verify` queda en cero diferencias esperadas. Repetir `rebuild` o `sync` no crea duplicados. MCP todavía puede limitarse a lectura al final de esta etapa.
+`graph verify` queda en cero diferencias esperadas. Repetir `rebuild` o `sync` no crea duplicados. MCP permanece fuera de esta etapa y se construirá en la Etapa 2 sobre estos contratos ya probados.
+
+### Resultado de Etapa 1
+
+Etapa cerrada el 2026-08-12, sin investigar ADMISS ni crear funcionalidad de la Etapa 2.
+
+La [auditoría específica](etapa-1-auditoria-modelo.md) confirmó que fuentes, snapshots, registros, evidencia, procedencia, reconciliación, sistemas, etapas, roles, clases y relaciones eran reutilizables. Se añadieron únicamente identidad externa tipada, corridas/deltas, precios y medios externos, contratos de proyección y resolución del staging contra referencia.
+
+| Entrega | Resultado comprobado |
+| --- | --- |
+| Memoria | `baseline`, `delta` y `targeted`; corrida anterior, actor, marca + fuente/scope, estado, huellas, métricas, errores y resultado idempotente |
+| Universo de Referencia | producto y variante externos sin FK comercial; identificadores, estados, presencia, `REFERENCE_LIGHT`/`REFERENCE_ENRICHED`, precio y medio remoto |
+| Observaciones | sujetos internos y externos con FKs explícitas; evidencia compatible y contradictoria permanece separada de hechos canónicos |
+| Staging | la misma `import_rows` resuelve catálogo + referencia; no existe un segundo importador ni creación comercial automática |
+| Graph Projector | versión `v2.1.0`; `status`, `sync`, `verify` y `rebuild`; cursor PostgreSQL y lotes; constraints e índices Neo4j; sin Cypher libre |
+| Reconstrucción final | 3.656 nodos y 6.413 aristas; fingerprint PostgreSQL/Neo4j idéntico; cero faltantes, duplicados, huérfanos, referencias inválidas o versiones obsoletas |
+| Divergencia | la prueba elimina deliberadamente un nodo y sus aristas; `verify` los detecta y `sync` restaura exactamente el fingerprint |
+| Suite completa | migraciones `0001`–`0106`, 43 archivos y 916 pruebas pgTAP; reconstrucción total final en 457,1 s; integrales, concurrencia, typecheck, lint y build en verde |
+| Seguridad | cero tablas sin RLS, baseline deliberado 31/31 y 16/16, cero funciones inseguras, cero secretos cliente y `npm audit` con cero vulnerabilidades |
+
+La escala se comprobó como dos magnitudes independientes, no contra los 1.056 productos del corte real:
+
+| Medición real sintética | Resultado |
+| --- | --- |
+| Catálogo comercial | 100.000 productos, 201.578 variantes en la medición de búsqueda |
+| Universo adicional | 150.000 productos de referencia, 150.000 variantes, 150.000 observaciones y 150.000 eventos de presencia |
+| Identificador exacto | 0,297 ms, índice de resolución utilizado |
+| Similitud final acotada por marca | 151,932 ms, índice GiST KNN utilizado; nunca es el primer paso |
+| Observación por sujeto / delta por estado | 0,279 ms / 0,224 ms, ambos indexados |
+| Contrato completo de grafo | 903.658 nodos y 1.606.414 aristas recorridos en 51,492 s; crecimiento RSS de Node 59,3 MB |
+| Búsqueda comercial | peor caso 1.440 ms, bajo el límite de 3.000 ms, con planes y significado comprobados |
+
+La medición también reveló deuda real: esas 150.000 referencias ocuparon aproximadamente 678 MB entre las seis relaciones principales e índices. `REFERENCE_LIGHT`, deduplicación por hash y RAW fuera de PostgreSQL son obligatorios; antes de una campaña real equivalente se debe definir retención/archivo de eventos y observaciones y volver a medir el límite efectivo de Supabase. Esto no cambia el modelo ni fija 150.000 como techo.
 
 ## 9. Etapa 2 · ADMISS completo + MCP local
 
@@ -362,7 +394,7 @@ La configuración usa variables de entorno y rutas relativas. Ningún contrato d
 | IC-05 | Neo4j añade operación antes de aportar valor | Community local, sin CDC/GraphRAG y criterio de salida medible |
 | IC-06 | VPS/Cloudflare prematuros distraen del conocimiento | preservar portabilidad sin desplegarlos todavía |
 | IC-07 | Vercel Hobby se asume como hosting comercial | bloquear decisión de producción hasta elegir un plan permitido y sostenible |
-| IC-08 | Supabase Free o VPS futuro alcanzan límites | medir primero y agotar nivel gratuito antes de ampliar gasto |
+| IC-08 | Supabase Free o VPS futuro alcanzan límites | medición de 150.000 referencias consumió ~678 MB en seis relaciones principales; definir retención/archivo y medir el límite efectivo antes de carga real equivalente |
 | IC-09 | Evidencia local se pierde fuera de Git | manifiesto SHA-256, backup administrado y verificador local |
 | IC-10 | API de IA introduce costo o dependencia | no usarla; campañas manuales con Codex |
 | IC-11 | Referencias externas se convierten accidentalmente en productos vendibles | entidades y estados separados; adopción solo por contrato comercial humano |
@@ -370,6 +402,7 @@ La configuración usa variables de entorno y rutas relativas. Ningún contrato d
 | IC-13 | Observaciones externas pierden integridad por polimorfismo improvisado | sujetos explícitos y constraints; auditar antes de elegir el esquema mínimo |
 | IC-14 | Reconciliación escala como lote × universo en memoria | resolución indexada en PostgreSQL, fingerprints e identificadores antes de similitud |
 | IC-15 | Precios, stock o imágenes externos contaminan datos Bellaroshé | modelos separados, procedencia obligatoria y medios diferidos por variante |
+| IC-16 | CLI del projector depende del transformador TypeScript experimental de Node | funciona y está probado localmente; empaquetar/compilar el CLI con una ruta estable antes de convertirlo en servicio continuo |
 
 Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad-y-riesgos.md).
 
@@ -407,18 +440,20 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 
 ### Etapa 1
 
-- [ ] Cerrar memoria de investigación y deltas.
-- [ ] Auditar `catalog_observations` y diseñar sujetos con integridad explícita.
-- [ ] Implementar producto/variante de referencia sin identidad comercial falsa.
-- [ ] Implementar estados idempotentes, `REFERENCE_LIGHT` y `REFERENCE_ENRICHED`.
-- [ ] Implementar precios externos históricos y referencias remotas de medios.
-- [ ] Integrar lote → catálogo + referencia en la reconciliación existente.
-- [ ] Preparar Neo4j Community local.
-- [ ] Implementar Graph Projector.
-- [ ] Implementar status/sync/verify/rebuild.
-- [ ] Proyectar conocimiento aprobado y evidencia separada.
-- [ ] Demostrar rebuild y verify idempotentes.
-- [ ] Conservar/ampliar el gate sintético de 100.000 productos y 200.000+ variantes.
+- [x] Cerrar memoria de investigación y deltas.
+- [x] Auditar `catalog_observations` y diseñar sujetos con integridad explícita.
+- [x] Implementar producto/variante de referencia sin identidad comercial falsa.
+- [x] Implementar estados idempotentes, `REFERENCE_LIGHT` y `REFERENCE_ENRICHED`.
+- [x] Implementar precios externos históricos y referencias remotas de medios.
+- [x] Integrar lote → catálogo + referencia en la reconciliación existente.
+- [x] Preparar Neo4j Community local.
+- [x] Implementar Graph Projector.
+- [x] Implementar status/sync/verify/rebuild.
+- [x] Proyectar conocimiento aprobado y evidencia separada.
+- [x] Demostrar rebuild, sync y verify idempotentes y reparadores.
+- [x] Conservar/ampliar el gate sintético de 100.000 productos y 200.000+ variantes.
+- [x] Medir 150.000 referencias adicionales sin lote × universo en memoria.
+- [x] Ejecutar reconstrucción, pgTAP, seguridad, enriquecimiento, búsqueda, escala, tipos, lint, build y pruebas Neo4j.
 
 ### Etapa 2
 
@@ -445,3 +480,4 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 | 2026-08-12 | Etapa 0 iniciada | Checkpoint reproducible en ejecución; Etapa 1 bloqueada hasta reporte |
 | 2026-08-12 | Universo de Referencia aprobado | Etapa 1 absorbe identidad externa, niveles light/enriched, observaciones externas, precios y escala; ADMISS lo valida en Etapa 2 |
 | 2026-08-12 | Etapa 0 cerrada | Reconstrucción repetible, gates, backup verificado, documentación y commits completos; Etapa 1 lista sin iniciar |
+| 2026-08-12 | Etapa 1 cerrada | Memoria, referencia externa, staging integrado, Graph Projector y Neo4j Community probados con volumen independiente; ADMISS y MCP permanecen en Etapa 2 |

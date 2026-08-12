@@ -63,7 +63,7 @@ npm run test:db
 npm run audit:security
 ```
 
-El corte auditado de la suite completa era de 876 comprobaciones pgTAP sobre las migraciones `0001`–`0100`. El número cambia; el resultado de la ejecución vigente es la evidencia válida.
+El corte de Etapa 1 incorpora 40 comprobaciones nuevas sobre las migraciones `0101`–`0106`; el resultado de la ejecución vigente, no un número histórico, es la evidencia válida.
 
 Gates especializados:
 
@@ -72,6 +72,8 @@ Gates especializados:
 | `npm run gate:rebuild` | reconstrucción desde cero, integrales, concurrencia, tipos, lint y build |
 | `npm run gate:busqueda` | búsquedas con volumen y planes indexados |
 | `npm run gate:enriquecimiento` | procedencia, conocimiento y exportación aprobada |
+| `npm run gate:reference-scale` | Universo de Referencia adicional, matching indexado y streaming del contrato de grafo |
+| `npm run test:graph-projector` | rebuild repetido, divergencia deliberada, reparación incremental y verify |
 | `npm run test:catalog-review-rerun` | reprocesamiento idempotente de la Mesa |
 | `npm run test:venta` | pagos, concurrencia, venta y nota |
 | `npm run test:admin-nav` | navegación autenticada y carga inicial |
@@ -79,6 +81,32 @@ Gates especializados:
 | `npm run test:responsive` | superficies reales en escritorio y móvil |
 
 Las pruebas deben aislar sus propios datos y limpiar en `finally`; no pueden asumir que otra sesión no usa la misma base.
+
+## Neo4j Community y Graph Projector
+
+Neo4j es local, derivado y prescindible para la operación comercial. Define `NEO4J_PASSWORD` en `.env.supabase.local`; el resto de valores puede partir de `.env.example`.
+
+```bash
+npm run neo4j:up
+npm run stage1:fixtures
+npm run graph:status
+npm run graph:rebuild
+npm run graph:verify
+npm run graph:sync
+```
+
+`graph:rebuild` vacía exclusivamente los nodos/aristas marcados como proyección Bellaroshé y los repone desde PostgreSQL. `graph:sync` procesa nodos y aristas por cursor y lotes, actualiza fingerprints y retira derivados obsoletos. `graph:verify` es de solo lectura y reporta faltantes, duplicados, huérfanos, referencias inválidas, elementos inesperados y versiones antiguas. No existe un comando de Cypher libre.
+
+`npm run neo4j:down` detiene el contenedor sin borrar sus volúmenes. Levantarlo de nuevo y ejecutar `graph:rebuild` recupera el mismo conocimiento desde PostgreSQL.
+
+Para el gate de escala completo, primero se conserva el volumen comercial sintético y luego se añade un universo independiente:
+
+```bash
+npm run gate:busqueda -- --keep
+npm run gate:reference-scale -- --referencias=150000
+```
+
+El segundo gate elimina sus referencias sintéticas al terminar. Un `db:reset:local` posterior retira el volumen comercial de prueba.
 
 ## Inventario y datos de prueba
 

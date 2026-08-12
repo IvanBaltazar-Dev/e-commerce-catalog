@@ -4,7 +4,7 @@
  * Sobre una base COMPLETAMENTE vacía prueba que el repositorio, por sí solo,
  * reconstruye el sistema entero:
  *
- *   manifiesto → 0001→0100 → checkpoint de datos → seeds mínimos
+ *   manifiesto → 0001→0106 → checkpoint de datos → seeds mínimos
  *   → pgTAP completo → integrales B1/B2/B3/B4
  *   → concurrencias → typecheck → lint → build de producción
  *
@@ -28,10 +28,13 @@ process.env.E2E_BASE_URL ??= BASE_URL;
 
 const STEPS = [
   { name: "Artefactos locales del checkpoint verificados", cmd: "npm", args: ["run", "catalog:storage:verify"] },
-  { name: "Base vacía → migraciones 0001–0100 + seed base", cmd: "npx", args: ["supabase", "db", "reset", "--local"] },
+  { name: "Base vacía → migraciones 0001–0106 + seed base", cmd: "npx", args: ["supabase", "db", "reset", "--local"] },
   { name: "Restaurar catálogo, investigación y Mesa del checkpoint", cmd: "npm", args: ["run", "checkpoint:restore:local"] },
   { name: "Seeds mínimos de operación", cmd: "npm", args: ["run", "seed:demo-operation"] },
+  { name: "Fixtures sintéticos del Universo de Referencia", cmd: "npm", args: ["run", "stage1:fixtures"] },
   { name: "pgTAP completo", cmd: "npx", args: ["supabase", "test", "db", "--local"] },
+  { name: "Neo4j Community local disponible", cmd: "npm", args: ["run", "neo4j:up"] },
+  { name: "Graph Projector rebuild/sync/verify", cmd: "npm", args: ["run", "test:graph-projector"] },
   { name: "Integral B1 · contratos del catálogo V2", cmd: "npm", args: ["run", "test:contracts"] },
   { name: "Integral B2 · circuito económico", cmd: "npm", args: ["run", "test:block2"] },
   { name: "Integral B3 · omnicanal de punta a punta", cmd: "npm", args: ["run", "test:block3"] },

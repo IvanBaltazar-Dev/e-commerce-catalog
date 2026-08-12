@@ -75,7 +75,9 @@ fuente externa → snapshot RAW → observación normalizada
 - La Mesa de revisión coordina trabajo; no reemplaza el catálogo ni la evidencia.
 - Los hechos requieren procedencia compatible con el valor aprobado.
 - Una relación inferida, compartir marca o aparecer en un mismo sistema no demuestra compatibilidad entre dos productos.
-- PostgreSQL es la fuente de verdad. La proyección a Neo4j/MCP debe ser regenerable y no puede escribir de vuelta.
+- PostgreSQL es la fuente de verdad. Neo4j Community es una proyección local derivada: `Graph Projector` la reconstruye, sincroniza y verifica, y nunca escribe de vuelta. `Product`/`Variant` son catálogo Bellaroshé; `ReferenceProduct`/`ReferenceVariant` son conocimiento externo y pueden existir sin identidad comercial.
+
+El Universo de Referencia se diseña como volumen independiente del catálogo. Corridas marca + fuente conservan baseline, deltas y observaciones; el staging existente consulta primero catálogo y referencias mediante índices PostgreSQL. El projector recorre vistas ordenadas con cursor y lotes, sin cargar el universo completo en Node.
 
 ## Concurrencia e idempotencia
 
@@ -86,7 +88,7 @@ fuente externa → snapshot RAW → observación normalizada
 
 ## Evolución del esquema
 
-El historial comienza en V1 (`0001`, `0002`, `0004`), evoluciona de forma aditiva desde `0005` y llega actualmente a `0100_catalog_review_identity_redirect.sql`. Las migraciones antiguas no se reescriben; toda corrección nueva se expresa en otra migración y actualiza pruebas y contratos.
+El historial comienza en V1 (`0001`, `0002`, `0004`), evoluciona de forma aditiva desde `0005` y llega actualmente a `0106_import_reference_resolution.sql`. Las migraciones antiguas no se reescriben; toda corrección nueva se expresa en otra migración y actualiza pruebas y contratos.
 
 El índice detallado vive en [supabase/migrations/README.md](../supabase/migrations/README.md). Las referencias de implementación deben apuntar a la migración o contrato que ejecuta la regla, no a una bitácora histórica.
 

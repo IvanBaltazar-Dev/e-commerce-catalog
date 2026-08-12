@@ -327,7 +327,7 @@ const PLANES = [
   {
     nombre: "documento de producto → índice trigrama de la proyección",
     sql: `select count(*) from public.product_catalog_projection p
-          where p.search_document like '%esmalte%';`,
+          where p.search_document like '%volq-050000%';`,
     espera: "product_catalog_projection_trgm_idx"
   },
   {
