@@ -370,13 +370,36 @@ La repetición sin cambios reutilizó el snapshot material: 242 identidades `unc
 | Reconstrucción | migraciones `0001`–`0107`, 44 archivos y 935 pruebas pgTAP; gate total en verde en 660,6 s |
 | Seguridad | auditoría estructural sin violaciones y `npm audit` con cero vulnerabilidades |
 
-El informe de cierre y la evidencia de aceptación están en [Etapa 2 · ADMISS y MCP](etapa-2-admiss-mcp.md). Etapa 3 no fue iniciada.
+El informe de cierre y la evidencia de aceptación están en [Etapa 2 · ADMISS y MCP](etapa-2-admiss-mcp.md).
 
 ## 10. Etapas 3–5
 
 ### Etapa 3 · Reprocesar Mesa
 
 Reprocesar el trabajo actual con la nueva evidencia, preservar decisiones históricas y sincronizar cada cambio relevante. Una evidencia contradictoria crea nuevo trabajo; no borra la decisión anterior ni convierte afirmaciones incompatibles en hechos simultáneos.
+
+Etapa cerrada el 2026-08-12. El motor genérico toma un snapshot, genera un preview inmutable y solo aplica su fingerprint exacto. Reutiliza la Mesa, sus versiones, eventos, dependencias e idempotencia; no existe una segunda cola. Clasifica cada trabajo como `human_exception`, `automatic_debt`, `physical_capture` o `waiting_external`, audita los terminados sin editarlos y crea trabajo enlazado si aparece una contradicción posterior.
+
+| Métrica | Antes | Después | Cambio |
+| --- | ---: | ---: | ---: |
+| Trabajo total | 1.679 | 1.679 | 0 |
+| Activo | 1.629 | 1.447 | -182 |
+| Accionable por una persona | 623 | 387 | -236 (-37,9 %) |
+| Porcentaje humano sobre activo | 38,24 % | 26,74 % | -11,50 pp |
+| Deuda automática | 0 | 436 | +436 |
+| Captura física | 527 | 527 | 0 |
+| Espera externa | 296 | 66 | -230 |
+| Bloqueado | 183 | 31 | -152 |
+| Completado | 49 | 231 | +182 |
+| Superseded | 1 | 1 | 0 |
+| Desbloqueado en apply | — | 94 | +94 |
+| Nuevo por evidencia / contradicción histórica real | — | 0 / 0 | sin invención |
+
+El preview canónico `52b0ae6d-60e5-4b51-8e09-23bacd9b416b` congeló la Mesa con snapshot `6aa0c10e86830a28980615a0273282c0e94ca39ca36b621242c4e155c7c79495` y huella de acciones `51fe0a32c2802d52045792dfbf40f1641206bded9768536781a03ad72c0ef65e`. Aplicó 182 identidades objetivas (161 tonos y 21 productos), reclasificó 112 señales externas y 324 relaciones diferidas, auditó 50 terminados y no produjo efectos comerciales.
+
+La repetición conservó el fingerprint lógico `b46f4cd63a653adcbff6a025001990ac64d4d853724879783d725046d9ea217e`: cero cambios, eventos, dependencias, reaperturas o trabajo nuevo. ADMISS quedó con 112 señales como deuda automática y una sola contradicción humana. Las 323 relaciones históricas no fueron reconciliadas; la distribución técnica muestra 324 por el fixture sintético controlado de Etapa 1.
+
+Graph Projector `v2.3.0` proyecta además la capa `workflow`: 7.630 nodos, 11.423 aristas, fingerprints PostgreSQL/Neo4j iguales y cero divergencias. MCP continúa de solo lectura y añade `review_reprocess_status`. Evidencia completa en [Etapa 3 · Reprocesamiento de la Mesa](etapa-3-reprocesamiento-mesa.md). Etapa 4 no fue iniciada.
 
 ### Etapa 4 · Conocimiento masivo
 
@@ -422,6 +445,7 @@ La configuración usa variables de entorno y rutas relativas. Ningún contrato d
 | IC-14 | Reconciliación escala como lote × universo en memoria | resolución indexada en PostgreSQL, fingerprints e identificadores antes de similitud |
 | IC-15 | Precios, stock o imágenes externos contaminan datos Bellaroshé | modelos separados, procedencia obligatoria y medios diferidos por variante |
 | IC-16 | CLI del projector depende del transformador TypeScript experimental de Node | funciona y está probado localmente; empaquetar/compilar el CLI con una ruta estable antes de convertirlo en servicio continuo |
+| IC-17 | Una regla automática obsoleta cierra incertidumbre que ya no es objetiva | reglas versionadas, preview exacto, evidencia/fingerprint, fixtures de contradicción y toda afirmación comercial o compatibilidad fuera de autoaprobación |
 
 Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad-y-riesgos.md).
 
@@ -483,9 +507,21 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 - [x] Demostrar idempotencia PostgreSQL + Neo4j.
 - [x] Reportar oficiales conocidos, trabajados, coincidentes, no trabajados, novedades, candidatos y conflictos.
 
-### Etapas 3–5
+### Etapa 3
 
-- [ ] Reprocesar Mesa y preservar decisiones.
+- [x] Tomar snapshot y fingerprint antes de modificar la Mesa.
+- [x] Implementar preview inmutable y apply de huella exacta.
+- [x] Clasificar deuda automática, espera externa, captura física y excepción humana.
+- [x] Reprocesar todas las clases y recomputar dependencias en el mismo apply.
+- [x] Preservar decisiones terminadas y enlazar contradicciones posteriores como trabajo nuevo.
+- [x] Tratar 112 señales ADMISS con reglas genéricas y conservar la contradicción humana.
+- [x] Demostrar fixtures de captura, espera, bloqueo, contradicción histórica e imagen faltante.
+- [x] Demostrar reejecución sin cambios, eventos, duplicados ni drift del grafo.
+- [x] Proyectar la Mesa en Neo4j y exponer su estado por MCP de solo lectura.
+- [x] Ejecutar reconstrucción 0001–0108, 968 pgTAP, seguridad, enriquecimiento, integrales, concurrencia, tipos, lint y build.
+
+### Etapas 4–5
+
 - [ ] Escalar conocimiento por sistemas y clases.
 - [ ] Implementar comando único y reporte comercial.
 
@@ -501,3 +537,4 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 | 2026-08-12 | Etapa 0 cerrada | Reconstrucción repetible, gates, backup verificado, documentación y commits completos; Etapa 1 lista sin iniciar |
 | 2026-08-12 | Etapa 1 cerrada | Memoria, referencia externa, staging integrado, Graph Projector y Neo4j Community probados con volumen independiente; ADMISS y MCP permanecen en Etapa 2 |
 | 2026-08-12 | Etapa 2 cerrada | ADMISS completo, delta idempotente, identidad contradictoria separada, Graph Projector `v2.2.0` y MCP STDIO de lectura probados; Etapa 3 permanece sin iniciar |
+| 2026-08-12 | Etapa 3 cerrada | Preview/apply congelado, 618 cambios justificados, trabajo humano de 623 a 387, rerun nulo, Graph Projector `v2.3.0`, 968 pgTAP y reconstrucción completa; Etapa 4 permanece sin iniciar |

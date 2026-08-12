@@ -63,7 +63,7 @@ npm run test:db
 npm run audit:security
 ```
 
-El corte de Etapa 2 llega hasta `0107` y añade 19 comprobaciones de reconciliación marca + fuente, no contaminación comercial, idempotencia y reporte MCP. El resultado de la ejecución vigente, no un número histórico, es la evidencia válida.
+El corte de Etapa 3 llega hasta `0108` y la suite completa contiene 45 archivos y 968 pruebas pgTAP. Las 33 comprobaciones nuevas cubren preview/apply exacto, clases operativas, evidencia que resuelve captura/espera, dependencias, historia inmutable, contradicción posterior, deuda de imagen e idempotencia. El resultado de la ejecución vigente, no un número histórico, es la evidencia válida.
 
 Gates especializados:
 
@@ -77,6 +77,7 @@ Gates especializados:
 | `npm run test:stage2:admiss` | ADMISS, ZAC, AJO Y LIMÓN, guardas comerciales, deduplicación y capas del grafo |
 | `npm run test:mcp:catalog-intelligence` | proceso STDIO nuevo, superficie MCP cerrada y respuesta integral desde las bases |
 | `npm run test:catalog-review-rerun` | reprocesamiento idempotente de la Mesa |
+| `npm run test:review-reprocess` | rerun nulo, fingerprint lógico y guardas de tablas comerciales |
 | `npm run test:venta` | pagos, concurrencia, venta y nota |
 | `npm run test:admin-nav` | navegación autenticada y carga inicial |
 | `npm run perf:volume` | rendimiento bajo volumen sintético |
@@ -115,7 +116,24 @@ npm run mcp:catalog-intelligence
 
 Repetir `research:official-brand` genera un delta. Si el material no cambió, reutiliza el snapshot y no duplica observaciones, precios, medios, candidatas ni trabajos. El RAW capturado queda bajo `research/catalog-master/local/research-runs`, fuera de Git, con manifiesto por corrida; PostgreSQL conserva hash, metadata y referencia.
 
-MCP v1 usa STDIO local y nueve herramientas de lectura: estado de catálogo, contexto de marca, última investigación, búsqueda en referencia, diferencias, brechas/contradicciones, casos de revisión, reporte y estado del grafo. No acepta SQL, shell, URL arbitraria, Cypher ni mutaciones de catálogo, precio, inventario o publicación.
+MCP v1 usa STDIO local y diez herramientas de lectura: estado de catálogo, contexto de marca, última investigación, búsqueda en referencia, diferencias, brechas/contradicciones, casos humanos de revisión, reporte, estado del grafo y estado del reprocesamiento. No acepta SQL, shell, URL arbitraria, Cypher ni mutaciones de catálogo, precio, inventario o publicación.
+
+## Reprocesamiento de la Mesa
+
+El preview persiste una fotografía completa y una huella de acciones. `apply` rechaza cualquier fingerprint distinto o una Mesa que haya cambiado desde el preview. PostgreSQL decide; al terminar se sincroniza y verifica Neo4j.
+
+```bash
+npm run review:reprocess -- report
+npm run review:reprocess -- preview <clave-preview>
+npm run review:reprocess -- apply <preview-id> <preview-fingerprint> <clave-apply>
+npm run review:reprocess -- run <clave-base>
+npm run test:catalog-review-rerun
+npm run test:review-reprocess
+npm run graph:sync
+npm run graph:verify
+```
+
+`run` solo encadena preview y apply del mismo snapshot. Las decisiones históricas no se editan: evidencia contradictoria posterior registra un evento y un trabajo enlazado. Las afirmaciones comerciales, compatibilidades y las relaciones masivas no se autoaprueban.
 
 Para el gate de escala completo, primero se conserva el volumen comercial sintético y luego se añade un universo independiente:
 
