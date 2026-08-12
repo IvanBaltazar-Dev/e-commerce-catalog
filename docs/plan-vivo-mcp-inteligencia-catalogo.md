@@ -1,9 +1,9 @@
 # Bellaroshé · Plan vivo de Inteligencia de Catálogo
 
-**Versión:** 1.3 · Etapa 2 cerrada
+**Versión:** 1.4 · Auditoría ADMISS previa a Etapa 4 cerrada
 **Última actualización:** 2026-08-12
 **Fuente de verdad:** PostgreSQL/Supabase
-**Estado:** Etapas 0, 1 y 2 completadas; Etapa 3 no iniciada
+**Estado:** Etapas 0–3 completadas; auditoría taxonómica y semántica ADMISS completada; Etapa 4 detenida hasta autorización
 
 Este documento dirige la construcción de la Inteligencia de Catálogo Bellaroshé. MCP es un adaptador de acceso; no es el sistema ni contiene lógica de negocio exclusiva.
 
@@ -401,6 +401,28 @@ La repetición conservó el fingerprint lógico `b46f4cd63a653adcbff6a025001990a
 
 Graph Projector `v2.3.0` proyecta además la capa `workflow`: 7.630 nodos, 11.423 aristas, fingerprints PostgreSQL/Neo4j iguales y cero divergencias. MCP continúa de solo lectura y añade `review_reprocess_status`. Evidencia completa en [Etapa 3 · Reprocesamiento de la Mesa](etapa-3-reprocesamiento-mesa.md). Etapa 4 no fue iniciada.
 
+### Checkpoint obligatorio previo a Etapa 4 · Cobertura ADMISS
+
+Auditoría cerrada el 2026-08-12 sin iniciar expansión de marcas ni procesar las 324 relaciones diferidas. Las 1.134 observaciones originales fueron auditadas expresamente: solo cubrían ocho predicados de identidad, SKU, tipo, línea, presentación, tono, acabado e imagen. El RAW oficial sí contenía descripción, tags y pertenencia a colecciones, por lo que se implementó un normalizador genérico, sin reglas ADMISS, para doce dimensiones:
+
+`tipo → subtipo → concern → beneficio declarado → ingrediente → uso → rol → etapa → sistema → formulación → acabado → relaciones`.
+
+La corrida conserva 1.587 claims activos sobre 121 productos, cada uno con excerpt acotado, fingerprint, fuente, referencia RAW, método, confianza y estado. `catalog_semantic_terms` es vocabulario de fuente, no verdad técnica; las afirmaciones de fabricante mantienen `claimStatus=source_claim` y `isCanonicalTechnicalFact=false`. Neo4j solo añade `SemanticTerm` y `NORMALIZES_TO` en capa `evidence`.
+
+| Resultado | Medición |
+| --- | ---: |
+| Tipo / subtipo | 100 % / 100 % |
+| Concern / beneficio | 5,79 % / 97,52 % |
+| Ingrediente / uso | 2,48 % / 14,05 % |
+| Rol / etapa / sistema | 100 % / 100 % / 100 % |
+| Formulación / acabado / relación | 99,17 % / 90,08 % / 99,17 % |
+| Colección–tipo contradictoria | 6 productos, 9 memberships |
+| Repetición | 1.587 claims, 0 duplicados, 0 superseded |
+| Mesa creada / efectos comerciales | 0 / 0 |
+| Grafo verificado | 9.562 nodos, 18.256 aristas, 0 divergencias |
+
+La matriz completa, consultas, gaps y evidencia reproducible están en [Auditoría ADMISS](../research/catalog-master/reports/admiss-semantic-audit/README.md). Etapa 4 sigue detenida hasta revisar este checkpoint y autorizarla expresamente.
+
 ### Etapa 4 · Conocimiento masivo
 
 Ampliar el Universo de Referencia relevante y los sistemas, etapas, clases, roles, procesos, requisitos, compatibilidades, incompatibilidades, alternativas y secuencias. Preferir relaciones entre clases y membresías de producto para evitar explosión producto-producto. No descargar indiscriminadamente todo Internet ni empezar con cien marcas antes de validar ADMISS.
@@ -522,6 +544,12 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 
 ### Etapas 4–5
 
+- [x] Auditar las 1.134 observaciones ADMISS antes de expandir conocimiento.
+- [x] Estructurar doce dimensiones con normalizador genérico y procedencia.
+- [x] Mantener claims de fabricante separados de hechos técnicos canónicos.
+- [x] Demostrar consultas ADMISS, matriz de 121 productos e idempotencia.
+- [x] Sincronizar/verificar Neo4j sin crear trabajo en Mesa ni efectos comerciales.
+- [ ] Autorizar explícitamente el inicio de Etapa 4.
 - [ ] Escalar conocimiento por sistemas y clases.
 - [ ] Implementar comando único y reporte comercial.
 
@@ -538,3 +566,4 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 | 2026-08-12 | Etapa 1 cerrada | Memoria, referencia externa, staging integrado, Graph Projector y Neo4j Community probados con volumen independiente; ADMISS y MCP permanecen en Etapa 2 |
 | 2026-08-12 | Etapa 2 cerrada | ADMISS completo, delta idempotente, identidad contradictoria separada, Graph Projector `v2.2.0` y MCP STDIO de lectura probados; Etapa 3 permanece sin iniciar |
 | 2026-08-12 | Etapa 3 cerrada | Preview/apply congelado, 618 cambios justificados, trabajo humano de 623 a 387, rerun nulo, Graph Projector `v2.3.0`, 968 pgTAP y reconstrucción completa; Etapa 4 permanece sin iniciar |
+| 2026-08-12 | Auditoría ADMISS previa a Etapa 4 | 1.134 observaciones auditadas, 1.587 claims tipados con procedencia, matriz de 121 productos, consultas exigidas, Graph Projector `v2.4.0` sin drift y cero impacto en Mesa/comercial; Etapa 4 permanece detenida |
