@@ -1,43 +1,28 @@
 import "server-only";
 
 import { HttpError } from "@/lib/api/http";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  getBackofficeContext,
+  type BackofficeRole,
+} from "@/lib/auth/backoffice-context";
 
-export type BackofficeRole = "admin" | "developer" | "seller";
-
-export type BackofficeProfile = {
-  id: string;
-  role: BackofficeRole;
-  full_name: string | null;
-  is_active: boolean;
-};
+export type { BackofficeProfile, BackofficeRole } from "@/lib/auth/backoffice-context";
 
 async function requireBackofficeRole(allowedRoles: BackofficeRole[]) {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-    error: authError
-  } = await supabase.auth.getUser();
+  const context = await getBackofficeContext();
+  const { supabase, user, profile } = context;
 
-  if (authError || !user) {
+  if (context.authError || !user) {
     throw new HttpError(401, "unauthenticated", "An authenticated admin session is required.");
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("admin_profiles")
-    .select("id, role, full_name, is_active")
-    .eq("id", user.id)
-    // Un perfil desactivado conserva su rol e historial pero pierde el acceso.
-    // La base aplica la misma regla en `is_admin()`; esto la adelanta a la ruta.
-    .eq("is_active", true)
-    .in("role", allowedRoles)
-    .maybeSingle<BackofficeProfile>();
-
-  if (profileError) {
-    throw new HttpError(500, "admin_lookup_failed", profileError.message);
+  if (context.profileError) {
+    throw new HttpError(500, "admin_lookup_failed", context.profileError);
   }
 
-  if (!profile) {
+  // Un perfil desactivado conserva su rol e historial pero pierde el acceso.
+  // La base aplica la misma regla en `is_admin()`; esto la adelanta a la ruta.
+  if (!profile || profile.is_active === false || !allowedRoles.includes(profile.role)) {
     throw new HttpError(403, "forbidden", "El usuario actual no tiene el rol requerido.");
   }
 

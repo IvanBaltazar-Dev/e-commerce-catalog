@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { handleApiError, HttpError, ok } from "@/lib/api/http";
+import { loadInventoryBoard } from "@/lib/admin/inventory-board-service";
 import { requireStaff } from "@/lib/auth/admin";
 
 export const runtime = "nodejs";
@@ -32,17 +33,15 @@ export async function GET(request: Request) {
       throw new HttpError(400, "invalid_query", parsed.error.issues[0]?.message ?? "Consulta inválida.");
     }
 
-    const { data, error } = await supabase.rpc("inventory_board", {
-      p_branch_id: parsed.data.branch ?? null,
-      p_query: parsed.data.q ?? null,
-      p_from: parsed.data.from ?? null,
-      p_to: parsed.data.to ?? null,
-      p_only_reposition: parsed.data.reposition === "true",
-      p_limit: parsed.data.limit ?? 200
+    const data = await loadInventoryBoard(supabase, {
+      branchId: parsed.data.branch,
+      query: parsed.data.q,
+      from: parsed.data.from,
+      to: parsed.data.to,
+      onlyReposition: parsed.data.reposition === "true",
+      limit: parsed.data.limit,
     });
-
-    if (error) throw new HttpError(500, "inventory_board_failed", error.message);
-    return ok(data ?? { items: [], total: 0 });
+    return ok(data);
   } catch (error) {
     return handleApiError(error);
   }

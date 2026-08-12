@@ -66,6 +66,15 @@ import type {
   CatalogMediaPackageCommitResult,
   CatalogMediaPackagePreview
 } from "@/lib/admin/catalog-import-types";
+import type {
+  CatalogReviewBootstrap,
+  CatalogReviewCase,
+  CatalogReviewCommandResult,
+  CatalogReviewListResult,
+  CatalogReviewResolveInput,
+  CatalogReviewTarget,
+  CatalogReviewTransitionInput
+} from "@/lib/admin/catalog-review";
 
 /** Fila de listado: la venta completa, sin líneas ni pagos. */
 export type SaleSummary = Omit<Sale, "lines" | "payments" | "taxDocument"> & { branchName?: string };
@@ -549,6 +558,46 @@ export const adminApi = {
     request<{ id: string; status: string }>("/api/admin/assistant/trends", {
       method: "PATCH",
       body: JSON.stringify(payload)
+    }),
+  getCatalogReviewBootstrap: () =>
+    request<CatalogReviewBootstrap>("/api/admin/catalog-review?mode=bootstrap"),
+  getNextCatalogReviewCase: (excludeIds: string[] = []) => {
+    const query = new URLSearchParams({ mode: "next" });
+    if (excludeIds.length) query.set("exclude", excludeIds.join(","));
+    return request<{ nextCase: CatalogReviewCase | null }>(`/api/admin/catalog-review?${query}`)
+      .then((result) => result.nextCase);
+  },
+  listCatalogReviewCases: (params: {
+    state?: string;
+    kind?: string;
+    purpose?: string;
+    cursor?: string;
+    limit?: number;
+  } = {}) => {
+    const query = new URLSearchParams({ mode: "list" });
+    if (params.state) query.set("state", params.state);
+    if (params.kind) query.set("kind", params.kind);
+    if (params.purpose) query.set("purpose", params.purpose);
+    if (params.cursor) query.set("cursor", params.cursor);
+    if (params.limit) query.set("limit", String(params.limit));
+    return request<CatalogReviewListResult>(`/api/admin/catalog-review?${query}`);
+  },
+  getCatalogReviewCase: (id: string) =>
+    request<{ case: CatalogReviewCase }>(`/api/admin/catalog-review/${id}`).then((result) => result.case),
+  searchCatalogReviewTargets: (query: string, limit = 12) => {
+    const search = new URLSearchParams({ q: query, limit: String(limit) });
+    return request<{ items: CatalogReviewTarget[] }>(`/api/admin/catalog-review/targets?${search}`)
+      .then((result) => result.items);
+  },
+  resolveCatalogReviewCase: (id: string, input: CatalogReviewResolveInput) =>
+    request<CatalogReviewCommandResult>(`/api/admin/catalog-review/${id}`, {
+      method: "POST",
+      body: JSON.stringify({ command: "resolve", ...input })
+    }),
+  transitionCatalogReviewCase: (id: string, input: CatalogReviewTransitionInput) =>
+    request<CatalogReviewCommandResult>(`/api/admin/catalog-review/${id}`, {
+      method: "POST",
+      body: JSON.stringify({ command: "transition", ...input })
     })
 };
 

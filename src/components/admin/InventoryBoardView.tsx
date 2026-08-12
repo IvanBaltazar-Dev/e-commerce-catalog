@@ -1,7 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useApiError } from "@/components/admin/useApiError";
+import type {
+  InventoryBoardData,
+  InventoryBoardItem,
+} from "@/lib/admin/inventory-board-contract";
 
 /**
  * D1 Existencias y D2 Reposición: la misma vista con distinta pregunta.
@@ -12,31 +17,6 @@ import { useApiError } from "@/components/admin/useApiError";
  * una decidiera por su cuenta qué está por agotarse, la dueña vería dos
  * respuestas distintas a la misma pregunta.
  */
-
-type BoardItem = {
-  variantId: string;
-  branchId: string;
-  branchName: string;
-  sku: string | null;
-  variantName: string;
-  productId: string;
-  productName: string;
-  presentation: string | null;
-  brandName: string;
-  shadeName: string | null;
-  shadeCode: string | null;
-  referenceColor: string | null;
-  onHand: number;
-  reserved: number;
-  available: number;
-  unvaluedQuantity: number;
-  averageUnitCost: number | null;
-  totalValue: number | null;
-  unitsInPeriod: number;
-  coverageDays: number | null;
-  needsReposition: boolean;
-  reason: "agotado" | "cobertura" | null;
-};
 
 type Movimiento = {
   occurredAt: string;
@@ -52,13 +32,20 @@ const MOTIVO: Record<string, { texto: string; clase: string }> = {
   cobertura: { texto: "Se agota pronto", clase: "inv-tag inv-tag--cobertura" }
 };
 
-export function InventoryBoardView({ soloReposicion }: { soloReposicion: boolean }) {
+export function InventoryBoardView({
+  soloReposicion,
+  initialData,
+}: {
+  soloReposicion: boolean;
+  initialData: InventoryBoardData;
+}) {
   const handleApiError = useApiError();
+  const skipInitialRequest = useRef(true);
 
   const [query, setQuery] = useState("");
-  const [items, setItems] = useState<BoardItem[]>([]);
-  const [rango, setRango] = useState<{ desde: string; hasta: string; dias: number } | null>(null);
-  const [cargando, setCargando] = useState(true);
+  const [items, setItems] = useState<InventoryBoardItem[]>(initialData.items);
+  const [rango, setRango] = useState(initialData.rango);
+  const [cargando, setCargando] = useState(false);
   const [abierta, setAbierta] = useState<string | null>(null);
   const [movimientos, setMovimientos] = useState<Movimiento[]>([]);
   const [cargandoMov, setCargandoMov] = useState(false);
@@ -72,7 +59,7 @@ export function InventoryBoardView({ soloReposicion }: { soloReposicion: boolean
       const res = await fetch(`/api/admin/inventory/board?${params.toString()}`);
       const payload = await res.json();
       if (!res.ok) throw new Error(payload?.error?.message ?? "No se pudo cargar el inventario.");
-      setItems((payload?.data?.items ?? []) as BoardItem[]);
+      setItems((payload?.data?.items ?? []) as InventoryBoardItem[]);
       setRango(payload?.data?.rango ?? null);
     } catch (error) {
       handleApiError(error, "No se pudo cargar el inventario.");
@@ -82,12 +69,16 @@ export function InventoryBoardView({ soloReposicion }: { soloReposicion: boolean
   }, [handleApiError, soloReposicion]);
 
   useEffect(() => {
+    if (skipInitialRequest.current) {
+      skipInitialRequest.current = false;
+      return;
+    }
     const timer = window.setTimeout(() => { cargar(query); }, 220);
     return () => window.clearTimeout(timer);
   }, [query, cargar]);
 
   /** Los movimientos son la explicación de la cantidad, no un extra. */
-  async function abrirMovimientos(item: BoardItem) {
+  async function abrirMovimientos(item: InventoryBoardItem) {
     if (abierta === item.variantId) { setAbierta(null); return; }
     setAbierta(item.variantId);
     setCargandoMov(true);
@@ -196,7 +187,7 @@ export function InventoryBoardView({ soloReposicion }: { soloReposicion: boolean
                       {abierta === item.variantId ? "Ocultar" : "Movimientos"}
                     </button>
                     {soloReposicion ? (
-                      <a className="btn-soft" href={`/admin/compras?variante=${item.variantId}`}>Reponer →</a>
+                      <Link className="btn-soft" href={`/admin/compras?variante=${item.variantId}`}>Reponer →</Link>
                     ) : null}
                   </div>
                 </div>
