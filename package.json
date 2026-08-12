@@ -83,7 +83,9 @@
     "test:mcp:catalog-intelligence": "node scripts/test-catalog-intelligence-mcp.mjs",
     "test:stage2:admiss": "node scripts/test-stage2-admiss-acceptance.mjs --env .env.supabase.local",
     "review:reprocess": "node scripts/catalog-review-reprocess.mjs --env .env.supabase.local",
-    "test:review-reprocess": "node scripts/test-catalog-review-reprocess.mjs --env .env.supabase.local"
+    "test:review-reprocess": "node scripts/test-catalog-review-reprocess.mjs --env .env.supabase.local",
+    "audit:admiss-semantics": "node scripts/audit-admiss-taxonomy-semantics.mjs --env .env.supabase.local",
+    "test:semantic-normalizer": "node scripts/test-official-semantic-normalizer.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",

@@ -11,7 +11,7 @@ import type {
   GraphVerification,
 } from "./contracts";
 
-export const GRAPH_PROJECTOR_VERSION = "v2.3.0";
+export const GRAPH_PROJECTOR_VERSION = "v2.4.0";
 const DEFAULT_BATCH_SIZE = 1_000;
 const MAX_DIFFERENCE_SAMPLES = 100;
 

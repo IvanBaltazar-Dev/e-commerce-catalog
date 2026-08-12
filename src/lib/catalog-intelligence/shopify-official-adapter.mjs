@@ -125,6 +125,53 @@ async function fetchCollections(root, discoveredPath) {
   };
 }
 
+async function mapConcurrent(values, worker, concurrency = 8) {
+  let cursor = 0;
+  const output = new Array(values.length);
+  await Promise.all(Array.from({ length: Math.min(concurrency, values.length) }, async () => {
+    for (;;) {
+      const index = cursor++;
+      if (index >= values.length) return;
+      output[index] = await worker(values[index], index);
+    }
+  }));
+  return output;
+}
+
+async function fetchCollectionMemberships(root, collections) {
+  const captured = await mapConcurrent(collections, async (collection) => {
+    const productIds = [];
+    const surfaces = [];
+    for (let page = 1; ; page += 1) {
+      const url = new URL(`/collections/${encodeURIComponent(collection.handle)}/products.json`, root);
+      url.searchParams.set("limit", "250");
+      url.searchParams.set("page", String(page));
+      const surface = await fetchSurface(url, "json");
+      const payload = JSON.parse(surface.body);
+      const products = Array.isArray(payload.products) ? payload.products : [];
+      surfaces.push({
+        ...surface,
+        name: `collection-${collection.id}-products-page-${page}.json`,
+      });
+      productIds.push(...products.map((product) => String(product.id)));
+      if (products.length < 250) break;
+    }
+    return {
+      membership: {
+        id: String(collection.id),
+        title: String(collection.title),
+        handle: String(collection.handle),
+        productIds: [...new Set(productIds)].sort(),
+      },
+      surfaces,
+    };
+  });
+  return {
+    memberships: captured.map((item) => item.membership),
+    surfaces: captured.flatMap((item) => item.surfaces),
+  };
+}
+
 async function writeManagedCapture(storageRoot, sourceKey, capture) {
   const sourceSlug = sourceKey.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const relativeRoot = path.posix.join("local", "research-runs", sourceSlug, capture.rawFingerprint);
@@ -196,6 +243,7 @@ export async function discoverShopifyOfficialCatalog({ sourceKey, sourceRoot, st
   const collectionPath = discoverJsonPath(agents.body, "collections.json");
   const productCapture = await fetchProducts(root, productPath);
   const collectionCapture = await fetchCollections(root, collectionPath);
+  const collectionMembershipCapture = await fetchCollectionMemberships(root, collectionCapture.collections);
   const products = productCapture.products.sort((left, right) => String(left.id).localeCompare(String(right.id)));
   const stableCatalog = JSON.stringify(products.map(materialCatalogProduct));
   const contentFingerprint = sha256(stableCatalog);
@@ -209,6 +257,7 @@ export async function discoverShopifyOfficialCatalog({ sourceKey, sourceRoot, st
     ...childSitemaps,
     ...productCapture.surfaces,
     collectionCapture.surface,
+    ...collectionMembershipCapture.surfaces,
   ];
   const rawFingerprint = sha256(surfaces.map((surface) => `${surface.url}\0${surface.sha256}`).join("\n"));
 
@@ -219,11 +268,16 @@ export async function discoverShopifyOfficialCatalog({ sourceKey, sourceRoot, st
     rawFingerprint,
     products,
     collections: collectionCapture.collections,
+    collectionMemberships: collectionMembershipCapture.memberships,
     counts: {
       products: products.length,
       variants: variantCount,
       images: imageCount,
       collections: collectionCapture.collections.length,
+      collectionMemberships: collectionMembershipCapture.memberships.reduce(
+        (total, collection) => total + collection.productIds.length,
+        0,
+      ),
       discoverySurfaces: surfaces.length,
     },
     discovery: {

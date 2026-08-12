@@ -63,7 +63,7 @@ npm run test:db
 npm run audit:security
 ```
 
-El corte de Etapa 3 llega hasta `0108` y la suite completa contiene 45 archivos y 968 pruebas pgTAP. Las 33 comprobaciones nuevas cubren preview/apply exacto, clases operativas, evidencia que resuelve captura/espera, dependencias, historia inmutable, contradicción posterior, deuda de imagen e idempotencia. El resultado de la ejecución vigente, no un número histórico, es la evidencia válida.
+El checkpoint semántico previo a Etapa 4 llega hasta `0109`. Añade 20 pruebas pgTAP sobre claims, vocabulario, estado, procedencia y proyección sin canonización; el resultado de la ejecución vigente, no un número histórico, es la evidencia válida.
 
 Gates especializados:
 
@@ -115,6 +115,18 @@ npm run mcp:catalog-intelligence
 ```
 
 Repetir `research:official-brand` genera un delta. Si el material no cambió, reutiliza el snapshot y no duplica observaciones, precios, medios, candidatas ni trabajos. El RAW capturado queda bajo `research/catalog-master/local/research-runs`, fuera de Git, con manifiesto por corrida; PostgreSQL conserva hash, metadata y referencia.
+
+La captura Shopify incluye también la pertenencia oficial a colecciones. El normalizador semántico interpreta superficies oficiales mediante reglas genéricas y conserva cada resultado como claim de fuente, nunca como verdad técnica universal. Para reproducir la auditoría ADMISS previa a Etapa 4:
+
+```bash
+npm run test:semantic-normalizer
+npm run research:official-brand -- --source-key admiss-co-official --brand ADMISS --summary
+npm run audit:admiss-semantics
+npm run graph:sync
+npm run graph:verify
+```
+
+El informe queda en `research/catalog-master/reports/admiss-semantic-audit/`: matriz CSV de 121 productos, JSON con consultas/excerpts/fingerprints y resumen Markdown. La auditoría no crea trabajo en Mesa, no publica y no autoriza Etapa 4.
 
 MCP v1 usa STDIO local y diez herramientas de lectura: estado de catálogo, contexto de marca, última investigación, búsqueda en referencia, diferencias, brechas/contradicciones, casos humanos de revisión, reporte, estado del grafo y estado del reprocesamiento. No acepta SQL, shell, URL arbitraria, Cypher ni mutaciones de catálogo, precio, inventario o publicación.
 

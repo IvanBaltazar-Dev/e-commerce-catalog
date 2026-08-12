@@ -11,6 +11,10 @@ import {
   normalizeOfficialText,
   parseOfficialProduct,
 } from "../src/lib/catalog-intelligence/shopify-official-adapter.mjs";
+import {
+  extractOfficialProductSemantics,
+  OFFICIAL_SEMANTIC_NORMALIZER_VERSION,
+} from "../src/lib/catalog-intelligence/official-semantic-normalizer.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const { env, isLocal } = loadSupabaseScriptEnv({
@@ -74,6 +78,15 @@ async function upsertBatches(table, rows, onConflict, { ignoreDuplicates = false
 async function insertBatches(table, rows, size = 300) {
   for (let offset = 0; offset < rows.length; offset += size) {
     must(await admin.from(table).insert(rows.slice(offset, offset + size)), `${table} batch ${offset}`);
+  }
+}
+
+async function selectAll(queryFactory, operation, pageSize = 1000) {
+  const rows = [];
+  for (let offset = 0; ; offset += pageSize) {
+    const page = must(await queryFactory().range(offset, offset + pageSize - 1), `${operation} page ${offset}`);
+    rows.push(...page);
+    if (page.length < pageSize) return rows;
   }
 }
 
@@ -359,6 +372,156 @@ async function existingReferences(sourceId) {
   };
 }
 
+async function ingestOfficialSemantics({ source, brand, capture, run, productByExternalId }) {
+  const collectionsByProduct = new Map();
+  for (const collection of capture.collectionMemberships ?? []) {
+    for (const productId of collection.productIds ?? []) {
+      const memberships = collectionsByProduct.get(String(productId)) ?? [];
+      memberships.push(collection);
+      collectionsByProduct.set(String(productId), memberships);
+    }
+  }
+
+  const extracted = [];
+  for (const product of capture.products) {
+    const reference = productByExternalId.get(String(product.id));
+    const claims = extractOfficialProductSemantics({
+      product,
+      sourceKey: source.source_key,
+      brandName: brand.name,
+      collectionMemberships: collectionsByProduct.get(String(product.id)) ?? [],
+    });
+    for (const claim of claims) extracted.push({ product, reference, claim });
+  }
+
+  const uniqueTerms = new Map();
+  for (const { claim } of extracted) {
+    uniqueTerms.set(`${claim.dimension}:${claim.code}`, {
+      dimension: claim.dimension,
+      code: claim.code,
+      label: claim.label,
+      metadata: {
+        vocabularyKind: "normalized_source_vocabulary",
+        isCanonicalTechnicalFact: false,
+        normalizerVersion: OFFICIAL_SEMANTIC_NORMALIZER_VERSION,
+      },
+      updated_at: capture.capturedAt,
+    });
+  }
+  await upsertBatches("catalog_semantic_terms", [...uniqueTerms.values()], "dimension,code");
+  const terms = await selectAll(
+    () => admin.from("catalog_semantic_terms").select("id,dimension,code"),
+    "semantic terms",
+  );
+  const termByKey = new Map(terms.map((term) => [`${term.dimension}:${term.code}`, term]));
+
+  const observationRows = extracted.map(({ reference, claim }) => ({
+    observation_key: `official-semantic-observation-v1:${reference.referenceKey}:${claim.dimension}:${claim.code}:${claim.evidenceFingerprint}`,
+    source_record_id: reference.record.id,
+    research_run_id: run.id,
+    reference_product_id: reference.id,
+    reference_variant_id: null,
+    observation_kind: "semantic_claim",
+    predicate: `semantic.${claim.dimension}`,
+    value_json: {
+      termCode: claim.code,
+      termLabel: claim.label,
+      claimKind: claim.claimKind,
+      claimStatus: "source_claim",
+      sourceField: claim.sourceField,
+      sourceValue: claim.sourceValue,
+      sourceExcerpt: claim.sourceExcerpt,
+      ruleCode: claim.ruleCode,
+      evidenceFingerprint: claim.evidenceFingerprint,
+      rawStorageReference: capture.storage.storageReference,
+      metadata: claim.metadata,
+    },
+    observed_at: capture.capturedAt,
+    extraction_method: "official_api",
+    extractor: OFFICIAL_SEMANTIC_NORMALIZER_VERSION,
+    confidence: claim.confidence,
+    metadata: {
+      sourceKey: source.source_key,
+      epistemicStatus: "source_claim",
+      isCanonicalTechnicalFact: false,
+      ruleCode: claim.ruleCode,
+    },
+  }));
+  await upsertBatches("catalog_observations", observationRows, "observation_key", { ignoreDuplicates: true });
+
+  const currentKeys = new Set(observationRows.map((row) => row.observation_key));
+  const existing = (await selectAll(
+    () => admin.from("catalog_reference_product_semantics_v1")
+      .select("reference_key,observation_id,observation_key,normalization_status"),
+    "existing source semantics",
+  )).filter((row) => row.reference_key.startsWith(`${source.source_key}:`));
+  const observationByKey = new Map(existing.map((row) => [row.observation_key, row]));
+  const missingKeys = [...currentKeys].filter((key) => !observationByKey.has(key));
+  if (missingKeys.length) {
+    const missingSet = new Set(missingKeys);
+    const rows = await selectAll(
+      () => admin.from("catalog_observations")
+        .select("id,observation_key")
+        .eq("observation_kind", "semantic_claim"),
+      "new semantic observations",
+    );
+    for (const row of rows) {
+      if (missingSet.has(row.observation_key)) {
+        observationByKey.set(row.observation_key, { observation_id: row.id, observation_key: row.observation_key });
+      }
+    }
+  }
+
+  const now = new Date().toISOString();
+  const links = extracted.map(({ reference, claim }) => {
+    const observationKey = `official-semantic-observation-v1:${reference.referenceKey}:${claim.dimension}:${claim.code}:${claim.evidenceFingerprint}`;
+    const observation = observationByKey.get(observationKey);
+    const term = termByKey.get(`${claim.dimension}:${claim.code}`);
+    if (!observation || !term) throw new Error(`No se resolvio el claim ${observationKey}.`);
+    return {
+      observation_id: observation.observation_id,
+      semantic_term_id: term.id,
+      normalization_status: "observed",
+      normalization_method: OFFICIAL_SEMANTIC_NORMALIZER_VERSION,
+      confidence: claim.confidence,
+      metadata: {
+        sourceKey: source.source_key,
+        ruleCode: claim.ruleCode,
+        isCanonicalTechnicalFact: false,
+      },
+      updated_at: now,
+    };
+  });
+  await upsertBatches("catalog_observation_semantic_terms", links, "observation_id");
+
+  const staleIds = existing
+    .filter((row) => !currentKeys.has(row.observation_key) && row.normalization_status !== "superseded")
+    .map((row) => row.observation_id);
+  for (let offset = 0; offset < staleIds.length; offset += 100) {
+    must(await admin.from("catalog_observation_semantic_terms").update({
+      normalization_status: "superseded",
+      updated_at: now,
+      metadata: {
+        sourceKey: source.source_key,
+        supersededByRunId: run.id,
+        reason: "not_observed_in_latest_official_capture",
+        isCanonicalTechnicalFact: false,
+      },
+    }).in("observation_id", staleIds.slice(offset, offset + 100)), `supersede semantic observations ${offset}`);
+  }
+
+  const byDimension = {};
+  for (const { claim } of extracted) byDimension[claim.dimension] = (byDimension[claim.dimension] ?? 0) + 1;
+  return {
+    claims: links.length,
+    terms: uniqueTerms.size,
+    productsWithClaims: new Set(extracted.map(({ reference }) => reference.id)).size,
+    superseded: staleIds.length,
+    byDimension,
+    observationIds: links.map((link) => link.observation_id),
+  };
+}
+
 async function ingestReferences({ source, brand, capture, run, scope, records }) {
   const before = await existingReferences(source.id);
   const productInputs = capture.products.map((product) => {
@@ -630,6 +793,10 @@ async function ingestReferences({ source, brand, capture, run, scope, records })
   await upsertBatches("catalog_observations", observations, "observation_key", { ignoreDuplicates: true });
   await upsertBatches("catalog_reference_prices", priceRows, "price_key", { ignoreDuplicates: true });
   await upsertBatches("catalog_reference_media", mediaRows, "media_key");
+  const semantics = await ingestOfficialSemantics({
+    source, brand, capture, run, productByExternalId,
+  });
+  const { observationIds: semanticObservationIds, ...semanticCounts } = semantics;
 
   return {
     productByExternalId,
@@ -642,11 +809,13 @@ async function ingestReferences({ source, brand, capture, run, scope, records })
       observations: observations.length,
       prices: priceRows.length,
       media: mediaRows.length,
+      semantics: semanticCounts,
     },
+    semanticObservationIds,
   };
 }
 
-async function attachEvidence({ source, capture, records }) {
+async function attachEvidence({ source, capture, records, semanticObservationIds = [] }) {
   const evidenceKey = `official-source:${source.source_key}:${capture.contentFingerprint}`;
   let evidence = must(await admin.from("catalog_evidence_sets")
     .select("id")
@@ -683,6 +852,25 @@ async function attachEvidence({ source, capture, records }) {
   const knownRecordIds = new Set(existingItems.map((item) => item.source_record_id));
   const missingItems = items.filter((item) => !knownRecordIds.has(item.source_record_id));
   if (missingItems.length) await insertBatches("catalog_evidence_items", missingItems);
+  const existingObservationItems = await selectAll(
+    () => admin.from("catalog_evidence_items")
+      .select("observation_id")
+      .eq("evidence_set_id", evidence.id)
+      .eq("stance", "supports")
+      .not("observation_id", "is", null),
+    "semantic evidence items lookup",
+  );
+  const knownObservationIds = new Set(existingObservationItems.map((item) => item.observation_id));
+  const missingObservationItems = [...new Set(semanticObservationIds)]
+    .filter((observationId) => !knownObservationIds.has(observationId))
+    .map((observationId) => ({
+      evidence_set_id: evidence.id,
+      source_record_id: null,
+      observation_id: observationId,
+      stance: "supports",
+      notes: "Claim normalizado desde evidencia oficial RAW; conserva excerpt y no constituye un hecho tecnico canonico.",
+    }));
+  if (missingObservationItems.length) await insertBatches("catalog_evidence_items", missingObservationItems);
   return evidence.id;
 }
 
@@ -747,7 +935,12 @@ try {
   const { snapshot, reused } = await resolveSnapshot({ source, capture });
   const records = await loadRecords(snapshot.id);
   const ingest = await ingestReferences({ source, brand, capture, run, scope, records });
-  const evidenceSetId = await attachEvidence({ source, capture, records });
+  const evidenceSetId = await attachEvidence({
+    source,
+    capture,
+    records,
+    semanticObservationIds: ingest.semanticObservationIds,
+  });
   const reconciliation = must(await admin.rpc("stage_catalog_brand_reconciliation_v1", {
     p_research_run_id: run.id,
     p_brand_id: brand.id,

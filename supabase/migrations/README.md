@@ -21,6 +21,8 @@ Este directorio es el historial real y acumulativo de Bellaroshé. Las migracion
 | `0097`–`0100` | Mesa de revisión, dependencias, contratos de aplicación y redirección de identidad |
 | `0101`–`0106` | Memoria de investigación, Universo de Referencia, proyección Neo4j y resolución desde staging |
 | `0107` | Reconciliación genérica marca + fuente, reporte agregado para MCP y capas explícitas de identidad en el grafo |
+| `0108` | Reprocesamiento congelado e idempotente de la Mesa, clasificación operativa y proyección workflow |
+| `0109` | Claims semánticos de referencias, vocabulario normalizado con estado/procedencia y proyección exclusiva en evidencia |
 
 Los nombres de archivo son el detalle autoritativo. Este mapa evita duplicar una descripción extensa que pronto queda desactualizada.
 
@@ -38,6 +40,8 @@ Los nombres de archivo son el detalle autoritativo. Este mapa evita duplicar una
 - `0097_catalog_review_workflow.sql`–`0100_catalog_review_identity_redirect.sql`: trabajo humano versionado, dependencias, aplicación y corrección de identidad.
 - `0101_research_memory_reference_universe.sql`–`0106_import_reference_resolution.sql`: corridas/deltas, identidad externa tipada, observaciones y precios externos, contratos de proyección, matching indexado y reutilización desde el staging existente.
 - `0107_stage2_brand_research_mcp_contracts.sql`: claves materiales de reconciliación, candidatos/contradicciones para Mesa, reporte ADMISS reutilizable y proyección de señales de identidad separadas.
+- `0108_catalog_review_reprocessing.sql`: preview/apply exacto, historia inmutable, clases de trabajo y grafo de Mesa.
+- `0109_reference_semantic_claims.sql`: claims observados, vocabulario no canónico, cobertura semántica y `SemanticTerm`/`NORMALIZES_TO` en capa de evidencia.
 
 ## Aplicación local
 
