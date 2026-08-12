@@ -63,7 +63,7 @@ npm run test:db
 npm run audit:security
 ```
 
-El corte de Etapa 1 incorpora 40 comprobaciones nuevas sobre las migraciones `0101`–`0106`; el resultado de la ejecución vigente, no un número histórico, es la evidencia válida.
+El corte de Etapa 2 llega hasta `0107` y añade 19 comprobaciones de reconciliación marca + fuente, no contaminación comercial, idempotencia y reporte MCP. El resultado de la ejecución vigente, no un número histórico, es la evidencia válida.
 
 Gates especializados:
 
@@ -74,6 +74,8 @@ Gates especializados:
 | `npm run gate:enriquecimiento` | procedencia, conocimiento y exportación aprobada |
 | `npm run gate:reference-scale` | Universo de Referencia adicional, matching indexado y streaming del contrato de grafo |
 | `npm run test:graph-projector` | rebuild repetido, divergencia deliberada, reparación incremental y verify |
+| `npm run test:stage2:admiss` | ADMISS, ZAC, AJO Y LIMÓN, guardas comerciales, deduplicación y capas del grafo |
+| `npm run test:mcp:catalog-intelligence` | proceso STDIO nuevo, superficie MCP cerrada y respuesta integral desde las bases |
 | `npm run test:catalog-review-rerun` | reprocesamiento idempotente de la Mesa |
 | `npm run test:venta` | pagos, concurrencia, venta y nota |
 | `npm run test:admin-nav` | navegación autenticada y carga inicial |
@@ -98,6 +100,22 @@ npm run graph:sync
 `graph:rebuild` vacía exclusivamente los nodos/aristas marcados como proyección Bellaroshé y los repone desde PostgreSQL. `graph:sync` procesa nodos y aristas por cursor y lotes, actualiza fingerprints y retira derivados obsoletos. `graph:verify` es de solo lectura y reporta faltantes, duplicados, huérfanos, referencias inválidas, elementos inesperados y versiones antiguas. No existe un comando de Cypher libre.
 
 `npm run neo4j:down` detiene el contenedor sin borrar sus volúmenes. Levantarlo de nuevo y ejecutar `graph:rebuild` recupera el mismo conocimiento desde PostgreSQL.
+
+## Campaña oficial y MCP local
+
+La unidad de campaña es una fuente registrada y, si aún no está vinculada, una marca. El adaptador descubre desde la raíz; no se introducen fichas individuales en el código.
+
+```bash
+npm run research:official-brand -- --source-key admiss-co-official --brand ADMISS --summary
+npm run graph:sync
+npm run graph:verify
+npm run test:stage2:admiss
+npm run mcp:catalog-intelligence
+```
+
+Repetir `research:official-brand` genera un delta. Si el material no cambió, reutiliza el snapshot y no duplica observaciones, precios, medios, candidatas ni trabajos. El RAW capturado queda bajo `research/catalog-master/local/research-runs`, fuera de Git, con manifiesto por corrida; PostgreSQL conserva hash, metadata y referencia.
+
+MCP v1 usa STDIO local y nueve herramientas de lectura: estado de catálogo, contexto de marca, última investigación, búsqueda en referencia, diferencias, brechas/contradicciones, casos de revisión, reporte y estado del grafo. No acepta SQL, shell, URL arbitraria, Cypher ni mutaciones de catálogo, precio, inventario o publicación.
 
 Para el gate de escala completo, primero se conserva el volumen comercial sintético y luego se añade un universo independiente:
 

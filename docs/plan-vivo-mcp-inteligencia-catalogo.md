@@ -1,9 +1,9 @@
 # Bellaroshé · Plan vivo de Inteligencia de Catálogo
 
-**Versión:** 1.2 · Etapa 1 cerrada
+**Versión:** 1.3 · Etapa 2 cerrada
 **Última actualización:** 2026-08-12
 **Fuente de verdad:** PostgreSQL/Supabase
-**Estado:** Etapas 0 y 1 completadas; Etapa 2 no iniciada
+**Estado:** Etapas 0, 1 y 2 completadas; Etapa 3 no iniciada
 
 Este documento dirige la construcción de la Inteligencia de Catálogo Bellaroshé. MCP es un adaptador de acceso; no es el sistema ni contiene lógica de negocio exclusiva.
 
@@ -116,7 +116,7 @@ Solo hechos aprobados o materializados: productos, variantes, marcas, categoría
 
 Cada nodo derivado conserva identificador PostgreSQL estable, por ejemplo `Product.pg_id`, más versión del projector y fingerprint de la proyección.
 
-`Product` y `Variant` representan exclusivamente catálogo Bellaroshé. `ReferenceProduct` y `ReferenceVariant` representan identidad externa conocida y no implican adopción. Una relación `MATCHES` enlaza ambos dominios cuando la reconciliación lo justifica; el grafo nunca convierte esa coincidencia en inventario o publicación.
+`Product` y `Variant` representan exclusivamente catálogo Bellaroshé. `ReferenceProduct` y `ReferenceVariant` representan identidad externa conocida y no implican adopción. `IdentityCandidate`, `IdentityContradiction` e `IdentityMatch` conservan la señal con su estado y evidencia antes de enlazar ambos dominios; el grafo nunca convierte esa señal en inventario o publicación.
 
 ### Capa de evidencia y conocimiento en construcción
 
@@ -349,9 +349,28 @@ La ejecución guarda en PostgreSQL fuentes, snapshots, registros, observaciones,
 
 ### MCP v1
 
-Local STDIO y sin lógica exclusiva. Expone los mismos contratos que usan scripts y aplicación: prepara, consulta estado, registra observaciones, reconcilia, finaliza y sincroniza grafo mediante comandos estrechos.
+Local STDIO y sin lógica exclusiva. La primera versión terminada es deliberadamente de solo lectura: expone consultas de dominio con parámetros acotados y el estado fijo del grafo. No expone SQL, shell, HTTP, Cypher ni mutaciones comerciales. Las campañas siguen entrando por el comando manual probado hasta cerrar un contrato de escritura específico.
 
 Codex investiga, razona y orquesta. MCP consulta e invoca. PostgreSQL recuerda y gobierna. Neo4j conecta y expone huecos.
+
+### Resultado de Etapa 2
+
+Etapa cerrada el 2026-08-12. La campaña partió de la raíz oficial registrada, descubrió sus superficies y conservó 121 productos y 121 variantes ADMISS, 121 precios externos y 197 referencias remotas de imagen. Se enriquecieron 61 referencias justificadas y 60 permanecieron ligeras. No se creó ni modificó ninguna ficha, variante, precio, existencia o medio comercial.
+
+La repetición sin cambios reutilizó el snapshot material: 242 identidades `unchanged`, cero altas/cambios/ausencias y cero duplicados en observaciones, precios, medios, casos, Mesa o grafo. La huella material fue `fe2eaacae33eb94b58a188ffa723732c703ea3c0b66e51beb7c76e213c15a902`; los timestamps volátiles de Shopify se preservan como captura, pero no falsean el delta.
+
+| Entrega | Resultado comprobado |
+| --- | --- |
+| Cobertura oficial | 121 productos, 121 variantes, 726 identificadores, 1.134 observaciones, 121 precios y 197 medios remotos |
+| Reconciliación | 112 candidatas, 1 contradicción estructural, 8 referencias sin candidata y 113 casos pendientes de decisión humana |
+| ZAC | SKU oficial `314094` descubierto como referencia y candidata de `Esmalte ADMISS` (`ADM-ESM-CA6EEA`); sin alta comercial |
+| AJO Y LIMÓN | `BASES` en la fuente oficial frente a `Esmaltes` internamente; caso `needs_review` con evidencia explícita |
+| Grafo | Graph Projector `v2.2.0`; 5.951 nodos, 11.240 aristas, fingerprints iguales y cero divergencias |
+| MCP local | 9 herramientas de lectura de dominio; proceso STDIO nuevo respondió ADMISS desde PostgreSQL y estado Neo4j sin leer archivos manuales ni memoria de conversación |
+| Reconstrucción | migraciones `0001`–`0107`, 44 archivos y 935 pruebas pgTAP; gate total en verde en 660,6 s |
+| Seguridad | auditoría estructural sin violaciones y `npm audit` con cero vulnerabilidades |
+
+El informe de cierre y la evidencia de aceptación están en [Etapa 2 · ADMISS y MCP](etapa-2-admiss-mcp.md). Etapa 3 no fue iniciada.
 
 ## 10. Etapas 3–5
 
@@ -457,12 +476,12 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 
 ### Etapa 2
 
-- [ ] Ejecutar ADMISS extremo a extremo.
-- [ ] Demostrar ZAC y AJO Y LIMÓN con reglas genéricas.
-- [ ] Alcanzar decisión comercial sin publicación automática.
-- [ ] Construir MCP local STDIO sobre contratos probados.
-- [ ] Demostrar idempotencia PostgreSQL + Neo4j.
-- [ ] Reportar oficiales conocidos, trabajados, coincidentes, no trabajados, novedades, candidatos y conflictos.
+- [x] Ejecutar ADMISS extremo a extremo.
+- [x] Demostrar ZAC y AJO Y LIMÓN con reglas genéricas.
+- [x] Preparar decisión humana sin publicación automática.
+- [x] Construir MCP local STDIO sobre contratos probados.
+- [x] Demostrar idempotencia PostgreSQL + Neo4j.
+- [x] Reportar oficiales conocidos, trabajados, coincidentes, no trabajados, novedades, candidatos y conflictos.
 
 ### Etapas 3–5
 
@@ -481,3 +500,4 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 | 2026-08-12 | Universo de Referencia aprobado | Etapa 1 absorbe identidad externa, niveles light/enriched, observaciones externas, precios y escala; ADMISS lo valida en Etapa 2 |
 | 2026-08-12 | Etapa 0 cerrada | Reconstrucción repetible, gates, backup verificado, documentación y commits completos; Etapa 1 lista sin iniciar |
 | 2026-08-12 | Etapa 1 cerrada | Memoria, referencia externa, staging integrado, Graph Projector y Neo4j Community probados con volumen independiente; ADMISS y MCP permanecen en Etapa 2 |
+| 2026-08-12 | Etapa 2 cerrada | ADMISS completo, delta idempotente, identidad contradictoria separada, Graph Projector `v2.2.0` y MCP STDIO de lectura probados; Etapa 3 permanece sin iniciar |

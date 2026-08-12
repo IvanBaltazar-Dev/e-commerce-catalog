@@ -51,7 +51,6 @@ Ejecutar `npm run gate:busqueda` cuando cambien búsqueda, catálogo, atributos,
 
 | ID | Riesgo | Nivel | Mitigación o condición de cierre |
 | --- | --- | --- | --- |
-| R-01 | Cambios locales y artefactos de investigación aún no versionados pueden perderse o mezclarse | Crítico | revisar el árbol, separar commits y respaldar antes de construir el MCP |
 | R-02 | Credenciales remotas podrían ser cargadas por un entorno local mal configurado | Crítico | retirar secretos de archivos que Next.js carga, rotar claves expuestas y mantener guardas loopback |
 | R-03 | Consumidores V1 y V2 pueden mantener dos verdades | Alto | inventariar lecturas V1, migrarlas y retirar V1 solo con gate específico |
 | R-04 | Un MCP de escritura prematuro podría saltarse revisión, RLS o procedencia | Alto | primera versión de lectura; staging de investigación; comandos estrechos e idempotentes |
@@ -81,6 +80,6 @@ Si una regresión reaparece, se abre un riesgo nuevo o se reactiva el ID con evi
 - [x] Gates mínimos definidos.
 - [x] Riesgos históricos depurados.
 - [x] Riesgos activos alineados con el plan MCP.
-- [ ] R-01: árbol de trabajo respaldado y organizado.
+- [x] R-01: cerrado por el checkpoint reproducible y los commits de Etapas 0–1; el árbol quedó limpio antes de iniciar Etapa 2.
 - [ ] R-02: credenciales remotas auditadas y rotadas si corresponde.
 - [ ] R-07: staging real provisionado y verificado.

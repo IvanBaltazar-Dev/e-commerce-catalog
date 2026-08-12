@@ -28,6 +28,8 @@ El comando compara tamaño y SHA-256 de cada archivo con el manifiesto versionad
 
 Tras `supabase db reset`, `npm run checkpoint:restore:local` restaura el catálogo base desde ese volcado, reconstruye sus proyecciones y vuelve a cargar el staging de investigación. `CATALOG_CHECKPOINT_DATA_SQL` permite reubicar el volcado sin cambiar su identidad.
 
+Las campañas nuevas guardan cada captura en `local/research-runs/<source-key>/<raw-fingerprint>/`. Cada directorio tiene un `manifest.json` autocontenido; `catalog:storage:verify` valida también estos manifiestos dinámicos sin agregar sus payloads a Git.
+
 ## Corte medido del 10 de agosto de 2026
 
 - 1.500 filas fuente con resultado: 1.393 `EXACTO`, 6 `PROBABLE_EXISTENTE`, 95 `CONFLICTO` y 6 `INSUFICIENTE`.
@@ -56,6 +58,14 @@ npm run catalog:enrichment:stage
 ```
 
 El último paso requiere las migraciones de enriquecimiento aplicadas y usa `.env.supabase.local`. Repetir el mismo contenido no duplica snapshots ni trabajos equivalentes.
+
+Para una fuente oficial registrada, la ruta vigente marca + fuente es:
+
+```bash
+npm run research:official-brand -- --source-key admiss-co-official --brand ADMISS --summary
+```
+
+El adaptador parte de `catalog_sources.base_url`, descubre robots, manifiestos para agentes, sitemaps, colecciones y superficies de producto compatibles y conserva la evidencia RAW administrada. Los campos volátiles observados se guardan, pero se excluyen de la huella material para no fabricar deltas.
 
 ## Gates
 

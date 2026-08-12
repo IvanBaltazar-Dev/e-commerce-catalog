@@ -77,7 +77,9 @@ fuente externa → snapshot RAW → observación normalizada
 - Una relación inferida, compartir marca o aparecer en un mismo sistema no demuestra compatibilidad entre dos productos.
 - PostgreSQL es la fuente de verdad. Neo4j Community es una proyección local derivada: `Graph Projector` la reconstruye, sincroniza y verifica, y nunca escribe de vuelta. `Product`/`Variant` son catálogo Bellaroshé; `ReferenceProduct`/`ReferenceVariant` son conocimiento externo y pueden existir sin identidad comercial.
 
-El Universo de Referencia se diseña como volumen independiente del catálogo. Corridas marca + fuente conservan baseline, deltas y observaciones; el staging existente consulta primero catálogo y referencias mediante índices PostgreSQL. El projector recorre vistas ordenadas con cursor y lotes, sin cargar el universo completo en Node.
+El Universo de Referencia se diseña como volumen independiente del catálogo. Corridas marca + fuente conservan baseline, deltas y observaciones; el staging existente consulta primero catálogo y referencias mediante índices PostgreSQL. El projector recorre vistas ordenadas con cursor y lotes, sin cargar el universo completo en Node. Las señales de identidad se proyectan como `IdentityCandidate`, `IdentityContradiction` o `IdentityMatch`, separadas de `Product`/`Variant` y de las referencias externas.
+
+MCP v1 es un adaptador STDIO local de solo lectura sobre contratos PostgreSQL y el estado fijo del Graph Projector. No contiene reglas exclusivas ni permite consultas genéricas o escritura comercial. La campaña manual conserva la única ruta de mutación de investigación probada en esta etapa.
 
 ## Concurrencia e idempotencia
 
@@ -88,7 +90,7 @@ El Universo de Referencia se diseña como volumen independiente del catálogo. C
 
 ## Evolución del esquema
 
-El historial comienza en V1 (`0001`, `0002`, `0004`), evoluciona de forma aditiva desde `0005` y llega actualmente a `0106_import_reference_resolution.sql`. Las migraciones antiguas no se reescriben; toda corrección nueva se expresa en otra migración y actualiza pruebas y contratos.
+El historial comienza en V1 (`0001`, `0002`, `0004`), evoluciona de forma aditiva desde `0005` y llega actualmente a `0107_stage2_brand_research_mcp_contracts.sql`. Las migraciones antiguas no se reescriben; toda corrección nueva se expresa en otra migración y actualiza pruebas y contratos.
 
 El índice detallado vive en [supabase/migrations/README.md](../supabase/migrations/README.md). Las referencias de implementación deben apuntar a la migración o contrato que ejecuta la regla, no a una bitácora histórica.
 

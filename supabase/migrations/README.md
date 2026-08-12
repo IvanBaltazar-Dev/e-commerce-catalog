@@ -20,6 +20,7 @@ Este directorio es el historial real y acumulativo de Bellaroshé. Las migracion
 | `0091`–`0096` | Vertical de Sistema Acrílico, evidencia, brechas y colas de trabajo |
 | `0097`–`0100` | Mesa de revisión, dependencias, contratos de aplicación y redirección de identidad |
 | `0101`–`0106` | Memoria de investigación, Universo de Referencia, proyección Neo4j y resolución desde staging |
+| `0107` | Reconciliación genérica marca + fuente, reporte agregado para MCP y capas explícitas de identidad en el grafo |
 
 Los nombres de archivo son el detalle autoritativo. Este mapa evita duplicar una descripción extensa que pronto queda desactualizada.
 
@@ -36,6 +37,7 @@ Los nombres de archivo son el detalle autoritativo. Este mapa evita duplicar una
 - `0091_acrylic_knowledge_vertical.sql`–`0096_acrylic_reconciliation_work_queues.sql`: primer vertical de conocimiento y captura pendiente.
 - `0097_catalog_review_workflow.sql`–`0100_catalog_review_identity_redirect.sql`: trabajo humano versionado, dependencias, aplicación y corrección de identidad.
 - `0101_research_memory_reference_universe.sql`–`0106_import_reference_resolution.sql`: corridas/deltas, identidad externa tipada, observaciones y precios externos, contratos de proyección, matching indexado y reutilización desde el staging existente.
+- `0107_stage2_brand_research_mcp_contracts.sql`: claves materiales de reconciliación, candidatos/contradicciones para Mesa, reporte ADMISS reutilizable y proyección de señales de identidad separadas.
 
 ## Aplicación local
 

@@ -14,7 +14,7 @@
 
 ## Corte local comprobado
 
-La auditoría previa al plan MCP encontró 1.056 productos, 1.578 variantes, 185 marcas y 253 tonos en la base local. Las migraciones `0001`–`0100` estaban aplicadas y la suite completa alcanzaba 876 comprobaciones pgTAP. Estos números deben volver a medirse antes de citarlos en una decisión futura.
+El cierre de Etapa 2 reconstruyó 1.056 productos y 1.578 variantes comerciales con las migraciones `0001`–`0107`. La suite alcanzó 935 comprobaciones pgTAP. El Universo de Referencia es un volumen independiente; estos números deben volver a medirse antes de citarlos en una decisión futura.
 
 ## Fuente de verdad y capas de trabajo
 
@@ -45,7 +45,7 @@ El corte del 10 de agosto proyectaba 407 casos revisables, 523 de captura, 233 e
 
 Una coincidencia de marca, línea, categoría y presentación puede confirmar que un registro oficial pertenece a una familia sin demostrar que sea la variante mostrada en pantalla.
 
-Ejemplo vigente: el registro oficial Admiss `ZAC`, SKU `314094`, pertenece con alta confianza a la familia interna `Esmalte ADMISS` (`ADM-ESM-CA6EEA`). Eso no lo convierte en el tono interno `AJO Y LIMON`; el tono requiere otra reconciliación. El caso completo está en [apuntes-productos.md](../research/catalog-master/manual-intake/apuntes-productos.md).
+Caso de aceptación comprobado: la campaña oficial ADMISS descubrió `ZAC` y su SKU sin reglas por nombre, resolvió por separado familia y variante y contrastó la clasificación oficial de `AJO Y LIMÓN` con la interna. Los apuntes históricos son entrada, no conclusión; la respuesta vigente sale de PostgreSQL y su evidencia.
 
 ## Evidencia e imágenes
 
@@ -81,4 +81,4 @@ Los estados manuales son `CAPTURADO`, `INVESTIGAR`, `LISTO_PARA_DECIDIR`, `APLIC
 
 ## Próximo foco
 
-El plan vigente es [el MCP de inteligencia de catálogo](plan-vivo-mcp-inteligencia-catalogo.md). El piloto recomendado usa Admiss porque ya existe evidencia oficial, múltiples tonos con puntuaciones similares y una separación clara entre familia y variante. La primera versión debe leer y preparar trabajo; la escritura permanece limitada al staging de investigación hasta cerrar los contratos.
+El plan vigente es [Inteligencia de Catálogo Bellaroshé](plan-vivo-mcp-inteligencia-catalogo.md). Etapa 2 cerró ADMISS como primera campaña real marca + fuente y construyó MCP local sobre los contratos de Etapa 1. Etapa 3 permanece sin iniciar. Resolver decisiones, publicar, fijar precio Bellaroshé o modificar inventario sigue fuera de MCP.
