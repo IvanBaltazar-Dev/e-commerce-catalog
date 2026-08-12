@@ -2,7 +2,7 @@
 --
 -- Es la pieza que comparten los dos frentes del Bloque 2 y la única sin
 -- precedente: hasta ahora no existía ninguna cantidad de existencias en las 46
--- tablas del esquema. Ver docs/bloque-2-modelo.md §3 y su anexo §12.
+-- tablas del esquema. Ver los invariantes de inventario en docs/arquitectura.md.
 --
 -- Va sola porque toca el catálogo público —la disponibilidad efectiva— y ese es
 -- un riesgo propio que conviene poder revertir sin arrastrar la caja.
@@ -95,7 +95,7 @@ for each row execute function public.set_updated_at();
 create table public.inventory_movements (
   id bigint generated always as identity primary key,
   -- Integridad referencial SÍ, porque variantes y sedes se desactivan, no se
-  -- borran. Ver docs/bloque-2-modelo.md §3: la regla de 0026 no generaliza.
+  -- borran. Ver docs/arquitectura.md: la regla de 0026 no generaliza.
   variant_id uuid not null references public.product_variants(id),
   branch_id uuid not null references public.branches(id),
   -- Fotografía legible: la operación debe seguir entendiéndose aunque cambien

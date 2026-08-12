@@ -7,7 +7,7 @@
 -- El Bloque 2 exige que las vendedoras registren anulaciones y devoluciones sin
 -- aprobación previa, con trazabilidad completa (reglas 7 y 8 del plan). Eso es
 -- inauditable sin una bitácora, y añadirla después, con datos reales, cuesta
--- mucho más. Ver docs/riesgos-v2.md, R-03.
+-- mucho más. Ver docs/arquitectura.md, Organización y seguridad.
 
 begin;
 

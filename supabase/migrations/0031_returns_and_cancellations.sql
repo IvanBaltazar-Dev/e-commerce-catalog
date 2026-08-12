@@ -1,6 +1,6 @@
 -- Bloque 2 · Migración 4 de 5 — Anulaciones, devoluciones y reembolsos.
 --
--- Ver docs/bloque-2-modelo.md §4 y las 10 correcciones de su anexo §12/0030.
+-- Ver los invariantes de venta y dinero en docs/arquitectura.md.
 --
 -- LA REGLA QUE GOBIERNA ESTA MIGRACIÓN: el dinero que sale se registra igual de
 -- bien que el que entra. Una venta anulada conserva su venta, su cobranza y su

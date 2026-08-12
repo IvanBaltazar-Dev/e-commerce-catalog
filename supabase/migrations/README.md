@@ -1,66 +1,66 @@
-# Migraciones de base de datos — Bellaroshe
+# Migraciones de base de datos
 
-Este directorio conserva el historial real aplicado del catálogo Bellaroshe.
-Las migraciones `0001`, `0002` y `0004` representan V1 y deben permanecer
-inmutables. El modelo V2 comienza en `0005_catalog_v2.sql`.
+Este directorio es el historial real y acumulativo de Bellaroshé. Las migraciones aplicadas no se reescriben, renombran, consolidan ni eliminan; toda corrección nueva recibe el siguiente número y sus pruebas.
 
-## Historial
+## Mapa del historial
 
-- `0001_initial_catalog_backend.sql`: esquema inicial V1.
-- `0002_columns_and_grants.sql`: columnas y privilegios añadidos a V1.
-- `0004_harden_product_image_read_policy.sql`: endurecimiento de lectura pública.
-- `0005_catalog_v2.sql`: modelo V2 aditivo y backfill de V1.
-- `0006_catalog_v2_contracts.sql`: consultas agregadas de listado, detalle y carrito.
-- `0007_admin_orders.sql`: pedidos administrativos, líneas, estados, RLS y alta transaccional.
-- `0008_product_registration_foundations.sql`: líneas comerciales, ocho plantillas de alta, atributos controlados y categorías internas para el registro guiado.
-- `0009_scoped_brands_and_color_library.sql`: marcas y líneas por múltiples familias, marca genérica y biblioteca normalizada de tonos.
-- `0010_enforce_color_shade_scope.sql`: integridad entre tono, marca, línea comercial y variante.
-- `0011_color_family_dictionary.sql`: diccionario cromático completo y obligatorio para tonos de esmalte.
-- `0012_correct_admiss_family.sql`: corrige Admiss como marca de esmaltes y elimina su asociación errónea con tornos.
-- `0013_enamel_content_and_finishes.sql`: contenido numérico con unidad para esmaltes y diccionario ampliable de acabados.
-- `0014_conditional_attribute_rules.sql`: reglas condicionales tipadas y validación de coherencia entre atributos.
-- `0015_product_form_attribute_coherence.sql`: limpieza de atributos retirados, reglas numéricas y de rangos, dependencias por alimentación y asociaciones deterministas de potencia/voltaje.
-- `0016_add_developer_role.sql`: agrega el rol `developer` a `app_role`. Va aislada y sin transacción: PostgreSQL no permite usar un valor de enum en la misma transacción que lo crea.
-- `0017_developer_permissions_and_import_audit.sql`: permisos del perfil técnico y trazabilidad del cargador de catálogo (SHA-256, reporte de seguridad, confirmación).
-- `0018_catalog_assets_pdf_media.sql`: medios de catálogo para la exportación PDF.
-- `0019_json_attribute_values.sql`: incorpora valores JSON tipados para atributos estructurados.
-- `0020_enamel_catalog_details.sql`: agrega detalles comerciales y por tono reutilizables para la familia de esmaltes, incluido el par fotocromático.
-- `0021_contextual_product_relations.sql`: uso y alcance de marca de adhesivos para recomendaciones contextuales seguras.
-- `0022_accessory_relation_domain.sql`: clasifica accesorios por área de uso para evitar relaciones incoherentes entre pestañas, uñas, barbería y equipos.
+| Rango | Responsabilidad principal |
+| --- | --- |
+| `0001`–`0004` | Catálogo V1, columnas y endurecimiento de lectura |
+| `0005`–`0007` | Catálogo V2, contratos públicos y pedidos administrativos |
+| `0008`–`0015` | Alta guiada, familias, líneas, tonos, atributos y coherencia |
+| `0016`–`0022` | Rol developer, importación, PDF/medios y relaciones contextuales |
+| `0023`–`0027` | Organización, sedes, seller, auditoría y proveedores/costos |
+| `0028`–`0034` | Inventario, venta, compras, devoluciones, gastos, caja y lecturas |
+| `0035`–`0042` | Canales, conversaciones, carrito público, atribución e integraciones |
+| `0043`–`0046` | Inteligencia, asistencia, cierre de privilegios y rendimiento |
+| `0047`–`0071` | POS, catálogo masivo, tonos, pagos, personas, entrega, documentos e inventario |
+| `0072`–`0084` | Documento de búsqueda, facetas, proyecciones de lectura y contratos admin |
+| `0085`–`0090` | Procedencia, conocimiento, grafo, privilegios y gate de publicación |
+| `0091`–`0096` | Vertical de Sistema Acrílico, evidencia, brechas y colas de trabajo |
+| `0097`–`0100` | Mesa de revisión, dependencias, contratos de aplicación y redirección de identidad |
 
-### Vertical 1 — Organización, sede y rol de vendedora (Bloque 1 del plan)
+Los nombres de archivo son el detalle autoritativo. Este mapa evita duplicar una descripción extensa que pronto queda desactualizada.
 
-- `0023_add_seller_role.sql`: agrega el rol `seller` a `app_role`. Aislada y sin transacción, por la misma razón que `0016`.
-- `0024_organization_and_branches.sql`: empresa, sedes con predeterminada garantizada, activación de perfiles, asignación de personal a sedes, predicados de alcance y `orders.branch_id`.
-- `0025_audit_log.sql`: bitácora de solo adición sobre catálogo, pedidos y organización.
-- `0026_audit_log_survives_deletions.sql`: corrige `0025`. Las claves foráneas `on delete set null` de la bitácora chocaban con su propio trigger de solo-adición e impedían borrar un usuario o una sede con historial. Regla derivada: ninguna tabla de solo adición lleva claves foráneas.
+## Hitos vigentes
 
-Ver [docs/vertical-1-organizacion.md](../../docs/vertical-1-organizacion.md).
+- `0028_inventory_core.sql`: saldo por variante/sede, kardex, valoración y disponibilidad efectiva.
+- `0029_sales_core.sql`: venta, reserva, pagos, snapshots y concurrencia.
+- `0027_supplier_domain.sql` y `0030_purchasing_core.sql`: ofertas, costos, órdenes y recepciones.
+- `0045_close_default_privileges.sql`: cierre de privilegios por defecto.
+- `0072_search_document.sql`–`0084_brand_exact_short_term.sql`: búsqueda normalizada y proyecciones escalables.
+- `0074_catalog_enrichment_pipeline.sql`: fuentes, snapshots, registros externos, casos y excepciones.
+- `0085_catalog_facts_provenance.sql`: observaciones y procedencia aprobada por valor.
+- `0086_catalog_knowledge_model.sql`–`0090_catalog_publication_knowledge_gate.sql`: conocimiento, grafo de solo lectura y publicación segura.
+- `0091_acrylic_knowledge_vertical.sql`–`0096_acrylic_reconciliation_work_queues.sql`: primer vertical de conocimiento y captura pendiente.
+- `0097_catalog_review_workflow.sql`–`0100_catalog_review_identity_redirect.sql`: trabajo humano versionado, dependencias, aplicación y corrección de identidad.
 
-### Vertical 2 — Proveedores, costos y escalas (Bloque 1 del plan)
+## Aplicación local
 
-- `0027_supplier_domain.sql`: proveedores, contactos, condiciones por sede, ofertas producto/variante, acuerdos de costo con escalera contigua garantizada, bonificaciones y tipo de cambio. Cierra la pregunta 9 de la auditoría.
-
-Ver [docs/vertical-2-proveedores.md](../../docs/vertical-2-proveedores.md).
-
-La fuente de datos inicial de marcas, categorías y configuración está en
-`../seed.sql`. Los productos se cargan mediante el panel o
-`scripts/seed-products.mjs`.
-
-## Aplicación en una base nueva
-
-Desde la raíz del proyecto, con Supabase CLI configurado:
+Desde la raíz:
 
 ```bash
-supabase db reset
+npx supabase start
+npm run db:reset:local
+npm run test:db
+npm run audit:security
 ```
 
-El comando crea el esquema con esta migración y después aplica `supabase/seed.sql`.
-Durante el desarrollo V2 solo se debe trabajar contra Supabase local. No se debe
-ejecutar `db push` contra producción hasta completar la validación formal.
+Un `db reset` debe reconstruir únicamente desde migraciones y seeds. Ninguna migración puede depender de una fila creada después por un seed.
 
-## Convenciones de mantenimiento
+## Convenciones
 
-- No modificar, consolidar, renombrar ni eliminar `0001`, `0002` o `0004`.
-- Cada cambio posterior debe ir en una migración incremental nueva.
-- Las reglas de negocio y los contratos de API deben actualizarse junto con el SQL.
+- `0001`, `0002` y `0004` preservan el origen V1 y son inmutables.
+- Los cambios de enum que PostgreSQL no permite usar en la misma transacción permanecen aislados.
+- Toda tabla nueva habilita RLS y define de forma explícita sus privilegios.
+- Funciones `SECURITY DEFINER` fijan `search_path`, tienen grants mínimos y cuentan con prueba de alcance.
+- Libros de solo adición no se mutan directa ni indirectamente.
+- Migración, pgTAP, contrato de aplicación y documento canónico se actualizan juntos.
+- Staging y producción siguen el runbook de [Operación](../../docs/operacion.md); local es el único destino por defecto.
+
+## Documentación relacionada
+
+- [Arquitectura](../../docs/arquitectura.md)
+- [Catálogo](../../docs/catalogo.md)
+- [Importación](../../docs/importacion-catalogo.md)
+- [Calidad y riesgos](../../docs/calidad-y-riesgos.md)

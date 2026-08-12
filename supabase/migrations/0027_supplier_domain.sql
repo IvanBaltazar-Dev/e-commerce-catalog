@@ -7,8 +7,8 @@
 --
 -- Antes de esta migración el dominio no existía: cero ocurrencias de
 -- supplier/proveedor en las 26 migraciones. Cierra la pregunta 9 de
--- docs/auditoria-plataforma-actual.md («¿Puede un producto relacionarse con
--- varios proveedores?»), cuya respuesta era No.
+-- la auditoría inicial: un producto no podía relacionarse con varios
+-- proveedores. La decisión vigente está en docs/arquitectura.md.
 --
 -- Trazabilidad con las nueve viñetas del plan (Bloque 1, sección Proveedores):
 --   Proveedores          -> public.suppliers
@@ -519,7 +519,7 @@ for each row execute function public.set_updated_at();
 -- indeterminado, que es precisamente lo que el modelo no puede permitirse.
 --
 -- El historial de costos NO es otra tabla: es la sucesión de estas vigencias,
--- igual que variant_prices (decisión 6 de docs/decision-reutilizacion-v2.md).
+-- igual que variant_prices (ver docs/arquitectura.md, Proveedores y compras).
 
 create table public.supplier_cost_agreements (
   id uuid primary key default gen_random_uuid(),

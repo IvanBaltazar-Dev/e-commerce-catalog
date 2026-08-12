@@ -1,6 +1,6 @@
 -- Bloque 2 · Migración 3 de 5 — Compras, recepciones y cuentas con proveedores.
 --
--- Ver docs/bloque-2-modelo.md §5 y las correcciones de su anexo.
+-- Ver los invariantes de proveedores y compras en docs/arquitectura.md.
 --
 -- REGLAS QUE IMPONE ESTA MIGRACIÓN:
 --   La orden de compra NO incrementa inventario. Solo la recepción confirmada.

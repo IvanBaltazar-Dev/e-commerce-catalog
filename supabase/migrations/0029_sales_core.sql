@@ -1,6 +1,6 @@
 -- Bloque 2 · Migración 2 de 5 — Ventas, reservas, pagos y costos históricos.
 --
--- Ver docs/bloque-2-modelo.md §4 y las 14 correcciones de su anexo §12.
+-- Ver los invariantes de venta y dinero en docs/arquitectura.md.
 --
 -- DESTINO DE `orders` (decisión exigida por el plan): se RETIRA. Tiene cero
 -- filas, nunca llegó a producción —el despliegue actual corre el catálogo V1,

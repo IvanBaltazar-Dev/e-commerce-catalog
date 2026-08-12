@@ -1,7 +1,7 @@
 -- Bloque 2 · Cierre — las dos lecturas operativas que §7 declaraba y que la
 -- implementación había dejado sin contrato.
 --
--- `docs/bloque-2-modelo.md` §7 lista cinco lecturas. Tres existen ya:
+-- La arquitectura operativa requiere cinco lecturas. Tres existen ya:
 -- `variant_availability` como `variant_effective_availability` (0028),
 -- `sale_detail` (0029) y `supplier_balances_by_currency` como la vista
 -- `supplier_balances` (0030). Faltaban estas dos, y no son cosméticas: sin
