@@ -41,7 +41,8 @@ try {
   try {
     const result = await session.run(
       `MATCH (reference:ReferenceProduct {key:'reference_product:11000000-0000-4000-8000-000000000030'})
-       OPTIONAL MATCH (reference)-[match:CATALOG_RELATION {kind:'MATCHES'}]->(:Product)
+       OPTIONAL MATCH (identity:IdentityMatch)-[:CATALOG_RELATION {kind:'ABOUT_REFERENCE'}]->(reference)
+       OPTIONAL MATCH (identity)-[match:CATALOG_RELATION {kind:'CONFIRMED_MATCH'}]->(:Product)
        WITH reference, count(match) AS matches
        OPTIONAL MATCH (observation:Observation)-[:CATALOG_RELATION {kind:'OBSERVES'}]->(reference)
        WITH reference, matches, count(observation) AS directObservations
@@ -58,7 +59,7 @@ try {
     const record = result.records[0];
     const labels = record.get("labels");
     assert(labels.includes("ReferenceProduct") && labels.includes("CatalogEntity"), "ReferenceProduct necesita label explícito");
-    assert(record.get("matches").toNumber() === 1, "MATCHES aprobado debe proyectarse");
+    assert(record.get("matches").toNumber() === 1, "IdentityMatch aprobado debe proyectarse por separado");
     assert(record.get("candidates").toNumber() >= 1, "las candidatas deben tener label propio");
     assert(record.get(4) === true, "debe existir ReferenceVariant");
     assert(record.get(5) === true, "debe existir EvidenceSet");

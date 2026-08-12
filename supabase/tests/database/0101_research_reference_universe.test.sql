@@ -286,9 +286,11 @@ select is(
   '18 · reconciliación existente enlaza referencia e interno'
 );
 select is(
-  (select count(*) from public.graph_edges_v2 where predicate = 'MATCHES' and source_key = 'reference_product:10100000-0000-4000-8000-000000000030'),
+  (select count(*) from public.graph_edges_v2
+   where predicate = 'CONFIRMED_MATCH'
+     and source_key = 'identity_case:10100000-0000-4000-8000-000000000080'),
   1::bigint,
-  '19 · MATCHES solo proyecta reconciliación aprobada'
+  '19 · la capa de identidad proyecta la reconciliación aprobada'
 );
 select is(
   (select layer from public.graph_nodes_v2 where node_key = 'reference_product:10100000-0000-4000-8000-000000000030'),

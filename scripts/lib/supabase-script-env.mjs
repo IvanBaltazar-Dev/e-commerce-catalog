@@ -119,7 +119,7 @@ function projectRef(url, env) {
   return host.endsWith(suffix) ? host.slice(0, -suffix.length) : null;
 }
 
-export function loadSupabaseScriptEnv({ rootDir, scriptName, allowedFlags = [] }) {
+export function loadSupabaseScriptEnv({ rootDir, scriptName, allowedFlags = [], quiet = false }) {
   const options = parseArgs(process.argv.slice(2), allowedFlags);
   const envPath = path.resolve(rootDir, options.envFile);
   let env;
@@ -173,7 +173,7 @@ export function loadSupabaseScriptEnv({ rootDir, scriptName, allowedFlags = [] }
     }
   }
 
-  console.log(
+  if (!quiet) console.log(
     `[${scriptName}] Destino: ${local ? "LOCAL" : `REMOTO ${ref}`} · ${url.origin} · env ${envPath}`
   );
 
