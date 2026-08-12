@@ -178,7 +178,11 @@ export function loadSupabaseScriptEnv({ rootDir, scriptName, allowedFlags = [] }
   );
 
   return {
-    env,
+    env: { ...env, ...Object.fromEntries(
+      ["NEO4J_URI", "NEO4J_USER", "NEO4J_PASSWORD", "NEO4J_DATABASE", "POSTGRES_URL"]
+        .filter((key) => process.env[key]?.trim())
+        .map((key) => [key, process.env[key]])
+    ) },
     envPath,
     isLocal: local,
     positionals: options.positionals,
