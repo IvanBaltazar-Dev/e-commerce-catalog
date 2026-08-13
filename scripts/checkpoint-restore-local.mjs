@@ -143,6 +143,10 @@ where sku in ('DEMO-ESM-ROJO', 'DEMO-ESM-NUDE', 'DEMO-ACC-001-UNICA');
 
 set local session_replication_role = origin;
 
+-- El checkpoint reemplaza attribute_templates con triggers suspendidos. La
+-- capa semantica resincroniza sus perfiles por codigo, nunca por UUID historico.
+select public.sync_all_catalog_technical_type_profiles_v1();
+
 -- Reasocia las fuentes oficiales cuyos brand_id quedaron nulos por el TRUNCATE.
 update public.catalog_sources source
 set brand_id = brand.id

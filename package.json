@@ -85,7 +85,9 @@
     "review:reprocess": "node scripts/catalog-review-reprocess.mjs --env .env.supabase.local",
     "test:review-reprocess": "node scripts/test-catalog-review-reprocess.mjs --env .env.supabase.local",
     "audit:admiss-semantics": "node scripts/audit-admiss-taxonomy-semantics.mjs --env .env.supabase.local",
-    "test:semantic-normalizer": "node scripts/test-official-semantic-normalizer.mjs"
+    "test:semantic-normalizer": "node scripts/test-official-semantic-normalizer.mjs",
+    "gate:semantic-human-scale": "node scripts/gate-semantic-human-scale.mjs --env .env.supabase.local",
+    "gate:semantic-certification": "node scripts/gate-semantic-certification.mjs --env .env.supabase.local"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",
