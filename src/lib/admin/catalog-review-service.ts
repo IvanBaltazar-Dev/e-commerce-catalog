@@ -154,6 +154,9 @@ function caseKind(row: QueueRow): CatalogReviewCase["caseKind"] {
 }
 
 function titleFor(row: QueueRow) {
+  if (row.context.semanticOrigin === "problem_group") {
+    return "Resuelve una ambigüedad compartida de la regla";
+  }
   switch (caseKind(row)) {
     case "identity_match": return row.subject_type === "product"
       ? "Confirma dónde pertenece este registro oficial"
@@ -181,6 +184,17 @@ function questionFor(row: QueueRow) {
 }
 
 function optionsFor(row: QueueRow): CatalogReviewOption[] {
+  if (row.context.semanticOrigin === "problem_group") {
+    return [{
+      id: "complete-rule-decision",
+      actionCode: "complete",
+      label: "Registrar criterio de regla",
+      description: "Resuelve una sola vez el problema compartido; el motor reprocesará el conjunto afectado.",
+      tone: "confirm",
+      requiresReason: true,
+    }];
+  }
+
   if (row.source_type === "reconciliation_case") {
     const productFamily = row.subject_type === "product";
     return [
@@ -274,6 +288,26 @@ function optionsFor(row: QueueRow): CatalogReviewOption[] {
 
 async function entityFor(supabase: Supabase, row: QueueRow): Promise<CatalogReviewEntity> {
   const sourceSnapshot = sourceSnapshotFor(row);
+  if (row.context.semanticOrigin === "problem_group") {
+    return {
+      id: row.source_id,
+      type: "Problema semántico de regla",
+      name: text(row.context.ruleCode) ?? text(row.context.title) ?? "Regla sin código",
+      code: text(row.context.ruleCode),
+      brand: null,
+      description: "Un único expediente representa todos los productos y claims afectados por la misma causa.",
+      imageUrl: null,
+      parent: null,
+      facts: [
+        { label: "Problemas detectados", value: String(number(row.context.problemCount)), group: "record" },
+        { label: "Productos afectados", value: String(number(row.context.affectedProductCount)), group: "record" },
+        { label: "Claims afectados", value: String(number(row.context.affectedClaimCount)), group: "record" },
+        { label: "Base de agrupación", value: text(row.context.aggregationBasis) ?? "No registrada", group: "source" },
+        { label: "Huella del conjunto", value: text(row.context.affectedSetFingerprint) ?? "No registrada", group: "source" },
+      ],
+      sourceSnapshot: null,
+    };
+  }
   const fallback: CatalogReviewEntity = {
     id: row.subject_id,
     type: purposeLabel(row.purpose),
@@ -507,6 +541,9 @@ function findingFor(row: QueueRow, entity: CatalogReviewEntity) {
   const official = text(evidence.official_title) ?? row.recommendation;
   const score = number(context.score);
 
+  if (row.context.semanticOrigin === "problem_group") {
+    return `${number(row.context.problemCount)} problemas en ${number(row.context.affectedProductCount)} productos comparten la misma regla o causa raíz. La Mesa decide el criterio una vez; no revisa cada producto.`;
+  }
   if (row.source_type === "reconciliation_case") {
     const confidence = score > 0 ? `${Math.round(score * 100)} % de similitud` : "sin similitud suficiente";
     if (row.subject_type === "product") {
@@ -528,6 +565,19 @@ function decisionScopeFor(row: QueueRow, entity: CatalogReviewEntity): CatalogRe
   const evidence = object(context.evidence);
   const official = text(evidence.official_title) ?? row.recommendation ?? "el registro externo";
   const variantCount = entity.facts.find((fact) => fact.label === "Variantes del producto base" || fact.label === "Variantes activas")?.value;
+
+  if (row.context.semanticOrigin === "problem_group") {
+    return {
+      resolves: `Decide el criterio de ${text(row.context.ruleCode) ?? entity.name} para el conjunto cuya huella es ${text(row.context.affectedSetFingerprint) ?? "la mostrada en la evidencia"}.`,
+      approveEffect: "Registra una decisión de regla reproducible para que el pipeline pueda reprocesar todo el conjunto afectado.",
+      rejectEffect: "No modifica productos individualmente ni convierte claims inciertos en hechos canónicos.",
+      doesNotResolve: [
+        "No aprueba cada producto por separado.",
+        "No completa UNKNOWN, NOT_STATED o NOT_APPLICABLE con información inventada.",
+        "No crea hechos comerciales ni escribe directamente en Neo4j.",
+      ],
+    };
+  }
 
   if (row.source_type === "reconciliation_case") {
     const internal = row.subject_type === "variant"
@@ -563,6 +613,9 @@ function warningsFor(row: QueueRow): string[] {
   if (evidence.ambiguous === true) warnings.push("Más de un registro obtuvo una puntuación similar.");
   if (number(context.score) > 0 && number(context.score) < 0.8) warnings.push("La similitud automática es menor a 80 %.");
   if (row.purpose === "relation") warnings.push("Misma marca o mismo sistema no equivalen a compatibilidad demostrada.");
+  if (row.context.semanticOrigin === "problem_group" && text(row.context.partitionKey)) {
+    warnings.push(`Este conjunto fue separado de la regla general: ${text(row.context.nonAggregationJustification) ?? "revisa la justificación de no agregación"}.`);
+  }
   return warnings;
 }
 
