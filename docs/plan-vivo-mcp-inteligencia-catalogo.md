@@ -423,6 +423,12 @@ La corrida conserva 1.587 claims activos sobre 121 productos, cada uno con excer
 
 La matriz completa, consultas, gaps y evidencia reproducible están en [Auditoría ADMISS](../research/catalog-master/reports/admiss-semantic-audit/README.md). Etapa 4 sigue detenida hasta revisar este checkpoint y autorizarla expresamente.
 
+### Checkpoint obligatorio previo a Etapa 4 · Escala humana semántica
+
+La ampliación semántica ya tiene una barrera estructural contra la multiplicación de trabajo humano. Cada detección pertenece a un grupo por `rule_code`, tipo técnico, dimensión o causa raíz; una partición adicional exige justificar por qué un único problema de regla + conjunto afectado no basta. `UNKNOWN`, `NOT_STATED`, `DERIVED` e incertidumbre no crean Mesa automáticamente. Solo una ambigüedad que bloquea una decisión y exige criterio humano puede producir un expediente, siempre con sujeto `rule` y nunca por producto.
+
+El reporte de campaña conserva el embudo `productos → claims → problemas → grupos → reglas → excepciones humanas`. El gate sintético procesó 10.000 productos y 10.001 problemas de una regla en 22,9 s sobre el Universo restaurado: un grupo, una excepción humana activa, cero trabajos por producto, 0,1 excepciones por 1.000 productos, ratio de crecimiento 0,0222 (`passes`) y 99,99 % de revisión individual evitada. PostgreSQL pasó 1.152 pruebas; Graph Projector `v2.6.0` quedó sin drift. Evidencia completa en [Guarda de escala humana semántica](etapa-4-guarda-escala-humana-semantica.md).
+
 ### Etapa 4 · Conocimiento masivo
 
 Ampliar el Universo de Referencia relevante y los sistemas, etapas, clases, roles, procesos, requisitos, compatibilidades, incompatibilidades, alternativas y secuencias. Preferir relaciones entre clases y membresías de producto para evitar explosión producto-producto. No descargar indiscriminadamente todo Internet ni empezar con cien marcas antes de validar ADMISS.
@@ -549,6 +555,14 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 - [x] Mantener claims de fabricante separados de hechos técnicos canónicos.
 - [x] Demostrar consultas ADMISS, matriz de 121 productos e idempotencia.
 - [x] Sincronizar/verificar Neo4j sin crear trabajo en Mesa ni efectos comerciales.
+- [x] Agrupar problemas semánticos por regla/causa y prohibir escalación por producto.
+- [x] Exigir bloqueo real + criterio humano antes de crear una excepción.
+- [x] Reportar productos → claims → problemas → grupos → reglas → excepciones.
+- [x] Demostrar 10.000 productos y 10.001 problemas con una sola excepción activa.
+- [x] Separar observación literal, claim normalizado, inferencia y hecho canónico.
+- [x] Dirigir dimensiones, perfiles, reglas y autoridad fuente×predicado mediante datos.
+- [x] Certificar contradicción, entailment, ausencias y promoción con diez arquetipos sintéticos.
+- [x] Materializar los claims semánticos reales de 0109 en la cadena epistemológica universal.
 - [ ] Autorizar explícitamente el inicio de Etapa 4.
 - [ ] Escalar conocimiento por sistemas y clases.
 - [ ] Implementar comando único y reporte comercial.
@@ -567,3 +581,6 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 | 2026-08-12 | Etapa 2 cerrada | ADMISS completo, delta idempotente, identidad contradictoria separada, Graph Projector `v2.2.0` y MCP STDIO de lectura probados; Etapa 3 permanece sin iniciar |
 | 2026-08-12 | Etapa 3 cerrada | Preview/apply congelado, 618 cambios justificados, trabajo humano de 623 a 387, rerun nulo, Graph Projector `v2.3.0`, 968 pgTAP y reconstrucción completa; Etapa 4 permanece sin iniciar |
 | 2026-08-12 | Auditoría ADMISS previa a Etapa 4 | 1.134 observaciones auditadas, 1.587 claims tipados con procedencia, matriz de 121 productos, consultas exigidas, Graph Projector `v2.4.0` sin drift y cero impacto en Mesa/comercial; Etapa 4 permanece detenida |
+| 2026-08-12 | Guarda de escala humana previa a Etapa 4 | Agrupación por regla, particiones justificadas, embudo obligatorio y gate de 10.000 productos/10.001 problemas con una excepción activa; Etapa 4 permanece detenida |
+| 2026-08-12 | Checkpoint Semántico Universal | Cuatro clases epistémicas, 22 dimensiones extensibles, perfiles heredables, ocho familias de reglas, autoridad fuente×predicado, entailment, contradicción explícita, promoción canónica, diez arquetipos y golden set; Graph Projector `v2.6.0`; Etapa 4 no autorizada |
+| 2026-08-12 | Ingesta universal cerrada | 1.587 observaciones literales + 1.587 claims ADMISS normalizados con entailment, 72 reglas `NORMALIZATION` activas, cero canonizaciones y cero Mesa; todo enlace futuro entra por trigger fail-closed |

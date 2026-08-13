@@ -239,6 +239,31 @@ registerReadTool(server, "review_reprocess_status", {
   "review reprocess report",
 ));
 
+registerReadTool(server, "semantic_campaign_report", {
+  title: "Escala Humana de Campaña Semántica",
+  description: "Reporta productos investigados, claims, problemas, grupos, reglas y excepciones humanas sin exponer trabajo por producto.",
+  inputSchema: { runKey: z.string().min(1).max(200) },
+}, async ({ runKey }) => {
+  const run = must(await database.from("catalog_research_runs")
+    .select("id,run_key,status")
+    .eq("run_key", runKey)
+    .maybeSingle(), "semantic campaign run");
+  if (!run) throw new Error(`No existe la campaña ${runKey}.`);
+  return must(
+    await database.rpc("get_catalog_semantic_campaign_report_v1", { p_research_run_id: run.id }),
+    "semantic campaign report",
+  );
+});
+
+registerReadTool(server, "semantic_checkpoint_report", {
+  title: "Checkpoint Semantico Universal",
+  description: "Consulta contrato epistemologico, registros dirigidos por datos, violaciones y ultima certificacion; confirma que Etapa 4 sigue bloqueada.",
+  inputSchema: {},
+}, async () => must(
+  await database.rpc("get_catalog_semantic_checkpoint_report_v1"),
+  "universal semantic checkpoint report",
+));
+
 registerReadTool(server, "research_report", {
   title: "Informe de Investigación",
   description: "Devuelve el informe agregado y trazable de una marca desde contratos PostgreSQL.",

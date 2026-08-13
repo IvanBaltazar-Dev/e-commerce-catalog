@@ -23,6 +23,9 @@ Este directorio es el historial real y acumulativo de Bellaroshé. Las migracion
 | `0107` | Reconciliación genérica marca + fuente, reporte agregado para MCP y capas explícitas de identidad en el grafo |
 | `0108` | Reprocesamiento congelado e idempotente de la Mesa, clasificación operativa y proyección workflow |
 | `0109` | Claims semánticos de referencias, vocabulario normalizado con estado/procedencia y proyección exclusiva en evidencia |
+| `0110` | Agregación de problemas semánticos por causa compartida y barrera de escala humana antes de Mesa |
+| `0111` | Contrato epistemológico universal, dimensiones extensibles, perfiles técnicos, reglas versionadas, autoridad fuente×predicado, contradicción, entailment, promoción y certificación |
+| `0112` | Puente automático desde claims de fuente 0109 hacia observación literal + normalización explicable, con backfill fail-closed y sin canonización/Mesa |
 
 Los nombres de archivo son el detalle autoritativo. Este mapa evita duplicar una descripción extensa que pronto queda desactualizada.
 
@@ -42,6 +45,9 @@ Los nombres de archivo son el detalle autoritativo. Este mapa evita duplicar una
 - `0107_stage2_brand_research_mcp_contracts.sql`: claves materiales de reconciliación, candidatos/contradicciones para Mesa, reporte ADMISS reutilizable y proyección de señales de identidad separadas.
 - `0108_catalog_review_reprocessing.sql`: preview/apply exacto, historia inmutable, clases de trabajo y grafo de Mesa.
 - `0109_reference_semantic_claims.sql`: claims observados, vocabulario no canónico, cobertura semántica y `SemanticTerm`/`NORMALIZES_TO` en capa de evidencia.
+- `0110_semantic_problem_aggregation.sql`: detecciones individuales fuera de Mesa, grupos por regla/causa, particiones justificadas, excepción humana de regla y reporte de escala.
+- `0111_universal_semantic_checkpoint.sql`: contrato epistemológico, registros universales dirigidos por datos y certificación sintética sin autorización de Etapa 4.
+- `0112_universal_semantic_ingestion_bridge.sql`: materialización automática de evidencia 0109 como literal + normalizada, sin inferencia, canonización ni Mesa.
 
 ## Aplicación local
 

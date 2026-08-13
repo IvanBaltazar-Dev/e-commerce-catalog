@@ -43,6 +43,8 @@ try {
     "knowledge_gaps_and_contradictions",
     "review_cases",
     "review_reprocess_status",
+    "semantic_campaign_report",
+    "semantic_checkpoint_report",
     "research_report",
     "graph_status",
   ];
@@ -62,7 +64,7 @@ try {
   // Pregunta integral de aceptación desde un cliente/proceso nuevo:
   // “¿Qué sabemos de ADMISS, qué cambió, qué coincide o contradice el catálogo,
   //  dónde están ZAC 314094 y AJO Y LIMON, qué falta revisar y cómo está el grafo?”
-  const [status, context, lastRun, zac, gaps, review, reprocess, graph] = await Promise.all([
+  const [status, context, lastRun, zac, gaps, review, reprocess, semanticCheckpoint, graph] = await Promise.all([
     call("catalog_status"),
     call("brand_context", { brand: "ADMISS" }),
     call("last_research_run", { brand: "ADMISS" }),
@@ -70,6 +72,7 @@ try {
     call("knowledge_gaps_and_contradictions", { brand: "ADMISS" }),
     call("review_cases", { brand: "ADMISS", status: "open", limit: 100 }),
     call("review_reprocess_status"),
+    call("semantic_checkpoint_report"),
     call("graph_status"),
   ]);
 
@@ -96,6 +99,11 @@ try {
     throw new Error(`El último delta no prueba repetición sin cambios: ${JSON.stringify(lastRun.delta)}`);
   }
   if (!graph.live?.connected) throw new Error("Neo4j no está conectado desde el MCP.");
+  if (semanticCheckpoint.stage4Authorized !== false
+      || semanticCheckpoint.contractViolations !== 0
+      || semanticCheckpoint.latestCertification?.status !== "passed") {
+    throw new Error(`Checkpoint semantico inesperado: ${JSON.stringify(semanticCheckpoint)}`);
+  }
   if (reprocess.latestRun?.status !== "applied") {
     throw new Error("El MCP no recuperó el último reproceso aplicado de la Mesa.");
   }
@@ -116,6 +124,7 @@ try {
       ajoContradiction: ajo,
       openReviewCases: review.cases.length,
       reviewReprocess: reprocess,
+      semanticCheckpoint,
       graph: graph.live,
     },
     dataSource: "PostgreSQL contracts + Neo4j live status",
