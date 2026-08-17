@@ -1,6 +1,6 @@
 # Guarda previa a Etapa 4 · Escala humana semántica
 
-Estado: implementada y certificada localmente el 2026-08-12. Etapa 4 permanece detenida hasta autorización expresa.
+Estado: implementada y certificada localmente el 2026-08-12. La autorización humana para iniciar Etapa 4 fue otorgada el 2026-08-17.
 
 ## Regla operativa
 
@@ -72,4 +72,4 @@ El gate parte de una campaña base de 100 productos y una excepción, y luego us
 
 ## Límite del cierre
 
-`0110` queda cerrada como barrera de escala humana y no se amplía salvo regresión comprobada. `0111` y `0112` completan por separado el Checkpoint Semántico Universal descrito en [Checkpoint Semántico Universal](checkpoint-semantico-universal.md). Ninguno de estos cierres autoriza expansión masiva: Etapa 4 permanece bloqueada hasta decisión expresa posterior.
+`0110` queda cerrada como barrera de escala humana y no se amplía salvo regresión comprobada. `0111` y `0112` completan por separado el Checkpoint Semántico Universal descrito en [Checkpoint Semántico Universal](checkpoint-semantico-universal.md). La decisión expresa del 2026-08-17 levanta únicamente la barrera de inicio de Etapa 4; no autoriza expansión indiscriminada, trabajo por producto, canonización automática ni efectos comerciales.

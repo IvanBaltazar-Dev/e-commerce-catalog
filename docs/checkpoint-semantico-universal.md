@@ -1,6 +1,6 @@
 # Checkpoint Semántico Universal
 
-Estado: **cerrado técnicamente; Etapa 4 no autorizada**.
+Estado: **cerrado técnicamente en `0112`; Etapa 4 autorizada humanamente el 2026-08-17**.
 
 Este checkpoint se apoya en la guarda de escala humana de `0110`, que permanece activa y sin ampliaciones funcionales. El motor puede detectar más problemas, pero una causa compartida sigue agregándose antes de llegar a Mesa.
 
@@ -59,11 +59,11 @@ Las baterías `0111` y `0112` contienen 85 + 30 pruebas adversariales. El conjun
 - `catalog_semantic_claim_explanations_v1`: claim, evidencia, regla, entailment y promoción.
 - `catalog_semantic_contract_violations_v1`: violaciones fail-closed consumidas por certificación.
 - `catalog_semantic_certification_summary_v1`: cobertura y resultado de certificados.
-- `get_catalog_semantic_checkpoint_report_v1()`: resumen único; devuelve `stage4Authorized=false`.
+- `get_catalog_semantic_checkpoint_report_v1()`: resumen técnico único. En `0111` devuelve `stage4Authorized=false` para demostrar que una certificación automática nunca se autoautoriza; la autorización humana posterior se registra en el plan vivo, no altera la evidencia histórica ni relaja el gate.
 - MCP `semantic_checkpoint_report`: la misma lectura local y sólo lectura.
 
 Graph Projector `v2.6.0` proyecta dimensiones, reglas, tipos, claims, derivaciones, contradicciones y promociones. PostgreSQL es la única autoridad y el grafo continúa siendo reconstruible.
 
 ## Barrera de salida
 
-La certificación verde demuestra calidad semántica universal, no autoriza conocimiento masivo. La decisión de iniciar Etapa 4 permanece fuera del motor y requiere autorización posterior.
+La certificación verde demuestra calidad semántica universal, pero no se autoautoriza. La decisión permaneció fuera del motor y fue otorgada expresamente por el responsable humano el 2026-08-17. Autoriza comenzar Etapa 4 por sistemas y clases; no autoriza publicación comercial, canonización automática, expansión indiscriminada, producción ni omitir las guardas de escala humana.

@@ -1,6 +1,6 @@
 # Arquitectura de Bellaroshé
 
-**Corte:** 2026-08-12
+**Corte:** 2026-08-17
 **Estado:** arquitectura vigente en el entorno local; producción permanece fuera de alcance hasta superar staging.
 
 ## Plataforma y límites
@@ -75,12 +75,14 @@ fuente externa → snapshot RAW → observación normalizada
 - La Mesa de revisión coordina trabajo; no reemplaza el catálogo ni la evidencia. Su reprocesador reutiliza la misma cola, versiones, eventos y dependencias, clasifica `human_exception`, `automatic_debt`, `physical_capture` y `waiting_external`, y aplica únicamente previews congelados.
 - Los hechos requieren procedencia compatible con el valor aprobado.
 - Una relación inferida, compartir marca o aparecer en un mismo sistema no demuestra compatibilidad entre dos productos.
-- Una afirmación funcional de fabricante se conserva como `semantic_claim` con excerpt, fuente, RAW, fingerprint, método, confianza y estado. Su término normalizado pertenece a la capa de evidencia y nunca se eleva automáticamente a verdad técnica universal.
+- Una afirmación funcional de fabricante se conserva como evidencia literal y claim normalizado, ambos con entailment, fuente, RAW, fingerprint, regla versionada y estado. Inferencias y hechos canónicos son clases epistémicas distintas; ninguna normalización eleva automáticamente una afirmación de fuente a verdad técnica universal.
+- Dimensiones, perfiles de tipo técnico, políticas de aplicabilidad, reglas semánticas y autoridad fuente×predicado son registros dirigidos por datos. Las contradicciones conservan ambos valores y bloquean la promoción; las ausencias no fabrican valores ni crean trabajo humano por sí solas.
+- Los problemas semánticos se agregan por regla o causa compartida antes de la Mesa. Una excepción humana requiere una decisión material bloqueada y criterio humano, y su sujeto es una regla con conjunto afectado, nunca un producto individual.
 - PostgreSQL es la fuente de verdad. Neo4j Community es una proyección local derivada: `Graph Projector` la reconstruye, sincroniza y verifica, y nunca escribe de vuelta. `Product`/`Variant` son catálogo Bellaroshé; `ReferenceProduct`/`ReferenceVariant` son conocimiento externo y pueden existir sin identidad comercial.
 
 El Universo de Referencia se diseña como volumen independiente del catálogo. Corridas marca + fuente conservan baseline, deltas y observaciones; el staging existente consulta primero catálogo y referencias mediante índices PostgreSQL. El projector recorre vistas ordenadas con cursor y lotes, sin cargar el universo completo en Node. Las señales de identidad se proyectan como `IdentityCandidate`, `IdentityContradiction` o `IdentityMatch`, separadas de `Product`/`Variant` y de las referencias externas. Los claims normalizados se proyectan como `SemanticTerm` y aristas `NORMALIZES_TO`, ambos en `evidence`; no existe una arista canónica producto→claim.
 
-MCP v1 es un adaptador STDIO local de solo lectura sobre contratos PostgreSQL y el estado fijo del Graph Projector. No contiene reglas exclusivas ni permite consultas genéricas o escritura comercial. Expone el estado del reprocesamiento, pero PostgreSQL sigue siendo el único que decide transiciones. La campaña manual conserva la única ruta de mutación de investigación probada en esta etapa.
+MCP v1 es un adaptador STDIO local de solo lectura sobre contratos PostgreSQL y el estado fijo del Graph Projector. No contiene reglas exclusivas ni permite consultas genéricas o escritura comercial. Sus doce herramientas incluyen el estado del reprocesamiento, el embudo de campaña semántica y el checkpoint universal; PostgreSQL sigue siendo el único que decide transiciones. La campaña manual conserva la única ruta de mutación de investigación probada en esta etapa.
 
 ## Concurrencia e idempotencia
 
@@ -91,7 +93,7 @@ MCP v1 es un adaptador STDIO local de solo lectura sobre contratos PostgreSQL y 
 
 ## Evolución del esquema
 
-El historial comienza en V1 (`0001`, `0002`, `0004`), evoluciona de forma aditiva desde `0005` y llega actualmente a `0109_reference_semantic_claims.sql`. Las migraciones antiguas no se reescriben; toda corrección nueva se expresa en otra migración y actualiza pruebas y contratos.
+El historial comienza en V1 (`0001`, `0002`, `0004`), evoluciona de forma aditiva desde `0005` y llega actualmente a `0112_universal_semantic_ingestion_bridge.sql`. Las migraciones antiguas no se reescriben; toda corrección nueva se expresa en otra migración y actualiza pruebas y contratos.
 
 El índice detallado vive en [supabase/migrations/README.md](../supabase/migrations/README.md). Las referencias de implementación deben apuntar a la migración o contrato que ejecuta la regla, no a una bitácora histórica.
 

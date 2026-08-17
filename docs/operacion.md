@@ -1,6 +1,6 @@
 # Operación, pruebas y despliegue
 
-**Corte:** 2026-08-12. Este runbook describe la operación vigente. Producción no se toca hasta que staging pase todos los gates.
+**Corte:** 2026-08-17. Este runbook describe la operación vigente. Producción no se toca hasta que staging pase todos los gates.
 
 ## Entornos
 
@@ -63,7 +63,7 @@ npm run test:db
 npm run audit:security
 ```
 
-El checkpoint semántico previo a Etapa 4 llega hasta `0109`. Añade 20 pruebas pgTAP sobre claims, vocabulario, estado, procedencia y proyección sin canonización; el resultado de la ejecución vigente, no un número histórico, es la evidencia válida.
+El checkpoint semántico llega hasta `0112`. La última certificación documentada reconstruyó 49 archivos y 1.152 pruebas pgTAP: claims de fuente, agregación de problemas, contrato epistemológico universal y puente de ingesta fail-closed. La autorización humana de Etapa 4 no reemplaza esta certificación ni permite omitir gates; el resultado de la ejecución vigente, no un número histórico, es la evidencia válida.
 
 Gates especializados:
 
@@ -76,6 +76,9 @@ Gates especializados:
 | `npm run test:graph-projector` | rebuild repetido, divergencia deliberada, reparación incremental y verify |
 | `npm run test:stage2:admiss` | ADMISS, ZAC, AJO Y LIMÓN, guardas comerciales, deduplicación y capas del grafo |
 | `npm run test:mcp:catalog-intelligence` | proceso STDIO nuevo, superficie MCP cerrada y respuesta integral desde las bases |
+| `npm run audit:admiss-semantics` | cobertura semántica ADMISS, excerpts, gaps e idempotencia sin canonización |
+| `npm run gate:semantic-human-scale` | agregación por regla y crecimiento sublineal de excepciones humanas |
+| `npm run gate:semantic-certification` | arquetipos universales, entailment, contradicción, promoción y contrato fail-closed |
 | `npm run test:catalog-review-rerun` | reprocesamiento idempotente de la Mesa |
 | `npm run test:review-reprocess` | rerun nulo, fingerprint lógico y guardas de tablas comerciales |
 | `npm run test:venta` | pagos, concurrencia, venta y nota |
@@ -126,9 +129,9 @@ npm run graph:sync
 npm run graph:verify
 ```
 
-El informe queda en `research/catalog-master/reports/admiss-semantic-audit/`: matriz CSV de 121 productos, JSON con consultas/excerpts/fingerprints y resumen Markdown. La auditoría no crea trabajo en Mesa, no publica y no autoriza Etapa 4.
+El informe queda en `research/catalog-master/reports/admiss-semantic-audit/`: matriz CSV de 121 productos, JSON con consultas/excerpts/fingerprints y resumen Markdown. La auditoría no crea trabajo en Mesa, no publica y no autoriza por sí sola una etapa. La autorización humana para iniciar Etapa 4 se registró el 2026-08-17 y conserva intactas todas las guardas.
 
-MCP v1 usa STDIO local y diez herramientas de lectura: estado de catálogo, contexto de marca, última investigación, búsqueda en referencia, diferencias, brechas/contradicciones, casos humanos de revisión, reporte, estado del grafo y estado del reprocesamiento. No acepta SQL, shell, URL arbitraria, Cypher ni mutaciones de catálogo, precio, inventario o publicación.
+MCP v1 usa STDIO local y doce herramientas de lectura: estado de catálogo, contexto de marca, última investigación, búsqueda en referencia, diferencias, brechas/contradicciones, casos humanos de revisión, estado del reprocesamiento, embudo semántico, checkpoint universal, reporte y estado del grafo. No acepta SQL, shell, URL arbitraria, Cypher ni mutaciones de catálogo, precio, inventario o publicación.
 
 ## Reprocesamiento de la Mesa
 

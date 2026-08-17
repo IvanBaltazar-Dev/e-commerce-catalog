@@ -1,9 +1,9 @@
 # Bellaroshé · Plan vivo de Inteligencia de Catálogo
 
-**Versión:** 1.4 · Auditoría ADMISS previa a Etapa 4 cerrada
-**Última actualización:** 2026-08-12
+**Versión:** 1.5 · Checkpoint universal `0112` cerrado y Etapa 4 autorizada
+**Última actualización:** 2026-08-17
 **Fuente de verdad:** PostgreSQL/Supabase
-**Estado:** Etapas 0–3 completadas; auditoría taxonómica y semántica ADMISS completada; Etapa 4 detenida hasta autorización
+**Estado:** Etapas 0–3 y checkpoints previos completados; Etapa 4 autorizada y lista para iniciar
 
 Este documento dirige la construcción de la Inteligencia de Catálogo Bellaroshé. MCP es un adaptador de acceso; no es el sistema ni contiene lógica de negocio exclusiva.
 
@@ -421,7 +421,7 @@ La corrida conserva 1.587 claims activos sobre 121 productos, cada uno con excer
 | Mesa creada / efectos comerciales | 0 / 0 |
 | Grafo verificado | 9.562 nodos, 18.256 aristas, 0 divergencias |
 
-La matriz completa, consultas, gaps y evidencia reproducible están en [Auditoría ADMISS](../research/catalog-master/reports/admiss-semantic-audit/README.md). Etapa 4 sigue detenida hasta revisar este checkpoint y autorizarla expresamente.
+La matriz completa, consultas, gaps y evidencia reproducible están en [Auditoría ADMISS](../research/catalog-master/reports/admiss-semantic-audit/README.md). Este checkpoint no se autoautorizó; tras cerrar también las guardas `0110`–`0112`, la autorización humana para Etapa 4 se registró el 2026-08-17.
 
 ### Checkpoint obligatorio previo a Etapa 4 · Escala humana semántica
 
@@ -430,6 +430,8 @@ La ampliación semántica ya tiene una barrera estructural contra la multiplicac
 El reporte de campaña conserva el embudo `productos → claims → problemas → grupos → reglas → excepciones humanas`. El gate sintético procesó 10.000 productos y 10.001 problemas de una regla en 22,9 s sobre el Universo restaurado: un grupo, una excepción humana activa, cero trabajos por producto, 0,1 excepciones por 1.000 productos, ratio de crecimiento 0,0222 (`passes`) y 99,99 % de revisión individual evitada. PostgreSQL pasó 1.152 pruebas; Graph Projector `v2.6.0` quedó sin drift. Evidencia completa en [Guarda de escala humana semántica](etapa-4-guarda-escala-humana-semantica.md).
 
 ### Etapa 4 · Conocimiento masivo
+
+**Estado:** autorizada el 2026-08-17; ejecución aún no iniciada en este corte documental.
 
 Ampliar el Universo de Referencia relevante y los sistemas, etapas, clases, roles, procesos, requisitos, compatibilidades, incompatibilidades, alternativas y secuencias. Preferir relaciones entre clases y membresías de producto para evitar explosión producto-producto. No descargar indiscriminadamente todo Internet ni empezar con cien marcas antes de validar ADMISS.
 
@@ -563,7 +565,7 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 - [x] Dirigir dimensiones, perfiles, reglas y autoridad fuente×predicado mediante datos.
 - [x] Certificar contradicción, entailment, ausencias y promoción con diez arquetipos sintéticos.
 - [x] Materializar los claims semánticos reales de 0109 en la cadena epistemológica universal.
-- [ ] Autorizar explícitamente el inicio de Etapa 4.
+- [x] Autorizar explícitamente el inicio de Etapa 4.
 - [ ] Escalar conocimiento por sistemas y clases.
 - [ ] Implementar comando único y reporte comercial.
 
@@ -584,3 +586,4 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 | 2026-08-12 | Guarda de escala humana previa a Etapa 4 | Agrupación por regla, particiones justificadas, embudo obligatorio y gate de 10.000 productos/10.001 problemas con una excepción activa; Etapa 4 permanece detenida |
 | 2026-08-12 | Checkpoint Semántico Universal | Cuatro clases epistémicas, 22 dimensiones extensibles, perfiles heredables, ocho familias de reglas, autoridad fuente×predicado, entailment, contradicción explícita, promoción canónica, diez arquetipos y golden set; Graph Projector `v2.6.0`; Etapa 4 no autorizada |
 | 2026-08-12 | Ingesta universal cerrada | 1.587 observaciones literales + 1.587 claims ADMISS normalizados con entailment, 72 reglas `NORMALIZATION` activas, cero canonizaciones y cero Mesa; todo enlace futuro entra por trigger fail-closed |
+| 2026-08-17 | Etapa 4 autorizada | Autorización humana expresa para iniciar por sistemas y clases bajo `0110`–`0112`; no habilita publicación, canonización automática, expansión indiscriminada ni producción |

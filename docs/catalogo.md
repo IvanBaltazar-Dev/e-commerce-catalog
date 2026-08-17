@@ -1,6 +1,6 @@
 # Catálogo, evidencia y revisión
 
-**Corte medido:** 2026-08-12. Los conteos de este documento son una fotografía local, no constantes del sistema.
+**Corte medido:** 2026-08-17. Los conteos de este documento son fotografías locales fechadas, no constantes del sistema.
 
 ## Modelo comercial
 
@@ -14,7 +14,7 @@
 
 ## Corte local comprobado
 
-El cierre de Etapa 2 reconstruyó 1.056 productos y 1.578 variantes comerciales con las migraciones `0001`–`0107`. La suite alcanzó 935 comprobaciones pgTAP. El Universo de Referencia es un volumen independiente; estos números deben volver a medirse antes de citarlos en una decisión futura.
+La última reconstrucción certificada aplicó las migraciones `0001`–`0112` y ejecutó 49 archivos con 1.152 comprobaciones pgTAP. El último conteo comercial explícito, medido al cierre de Etapa 2, fue 1.056 productos y 1.578 variantes; no se presenta como conteo vigente. El Universo de Referencia es un volumen independiente y cualquier decisión futura debe volver a medir ambos dominios.
 
 ## Fuente de verdad y capas de trabajo
 
@@ -39,7 +39,7 @@ La única entrada humana es `Catálogo → Revisar`, con tres superficies: Inici
 - Los lotes masivos usan un snapshot congelado; un cambio de membresía cancela la aplicación completa.
 - Precio faltante no bloquea una decisión de identidad o conocimiento.
 
-El corte del 10 de agosto proyectaba 407 casos revisables, 523 de captura, 233 en espera y 48 completados, además de 352 bloqueados por dependencias. Debe consultarse la proyección vigente antes de planificar capacidad.
+El reprocesamiento certificado de Etapa 3 dejó 1.447 trabajos activos: 387 excepciones humanas accionables, 436 deudas automáticas, 527 capturas físicas, 66 esperas externas y 31 bloqueos. Cerró 231 trabajos y preservó la historia. Es un corte del 12 de agosto; debe consultarse la proyección vigente antes de planificar capacidad.
 
 ## Identidad de familia frente a identidad de variante
 
@@ -81,4 +81,4 @@ Los estados manuales son `CAPTURADO`, `INVESTIGAR`, `LISTO_PARA_DECIDIR`, `APLIC
 
 ## Próximo foco
 
-El plan vigente es [Inteligencia de Catálogo Bellaroshé](plan-vivo-mcp-inteligencia-catalogo.md). Etapa 2 cerró ADMISS como primera campaña real marca + fuente y construyó MCP local sobre los contratos de Etapa 1. Etapa 3 permanece sin iniciar. Resolver decisiones, publicar, fijar precio Bellaroshé o modificar inventario sigue fuera de MCP.
+El plan vigente es [Inteligencia de Catálogo Bellaroshé](plan-vivo-mcp-inteligencia-catalogo.md). Etapas 2 y 3 están cerradas; ADMISS cubre la primera campaña real marca + fuente, el reprocesamiento de Mesa y la ingesta epistemológica universal hasta `0112`. El 2026-08-17 se autorizó humanamente iniciar Etapa 4, que debe comenzar por sistemas y clases bajo las guardas certificadas. Resolver decisiones, publicar, fijar precio Bellaroshé o modificar inventario sigue fuera de MCP.

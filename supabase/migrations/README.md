@@ -1,6 +1,6 @@
 # Migraciones de base de datos
 
-Este directorio es el historial real y acumulativo de Bellaroshé. Las migraciones aplicadas no se reescriben, renombran, consolidan ni eliminan; toda corrección nueva recibe el siguiente número y sus pruebas.
+Este directorio es el historial real y acumulativo de Bellaroshé. El corte documental vigente llega a `0112`. Las migraciones aplicadas no se reescriben, renombran, consolidan ni eliminan; toda corrección nueva recibe el siguiente número y sus pruebas.
 
 ## Mapa del historial
 
