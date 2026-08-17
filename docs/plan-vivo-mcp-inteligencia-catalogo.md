@@ -1,9 +1,9 @@
 # Bellaroshé · Plan vivo de Inteligencia de Catálogo
 
-**Versión:** 1.8 · Etapa 4C y contrato humano `0115` cerrados
+**Versión:** 2.0 · Etapa 4D cerrada; Etapa 4E autorizada
 **Última actualización:** 2026-08-17
 **Fuente de verdad:** PostgreSQL/Supabase
-**Estado:** Etapas 0–3 y 4A–4C completadas; detenerse antes de producto/UX y frontend
+**Estado:** Etapas 0–3 y 4A–4D completadas; Etapa 4E backend autorizada
 
 Este documento dirige la construcción de la Inteligencia de Catálogo Bellaroshé. MCP es un adaptador de acceso; no es el sistema ni contiene lógica de negocio exclusiva.
 
@@ -461,6 +461,20 @@ La reconstrucción `0001`–`0115` pasó 52 archivos/1.246 pruebas pgTAP, seguri
 
 **STOP:** no diseñar ni implementar frontend todavía. El próximo paso exige una decisión explícita de producto/UX sobre la experiencia humana; publicar productos, fijar precio Bellaroshé, modificar inventario, canonizar automáticamente, investigar marcas en masa, usar GraphRAG o desplegar producción continúa fuera de alcance.
 
+**STOP 4C satisfecho:** 4D obtuvo la decisión explícita de producto. Esto autoriza 4E backend; el frontend real continúa bloqueado hasta certificar ese contrato.
+
+#### Etapa 4D · Producto/UX de la decisión
+
+4D usa tres decisiones reales —19 asociaciones color gel→top, 38 torno→broca y 88 falsos pares con lámparas— dentro del patrón actual de `Catálogo → Revisar`: Inicio, una decisión a la vez y Expediente. No crea una segunda cola ni otra identidad visual. La propietaria ve primero el problema, qué recomendamos, qué resuelve, qué ocurre si el tipo no está claro y qué no cambia; códigos y fingerprints quedan bajo trazabilidad técnica.
+
+La mejora de seguridad central es traducir `HEURISTIC_ONLY` en una comprobación concreta y natural según el caso, visible antes de decidir. Un producto solo hereda una regla o relación si su pertenencia al grupo está confirmada; si el tipo o la función son dudosos, queda **por confirmar**, sin crear, heredar ni retirar relaciones. Esa incertidumbre permanece como deuda automática y no crea trabajo humano por producto. La interfaz reutiliza Manrope, porcelana, rosa, navegación, tarjetas y acciones del panel real; es exclusivamente clara, breve y usa la voz **Qué recomendamos**. La intención principal se expresa como **Continuar**, porque aún no existe apply. El prototipo no escribe ni simula prioridad/confianza.
+
+La decisión no es binaria. La propietaria puede decidir y adjuntar un comentario, pedir que se corrija la propuesta o **anotar y guardar pendiente** con una fecha para volver a verla. Guardar pendiente conserva el caso abierto y no equivale a aceptar ni rechazar. 4E reutilizará el aplazamiento real ya probado por la Mesa (`defer_reason`, `deferred_until`, versión, idempotencia y evento `work_deferred`) y lo integrará con las decisiones agrupadas de 4C.
+
+4D quedó cerrada por autorización explícita de la propietaria el 2026-08-17 después de validar iterativamente lenguaje, alcance, productos dudosos y guardado pendiente. La medición instrumentada menor a un minuto se conserva como aceptación de 4F, cuando el recorrido exista en frontend real. Especificación completa en [Etapa 4D · Producto/UX de decisiones humanas](etapa-4d-producto-ux-decisiones.md).
+
+4E definirá ahora el contrato `preview → fingerprint → decisión humana → apply exacto → auditoría → graph sync → verify`, incluida la separación exacta entre miembros confirmados y dudosos. 4F implementará `Catálogo → Revisar`; React mostrará contratos y enviará una intención, nunca una secuencia de escrituras ni una clasificación propia.
+
 ### Etapa 5 · Comando único
 
 Una campaña manual desde Codex investiga desde la última ejecución, reaudita, conserva historia, deja solo excepciones reales, sincroniza el grafo y presenta productos nuevos listos para decisión comercial humana.
@@ -506,6 +520,32 @@ La configuración usa variables de entorno y rutas relativas. Ningún contrato d
 Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad-y-riesgos.md).
 
 ## 13. Checklist vivo
+
+### Ruta crítica desde `52f66de` hasta la entrega
+
+- [x] Subir `29e8297` y `52f66de` sin mezclarlos; baseline 4B/4C estable en remoto.
+- [x] Diseñar 4D sobre los casos reales 19/38/88 y la interfaz actual `Catálogo → Revisar`.
+- [x] Definir lenguaje natural, tratamiento de productos dudosos y una salida no binaria con comentario o guardado pendiente.
+- [x] Cerrar 4D por aprobación explícita de la propietaria después de validar problema, resultado, producto dudoso y guardado pendiente.
+- [ ] **Publicar 4D — en curso:** crear commit documental y publicar la rama con el snapshot de casos reales.
+- [ ] **4E · contrato backend de decisión y apply:**
+  - [ ] integrar las 18 decisiones agrupadas con la Mesa existente, sin segunda cola;
+  - [ ] versionar lectura de detalle con subconjuntos confirmado/dudoso y evidencia paginada;
+  - [ ] contratar aceptar, rechazar, pedir ajuste, comentar, aplazar y reanudar;
+  - [ ] generar preview exacto de registros creados/modificados y efectos en conocimiento;
+  - [ ] exigir fingerprint, versión esperada e idempotencia y rechazar evidencia obsoleta;
+  - [ ] aplicar atómicamente, conservar historia y registrar actor, comentario y resultado;
+  - [ ] sincronizar Neo4j y verificar ausencia de drift;
+  - [ ] certificar permisos, concurrencia, reconstrucción, pgTAP, MCP y gates negativos.
+- [ ] **4F · frontend real:**
+  - [ ] conectar Inicio, una decisión a la vez y Expediente a contratos 4E;
+  - [ ] implementar comentario, ajuste, guardado pendiente, reanudación y advertencia por texto sin guardar;
+  - [ ] mostrar preview final, confirmación, resultado e historial sin lógica semántica en React;
+  - [ ] cubrir estados vacío, obsoleto, conflicto, error y reintento idempotente;
+  - [ ] certificar móvil/escritorio, accesibilidad, pruebas de componentes y recorrido E2E.
+- [ ] **Expansión controlada:** ejecutar el mismo pipeline sobre otros sistemas y marcas, medir deuda y detener cualquier explosión de trabajo humano.
+- [ ] **Etapa 5:** implementar comando único, delta desde la última ejecución y reporte comercial para la propietaria.
+- [ ] **Certificación final:** reconstrucción completa, todas las suites, seguridad, tipos, lint, build, Graph verify, documentación, árbol limpio, commits y push final.
 
 ### Decisiones y diseño
 
@@ -600,6 +640,14 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 - [x] Obtener casos reales de al menos tres tipos de problema humano antes de diseñar frontend.
 - [x] Entregar el read model agrupado con explicación, evidencia, impacto y acciones resueltas por backend.
 - [x] Certificar que React no interpreta reglas y detener el avance antes de producto/UX y frontend.
+- [x] Diseñar Inicio, decisión y Expediente con los tres casos reales de 4C.
+- [x] Crear un prototipo 4D sin frontend productivo ni escrituras.
+- [x] Permitir comentario con decisión y anotación aplazada sin fingir aceptación o rechazo.
+- [x] Validar con la propietaria la comprensión funcional de los tres casos, incluido el tratamiento de productos con tipo dudoso y la salida no binaria.
+- [ ] Medir en 4F que la propietaria comprende y decide cada familia en menos de un minuto sobre frontend real.
+- [ ] Incorporar al contrato de presentación los ajustes de copia y evidencia validados.
+- [ ] Implementar y certificar 4E: preview/apply exacto, auditoría y concurrencia.
+- [ ] Implementar 4F: `Catálogo → Revisar` sobre contratos cerrados.
 - [ ] Escalar conocimiento a otros sistemas y marcas después del gate del reprocesamiento.
 - [ ] Implementar comando único y reporte comercial.
 
@@ -624,3 +672,5 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 | 2026-08-17 | Etapa 4A cerrada | Contrato universal `0113`, fixture Acrílico, 8 requisitos/8 secuencias, referencias no comerciales, 0 canonizaciones, 323 relaciones intactas, 1.186 pgTAP y Graph Projector `v2.7.0` sin drift |
 | 2026-08-17 | Etapa 4B cerrada | Motor universal `0114`, preview/fingerprint de 323 relaciones, 167 pares expresables por clases, 68 pares condensados en 9 reglas, 0 canonizaciones, 1.216 pgTAP y MCP/grafo sin drift |
 | 2026-08-17 | Etapa 4C cerrada | Read model `0115`, 18 decisiones en 3 familias sobre 263 detecciones, 60 deudas automáticas excluidas, 93,16 % de revisión individual evitada, 1.246 pgTAP y STOP antes de producto/UX/frontend |
+| 2026-08-17 | Etapa 4D preparada | Flujo actual Inicio→decisión→Expediente y prototipo sin escrituras sobre casos reales 19/38/88; problema y solución explícitos, productos dudosos fuera de reglas hasta confirmación, identidad visual real y validación humana pendiente |
+| 2026-08-17 | Etapa 4D cerrada | La propietaria aprobó lenguaje, identidad visual, productos dudosos, comentarios y guardado pendiente; 4E backend autorizado |

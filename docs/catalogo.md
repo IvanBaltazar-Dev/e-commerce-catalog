@@ -34,6 +34,7 @@ La única entrada humana es `Catálogo → Revisar`, con tres superficies: Inici
 - La prioridad es lexicográfica: riesgo, contradicción, resolubilidad, impacto, relevancia, antigüedad y esfuerzo.
 - Cambiar de caso solo lo omite durante la sesión; no lo resuelve.
 - “No tengo evidencia suficiente” aplaza con motivo y fecha; conserva el caso abierto.
+- Una nota asociada a una decisión queda con su evento; una nota sin decisión usa el aplazamiento y nunca finge aceptación o rechazo.
 - Cada problema tiene una identidad de familia y una versión material. Reprocesar la misma evidencia no reabre una decisión.
 - `resolve_catalog_review_item_v1` aplica decisión, verdad canónica, evento e impacto en una transacción.
 - Los lotes masivos usan un snapshot congelado; un cambio de membresía cancela la aplicación completa.
@@ -87,4 +88,4 @@ Los estados manuales son `CAPTURADO`, `INVESTIGAR`, `LISTO_PARA_DECIDIR`, `APLIC
 
 ## Próximo foco
 
-El plan vigente es [Inteligencia de Catálogo Bellaroshé](plan-vivo-mcp-inteligencia-catalogo.md). Etapas 2, 3, 4A, 4B y 4C están cerradas. El trabajo se detiene antes de producto/UX y frontend: el próximo avance requiere diseñar expresamente la experiencia humana sobre el contrato ya medido. Resolver decisiones, publicar, fijar precio Bellaroshé o modificar inventario sigue fuera de MCP.
+El plan vigente es [Inteligencia de Catálogo Bellaroshé](plan-vivo-mcp-inteligencia-catalogo.md). Etapas 2, 3 y 4A–4D están cerradas; [Etapa 4D](etapa-4d-producto-ux-decisiones.md) dejó aprobada la experiencia con tres decisiones reales. 4E implementará el contrato backend antes de 4F. Resolver decisiones, publicar, fijar precio Bellaroshé o modificar inventario sigue fuera de MCP.

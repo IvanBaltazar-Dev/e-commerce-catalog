@@ -1,0 +1,93 @@
+{
+  "captured_at": "2026-08-17",
+  "baseline_commit": "52f66de",
+  "contract_version": "stage4c-v1",
+  "source_preview_fingerprint": "f23a5c4668bc0854054f412e663b9c390c94e0fb737b50db1ee729306514475f",
+  "source_snapshot_fingerprint": "6947c31eb087efbbf0c3532064098a66329c58ff2faffd5939ae86d5d97174ca",
+  "cases": [
+    {
+      "decision_id": "decision:68476dc74d75783223f4b352e2d6a0f4",
+      "family_code": "CLASS_RULE_PROMOTION",
+      "title": "Validar una regla compartida entre color gel y top o finalizador gel",
+      "business_summary": "19 relaciones históricas pueden expresarse mediante una sola regla entre clases.",
+      "what_was_found": "El mismo patrón de proceso aparece repetido en varios productos y se comprime como GEL_COLOR_PRODUCT|PRECEDES|GEL_TOP_PRODUCT.",
+      "why_human_is_needed": "Aceptar la regla cambiaría muchas relaciones directas por una inferencia compartida; necesita una decisión explícita.",
+      "system_recommendation": "Revisar la firma una vez y, si representa el proceso real, aceptar la regla de clase como inferencia no canónica.",
+      "affected_count": 19,
+      "affected_product_count": 19,
+      "evidence": {
+        "example": { "source": "Esmalte Gel", "target": "Brillo Gel Tapa" },
+        "authority_levels": ["HEURISTIC_ONLY"],
+        "validation_requirements": ["ENVASE_MANUAL_FICHA_TECNICA"],
+        "rule_codes": ["gel_color->gel_top"],
+        "relation_kinds": ["PRECEDES"],
+        "affected_set_fingerprint": "3cacb04b8bb2526732c7184345ee9dbeaecbff9c447cb1ed691f6247c62a01dc"
+      },
+      "impact_preview": {
+        "candidate_relations_affected": 19,
+        "class_relations_proposed": 1,
+        "direct_pair_relations_promoted": 0,
+        "canonical_facts_created": 0,
+        "commercial_effects": 0
+      },
+      "recommended_action": "ACCEPT_CLASS_RULE",
+      "decision_fingerprint": "68476dc74d75783223f4b352e2d6a0f47102c32171867ec4795ea546302738c2"
+    },
+    {
+      "decision_id": "decision:89149ed477d85e70771bd36b5a676730",
+      "family_code": "ENDPOINT_SCOPE_RECLASSIFICATION",
+      "title": "Corregir el alcance compartido de torno o drill de uñas",
+      "business_summary": "38 pares mezclan productos de otra función; las membresías útiles pueden conservarse sin afirmar el par.",
+      "what_was_found": "La regla histórica alcanzó sujetos que no pertenecen al extremo esperado, aunque varios expresan otra clase reconocible.",
+      "why_human_is_needed": "Reinterpretar una relación como membresía cambia su significado histórico y el alcance futuro de la regla.",
+      "system_recommendation": "Aceptar solo las membresías observadas y ajustar el perfil compartido; no promover relaciones producto–producto.",
+      "affected_count": 38,
+      "affected_product_count": 20,
+      "evidence": {
+        "example": { "source": "Broca 5en1", "target": "Broca 5en1" },
+        "authority_levels": ["HEURISTIC_ONLY"],
+        "validation_requirements": ["ENVASE_MANUAL_FICHA_TECNICA"],
+        "rule_codes": ["drill->drill_bit"],
+        "relation_kinds": ["COMPATIBLE_WITH"],
+        "affected_set_fingerprint": "e1271fed4c74835a18c00ef28d794f77b76fbd26e4c45dc04f87e922e659867d"
+      },
+      "impact_preview": {
+        "candidate_relations_affected": 38,
+        "membership_scope_changes_proposed": 38,
+        "pair_relations_promoted": 0,
+        "canonical_facts_created": 0,
+        "commercial_effects": 0
+      },
+      "recommended_action": "ACCEPT_MEMBERSHIP_SCOPE",
+      "decision_fingerprint": "89149ed477d85e70771bd36b5a676730f1ec276956bd913f578b498abab82e42"
+    },
+    {
+      "decision_id": "decision:87bbea904712095482c25017bc86c3cb",
+      "family_code": "FALSE_PAIR_RETIREMENT",
+      "title": "Retirar falsos pares asociados a lámpara de curado UV/LED",
+      "business_summary": "88 pares contradicen el significado funcional del extremo esperado y no deben promoverse en bloque.",
+      "what_was_found": "Uno de los extremos cae en una exclusión semántica explícita; por ejemplo «Esmalte Gel» → «Guantes Para Lámpara UV».",
+      "why_human_is_needed": "Retirar en conjunto candidatas históricas es una decisión semántica material que no puede aplicarse sin criterio humano.",
+      "system_recommendation": "Confirmar la exclusión compartida y retirar los falsos pares del conjunto promovible sin borrar su historia.",
+      "affected_count": 88,
+      "affected_product_count": 46,
+      "evidence": {
+        "example": { "source": "Esmalte Gel", "target": "Guantes Para Lampara Uv" },
+        "authority_levels": ["HEURISTIC_ONLY"],
+        "validation_requirements": ["ENVASE_MANUAL_FICHA_TECNICA"],
+        "rule_codes": ["gel_color->lamp_uv_led", "polygel->lamp_uv_led", "soft_gel_tips->lamp_uv_led"],
+        "relation_kinds": ["REQUIRES"],
+        "affected_set_fingerprint": "1b811c1dd79b3f0abc22a86a4dbae9506a2daa1efd284f99ce060114a4b1e294"
+      },
+      "impact_preview": {
+        "candidate_relations_affected": 88,
+        "candidate_status_changes_if_accepted": 88,
+        "history_deleted": 0,
+        "canonical_facts_created": 0,
+        "commercial_effects": 0
+      },
+      "recommended_action": "ACCEPT_FALSE_PAIR_RETIREMENT",
+      "decision_fingerprint": "87bbea904712095482c25017bc86c3cbffc2e8c90193d9e7f44976d885036f53"
+    }
+  ]
+}
