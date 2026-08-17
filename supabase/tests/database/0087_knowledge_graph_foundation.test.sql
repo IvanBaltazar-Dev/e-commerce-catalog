@@ -19,8 +19,8 @@ select is(
    from public.catalog_stages stage
    join public.catalog_systems system on system.id = stage.system_id
    where system.code = 'ACRYLIC'),
-  7,
-  '10 · Acrílico conserva el flujo base y suma preparación de extensión y remoción'
+  8,
+  '10 · Acrílico conserva el flujo base y suma extensión, mantenimiento y remoción'
 );
 
 select results_eq(

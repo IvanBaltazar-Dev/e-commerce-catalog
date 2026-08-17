@@ -1,6 +1,6 @@
 # Migraciones de base de datos
 
-Este directorio es el historial real y acumulativo de Bellaroshé. El corte documental vigente llega a `0112`. Las migraciones aplicadas no se reescriben, renombran, consolidan ni eliminan; toda corrección nueva recibe el siguiente número y sus pruebas.
+Este directorio es el historial real y acumulativo de Bellaroshé. El corte documental vigente llega a `0113`. Las migraciones aplicadas no se reescriben, renombran, consolidan ni eliminan; toda corrección nueva recibe el siguiente número y sus pruebas.
 
 ## Mapa del historial
 
@@ -26,6 +26,7 @@ Este directorio es el historial real y acumulativo de Bellaroshé. El corte docu
 | `0110` | Agregación de problemas semánticos por causa compartida y barrera de escala humana antes de Mesa |
 | `0111` | Contrato epistemológico universal, dimensiones extensibles, perfiles técnicos, reglas versionadas, autoridad fuente×predicado, contradicción, entailment, promoción y certificación |
 | `0112` | Puente automático desde claims de fuente 0109 hacia observación literal + normalización explicable, con backfill fail-closed y sin canonización/Mesa |
+| `0113` | Contrato universal sistema→etapa→rol→clase→requisito, referencias, secuencias, autoridad de procesos, fixture Acrílico, reporte y proyección v2.7.0 |
 
 Los nombres de archivo son el detalle autoritativo. Este mapa evita duplicar una descripción extensa que pronto queda desactualizada.
 
@@ -48,6 +49,7 @@ Los nombres de archivo son el detalle autoritativo. Este mapa evita duplicar una
 - `0110_semantic_problem_aggregation.sql`: detecciones individuales fuera de Mesa, grupos por regla/causa, particiones justificadas, excepción humana de regla y reporte de escala.
 - `0111_universal_semantic_checkpoint.sql`: contrato epistemológico, registros universales dirigidos por datos y certificación sintética sin autorización de Etapa 4.
 - `0112_universal_semantic_ingestion_bridge.sql`: materialización automática de evidencia 0109 como literal + normalizada, sin inferencia, canonización ni Mesa.
+- `0113_universal_system_class_model.sql`: amplía el modelo 0086 sin tablas paralelas, valida estados epistemológicos y conserva intactas las 323 relaciones diferidas.
 
 ## Aplicación local
 

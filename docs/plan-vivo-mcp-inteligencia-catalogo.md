@@ -1,9 +1,9 @@
 # Bellaroshé · Plan vivo de Inteligencia de Catálogo
 
-**Versión:** 1.5 · Checkpoint universal `0112` cerrado y Etapa 4 autorizada
+**Versión:** 1.6 · Etapa 4A universal `0113` cerrada
 **Última actualización:** 2026-08-17
 **Fuente de verdad:** PostgreSQL/Supabase
-**Estado:** Etapas 0–3 y checkpoints previos completados; Etapa 4 autorizada y lista para iniciar
+**Estado:** Etapas 0–3 y checkpoints previos completados; contrato 4A de sistemas/clases implementado; reprocesamiento de 323 relaciones pendiente
 
 Este documento dirige la construcción de la Inteligencia de Catálogo Bellaroshé. MCP es un adaptador de acceso; no es el sistema ni contiene lógica de negocio exclusiva.
 
@@ -431,9 +431,17 @@ El reporte de campaña conserva el embudo `productos → claims → problemas �
 
 ### Etapa 4 · Conocimiento masivo
 
-**Estado:** autorizada el 2026-08-17; ejecución aún no iniciada en este corte documental.
+**Estado:** autorizada el 2026-08-17. El corte 4A quedó implementado y certificado en `0113`; no inició investigación masiva ni reprocesamiento histórico.
 
 Ampliar el Universo de Referencia relevante y los sistemas, etapas, clases, roles, procesos, requisitos, compatibilidades, incompatibilidades, alternativas y secuencias. Preferir relaciones entre clases y membresías de producto para evitar explosión producto-producto. No descargar indiscriminadamente todo Internet ni empezar con cien marcas antes de validar ADMISS.
+
+#### Etapa 4A · Modelo universal de sistemas y clases
+
+`0113` reutiliza el modelo 0086 y completa sistema→etapa→rol→clase→requisito/capacidad→producto o referencia. Los vocabularios de rol, requisito y nueve relaciones son datos extensibles. Pertenencia y función nunca generan compatibilidad: una relación estricta exige evidencia explícita del par y claim de dimensión `compatibility`.
+
+El fixture real Acrílico valida 8 etapas, 15 roles, 16 clases, 16 puentes rol–clase, 8 requisitos, 8 secuencias, 45 productos internos y 2 referencias oficiales no comerciales. La cadena conserva 4 observaciones literales, 4 claims normalizados, 4 inferencias y 0 hechos canónicos; tres requisitos y una transición quedan pendientes de evidencia.
+
+El gate reconstruyó 5.290 nodos y 7.545 aristas con Graph Projector `v2.7.0`, fingerprints iguales y cero divergencias. PostgreSQL pasó 50 archivos y 1.186 pruebas, seguridad/typecheck/lint, certificación 0111 y MCP 4A. Las 323 relaciones reales permanecen `untouched`, `analyzedThisCut=0`; su clasificación controlada es el siguiente corte. Evidencia completa en [Etapa 4A · Modelo universal de sistemas y clases](etapa-4a-modelo-universal-sistemas-clases.md).
 
 ### Etapa 5 · Comando único
 
@@ -566,7 +574,13 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 - [x] Certificar contradicción, entailment, ausencias y promoción con diez arquetipos sintéticos.
 - [x] Materializar los claims semánticos reales de 0109 en la cadena epistemológica universal.
 - [x] Autorizar explícitamente el inicio de Etapa 4.
-- [ ] Escalar conocimiento por sistemas y clases.
+- [x] Implementar el contrato universal sistema→etapa→rol→clase→requisito.
+- [x] Validar productos y referencias con el vertical real Acrílico sin efectos comerciales.
+- [x] Mantener pertenencia/función separadas de compatibilidad y preservar la cadena epistemológica.
+- [x] Publicar reporte/gate/MCP 4A y proyectar Graph Projector `v2.7.0` sin drift.
+- [ ] Reprocesar controladamente las 323 relaciones históricas y medir cuántas suben a clases.
+- [ ] Obtener casos reales de al menos tres tipos de problema humano antes de diseñar frontend.
+- [ ] Escalar conocimiento a otros sistemas y marcas después del gate del reprocesamiento.
 - [ ] Implementar comando único y reporte comercial.
 
 ## 14. Registro de actualizaciones
@@ -587,3 +601,4 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 | 2026-08-12 | Checkpoint Semántico Universal | Cuatro clases epistémicas, 22 dimensiones extensibles, perfiles heredables, ocho familias de reglas, autoridad fuente×predicado, entailment, contradicción explícita, promoción canónica, diez arquetipos y golden set; Graph Projector `v2.6.0`; Etapa 4 no autorizada |
 | 2026-08-12 | Ingesta universal cerrada | 1.587 observaciones literales + 1.587 claims ADMISS normalizados con entailment, 72 reglas `NORMALIZATION` activas, cero canonizaciones y cero Mesa; todo enlace futuro entra por trigger fail-closed |
 | 2026-08-17 | Etapa 4 autorizada | Autorización humana expresa para iniciar por sistemas y clases bajo `0110`–`0112`; no habilita publicación, canonización automática, expansión indiscriminada ni producción |
+| 2026-08-17 | Etapa 4A cerrada | Contrato universal `0113`, fixture Acrílico, 8 requisitos/8 secuencias, referencias no comerciales, 0 canonizaciones, 323 relaciones intactas, 1.186 pgTAP y Graph Projector `v2.7.0` sin drift |

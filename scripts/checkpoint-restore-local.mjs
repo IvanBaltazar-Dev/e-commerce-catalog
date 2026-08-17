@@ -165,6 +165,15 @@ where (source.source_key, lower(brand.name)) in (
   ('cherimoya-official-acrylic', 'cherimoya')
 );
 
+-- 0113 valida el contrato universal con referencias reales no comerciales.
+-- El checkpoint reemplaza brands con UUID historicos, por lo que se religa la
+-- referencia del fixture a la marca restaurada sin adoptarla al catalogo.
+update public.catalog_reference_products reference
+set brand_id = brand.id, updated_at = now()
+from public.brands brand
+where reference.reference_key like 'stage4a-acrylove-%'
+  and lower(brand.name) = 'acrylove';
+
 -- Ajusta secuencias serial/identity de las tablas restauradas.
 do $checkpoint$
 declare
@@ -251,15 +260,23 @@ select jsonb_build_object(
   'suppliers', (select count(*) from public.suppliers),
   'source_records', (select count(*) from public.catalog_source_records),
   'review_items', (select count(*) from public.catalog_review_work_items),
-  'acrylic_roles', (
+  'acrylic_internal_roles', (
     select count(*) from public.product_system_roles role
     join public.catalog_systems system on system.id = role.system_id
     where system.code = 'ACRYLIC' and role.decision_status = 'approved'
+      and role.product_id is not null
+  ),
+  'acrylic_reference_roles', (
+    select count(*) from public.product_system_roles role
+    join public.catalog_systems system on system.id = role.system_id
+    where system.code = 'ACRYLIC' and role.decision_status = 'approved'
+      and role.reference_product_id is not null
   )
 )::text;
 `);
 const reconstructed = JSON.parse(counts);
-if (reconstructed.products !== 1056 || reconstructed.variants !== 1578 || reconstructed.acrylic_roles !== 45) {
+if (reconstructed.products !== 1056 || reconstructed.variants !== 1578
+    || reconstructed.acrylic_internal_roles !== 45 || reconstructed.acrylic_reference_roles !== 2) {
   throw new Error(`Conteos reconstruidos inesperados: ${counts}`);
 }
 console.log(JSON.stringify({ checkpoint: "restored", sha256: digest, ...reconstructed }, null, 2));

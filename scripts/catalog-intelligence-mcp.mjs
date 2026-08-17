@@ -257,11 +257,20 @@ registerReadTool(server, "semantic_campaign_report", {
 
 registerReadTool(server, "semantic_checkpoint_report", {
   title: "Checkpoint Semantico Universal",
-  description: "Consulta contrato epistemologico, registros dirigidos por datos, violaciones y ultima certificacion; confirma que Etapa 4 sigue bloqueada.",
+  description: "Consulta contrato epistemologico, registros dirigidos por datos, violaciones y ultima certificacion; confirma que la certificacion no se autoautoriza aunque exista autorizacion humana externa.",
   inputSchema: {},
 }, async () => must(
   await database.rpc("get_catalog_semantic_checkpoint_report_v1"),
   "universal semantic checkpoint report",
+));
+
+registerReadTool(server, "stage4a_system_class_report", {
+  title: "Etapa 4A · Sistemas y Clases",
+  description: "Consulta el contrato universal sistema-etapa-rol-clase-requisito, su fixture real y el checkpoint intacto de 323 relaciones diferidas.",
+  inputSchema: {},
+}, async () => must(
+  await database.rpc("get_catalog_stage4a_report_v1"),
+  "stage4a universal system class report",
 ));
 
 registerReadTool(server, "research_report", {

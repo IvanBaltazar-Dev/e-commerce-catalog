@@ -14,7 +14,7 @@
 
 ## Corte local comprobado
 
-La última reconstrucción certificada aplicó las migraciones `0001`–`0112` y ejecutó 49 archivos con 1.152 comprobaciones pgTAP. El último conteo comercial explícito, medido al cierre de Etapa 2, fue 1.056 productos y 1.578 variantes; no se presenta como conteo vigente. El Universo de Referencia es un volumen independiente y cualquier decisión futura debe volver a medir ambos dominios.
+La última reconstrucción certificada aplicó las migraciones `0001`–`0113` y ejecutó 50 archivos con 1.186 comprobaciones pgTAP. El checkpoint restaurado contiene 1.056 productos y 1.578 variantes; el fixture 4A añade dos referencias oficiales no comerciales, nunca productos vendibles. El Universo de Referencia sigue siendo un volumen independiente y cualquier decisión futura debe volver a medir ambos dominios.
 
 ## Fuente de verdad y capas de trabajo
 
@@ -65,6 +65,8 @@ El primer vertical profundo es Sistema Acrílico. Modela proceso, etapas, clases
 - las brechas físicas permanecen fuera de las aristas afirmativas;
 - la proyección de grafo excluye precio y stock y es de solo lectura.
 
+`0113` formaliza el recorrido sistema→etapa→rol→clase→requisito/capacidad→producto o referencia. Acrílico valida 8 etapas, 16 clases, 16 puentes rol–clase, 8 requisitos y 8 secuencias. Tres requisitos y una transición permanecen en `NEEDS_EVIDENCE`; cuatro cadenas de fuente llegan solo hasta `DERIVED_INFERRED` y no producen hechos canónicos.
+
 Las colas de captura física y los candidatos oficiales deben consultarse en la base y en [research/catalog-master](../research/catalog-master/README.md), no copiarse a otra tabla manual.
 
 ## Flujo de investigación manual
@@ -81,4 +83,4 @@ Los estados manuales son `CAPTURADO`, `INVESTIGAR`, `LISTO_PARA_DECIDIR`, `APLIC
 
 ## Próximo foco
 
-El plan vigente es [Inteligencia de Catálogo Bellaroshé](plan-vivo-mcp-inteligencia-catalogo.md). Etapas 2 y 3 están cerradas; ADMISS cubre la primera campaña real marca + fuente, el reprocesamiento de Mesa y la ingesta epistemológica universal hasta `0112`. El 2026-08-17 se autorizó humanamente iniciar Etapa 4, que debe comenzar por sistemas y clases bajo las guardas certificadas. Resolver decisiones, publicar, fijar precio Bellaroshé o modificar inventario sigue fuera de MCP.
+El plan vigente es [Inteligencia de Catálogo Bellaroshé](plan-vivo-mcp-inteligencia-catalogo.md). Etapas 2 y 3 están cerradas y el contrato 4A de sistemas/clases quedó implementado en `0113`. El siguiente corte procesa de forma controlada —no masiva— las 323 relaciones históricas diferidas. Resolver decisiones, publicar, fijar precio Bellaroshé o modificar inventario sigue fuera de MCP.

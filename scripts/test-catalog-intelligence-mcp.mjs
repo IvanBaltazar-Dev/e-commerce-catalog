@@ -45,6 +45,7 @@ try {
     "review_reprocess_status",
     "semantic_campaign_report",
     "semantic_checkpoint_report",
+    "stage4a_system_class_report",
     "research_report",
     "graph_status",
   ];
@@ -64,7 +65,7 @@ try {
   // Pregunta integral de aceptación desde un cliente/proceso nuevo:
   // “¿Qué sabemos de ADMISS, qué cambió, qué coincide o contradice el catálogo,
   //  dónde están ZAC 314094 y AJO Y LIMON, qué falta revisar y cómo está el grafo?”
-  const [status, context, lastRun, zac, gaps, review, reprocess, semanticCheckpoint, graph] = await Promise.all([
+  const [status, context, lastRun, zac, gaps, review, reprocess, semanticCheckpoint, stage4a, graph] = await Promise.all([
     call("catalog_status"),
     call("brand_context", { brand: "ADMISS" }),
     call("last_research_run", { brand: "ADMISS" }),
@@ -73,6 +74,7 @@ try {
     call("review_cases", { brand: "ADMISS", status: "open", limit: 100 }),
     call("review_reprocess_status"),
     call("semantic_checkpoint_report"),
+    call("stage4a_system_class_report"),
     call("graph_status"),
   ]);
 
@@ -104,6 +106,11 @@ try {
       || semanticCheckpoint.latestCertification?.status !== "passed") {
     throw new Error(`Checkpoint semantico inesperado: ${JSON.stringify(semanticCheckpoint)}`);
   }
+  if (stage4a.stage4Authorized !== false
+      || stage4a.historicalRelations?.untouched !== 323
+      || stage4a.epistemic?.canonicalFactsCreated !== 0) {
+    throw new Error(`Reporte Stage 4A inesperado: ${JSON.stringify(stage4a)}`);
+  }
   if (reprocess.latestRun?.status !== "applied") {
     throw new Error("El MCP no recuperó el último reproceso aplicado de la Mesa.");
   }
@@ -125,6 +132,7 @@ try {
       openReviewCases: review.cases.length,
       reviewReprocess: reprocess,
       semanticCheckpoint,
+      stage4a,
       graph: graph.live,
     },
     dataSource: "PostgreSQL contracts + Neo4j live status",

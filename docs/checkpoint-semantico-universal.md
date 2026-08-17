@@ -52,7 +52,7 @@ Un claim fuente sólo pasa a `ASSERTED` si `catalog_claim_entailments` demuestra
 
 `0112_universal_semantic_ingestion_bridge.sql` conecta la ingesta 0109 con el contrato nuevo. Cada `catalog_observation_semantic_terms` activo materializa automáticamente una observación literal y un claim normalizado, cada uno con entailment, procedencia y regla versionada. En la campaña ADMISS esto representa 1.587 + 1.587 claims explicables, 72 reglas activas de la familia `NORMALIZATION` —80 reglas semánticas totales—, cero violaciones, cero hechos canónicos y cero trabajo de Mesa.
 
-Las baterías `0111` y `0112` contienen 85 + 30 pruebas adversariales. El conjunto completo queda en 49 archivos y 1.152 pruebas.
+Las baterías `0111` y `0112` contienen 85 + 30 pruebas adversariales. El contrato posterior `0113` conserva estas guardas y añade 34 pruebas; el conjunto certificado queda en 50 archivos y 1.186 pruebas.
 
 ## Lecturas operativas
 
@@ -67,3 +67,5 @@ Graph Projector `v2.6.0` proyecta dimensiones, reglas, tipos, claims, derivacion
 ## Barrera de salida
 
 La certificación verde demuestra calidad semántica universal, pero no se autoautoriza. La decisión permaneció fuera del motor y fue otorgada expresamente por el responsable humano el 2026-08-17. Autoriza comenzar Etapa 4 por sistemas y clases; no autoriza publicación comercial, canonización automática, expansión indiscriminada, producción ni omitir las guardas de escala humana.
+
+El primer consumidor de este checkpoint es [Etapa 4A](etapa-4a-modelo-universal-sistemas-clases.md). Sus cuatro cadenas reales terminan en `DERIVED_INFERRED`, crean cero hechos canónicos y mantienen `stage4Authorized=false`; por tanto `0113` no relaja ni reinterpreta el certificado histórico.

@@ -16,6 +16,7 @@ Este índice es la puerta de entrada a la documentación vigente. La auditoría 
 | [Etapa 3 · Reprocesamiento de la Mesa](etapa-3-reprocesamiento-mesa.md) | Evidencia, métricas y cierre reproducible de Etapa 3 | cambia el motor o se reabre la etapa |
 | [Guarda previa a Etapa 4 · Escala humana semántica](etapa-4-guarda-escala-humana-semantica.md) | Agrupación por regla, barrera de Mesa y curva sublineal de excepciones | cambia la escalación semántica o su gate |
 | [Checkpoint Semántico Universal](checkpoint-semantico-universal.md) | Epistemología, modelo dirigido por datos, contradicciones, entailment y certificación | cambia el contrato semántico universal |
+| [Etapa 4A · Modelo universal de sistemas y clases](etapa-4a-modelo-universal-sistemas-clases.md) | Sistema→etapa→rol→clase→requisito, fixture Acrílico, reporte y gate | cambia el contrato 4A o se inicia el reprocesamiento histórico |
 | [Auditoría específica de Etapa 1](etapa-1-auditoria-modelo.md) | Reutilización y cambios mínimos del modelo de conocimiento | cambia la frontera referencia/catálogo |
 | [Migraciones](../supabase/migrations/README.md) | Historial técnico del esquema | se agrega una migración |
 | [Investigación de catálogo](../research/catalog-master/README.md) | Pipeline, evidencia externa y trabajo manual | cambia el pipeline o su corte medido |

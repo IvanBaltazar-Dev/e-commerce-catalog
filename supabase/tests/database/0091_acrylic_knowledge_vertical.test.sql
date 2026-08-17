@@ -30,8 +30,8 @@ select is(
    from public.catalog_stages stage
    join public.catalog_systems system on system.id = stage.system_id
    where system.code = 'ACRYLIC' and stage.is_active),
-  7,
-  '6 · el flujo Acrílico tiene siete etapas explícitas'
+  8,
+  '6 · el flujo Acrílico tiene ocho etapas explícitas, incluido mantenimiento'
 );
 
 select is(
@@ -50,7 +50,8 @@ select is(
    from public.product_system_roles assignment
    join public.catalog_systems system on system.id = assignment.system_id
    where system.code = 'ACRYLIC'
-     and assignment.decision_status = 'approved'),
+     and assignment.decision_status = 'approved'
+     and assignment.product_id is not null),
   45,
   '8 · cuarenta y cinco productos ocupan un rol Acrílico demostrado'
 );
@@ -60,7 +61,8 @@ select is(
    from public.catalog_class_members membership
    join public.catalog_classes class on class.id = membership.class_id
    where class.code like 'ACRYLIC\_%' escape '\'
-     and membership.decision_status = 'approved'),
+     and membership.decision_status = 'approved'
+     and membership.product_id is not null),
   46,
   '9 · se materializan cuarenta y seis membresías de clase aprobadas'
 );
