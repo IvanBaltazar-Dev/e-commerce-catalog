@@ -1,9 +1,9 @@
 # Bellaroshé · Plan vivo de Inteligencia de Catálogo
 
-**Versión:** 1.6 · Etapa 4A universal `0113` cerrada
+**Versión:** 1.7 · Etapa 4B universal `0114` cerrada
 **Última actualización:** 2026-08-17
 **Fuente de verdad:** PostgreSQL/Supabase
-**Estado:** Etapas 0–3 y checkpoints previos completados; contrato 4A de sistemas/clases implementado; reprocesamiento de 323 relaciones pendiente
+**Estado:** Etapas 0–3, 4A y 4B completadas; 323 relaciones clasificadas en preview; contrato humano 4C en curso
 
 Este documento dirige la construcción de la Inteligencia de Catálogo Bellaroshé. MCP es un adaptador de acceso; no es el sistema ni contiene lógica de negocio exclusiva.
 
@@ -443,6 +443,14 @@ El fixture real Acrílico valida 8 etapas, 15 roles, 16 clases, 16 puentes rol�
 
 El gate reconstruyó 5.290 nodos y 7.545 aristas con Graph Projector `v2.7.0`, fingerprints iguales y cero divergencias. PostgreSQL pasó 50 archivos y 1.186 pruebas, seguridad/typecheck/lint, certificación 0111 y MCP 4A. Las 323 relaciones reales permanecen `untouched`, `analyzedThisCut=0`; su clasificación controlada es el siguiente corte. Evidencia completa en [Etapa 4A · Modelo universal de sistemas y clases](etapa-4a-modelo-universal-sistemas-clases.md).
 
+#### Etapa 4B · Reprocesamiento universal de relaciones
+
+`0114` implementa `snapshot → clasificación → preview inmutable → fingerprint → apply exacto` sobre las 323 candidatas reales. Quince perfiles de extremos y trece reglas compartidas recorren sujetos, membresías, clases, contexto, claims, autoridad, tipo de relación 0113 y resultado epistemológico; no hay decisiones manuales por fila.
+
+El primer preview produjo 99 `CLASS_MEMBERSHIP`, 68 `CLASS_RELATION`, 60 `NEEDS_EVIDENCE` y 96 `REJECTED`. Los 68 pares de relación se comprimen en 9 firmas de clase y se proponen 88 membresías distintas. No se certificó ningún par producto–producto porque la cohorte no conserva evidencia explícita suficiente; eso no equivale a negar su existencia futura.
+
+El corte permanece en preview: 323 candidatas aún diferidas, 0 canonizaciones, 0 trabajos humanos por candidata y 0 efectos comerciales. PostgreSQL pasó 51 archivos/1.216 pruebas; seguridad, tipos, lint, MCP 4B y Graph Projector `v2.7.0` pasaron sin drift. Evidencia completa en [Etapa 4B · Reprocesamiento universal de relaciones](etapa-4b-reprocesamiento-universal-relaciones.md).
+
 ### Etapa 5 · Comando único
 
 Una campaña manual desde Codex investiga desde la última ejecución, reaudita, conserva historia, deja solo excepciones reales, sincroniza el grafo y presenta productos nuevos listos para decisión comercial humana.
@@ -578,7 +586,7 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 - [x] Validar productos y referencias con el vertical real Acrílico sin efectos comerciales.
 - [x] Mantener pertenencia/función separadas de compatibilidad y preservar la cadena epistemológica.
 - [x] Publicar reporte/gate/MCP 4A y proyectar Graph Projector `v2.7.0` sin drift.
-- [ ] Reprocesar controladamente las 323 relaciones históricas y medir cuántas suben a clases.
+- [x] Reprocesar controladamente las 323 relaciones históricas y medir cuántas suben a clases.
 - [ ] Obtener casos reales de al menos tres tipos de problema humano antes de diseñar frontend.
 - [ ] Escalar conocimiento a otros sistemas y marcas después del gate del reprocesamiento.
 - [ ] Implementar comando único y reporte comercial.
@@ -602,3 +610,4 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 | 2026-08-12 | Ingesta universal cerrada | 1.587 observaciones literales + 1.587 claims ADMISS normalizados con entailment, 72 reglas `NORMALIZATION` activas, cero canonizaciones y cero Mesa; todo enlace futuro entra por trigger fail-closed |
 | 2026-08-17 | Etapa 4 autorizada | Autorización humana expresa para iniciar por sistemas y clases bajo `0110`–`0112`; no habilita publicación, canonización automática, expansión indiscriminada ni producción |
 | 2026-08-17 | Etapa 4A cerrada | Contrato universal `0113`, fixture Acrílico, 8 requisitos/8 secuencias, referencias no comerciales, 0 canonizaciones, 323 relaciones intactas, 1.186 pgTAP y Graph Projector `v2.7.0` sin drift |
+| 2026-08-17 | Etapa 4B cerrada | Motor universal `0114`, preview/fingerprint de 323 relaciones, 167 pares expresables por clases, 68 pares condensados en 9 reglas, 0 canonizaciones, 1.216 pgTAP y MCP/grafo sin drift |

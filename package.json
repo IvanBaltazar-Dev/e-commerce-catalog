@@ -82,6 +82,7 @@
     "mcp:catalog-intelligence": "node --experimental-transform-types scripts/catalog-intelligence-mcp.mjs --env .env.supabase.local",
     "test:mcp:catalog-intelligence": "node scripts/test-catalog-intelligence-mcp.mjs",
     "test:mcp:stage4a": "node scripts/test-stage4a-mcp-report.mjs",
+    "test:mcp:stage4b": "node scripts/test-stage4b-mcp-report.mjs",
     "test:stage2:admiss": "node scripts/test-stage2-admiss-acceptance.mjs --env .env.supabase.local",
     "review:reprocess": "node scripts/catalog-review-reprocess.mjs --env .env.supabase.local",
     "test:review-reprocess": "node scripts/test-catalog-review-reprocess.mjs --env .env.supabase.local",
@@ -89,7 +90,9 @@
     "test:semantic-normalizer": "node scripts/test-official-semantic-normalizer.mjs",
     "gate:semantic-human-scale": "node scripts/gate-semantic-human-scale.mjs --env .env.supabase.local",
     "gate:semantic-certification": "node scripts/gate-semantic-certification.mjs --env .env.supabase.local",
-    "gate:stage4a": "node --experimental-transform-types scripts/gate-stage4a-system-class.mjs --env .env.supabase.local"
+    "gate:stage4a": "node --experimental-transform-types scripts/gate-stage4a-system-class.mjs --env .env.supabase.local",
+    "relation:reprocess": "node scripts/catalog-relation-reprocess.mjs --env .env.supabase.local",
+    "gate:stage4b": "node --experimental-transform-types scripts/gate-stage4b-reprocess.mjs --env .env.supabase.local"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",

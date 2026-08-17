@@ -273,6 +273,15 @@ registerReadTool(server, "stage4a_system_class_report", {
   "stage4a universal system class report",
 ));
 
+registerReadTool(server, "stage4b_relation_reprocess_report", {
+  title: "Etapa 4B · Reprocesamiento Universal de Relaciones",
+  description: "Consulta la clasificacion explicable de las 323 relaciones, la compresion clase vs par directo y las guardas de preview/fingerprint sin promover conocimiento.",
+  inputSchema: {},
+}, async () => must(
+  await database.rpc("get_catalog_relation_reprocess_report_v1"),
+  "stage4b universal relation reprocess report",
+));
+
 registerReadTool(server, "research_report", {
   title: "Informe de Investigación",
   description: "Devuelve el informe agregado y trazable de una marca desde contratos PostgreSQL.",
