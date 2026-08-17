@@ -1,9 +1,9 @@
 # Bellaroshé · Plan vivo de Inteligencia de Catálogo
 
-**Versión:** 1.7 · Etapa 4B universal `0114` cerrada
+**Versión:** 1.8 · Etapa 4C y contrato humano `0115` cerrados
 **Última actualización:** 2026-08-17
 **Fuente de verdad:** PostgreSQL/Supabase
-**Estado:** Etapas 0–3, 4A y 4B completadas; 323 relaciones clasificadas en preview; contrato humano 4C en curso
+**Estado:** Etapas 0–3 y 4A–4C completadas; detenerse antes de producto/UX y frontend
 
 Este documento dirige la construcción de la Inteligencia de Catálogo Bellaroshé. MCP es un adaptador de acceso; no es el sistema ni contiene lógica de negocio exclusiva.
 
@@ -451,6 +451,16 @@ El primer preview produjo 99 `CLASS_MEMBERSHIP`, 68 `CLASS_RELATION`, 60 `NEEDS_
 
 El corte permanece en preview: 323 candidatas aún diferidas, 0 canonizaciones, 0 trabajos humanos por candidata y 0 efectos comerciales. PostgreSQL pasó 51 archivos/1.216 pruebas; seguridad, tipos, lint, MCP 4B y Graph Projector `v2.7.0` pasaron sin drift. Evidencia completa en [Etapa 4B · Reprocesamiento universal de relaciones](etapa-4b-reprocesamiento-universal-relaciones.md).
 
+#### Etapa 4C · Casos humanos y contrato de decisión
+
+`0115` transforma el preview 4B en un read model explicado por backend. Las 263 detecciones que requieren criterio material se agrupan por causa compartida en 18 decisiones: 9 `CLASS_RULE_PROMOTION` sobre 68 relaciones, 5 `ENDPOINT_SCOPE_RECLASSIFICATION` sobre 99 y 4 `FALSE_PAIR_RETIREMENT` sobre 96. Las 60 `NEEDS_EVIDENCE` permanecen como deuda automática y no crean trabajo humano.
+
+Cada decisión entrega identidad, título, resumen comercial, hallazgo, motivo de intervención humana, recomendación, afectados, evidencia, impacto, acciones y fingerprint. La cola es paginada y MCP expone reporte y decisiones como solo lectura. React no interpreta `rule_code`; tampoco existe apply en este corte. La agrupación evita el 93,16 % de revisión individual, conserva las 323 candidatas diferidas y produce 0 canonizaciones, 0 trabajos por candidata y 0 efectos comerciales.
+
+La reconstrucción `0001`–`0115` pasó 52 archivos/1.246 pruebas pgTAP, seguridad, tipos, lint de aplicación, gates/MCP 4B–4C y Graph Projector `v2.7.0` sin drift. El contrato tiene huella `b57afd01bff2aaba3973300a5fc480c6f968a5e56dbed2932c90cf4494cd2917`. Evidencia completa en [Etapa 4C · Casos humanos y contrato de decisión](etapa-4c-casos-humanos-contrato-decision.md).
+
+**STOP:** no diseñar ni implementar frontend todavía. El próximo paso exige una decisión explícita de producto/UX sobre la experiencia humana; publicar productos, fijar precio Bellaroshé, modificar inventario, canonizar automáticamente, investigar marcas en masa, usar GraphRAG o desplegar producción continúa fuera de alcance.
+
 ### Etapa 5 · Comando único
 
 Una campaña manual desde Codex investiga desde la última ejecución, reaudita, conserva historia, deja solo excepciones reales, sincroniza el grafo y presenta productos nuevos listos para decisión comercial humana.
@@ -587,7 +597,9 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 - [x] Mantener pertenencia/función separadas de compatibilidad y preservar la cadena epistemológica.
 - [x] Publicar reporte/gate/MCP 4A y proyectar Graph Projector `v2.7.0` sin drift.
 - [x] Reprocesar controladamente las 323 relaciones históricas y medir cuántas suben a clases.
-- [ ] Obtener casos reales de al menos tres tipos de problema humano antes de diseñar frontend.
+- [x] Obtener casos reales de al menos tres tipos de problema humano antes de diseñar frontend.
+- [x] Entregar el read model agrupado con explicación, evidencia, impacto y acciones resueltas por backend.
+- [x] Certificar que React no interpreta reglas y detener el avance antes de producto/UX y frontend.
 - [ ] Escalar conocimiento a otros sistemas y marcas después del gate del reprocesamiento.
 - [ ] Implementar comando único y reporte comercial.
 
@@ -611,3 +623,4 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 | 2026-08-17 | Etapa 4 autorizada | Autorización humana expresa para iniciar por sistemas y clases bajo `0110`–`0112`; no habilita publicación, canonización automática, expansión indiscriminada ni producción |
 | 2026-08-17 | Etapa 4A cerrada | Contrato universal `0113`, fixture Acrílico, 8 requisitos/8 secuencias, referencias no comerciales, 0 canonizaciones, 323 relaciones intactas, 1.186 pgTAP y Graph Projector `v2.7.0` sin drift |
 | 2026-08-17 | Etapa 4B cerrada | Motor universal `0114`, preview/fingerprint de 323 relaciones, 167 pares expresables por clases, 68 pares condensados en 9 reglas, 0 canonizaciones, 1.216 pgTAP y MCP/grafo sin drift |
+| 2026-08-17 | Etapa 4C cerrada | Read model `0115`, 18 decisiones en 3 familias sobre 263 detecciones, 60 deudas automáticas excluidas, 93,16 % de revisión individual evitada, 1.246 pgTAP y STOP antes de producto/UX/frontend |

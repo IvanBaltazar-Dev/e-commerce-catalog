@@ -282,6 +282,30 @@ registerReadTool(server, "stage4b_relation_reprocess_report", {
   "stage4b universal relation reprocess report",
 ));
 
+registerReadTool(server, "stage4c_decision_report", {
+  title: "Etapa 4C · Contrato de Decisiones",
+  description: "Reporta familias reales, decisiones agrupadas, reducción de revisión individual y guardas comerciales del read model.",
+  inputSchema: {},
+}, async () => must(
+  await database.rpc("get_catalog_stage4c_report_v1"),
+  "stage4c decision report",
+));
+
+registerReadTool(server, "stage4c_decision_queue", {
+  title: "Etapa 4C · Cola de Decisiones Agrupadas",
+  description: "Devuelve casos listos para frontend con explicación, recomendación, afectados, evidencia, impacto y acciones; no aplica decisiones.",
+  inputSchema: {
+    limit: z.number().int().min(1).max(100).default(50),
+    offset: z.number().int().min(0).default(0),
+  },
+}, async ({ limit, offset }) => must(
+  await database.rpc("get_catalog_decision_queue_v1", {
+    p_limit: limit,
+    p_offset: offset,
+  }),
+  "stage4c decision queue",
+));
+
 registerReadTool(server, "research_report", {
   title: "Informe de Investigación",
   description: "Devuelve el informe agregado y trazable de una marca desde contratos PostgreSQL.",

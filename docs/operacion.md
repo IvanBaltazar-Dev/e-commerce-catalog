@@ -63,7 +63,7 @@ npm run test:db
 npm run audit:security
 ```
 
-El checkpoint semántico base llega hasta `0112`, el contrato funcional 4A hasta `0113` y el reprocesamiento universal 4B hasta `0114`. La última certificación reconstruyó 51 archivos y 1.216 pruebas pgTAP: claims de fuente, agregación, epistemología universal, ingesta fail-closed, sistema→etapa→rol→clase→requisito y preview inmutable de 323 relaciones. La autorización humana de Etapa 4 no reemplaza esta certificación ni permite omitir gates.
+El checkpoint semántico base llega hasta `0112`, el contrato funcional 4A hasta `0113`, el reprocesamiento universal 4B hasta `0114` y el read model humano 4C hasta `0115`. La última certificación reconstruyó 52 archivos y 1.246 pruebas pgTAP: claims de fuente, agregación, epistemología universal, ingesta fail-closed, sistema→etapa→rol→clase→requisito, preview inmutable de 323 relaciones y 18 decisiones agrupadas. La autorización humana de Etapa 4 no reemplaza esta certificación ni permite omitir gates.
 
 Gates especializados:
 
@@ -84,6 +84,8 @@ Gates especializados:
 | `npm run relation:reprocess -- preview <clave> 323` | congela y clasifica las 323 relaciones sin mutar la cohorte fuente |
 | `npm run gate:stage4b` | cobertura completa, compresión clase/par, fingerprints, guardas epistémicas y paridad del grafo |
 | `npm run test:mcp:stage4b` | reporte MCP 4B de solo lectura con 323 resultados y cero promoción |
+| `npm run gate:stage4c` | tres familias reales, agrupación por causa, contrato de decisión, guardas comerciales y paridad del grafo |
+| `npm run test:mcp:stage4c` | reporte y cola MCP 4C de solo lectura; React no interpreta reglas |
 | `npm run test:catalog-review-rerun` | reprocesamiento idempotente de la Mesa |
 | `npm run test:review-reprocess` | rerun nulo, fingerprint lógico y guardas de tablas comerciales |
 | `npm run test:venta` | pagos, concurrencia, venta y nota |
