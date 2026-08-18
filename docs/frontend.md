@@ -100,3 +100,40 @@ Venta, analítica, campañas y compras no se mezclan en la misma superficie.
 ## Decisión abierta localizada
 
 El origen de una reserva ya se conserva desde `0047_conversion_attribution.sql`, pero su lectura para vendedoras requiere un contrato estrecho o una política adicional. La recomendación es mostrarlo en Reservas porque ayuda a atender y no revela costo o margen; debe cerrarse junto con esa pantalla.
+
+## Navegación: de la barra superior al panel lateral
+
+La barra superior está en su último tramo: la navegación pasa a un panel
+lateral. Lo que se sustituye es la barra, no la arquitectura de información que
+la barra descubrió. Antes de tocar nada conviene separar las dos cosas.
+
+Lo que debe sobrevivir a la mudanza, porque ya está resuelto y costó resolverlo:
+
+- **Los ocho dominios y sus entradas.** Hoy viven en `AREAS`, dentro de
+  `src/components/admin/Topbar.tsx`. Son información, no presentación: el panel
+  lateral debería leerlos del mismo sitio en vez de copiarlos. Extraerlos a un
+  módulo compartido es el primer paso natural del rediseño.
+- **El recorte por rol.** `areasVisibles` esconde las entradas que la vendedora
+  no puede usar y, además, oculta el área entera cuando se queda sin entradas.
+  Un dominio vacío no debe aparecer como un elemento muerto en el lateral.
+- **La carga bajo intención.** Todos los enlaces usan `prefetch={false}` y solo
+  precargan al pasar el puntero o recibir foco. Es lo que evita que abrir el
+  panel cargue las ocho áreas de golpe; `npm run test:admin-nav` lo vigila y la
+  regresión de la Mesa cuenta las cargas no solicitadas. Un lateral siempre
+  visible tiene más superficie de contacto que una barra, así que este cuidado
+  importa más, no menos.
+- **El segundo nivel condicional.** La subbarra solo aparece cuando el área
+  tiene dónde profundizar. En un lateral eso se traduce en no desplegar un
+  dominio de una sola pantalla.
+- **El estado activo derivado de la ruta**, no de un clic recordado.
+
+Lo que conviene resolver de paso, ya identificado:
+
+- `/admin/estructura` y `/admin/importaciones` son redirecciones disfrazadas de
+  pantalla. Al rehacer la navegación toca decidir si desaparecen o si la
+  redirección se vuelve explícita.
+- El móvil es el punto de partida, no una adaptación posterior: ninguna pantalla
+  se aprueba con una ventana estrecha, hay que emular dispositivo.
+
+Mientras tanto, no se invierte en la barra superior: se mantiene funcionando y
+no se le añaden capacidades que habría que rehacer.

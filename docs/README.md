@@ -19,6 +19,8 @@ Este índice es la puerta de entrada a la documentación vigente. La auditoría 
 | [Etapa 4A · Modelo universal de sistemas y clases](etapa-4a-modelo-universal-sistemas-clases.md) | Sistema→etapa→rol→clase→requisito, fixture Acrílico, reporte y gate | cambia el contrato 4A o se inicia el reprocesamiento histórico |
 | [Etapa 4G · Expansión controlada de sistemas](etapa-4g-expansion-controlada-sistemas.md) | Manifiestos universales, guardas epistémicas, pilotos Gel/Pestañas y gate | cambia la expansión de conocimiento o sus manifiestos aprobados |
 | [Etapa 5 · Campaña unificada](etapa-5-comando-unico.md) | Comando único, delta, preparación comercial, auditoría y reporte para la propietaria | cambia la orquestación de campañas o su frontera comercial |
+| [Etapa 6 · Compuerta de necesidad](etapa-6-compuerta-necesidad.md) | Qué llega a la Mesa y por qué, relevancia comercial y sujeto de cada pregunta | cambia un veredicto de la compuerta o su efecto medido |
+| [Mapa de funciones sin sentido](mapa-funciones-sin-sentido.md) | Funciones que producen trabajo sin significado, con evidencia y qué hacer con cada una | se corrige una de ellas en origen o aparece otra |
 | [Auditoría específica de Etapa 1](etapa-1-auditoria-modelo.md) | Reutilización y cambios mínimos del modelo de conocimiento | cambia la frontera referencia/catálogo |
 | [Migraciones](../supabase/migrations/README.md) | Historial técnico del esquema | se agrega una migración |
 | [Investigación de catálogo](../research/catalog-master/README.md) | Pipeline, evidencia externa y trabajo manual | cambia el pipeline o su corte medido |
