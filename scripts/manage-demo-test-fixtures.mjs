@@ -29,20 +29,44 @@ if (mode === "load") {
   // omnicanal moría al convertir el carrito en reserva —el carrito público usa
   // esa sede, no las que las integrales crean para sí—. El fixture tiene que
   // reponer lo que el checkpoint daba, o no es el mismo punto de partida.
+  // El inventario entra por el motor, nunca por un insert directo: cada unidad
+  // deja su asiento en el kardex y su valoración. Una fila de existencias sin
+  // movimiento que la explique rompe el invariante que 0028 comprueba fila a
+  // fila —el saldo del kardex tiene que coincidir con inventory_stock siempre—.
   psql(`
 begin;
-insert into public.inventory_stock (variant_id, branch_id, on_hand)
-select variant.id, branch.id, 100
-from public.product_variants variant
-join public.products product on product.id = variant.product_id
-left join public.brands brand on brand.id = product.brand_id
-cross join lateral (
-  select id from public.branches where is_default limit 1
-) as branch
-where product.code like 'DEMO-%' or product.slug like 'demo-%' or brand.slug = 'demo-professional'
-on conflict (variant_id, branch_id) do update
-  set on_hand = greatest(public.inventory_stock.on_hand, excluded.on_hand),
-      updated_at = now();
+do $fixture_stock$
+declare
+  default_branch uuid;
+  fixture_variant uuid;
+begin
+  select id into default_branch from public.branches where is_default limit 1;
+  if default_branch is null then
+    raise exception 'No hay sede por defecto donde reponer los fixtures DEMO.';
+  end if;
+
+  -- Solo las dos variantes que las integrales consumen. Las demás tienen que
+  -- seguir sin existencias: 0028 las eligió justamente porque ningún seed las
+  -- toca, y la disponibilidad efectiva agrega sobre todas las sedes, así que
+  -- una unidad sembrada aquí haría que nunca salgan agotadas.
+  for fixture_variant in
+    select variant.id
+    from public.product_variants variant
+    where variant.sku in ('DEMO-ESM-ROJO', 'DEMO-ESM-NUDE')
+  loop
+    if coalesce((
+      select stock.on_hand from public.inventory_stock stock
+      where stock.variant_id = fixture_variant and stock.branch_id = default_branch
+    ), 0) < 100 then
+      perform public.apply_inventory_movement(
+        fixture_variant, default_branch, 'receipt', 100, 10.00,
+        'test_fixture', null, 'seed:test-catalog',
+        'Existencias de fixture DEMO para las pruebas integrales', null
+      );
+    end if;
+  end loop;
+end;
+$fixture_stock$;
 commit;
 `);
   console.log("Fixtures DEMO cargados temporalmente para pruebas, con existencias en la sede por defecto.");
