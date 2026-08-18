@@ -218,19 +218,13 @@ for (const item of pending) {
     "medio con el mismo contenido"
   );
 
-  if (twin && twin.id !== existingAsset?.id) {
-    // El medio fantasma que tenía esta variante deja de ser su principal. NO se
-    // borra: se desvincula y se anota para que el carril B lo cierre con causa.
-    // Un archivo que se queda sin dueño es un problema con nombre; borrarlo
-    // sería un problema sin nombre.
-    if (existingAsset) {
-      must(
-        await service.from("product_media").delete()
-          .eq("variant_id", item.variant_id).eq("media_asset_id", existingAsset.id),
-        "desvincular el fantasma sustituido"
-      );
-    }
-
+  // La identidad editorial manda sobre el contenido. Si esta variante ya tiene
+  // su medio principal declarado, se recupera ESE, aunque exista otro archivo
+  // con los mismos bytes: el otro puede ser el rastro de una corrida anterior
+  // que no llegó a terminar, y confundirlo con «otra variante comparte esta
+  // imagen» deja a la variante apuntando a un artefacto y a su medio de verdad
+  // sin dueño. Solo se comparte cuando la variante no tiene medio propio.
+  if (twin && !existingAsset) {
     must(
       await service.from("product_media").insert({
         media_asset_id: twin.id, variant_id: item.variant_id,
@@ -246,8 +240,6 @@ for (const item of pending) {
       provenance: {
         ...item.provenance,
         compartidoCon: twin.storage_path,
-        fantasmaSustituido: existingAsset?.id ?? null,
-        requiereCierreEnCarrilB: Boolean(existingAsset),
         fetchedAt: new Date().toISOString(),
       },
     });
