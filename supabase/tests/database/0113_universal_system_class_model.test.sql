@@ -27,11 +27,21 @@ select is((select count(*) from public.catalog_stages stage
   where system.code='ACRYLIC' and stage.code in
     ('PREPARATION','CONSTRUCTION','FINISHING','MAINTENANCE','REMOVAL')),5::bigint,
   '11 - Acrylic covers the five required macro phases');
-select is((select count(*) from public.catalog_system_stage_role_classes),16::bigint,
+select is((select count(*) from public.catalog_system_stage_role_classes bridge
+  join public.catalog_system_stage_roles expectation on expectation.id=bridge.system_stage_role_id
+  join public.catalog_systems system on system.id=expectation.system_id
+  where system.code='ACRYLIC'),16::bigint,
   '12 - Acrylic roles are covered by multiple classes');
-select is((select count(*) from public.catalog_class_requirements),8::bigint,
+select is((select count(*) from public.catalog_class_requirements requirement
+  join public.catalog_system_stage_role_classes bridge
+    on bridge.id=requirement.system_stage_role_class_id
+  join public.catalog_system_stage_roles expectation on expectation.id=bridge.system_stage_role_id
+  join public.catalog_systems system on system.id=expectation.system_id
+  where system.code='ACRYLIC'),8::bigint,
   '13 - real requirements are persisted');
-select is((select count(*) from public.catalog_stage_transitions),8::bigint,
+select is((select count(*) from public.catalog_stage_transitions transition
+  join public.catalog_systems system on system.id=transition.system_id
+  where system.code='ACRYLIC'),8::bigint,
   '14 - real process sequences and branches are persisted');
 
 select is((select count(*) from public.catalog_semantic_claims
@@ -49,11 +59,16 @@ select is((select count(*) from public.catalog_semantic_claims
 select is((select count(*) from public.catalog_semantic_claims
   where claim_key like 'stage4a:%' and epistemic_class='CANONICAL_FACT'),0::bigint,
   '18 - Stage 4A creates no automatic canonical facts');
-select is((select count(*) from public.catalog_class_requirements
-  where epistemic_state='NEEDS_EVIDENCE'),3::bigint,
+select is((select count(*) from public.catalog_class_requirements requirement
+  join public.catalog_system_stage_role_classes bridge
+    on bridge.id=requirement.system_stage_role_class_id
+  join public.catalog_system_stage_roles expectation on expectation.id=bridge.system_stage_role_id
+  join public.catalog_systems system on system.id=expectation.system_id
+  where system.code='ACRYLIC' and requirement.epistemic_state='NEEDS_EVIDENCE'),3::bigint,
   '19 - three requirement gaps remain explicit');
-select is((select count(*) from public.catalog_stage_transitions
-  where epistemic_state='NEEDS_EVIDENCE'),1::bigint,
+select is((select count(*) from public.catalog_stage_transitions transition
+  join public.catalog_systems system on system.id=transition.system_id
+  where system.code='ACRYLIC' and transition.epistemic_state='NEEDS_EVIDENCE'),1::bigint,
   '20 - an unsupported lifecycle transition remains pending');
 
 select is((select count(distinct reference_product_id) from public.product_system_roles
@@ -75,11 +90,19 @@ select is((public.get_catalog_stage4a_report_v1()->'historicalRelations'->>'anal
 select is((public.get_catalog_stage4a_report_v1()->'guards'->>'humanReviewPerProductGenerated')::integer,0,
   '27 - no artificial human review per product is generated');
 
-select is((select count(*) from public.graph_system_class_contract_nodes_v1
-  where node_type='requirement'),8::bigint,
+select is((select count(*) from public.graph_system_class_contract_nodes_v1 node
+  join public.catalog_class_requirements requirement on requirement.id=node.entity_id
+  join public.catalog_system_stage_role_classes bridge
+    on bridge.id=requirement.system_stage_role_class_id
+  join public.catalog_system_stage_roles expectation on expectation.id=bridge.system_stage_role_id
+  join public.catalog_systems system on system.id=expectation.system_id
+  where node.node_type='requirement' and system.code='ACRYLIC'),8::bigint,
   '28 - graph projects requirement nodes from PostgreSQL');
-select is((select count(*) from public.graph_system_class_contract_edges_v1
-  where predicate='PRECEDES'),8::bigint,
+select is((select count(*) from public.graph_system_class_contract_edges_v1 edge
+  join public.catalog_stage_transitions transition
+    on edge.edge_key='stage-transition:'||transition.id::text
+  join public.catalog_systems system on system.id=transition.system_id
+  where edge.predicate='PRECEDES' and system.code='ACRYLIC'),8::bigint,
   '29 - graph projects process sequences from PostgreSQL');
 select is((select count(*) from public.graph_system_class_contract_nodes_v1
   where layer='canonical' and node_type='requirement'),0::bigint,

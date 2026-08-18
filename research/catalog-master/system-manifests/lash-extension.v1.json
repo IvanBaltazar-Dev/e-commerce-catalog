@@ -1,0 +1,270 @@
+{
+  "manifestKey": "lash-extension-controlled-v1",
+  "manifestVersion": 1,
+  "system": {
+    "domain": "LASHES",
+    "code": "LASH_EXTENSION",
+    "name": "Sistema de extensión de pestañas",
+    "description": "Estructura propuesta para preparación, aplicación, acabado y retiro. Requiere evidencia técnica antes de aprobarse.",
+    "sortOrder": 300,
+    "metadata": {
+      "sourceScope": "historic_relation_decisions",
+      "evidenceStatus": "pending_technical_source"
+    }
+  },
+  "stages": [
+    {
+      "code": "PREPARATION",
+      "name": "Preparación",
+      "position": 10,
+      "description": "Preparación previa propuesta para el servicio."
+    },
+    {
+      "code": "APPLICATION",
+      "name": "Aplicación",
+      "position": 20,
+      "description": "Etapa propuesta para aplicar la extensión."
+    },
+    {
+      "code": "FINISHING",
+      "name": "Acabado",
+      "position": 30,
+      "description": "Revisión y acabado propuestos."
+    },
+    {
+      "code": "REMOVAL",
+      "name": "Retiro",
+      "position": 40,
+      "description": "Retiro del sistema cuando corresponda."
+    }
+  ],
+  "roles": [
+    {
+      "code": "LASH_PREPARATION_AGENT",
+      "name": "Preparador para pestañas",
+      "kind": "preparation",
+      "description": "Función de preparación pendiente de confirmar con ficha técnica."
+    },
+    {
+      "code": "LASH_EXTENSION_FIBER",
+      "name": "Extensión de pestañas",
+      "kind": "component",
+      "description": "Componente de extensión pendiente de clasificación por producto."
+    },
+    {
+      "code": "LASH_EXTENSION_ADHESIVE",
+      "name": "Adhesivo para extensión de pestañas",
+      "kind": "adhesion",
+      "description": "Función de adhesión cuya aplicabilidad requiere evidencia explícita."
+    },
+    {
+      "code": "LASH_FINISHING_TOOL",
+      "name": "Herramienta de acabado para pestañas",
+      "kind": "tool",
+      "description": "Función de acabado pendiente de confirmar."
+    },
+    {
+      "code": "LASH_REMOVAL_PRODUCT",
+      "name": "Removedor para extensión de pestañas",
+      "kind": "care",
+      "description": "Función de retiro cuya aplicabilidad requiere evidencia explícita."
+    }
+  ],
+  "classes": [
+    {
+      "code": "LASH_PREPARATION_PRODUCTS",
+      "name": "Productos de preparación para pestañas",
+      "scope": "product",
+      "description": "Clase propuesta; todavía no contiene productos."
+    },
+    {
+      "code": "LASH_EXTENSION_PRODUCTS",
+      "name": "Extensiones de pestañas",
+      "scope": "product",
+      "description": "Clase propuesta; todavía no contiene productos."
+    },
+    {
+      "code": "LASH_EXTENSION_ADHESIVES",
+      "name": "Adhesivos para extensión de pestañas",
+      "scope": "product",
+      "description": "Clase propuesta; la pertenencia no demuestra compatibilidad."
+    },
+    {
+      "code": "LASH_FINISHING_TOOLS",
+      "name": "Herramientas de acabado para pestañas",
+      "scope": "product",
+      "description": "Clase propuesta; todavía no contiene productos."
+    },
+    {
+      "code": "LASH_REMOVAL_PRODUCTS",
+      "name": "Removedores para extensión de pestañas",
+      "scope": "product",
+      "description": "Clase propuesta; la aplicabilidad debe confirmarse."
+    }
+  ],
+  "expectations": [
+    {
+      "stageCode": "PREPARATION",
+      "roleCode": "LASH_PREPARATION_AGENT",
+      "necessity": "optional",
+      "minimumSelections": 0,
+      "maximumSelections": 1
+    },
+    {
+      "stageCode": "APPLICATION",
+      "roleCode": "LASH_EXTENSION_FIBER",
+      "necessity": "required",
+      "minimumSelections": 1,
+      "maximumSelections": 1
+    },
+    {
+      "stageCode": "APPLICATION",
+      "roleCode": "LASH_EXTENSION_ADHESIVE",
+      "necessity": "recommended",
+      "minimumSelections": 0,
+      "maximumSelections": 1
+    },
+    {
+      "stageCode": "FINISHING",
+      "roleCode": "LASH_FINISHING_TOOL",
+      "necessity": "optional",
+      "minimumSelections": 0,
+      "maximumSelections": 1
+    },
+    {
+      "stageCode": "REMOVAL",
+      "roleCode": "LASH_REMOVAL_PRODUCT",
+      "necessity": "optional",
+      "minimumSelections": 0,
+      "maximumSelections": 1
+    }
+  ],
+  "roleClasses": [
+    {
+      "stageCode": "PREPARATION",
+      "roleCode": "LASH_PREPARATION_AGENT",
+      "classCode": "LASH_PREPARATION_PRODUCTS",
+      "coverageKind": "covers_role"
+    },
+    {
+      "stageCode": "APPLICATION",
+      "roleCode": "LASH_EXTENSION_FIBER",
+      "classCode": "LASH_EXTENSION_PRODUCTS",
+      "coverageKind": "covers_role"
+    },
+    {
+      "stageCode": "APPLICATION",
+      "roleCode": "LASH_EXTENSION_ADHESIVE",
+      "classCode": "LASH_EXTENSION_ADHESIVES",
+      "coverageKind": "supporting_coverage"
+    },
+    {
+      "stageCode": "FINISHING",
+      "roleCode": "LASH_FINISHING_TOOL",
+      "classCode": "LASH_FINISHING_TOOLS",
+      "coverageKind": "covers_role"
+    },
+    {
+      "stageCode": "REMOVAL",
+      "roleCode": "LASH_REMOVAL_PRODUCT",
+      "classCode": "LASH_REMOVAL_PRODUCTS",
+      "coverageKind": "covers_role"
+    }
+  ],
+  "requirements": [
+    {
+      "stageCode": "PREPARATION",
+      "roleCode": "LASH_PREPARATION_AGENT",
+      "classCode": "LASH_PREPARATION_PRODUCTS",
+      "code": "CONFIRM_DECLARED_FUNCTION",
+      "name": "Confirmar la función declarada",
+      "kind": "EVIDENCE",
+      "necessity": "required",
+      "value": { "requiredSource": "official_technical_record" }
+    },
+    {
+      "stageCode": "APPLICATION",
+      "roleCode": "LASH_EXTENSION_FIBER",
+      "classCode": "LASH_EXTENSION_PRODUCTS",
+      "code": "CONFIRM_PRODUCT_TYPE",
+      "name": "Confirmar el tipo de producto",
+      "kind": "EVIDENCE",
+      "necessity": "required",
+      "value": { "requiredSource": "official_technical_record" }
+    },
+    {
+      "stageCode": "APPLICATION",
+      "roleCode": "LASH_EXTENSION_ADHESIVE",
+      "classCode": "LASH_EXTENSION_ADHESIVES",
+      "code": "CONFIRM_EXPLICIT_APPLICABILITY",
+      "name": "Confirmar para qué extensiones aplica",
+      "kind": "COMPATIBILITY",
+      "necessity": "required",
+      "value": { "requiresExplicitPair": true }
+    },
+    {
+      "stageCode": "FINISHING",
+      "roleCode": "LASH_FINISHING_TOOL",
+      "classCode": "LASH_FINISHING_TOOLS",
+      "code": "CONFIRM_DECLARED_FUNCTION",
+      "name": "Confirmar la función declarada",
+      "kind": "EVIDENCE",
+      "necessity": "required",
+      "value": { "requiredSource": "official_technical_record" }
+    },
+    {
+      "stageCode": "REMOVAL",
+      "roleCode": "LASH_REMOVAL_PRODUCT",
+      "classCode": "LASH_REMOVAL_PRODUCTS",
+      "code": "CONFIRM_EXPLICIT_APPLICABILITY",
+      "name": "Confirmar para qué extensiones aplica",
+      "kind": "COMPATIBILITY",
+      "necessity": "required",
+      "value": { "requiresExplicitPair": true }
+    }
+  ],
+  "transitions": [
+    {
+      "sourceStageCode": "PREPARATION",
+      "targetStageCode": "APPLICATION",
+      "kind": "PRECEDES",
+      "condition": { "evidencePending": true }
+    },
+    {
+      "sourceStageCode": "APPLICATION",
+      "targetStageCode": "FINISHING",
+      "kind": "PRECEDES",
+      "condition": { "evidencePending": true }
+    },
+    {
+      "sourceStageCode": "FINISHING",
+      "targetStageCode": "REMOVAL",
+      "kind": "PRECEDES",
+      "condition": { "lifecycle": "eventual_optional_transition", "evidencePending": true }
+    }
+  ],
+  "classRelations": [
+    {
+      "code": "EXP_LASH_EXTENSION_REQUIRES_ADHESIVE",
+      "sourceClassCode": "LASH_EXTENSION_PRODUCTS",
+      "targetClassCode": "LASH_EXTENSION_ADHESIVES",
+      "kind": "REQUIRES",
+      "stageCode": "APPLICATION",
+      "requirementLevel": "recommended",
+      "notes": "La relación general y cada aplicabilidad concreta deben comprobarse antes de aprobarse."
+    },
+    {
+      "code": "EXP_LASH_EXTENSION_PRECEDES_REMOVAL",
+      "sourceClassCode": "LASH_EXTENSION_PRODUCTS",
+      "targetClassCode": "LASH_REMOVAL_PRODUCTS",
+      "kind": "PRECEDES",
+      "stageCode": "REMOVAL",
+      "requirementLevel": "optional",
+      "notes": "Propuesta de ciclo de servicio; no implica compatibilidad con un removedor concreto."
+    }
+  ],
+  "evidenceSignatures": [
+    "lash_extension->lash_adhesive",
+    "lash_extension->lash_remover"
+  ]
+}

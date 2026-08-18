@@ -14,7 +14,7 @@
 
 ## Corte local comprobado
 
-La última reconstrucción certificada aplicó las migraciones `0001`–`0116` y ejecutó 53 archivos con 1.318 comprobaciones pgTAP. El checkpoint restaurado contiene 1.056 productos, 1.578 variantes y regenera 18 decisiones agrupadas; el fixture 4A añade dos referencias oficiales no comerciales, nunca productos vendibles. El Universo de Referencia sigue siendo un volumen independiente y cualquier decisión futura debe volver a medir ambos dominios.
+La reconstrucción vigente aplica las migraciones `0001`–`0117`. El checkpoint restaurado contiene 1.056 productos, 1.578 variantes y regenera 18 decisiones agrupadas; el fixture 4A añade dos referencias oficiales no comerciales, nunca productos vendibles. El Universo de Referencia sigue siendo un volumen independiente y cualquier decisión futura debe volver a medir ambos dominios.
 
 ## Fuente de verdad y capas de trabajo
 
@@ -74,6 +74,8 @@ El primer vertical profundo es Sistema Acrílico. Modela proceso, etapas, clases
 
 `0116` integra esas decisiones con la Mesa y contrata preview, huella, aplicación exacta, comentario, ajuste, aplazamiento, reanudación, auditoría y verificación. Un producto dudoso no entra al grupo ni hereda la regla. Las reglas y membresías aceptadas se proyectan primero como evidencia, nunca como hechos canónicos automáticos. La ruta real `Catálogo → Revisar → Decisiones de relaciones` consume este contrato sin interpretar códigos técnicos ni ejecutar escrituras directas.
 
+`0117` prueba la expansión del mismo modelo con manifiestos acotados para Gel y Extensión de pestañas. Añade 2 sistemas, 10 etapas, 11 roles, 11 clases y 5 relaciones propuestas, todas pendientes de evidencia. Los pilotos se justifican con 8 decisiones reales, pero crean 0 membresías, 0 roles por producto, 0 hechos canónicos y 0 efectos comerciales.
+
 Las colas de captura física y los candidatos oficiales deben consultarse en la base y en [research/catalog-master](../research/catalog-master/README.md), no copiarse a otra tabla manual.
 
 ## Flujo de investigación manual
@@ -90,4 +92,4 @@ Los estados manuales son `CAPTURADO`, `INVESTIGAR`, `LISTO_PARA_DECIDIR`, `APLIC
 
 ## Próximo foco
 
-El plan vigente es [Inteligencia de Catálogo Bellaroshé](plan-vivo-mcp-inteligencia-catalogo.md). Etapas 2, 3 y 4A–4E están cerradas; [4F](etapa-4f-frontend-decisiones-relaciones.md) ya implementa la experiencia real y está en certificación final. Después corresponde expansión controlada y Etapa 5, no investigación indiscriminada. Publicar productos, fijar precio Bellaroshé o modificar inventario continúa fuera de estas decisiones y de MCP.
+El plan vigente es [Inteligencia de Catálogo Bellaroshé](plan-vivo-mcp-inteligencia-catalogo.md). Etapas 2, 3 y 4A–4G están técnicamente cerradas; [4F](etapa-4f-frontend-decisiones-relaciones.md) conserva una medición humana previa a producción y [4G](etapa-4g-expansion-controlada-sistemas.md) habilita el comando único de Etapa 5. No corresponde investigación indiscriminada. Publicar productos, fijar precio Bellaroshé o modificar inventario continúa fuera de estas decisiones y de MCP.

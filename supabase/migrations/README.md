@@ -1,6 +1,6 @@
 # Migraciones de base de datos
 
-Este directorio es el historial real y acumulativo de Bellaroshé. El corte documental vigente llega a `0113`. Las migraciones aplicadas no se reescriben, renombran, consolidan ni eliminan; toda corrección nueva recibe el siguiente número y sus pruebas.
+Este directorio es el historial real y acumulativo de Bellaroshé. El corte documental vigente llega a `0117`. Las migraciones aplicadas no se reescriben, renombran, consolidan ni eliminan; toda corrección nueva recibe el siguiente número y sus pruebas.
 
 ## Mapa del historial
 
@@ -27,6 +27,10 @@ Este directorio es el historial real y acumulativo de Bellaroshé. El corte docu
 | `0111` | Contrato epistemológico universal, dimensiones extensibles, perfiles técnicos, reglas versionadas, autoridad fuente×predicado, contradicción, entailment, promoción y certificación |
 | `0112` | Puente automático desde claims de fuente 0109 hacia observación literal + normalización explicable, con backfill fail-closed y sin canonización/Mesa |
 | `0113` | Contrato universal sistema→etapa→rol→clase→requisito, referencias, secuencias, autoridad de procesos, fixture Acrílico, reporte y proyección v2.7.0 |
+| `0114` | Reprocesamiento universal e inmutable de 323 relaciones con clasificación, preview, huella y compresión por clases |
+| `0115` | Read model humano de 18 decisiones agrupadas en tres familias, sin apply |
+| `0116` | Decisiones persistidas, Mesa, preview/apply exacto, comentario, aplazamiento, auditoría y verificación |
+| `0117` | Expansión controlada por manifiestos universales, toda aserción nueva pendiente de evidencia y sin catálogo comercial |
 
 Los nombres de archivo son el detalle autoritativo. Este mapa evita duplicar una descripción extensa que pronto queda desactualizada.
 
@@ -50,6 +54,8 @@ Los nombres de archivo son el detalle autoritativo. Este mapa evita duplicar una
 - `0111_universal_semantic_checkpoint.sql`: contrato epistemológico, registros universales dirigidos por datos y certificación sintética sin autorización de Etapa 4.
 - `0112_universal_semantic_ingestion_bridge.sql`: materialización automática de evidencia 0109 como literal + normalizada, sin inferencia, canonización ni Mesa.
 - `0113_universal_system_class_model.sql`: amplía el modelo 0086 sin tablas paralelas, valida estados epistemológicos y conserva intactas las 323 relaciones diferidas.
+- `0114_universal_relation_reprocessing.sql`–`0116_catalog_relation_decision_apply.sql`: clasifica relaciones históricas, las agrupa para decisión humana y aplica únicamente una intención confirmada.
+- `0117_controlled_system_expansion.sql`: añade sistemas mediante manifiestos acotados con preview/fingerprint/apply, auditoría y cero clasificación automática de productos.
 
 ## Aplicación local
 

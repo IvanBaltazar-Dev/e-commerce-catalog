@@ -63,7 +63,7 @@ npm run test:db
 npm run audit:security
 ```
 
-El checkpoint semántico base llega hasta `0112`, el contrato funcional 4A hasta `0113`, el reprocesamiento universal 4B hasta `0114`, el read model humano 4C hasta `0115` y el contrato de decisión/apply 4E hasta `0116`. La última certificación reconstruyó 53 archivos y 1.318 pruebas pgTAP: claims de fuente, agregación, epistemología universal, ingesta fail-closed, sistema→etapa→rol→clase→requisito, preview inmutable de 323 relaciones, 18 decisiones agrupadas y aplicación exacta con auditoría. La autorización humana de Etapa 4 no reemplaza esta certificación ni permite omitir gates.
+El checkpoint semántico base llega hasta `0112`, el contrato funcional 4A hasta `0113`, el reprocesamiento universal 4B hasta `0114`, el read model humano 4C hasta `0115`, el contrato de decisión/apply 4E hasta `0116` y la expansión controlada hasta `0117`. La certificación cubre claims de fuente, agregación, epistemología universal, ingesta fail-closed, sistema→etapa→rol→clase→requisito, preview inmutable de 323 relaciones, 18 decisiones agrupadas, aplicación exacta con auditoría y manifiestos sin clasificación automática. La autorización humana de Etapa 4 no reemplaza esta certificación ni permite omitir gates.
 
 Gates especializados:
 
@@ -88,6 +88,9 @@ Gates especializados:
 | `npm run test:mcp:stage4c` | reporte y cola MCP 4C de solo lectura; React no interpreta reglas |
 | `npm run test:mcp:stage4e` | cuatro lecturas y cuatro comandos de decisión; inspecciona sin mutar y certifica el contrato cerrado |
 | `npm run test:catalog-relation-decisions-ui` | cola, lenguaje, decisión no binaria y responsive de 4F sobre una aplicación local ya iniciada |
+| `npm run system:expand -- run-approved` | aplica idempotentemente los manifiestos Gel/Pestañas aprobados, sin productos ni efectos comerciales |
+| `npm run gate:controlled-expansion` | preview/apply de manifiestos, fronteras epistémicas/comerciales y paridad completa del grafo |
+| `npm run test:mcp:stage4g` | reporte MCP de expansión de solo lectura |
 | `npm run test:catalog-review-rerun` | reprocesamiento idempotente de la Mesa |
 | `npm run test:review-reprocess` | rerun nulo, fingerprint lógico y guardas de tablas comerciales |
 | `npm run test:venta` | pagos, concurrencia, venta y nota |

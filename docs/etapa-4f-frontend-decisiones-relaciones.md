@@ -4,7 +4,7 @@
 
 **Ruta:** `Catálogo → Revisar → Decisiones de relaciones`
 
-**Estado:** implementada; certificación final conjunta pendiente
+**Estado:** implementada y técnicamente certificada; medición humana previa a producción pendiente
 
 ## Resultado de producto
 
@@ -61,4 +61,4 @@ El endpoint administrativo ejecuta apply, sincroniza Neo4j y verifica el resulta
 
 Tipo y lint pasan. La inspección en el navegador real verificó las 18 tarjetas, las tres familias, evidencia cerrada por defecto, lenguaje natural, ausencia de términos descartados y cero desborde horizontal con viewport móvil de 375 px. El recorrido automatizable vive en `scripts/test-catalog-relation-decisions-ui.mjs`; el navegador Edge de esta máquina no permitió a Puppeteer iniciar una sesión independiente, por lo que la comprobación visual se ejecutó con el navegador integrado y el script queda disponible para CI o una máquina con Chrome controlable.
 
-La medición presencial de comprensión y decisión en menos de un minuto sigue siendo una validación humana de producto; no se sustituye con una prueba técnica.
+La inspección real en escritorio y móvil, el contrato de servidor, tipos y lint cierran el gate técnico que habilita la expansión controlada. La medición presencial de comprensión y decisión en menos de un minuto sigue siendo una validación humana de producto previa a producción; no se sustituye con una prueba técnica ni bloquea Etapa 5.

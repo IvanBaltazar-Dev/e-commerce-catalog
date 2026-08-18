@@ -383,6 +383,15 @@ registerReadTool(server, "stage4e_decision_verify", {
   "stage4e decision verify",
 ));
 
+registerReadTool(server, "stage4g_controlled_expansion_report", {
+  title: "Etapa 4G · Expansión Controlada de Sistemas",
+  description: "Certifica los manifiestos universales aplicados, su cobertura de decisiones reales y las guardas que impiden clasificar productos o crear hechos canónicos.",
+  inputSchema: {},
+}, async () => must(
+  await database.rpc("get_catalog_controlled_expansion_report_v1"),
+  "stage4g controlled expansion report",
+));
+
 registerWriteTool(server, "stage4e_decision_preview", {
   title: "Etapa 4E · Preparar Decisión",
   description: "Congela el efecto exacto de una acción y devuelve la huella que la persona debe confirmar antes de aplicar.",

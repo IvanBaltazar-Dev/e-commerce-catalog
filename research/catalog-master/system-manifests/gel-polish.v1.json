@@ -1,0 +1,333 @@
+{
+  "manifestKey": "gel-polish-controlled-v1",
+  "manifestVersion": 1,
+  "system": {
+    "domain": "NAILS",
+    "code": "GEL_POLISH",
+    "name": "Sistema de esmaltado en gel",
+    "description": "Estructura propuesta para ordenar preparación, capas, curado, acabado y retiro. Requiere evidencia técnica antes de aprobarse.",
+    "sortOrder": 200,
+    "metadata": {
+      "sourceScope": "historic_relation_decisions",
+      "evidenceStatus": "pending_technical_source"
+    }
+  },
+  "stages": [
+    {
+      "code": "PREPARATION",
+      "name": "Preparación",
+      "position": 10,
+      "description": "Preparación previa propuesta para el servicio."
+    },
+    {
+      "code": "BASE",
+      "name": "Base",
+      "position": 20,
+      "description": "Capa base propuesta dentro del sistema."
+    },
+    {
+      "code": "COLOR",
+      "name": "Color",
+      "position": 30,
+      "description": "Aplicación de color en gel."
+    },
+    {
+      "code": "CURING",
+      "name": "Curado",
+      "position": 40,
+      "description": "Etapa propuesta para el equipo de curado."
+    },
+    {
+      "code": "FINISHING",
+      "name": "Acabado",
+      "position": 50,
+      "description": "Capa o acción final propuesta."
+    },
+    {
+      "code": "REMOVAL",
+      "name": "Retiro",
+      "position": 60,
+      "description": "Retiro del sistema cuando corresponda."
+    }
+  ],
+  "roles": [
+    {
+      "code": "GEL_PREPARATION_AGENT",
+      "name": "Preparador para gel",
+      "kind": "preparation",
+      "description": "Función de preparación pendiente de confirmar con ficha técnica."
+    },
+    {
+      "code": "GEL_BASE_LAYER",
+      "name": "Base para gel",
+      "kind": "component",
+      "description": "Función de capa base pendiente de confirmar."
+    },
+    {
+      "code": "GEL_COLOR_LAYER",
+      "name": "Color en gel",
+      "kind": "component",
+      "description": "Función de capa de color."
+    },
+    {
+      "code": "GEL_CURING_EQUIPMENT",
+      "name": "Equipo de curado para gel",
+      "kind": "equipment",
+      "description": "Equipo cuya aplicabilidad debe confirmarse de forma explícita."
+    },
+    {
+      "code": "GEL_TOP_FINISH",
+      "name": "Acabado para gel",
+      "kind": "finishing",
+      "description": "Función de acabado o sellado pendiente de confirmar."
+    },
+    {
+      "code": "GEL_REMOVAL_PRODUCT",
+      "name": "Producto de retiro para gel",
+      "kind": "care",
+      "description": "Función de retiro pendiente de confirmar."
+    }
+  ],
+  "classes": [
+    {
+      "code": "GEL_PREPARATION_PRODUCTS",
+      "name": "Productos de preparación para gel",
+      "scope": "product",
+      "description": "Clase propuesta; todavía no contiene productos."
+    },
+    {
+      "code": "GEL_BASE_PRODUCTS",
+      "name": "Bases para gel",
+      "scope": "product",
+      "description": "Clase propuesta; todavía no contiene productos."
+    },
+    {
+      "code": "GEL_COLOR_PRODUCTS",
+      "name": "Colores en gel",
+      "scope": "product",
+      "description": "Clase propuesta; todavía no contiene productos."
+    },
+    {
+      "code": "GEL_CURING_EQUIPMENT_CLASS",
+      "name": "Equipos de curado para gel",
+      "scope": "product",
+      "description": "Clase propuesta; la pertenencia y la compatibilidad requieren evidencia."
+    },
+    {
+      "code": "GEL_TOP_PRODUCTS",
+      "name": "Acabados para gel",
+      "scope": "product",
+      "description": "Clase propuesta; todavía no contiene productos."
+    },
+    {
+      "code": "GEL_REMOVAL_PRODUCTS",
+      "name": "Productos de retiro para gel",
+      "scope": "product",
+      "description": "Clase propuesta; todavía no contiene productos."
+    }
+  ],
+  "expectations": [
+    {
+      "stageCode": "PREPARATION",
+      "roleCode": "GEL_PREPARATION_AGENT",
+      "necessity": "optional",
+      "minimumSelections": 0,
+      "maximumSelections": 1
+    },
+    {
+      "stageCode": "BASE",
+      "roleCode": "GEL_BASE_LAYER",
+      "necessity": "recommended",
+      "minimumSelections": 0,
+      "maximumSelections": 1
+    },
+    {
+      "stageCode": "COLOR",
+      "roleCode": "GEL_COLOR_LAYER",
+      "necessity": "required",
+      "minimumSelections": 1,
+      "maximumSelections": 1
+    },
+    {
+      "stageCode": "CURING",
+      "roleCode": "GEL_CURING_EQUIPMENT",
+      "necessity": "recommended",
+      "minimumSelections": 0,
+      "maximumSelections": 1
+    },
+    {
+      "stageCode": "FINISHING",
+      "roleCode": "GEL_TOP_FINISH",
+      "necessity": "recommended",
+      "minimumSelections": 0,
+      "maximumSelections": 1
+    },
+    {
+      "stageCode": "REMOVAL",
+      "roleCode": "GEL_REMOVAL_PRODUCT",
+      "necessity": "optional",
+      "minimumSelections": 0,
+      "maximumSelections": 1
+    }
+  ],
+  "roleClasses": [
+    {
+      "stageCode": "PREPARATION",
+      "roleCode": "GEL_PREPARATION_AGENT",
+      "classCode": "GEL_PREPARATION_PRODUCTS",
+      "coverageKind": "covers_role"
+    },
+    {
+      "stageCode": "BASE",
+      "roleCode": "GEL_BASE_LAYER",
+      "classCode": "GEL_BASE_PRODUCTS",
+      "coverageKind": "covers_role"
+    },
+    {
+      "stageCode": "COLOR",
+      "roleCode": "GEL_COLOR_LAYER",
+      "classCode": "GEL_COLOR_PRODUCTS",
+      "coverageKind": "covers_role"
+    },
+    {
+      "stageCode": "CURING",
+      "roleCode": "GEL_CURING_EQUIPMENT",
+      "classCode": "GEL_CURING_EQUIPMENT_CLASS",
+      "coverageKind": "covers_role"
+    },
+    {
+      "stageCode": "FINISHING",
+      "roleCode": "GEL_TOP_FINISH",
+      "classCode": "GEL_TOP_PRODUCTS",
+      "coverageKind": "covers_role"
+    },
+    {
+      "stageCode": "REMOVAL",
+      "roleCode": "GEL_REMOVAL_PRODUCT",
+      "classCode": "GEL_REMOVAL_PRODUCTS",
+      "coverageKind": "covers_role"
+    }
+  ],
+  "requirements": [
+    {
+      "stageCode": "PREPARATION",
+      "roleCode": "GEL_PREPARATION_AGENT",
+      "classCode": "GEL_PREPARATION_PRODUCTS",
+      "code": "CONFIRM_DECLARED_FUNCTION",
+      "name": "Confirmar la función declarada",
+      "kind": "EVIDENCE",
+      "necessity": "required",
+      "value": { "requiredSource": "official_technical_record" }
+    },
+    {
+      "stageCode": "BASE",
+      "roleCode": "GEL_BASE_LAYER",
+      "classCode": "GEL_BASE_PRODUCTS",
+      "code": "CONFIRM_DECLARED_FUNCTION",
+      "name": "Confirmar la función declarada",
+      "kind": "EVIDENCE",
+      "necessity": "required",
+      "value": { "requiredSource": "official_technical_record" }
+    },
+    {
+      "stageCode": "COLOR",
+      "roleCode": "GEL_COLOR_LAYER",
+      "classCode": "GEL_COLOR_PRODUCTS",
+      "code": "CONFIRM_DECLARED_FUNCTION",
+      "name": "Confirmar la función declarada",
+      "kind": "EVIDENCE",
+      "necessity": "required",
+      "value": { "requiredSource": "official_technical_record" }
+    },
+    {
+      "stageCode": "CURING",
+      "roleCode": "GEL_CURING_EQUIPMENT",
+      "classCode": "GEL_CURING_EQUIPMENT_CLASS",
+      "code": "CONFIRM_EXPLICIT_APPLICABILITY",
+      "name": "Confirmar para qué productos aplica",
+      "kind": "COMPATIBILITY",
+      "necessity": "required",
+      "value": { "requiresExplicitPair": true }
+    },
+    {
+      "stageCode": "FINISHING",
+      "roleCode": "GEL_TOP_FINISH",
+      "classCode": "GEL_TOP_PRODUCTS",
+      "code": "CONFIRM_DECLARED_FUNCTION",
+      "name": "Confirmar la función declarada",
+      "kind": "EVIDENCE",
+      "necessity": "required",
+      "value": { "requiredSource": "official_technical_record" }
+    },
+    {
+      "stageCode": "REMOVAL",
+      "roleCode": "GEL_REMOVAL_PRODUCT",
+      "classCode": "GEL_REMOVAL_PRODUCTS",
+      "code": "CONFIRM_DECLARED_FUNCTION",
+      "name": "Confirmar la función declarada",
+      "kind": "EVIDENCE",
+      "necessity": "required",
+      "value": { "requiredSource": "official_technical_record" }
+    }
+  ],
+  "transitions": [
+    {
+      "sourceStageCode": "PREPARATION",
+      "targetStageCode": "BASE",
+      "kind": "PRECEDES",
+      "condition": { "evidencePending": true }
+    },
+    {
+      "sourceStageCode": "BASE",
+      "targetStageCode": "COLOR",
+      "kind": "PRECEDES",
+      "condition": { "evidencePending": true }
+    },
+    {
+      "sourceStageCode": "COLOR",
+      "targetStageCode": "CURING",
+      "kind": "PRECEDES",
+      "condition": { "evidencePending": true }
+    },
+    {
+      "sourceStageCode": "CURING",
+      "targetStageCode": "FINISHING",
+      "kind": "PRECEDES",
+      "condition": { "evidencePending": true }
+    }
+  ],
+  "classRelations": [
+    {
+      "code": "EXP_GEL_BASE_PRECEDES_COLOR",
+      "sourceClassCode": "GEL_BASE_PRODUCTS",
+      "targetClassCode": "GEL_COLOR_PRODUCTS",
+      "kind": "PRECEDES",
+      "stageCode": "COLOR",
+      "requirementLevel": "recommended",
+      "notes": "Propuesta derivada de decisiones históricas; todavía no es una regla aprobada."
+    },
+    {
+      "code": "EXP_GEL_COLOR_REQUIRES_CURING",
+      "sourceClassCode": "GEL_COLOR_PRODUCTS",
+      "targetClassCode": "GEL_CURING_EQUIPMENT_CLASS",
+      "kind": "REQUIRES",
+      "stageCode": "CURING",
+      "requirementLevel": "recommended",
+      "notes": "La aplicabilidad concreta del equipo debe comprobarse con evidencia explícita."
+    },
+    {
+      "code": "EXP_GEL_COLOR_PRECEDES_TOP",
+      "sourceClassCode": "GEL_COLOR_PRODUCTS",
+      "targetClassCode": "GEL_TOP_PRODUCTS",
+      "kind": "PRECEDES",
+      "stageCode": "FINISHING",
+      "requirementLevel": "recommended",
+      "notes": "Propuesta pendiente de evidencia técnica y decisión humana."
+    }
+  ],
+  "evidenceSignatures": [
+    "gel_color->gel_base",
+    "gel_color->gel_top",
+    "gel_color->lamp_uv_led"
+  ]
+}

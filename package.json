@@ -86,6 +86,7 @@
     "test:mcp:stage4b": "node scripts/test-stage4b-mcp-report.mjs",
     "test:mcp:stage4c": "node scripts/test-stage4c-mcp-report.mjs",
     "test:mcp:stage4e": "node scripts/test-stage4e-mcp-contract.mjs",
+    "test:mcp:stage4g": "node scripts/test-stage4g-mcp-report.mjs",
     "test:stage2:admiss": "node scripts/test-stage2-admiss-acceptance.mjs --env .env.supabase.local",
     "review:reprocess": "node scripts/catalog-review-reprocess.mjs --env .env.supabase.local",
     "test:review-reprocess": "node scripts/test-catalog-review-reprocess.mjs --env .env.supabase.local",
@@ -95,6 +96,8 @@
     "gate:semantic-certification": "node scripts/gate-semantic-certification.mjs --env .env.supabase.local",
     "gate:stage4a": "node --experimental-transform-types scripts/gate-stage4a-system-class.mjs --env .env.supabase.local",
     "relation:reprocess": "node scripts/catalog-relation-reprocess.mjs --env .env.supabase.local",
+    "system:expand": "node scripts/catalog-system-expansion.mjs --env .env.supabase.local",
+    "gate:controlled-expansion": "node --experimental-transform-types scripts/gate-controlled-system-expansion.mjs --env .env.supabase.local",
     "gate:stage4b": "node --experimental-transform-types scripts/gate-stage4b-reprocess.mjs --env .env.supabase.local",
     "gate:stage4c": "node --experimental-transform-types scripts/gate-stage4c-decisions.mjs --env .env.supabase.local"
   },

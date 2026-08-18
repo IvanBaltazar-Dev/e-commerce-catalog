@@ -1,9 +1,9 @@
 # Bellaroshé · Plan vivo de Inteligencia de Catálogo
 
-**Versión:** 2.1 · Etapas 4E y 4F implementadas; certificación conjunta en curso
+**Versión:** 2.2 · Etapas 4F y 4G cerradas; Etapa 5 en implementación
 **Última actualización:** 2026-08-17
 **Fuente de verdad:** PostgreSQL/Supabase
-**Estado:** Etapas 0–3 y 4A–4E completadas; 4F implementada y en certificación final
+**Estado:** Etapas 0–3 y 4A–4G completadas técnicamente; Etapa 5 en implementación
 
 Este documento dirige la construcción de la Inteligencia de Catálogo Bellaroshé. MCP es un adaptador de acceso; no es el sistema ni contiene lógica de negocio exclusiva.
 
@@ -431,7 +431,7 @@ El reporte de campaña conserva el embudo `productos → claims → problemas �
 
 ### Etapa 4 · Conocimiento masivo
 
-**Estado:** autorizada el 2026-08-17. Los cortes 4A–4E están implementados; 4F ya consume el contrato real y la expansión masiva continúa detenida hasta su gate.
+**Estado:** autorizada el 2026-08-17. Los cortes 4A–4G están implementados; la expansión indiscriminada permanece prohibida.
 
 Ampliar el Universo de Referencia relevante y los sistemas, etapas, clases, roles, procesos, requisitos, compatibilidades, incompatibilidades, alternativas y secuencias. Preferir relaciones entre clases y membresías de producto para evitar explosión producto-producto. No descargar indiscriminadamente todo Internet ni empezar con cien marcas antes de validar ADMISS.
 
@@ -485,7 +485,13 @@ El adaptador MCP añade cuatro lecturas y cuatro comandos 4E. Apply sincroniza e
 
 La ruta `Catálogo → Revisar → Decisiones de relaciones` muestra cola, decisión, preview, confirmación, resultado y expediente sobre el contrato 4E. El recorrido principal contiene únicamente problema, recomendación, resultado, incertidumbre, impacto y acciones humanas. Evidencia e historial se cargan bajo demanda; códigos y huellas no aparecen antes.
 
-Comentario opcional, corrección comentada, guardado pendiente con fecha, reanudación y advertencia de texto sin guardar ya están conectados a backend. React conserva las claves idempotentes para reintentos y no reconstruye reglas, membresías o planes de mutación. El endpoint administrativo aplica, sincroniza y verifica. Tipo, lint e inspección real escritorio/móvil pasan; la medición humana de menos de un minuto y el gate final conjunto permanecen pendientes. Detalle en [Etapa 4F · Frontend real de decisiones](etapa-4f-frontend-decisiones-relaciones.md).
+Comentario opcional, corrección comentada, guardado pendiente con fecha, reanudación y advertencia de texto sin guardar ya están conectados a backend. React conserva las claves idempotentes para reintentos y no reconstruye reglas, membresías o planes de mutación. El endpoint administrativo aplica, sincroniza y verifica. Tipo, lint e inspección real escritorio/móvil pasan y cierran el gate técnico. La medición humana de menos de un minuto permanece como validación de producto previa a producción, sin bloquear 4G o Etapa 5. Detalle en [Etapa 4F · Frontend real de decisiones](etapa-4f-frontend-decisiones-relaciones.md).
+
+#### Etapa 4G · Expansión controlada de sistemas
+
+`0117` incorpora manifiestos universales con validación cerrada, preview, huella del estado completo, apply idempotente y auditoría. Los pilotos `GEL_POLISH` y `LASH_EXTENSION` parten únicamente de relaciones históricas ya presentes; no investigan marcas ni clasifican productos.
+
+El corte crea 2 sistemas en 2 dominios, 10 etapas, 11 roles, 11 clases, 11 puentes, 11 requisitos, 7 transiciones y 5 relaciones propuestas. Cubre 8 decisiones reales de las tres familias. Todo vínculo permanece `NEEDS_EVIDENCE`: 0 membresías, 0 roles por producto, 0 canonizaciones y 0 efectos comerciales. Pasan 42 pruebas específicas, MCP y la reconstrucción integrada de 54 archivos/1.360 pruebas. Graph Projector `v2.7.0` cierra con 12.965 nodos, 23.997 aristas y cero drift. Evidencia en [Etapa 4G · Expansión controlada](etapa-4g-expansion-controlada-sistemas.md).
 
 ### Etapa 5 · Comando único
 
@@ -549,13 +555,14 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
   - [x] aplicar atómicamente, conservar historia y registrar actor, comentario y resultado;
   - [x] sincronizar Neo4j y verificar separación de capas;
   - [x] certificar permisos, concurrencia, reconstrucción, pgTAP, MCP y gates negativos.
-- [ ] **4F · frontend real — implementación terminada; gate final en curso:**
+- [x] **4F · frontend real — gate técnico cerrado:**
   - [x] conectar Inicio, cola, una decisión a la vez y Expediente a contratos 4E;
   - [x] implementar comentario, ajuste, guardado pendiente, reanudación y advertencia por texto sin guardar;
   - [x] mostrar preview final, confirmación, resultado e historial sin lógica semántica en React;
   - [x] cubrir estados vacío, obsoleto, conflicto, error y reintento idempotente;
-  - [ ] cerrar accesibilidad, build, recorrido E2E automatizado y medición humana menor a un minuto.
-- [ ] **Expansión controlada:** ejecutar el mismo pipeline sobre otros sistemas y marcas, medir deuda y detener cualquier explosión de trabajo humano.
+  - [x] cerrar inspección accesible, build y recorrido real escritorio/móvil;
+  - [ ] medir presencialmente la comprensión menor a un minuto antes de producción.
+- [x] **Expansión controlada:** aplicar manifiestos Gel/Pestañas, medir deuda, impedir membresías automáticas y verificar el grafo.
 - [ ] **Etapa 5:** implementar comando único, delta desde la última ejecución y reporte comercial para la propietaria.
 - [ ] **Certificación final:** reconstrucción completa, todas las suites, seguridad, tipos, lint, build, Graph verify, documentación, árbol limpio, commits y push final.
 
@@ -659,8 +666,8 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 - [ ] Medir en 4F que la propietaria comprende y decide cada familia en menos de un minuto sobre frontend real.
 - [x] Incorporar al contrato de presentación los ajustes de copia y evidencia validados.
 - [x] Implementar y certificar 4E: preview/apply exacto, auditoría y concurrencia.
-- [ ] Certificar completamente 4F: `Catálogo → Revisar` sobre contratos cerrados.
-- [ ] Escalar conocimiento a otros sistemas y marcas después del gate del reprocesamiento.
+- [x] Certificar técnicamente 4F: `Catálogo → Revisar` sobre contratos cerrados.
+- [x] Escalar controladamente el conocimiento a Gel y Pestañas después del gate del frontend.
 - [ ] Implementar comando único y reporte comercial.
 
 ## 14. Registro de actualizaciones
@@ -687,4 +694,5 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 | 2026-08-17 | Etapa 4D preparada | Flujo actual Inicio→decisión→Expediente y prototipo sin escrituras sobre casos reales 19/38/88; problema y solución explícitos, productos dudosos fuera de reglas hasta confirmación, identidad visual real y validación humana pendiente |
 | 2026-08-17 | Etapa 4D cerrada | La propietaria aprobó lenguaje, identidad visual, productos dudosos, comentarios y guardado pendiente; 4E backend autorizado |
 | 2026-08-17 | Etapa 4E implementada | `0116`, 18 decisiones persistidas, preview/apply exacto, idempotencia, concurrencia, auditoría, aplazamiento y graph verify; 72 pruebas específicas y 1.318 pgTAP completas |
-| 2026-08-17 | Etapa 4F implementada | Cola y decisión reales en `Catálogo → Revisar`, preview/confirmación, comentario, guardado pendiente, reanudación, evidencia bajo demanda y lenguaje natural; gate final en curso |
+| 2026-08-17 | Etapa 4F cerrada técnicamente | Cola y decisión reales en `Catálogo → Revisar`, preview/confirmación, comentario, guardado pendiente, reanudación, evidencia bajo demanda, lenguaje natural y revisión escritorio/móvil; medición humana reservada para preproducción |
+| 2026-08-17 | Etapa 4G cerrada | `0117`, manifiestos Gel/Pestañas, 2 sistemas, 10 etapas, 11 clases, 5 relaciones propuestas, 8 decisiones reales cubiertas, cero productos/canonización/efectos comerciales y grafo sin drift |

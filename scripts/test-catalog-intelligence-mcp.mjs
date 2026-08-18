@@ -53,6 +53,7 @@ try {
     "stage4e_decision_queue",
     "stage4e_decision_detail",
     "stage4e_decision_verify",
+    "stage4g_controlled_expansion_report",
     "stage4e_decision_preview",
     "stage4e_decision_defer",
     "stage4e_decision_resume",
@@ -87,7 +88,7 @@ try {
   // Pregunta integral de aceptación desde un cliente/proceso nuevo:
   // “¿Qué sabemos de ADMISS, qué cambió, qué coincide o contradice el catálogo,
   //  dónde están ZAC 314094 y AJO Y LIMON, qué falta revisar y cómo está el grafo?”
-  const [status, context, lastRun, zac, gaps, review, reprocess, semanticCheckpoint, stage4a, graph] = await Promise.all([
+  const [status, context, lastRun, zac, gaps, review, reprocess, semanticCheckpoint, stage4a, stage4g, graph] = await Promise.all([
     call("catalog_status"),
     call("brand_context", { brand: "ADMISS" }),
     call("last_research_run", { brand: "ADMISS" }),
@@ -97,6 +98,7 @@ try {
     call("review_reprocess_status"),
     call("semantic_checkpoint_report"),
     call("stage4a_system_class_report"),
+    call("stage4g_controlled_expansion_report"),
     call("graph_status"),
   ]);
 
@@ -133,6 +135,10 @@ try {
       || stage4a.epistemic?.canonicalFactsCreated !== 0) {
     throw new Error(`Reporte Stage 4A inesperado: ${JSON.stringify(stage4a)}`);
   }
+  if (stage4g.stage4Authorized !== false || stage4g.passes !== true
+      || stage4g.metrics?.systems !== 2 || stage4g.metrics?.canonicalLeaks !== 0) {
+    throw new Error(`Reporte Stage 4G inesperado: ${JSON.stringify(stage4g)}`);
+  }
   if (reprocess.latestRun?.status !== "applied") {
     throw new Error("El MCP no recuperó el último reproceso aplicado de la Mesa.");
   }
@@ -155,6 +161,7 @@ try {
       reviewReprocess: reprocess,
       semanticCheckpoint,
       stage4a,
+      stage4g,
       graph: graph.live,
     },
     dataSource: "PostgreSQL contracts + Neo4j live status",
