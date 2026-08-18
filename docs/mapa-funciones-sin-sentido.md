@@ -97,9 +97,12 @@ reales; la 107 (`Excel:477`) apuntaba a un artículo DEMO retirado y se queda
 como deuda, que es lo correcto. Las 156 restantes son de alcance marca, no de
 fila.
 
-**Pendiente:** el pipeline de investigación vuelve a producir el registro sin
-el enlace. Hay que arreglarlo en origen o el problema regresa en la próxima
-carga.
+**Hecho también en origen:** `scripts/catalog-enrichment-stage.mjs` ahora lee
+`source_row_reconciliation.csv` al crear la excepción y escribe el producto y la
+variante desde el principio. Sobre una base reconstruida desde cero, 106 de las
+107 excepciones de fila fuente nacen ya con su destino; la 107 sigue sin él
+porque citaba un artículo DEMO retirado. La migración `0123` queda solo como
+reparación de las bases cargadas con el contrato antiguo.
 
 ## 5 · La regla objetiva de tono era más estricta que el algoritmo que la alimenta
 
@@ -128,7 +131,34 @@ límite anotado en el propio archivo.
 **Pendiente:** una regla de reposición dentro del plan de reprocesamiento, para
 que la mejora de evidencia sea simétrica a su deterioro.
 
-## 7 · Dos pantallas del panel son solo redirecciones
+## 7 · Borrar del catálogo no borraba de la investigación
+
+Al retirar los artículos DEMO del catálogo se rehízo el checkpoint, pero las
+tablas de investigación —que son una foto de una fecha, no una vista viva—
+siguieron citando esos identificadores. Sobre la base que ya tenía datos no se
+notaba nada. Sobre una base vacía, la reconstrucción moría en el tercer paso:
+
+```
+catalog_reconciliation_cases violates foreign key constraint
+catalog_reconciliation_cases_product_id_fkey
+```
+
+El culpable era `1960e6f9-…` = `DEMO-ESM-001`, «Gel Evolution Demo». Detrás
+venían siete candidatas de relación y una excepción de imagen citando la misma
+variante DEMO.
+
+**Hecho:** el cargador ya no confía en que la foto y el catálogo coincidan. El
+catálogo manda: una fila de investigación que cite un producto, variante o tono
+ausente se omite, y se dice cuántas y cuáles. Un descarte silencioso se lee
+después como cobertura completa.
+
+**Y una segunda mitad:** la compuerta de necesidad es una función determinista
+de la evidencia, no una decisión humana, pero no se aplicaba al reconstruir. Una
+base recién levantada le mostraba a la propietaria las 596 preguntas en bruto en
+lugar de las 183 que puede decidir. Ahora `checkpoint:restore:local` la aplica,
+igual que ya replicaba los expedientes de relaciones.
+
+## 8 · Dos pantallas del panel son solo redirecciones
 
 - `/admin/estructura` → redirige a `/admin/productos/nuevo`.
 - `/admin/importaciones` → redirige a `/admin/catalogo/revisar`.

@@ -86,14 +86,28 @@ historial. La huella comercial antes y después es idéntica: 1051 productos,
   cargas no solicitadas desde la barra.
 - `typecheck` y `lint` en verde.
 
+## Reproducible desde cero
+
+La compuerta es una función determinista de la evidencia, no una decisión
+humana: dada la misma Mesa devuelve siempre los mismos veredictos. Por eso
+`checkpoint:restore:local` la aplica al reconstruir, igual que ya replicaba los
+expedientes de relaciones. Sin ese paso una base recién levantada mostraba las
+596 preguntas en bruto y el estado reconstruido dejaba de parecerse al
+certificado.
+
+Reconstruyendo desde una base vacía, la Mesa vuelve a quedar en 183 trabajos
+humanos, 536 de deuda automática, 527 de captura física y 86 en espera externa.
+
 ## Frontera
 
 Queda fuera: la guarda de clase dentro del propio emparejador, la derivación de
-la clase de trabajo desde la acción exigida en el disparador, la regla de
-reposición simétrica dentro del plan de reprocesamiento y la corrección del
-pipeline de investigación para que no vuelva a producir excepciones sin enlace.
-Cada uno está descrito en el mapa.
+la clase de trabajo desde la acción exigida en el disparador, y la regla de
+reposición simétrica dentro del plan de reprocesamiento. Cada uno está descrito
+en el mapa.
 
-La suite pgTAP completa sigue exigiendo base vacía: doce archivos antiguos
-(0025, 0027–0033, 0037, 0038, 0047) fallan por fixtures que asumen una base sin
-catálogo restaurado. No los toca esta etapa; los cubre `gate:rebuild`.
+La suite pgTAP completa exige base vacía. Contra una base con el catálogo
+restaurado, doce archivos antiguos (0025, 0027–0033, 0037, 0038, 0047) fallan
+por fixtures que buscan variantes por nombre entre los 1051 productos reales.
+No es una regresión de esta etapa: solo significa que `npx supabase test db` no
+es señal válida sobre esa base, y que la señal válida es `gate:rebuild`, que
+resetea primero.

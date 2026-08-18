@@ -18,6 +18,13 @@
 --
 -- No se crea, publica ni modifica ningún producto: solo se restituye a qué
 -- apunta cada pregunta.
+--
+-- La corrección duradera está en el cargador, no aquí: desde ahora
+-- `scripts/catalog-enrichment-stage.mjs` escribe el producto y la variante al
+-- crear la excepción. Esta migración repara las bases que ya se cargaron con el
+-- contrato antiguo. Sobre una base reconstruida desde cero no encuentra nada que
+-- reparar —los productos aún no existen cuando corren las migraciones— y
+-- termina sin tocar ninguna fila. Es lo esperado, no un fallo silencioso.
 
 begin;
 

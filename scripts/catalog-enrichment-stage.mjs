@@ -129,7 +129,7 @@ async function stageReconciliationCases(algorithm, desiredRows) {
   return missingRows.length;
 }
 
-const [summaries, products, variants, images, tones, productMatches, relations, exceptions] = await Promise.all([
+const [summaries, products, variants, images, tones, productMatches, relations, exceptions, sourceRowMatches] = await Promise.all([
   csv("external_official_sources_summary.csv"),
   csv("external_official_products.csv"),
   csv("external_official_variants.csv"),
@@ -138,6 +138,10 @@ const [summaries, products, variants, images, tones, productMatches, relations, 
   csv("internal_official_product_reconciliation.csv"),
   csv("product_relation_candidates.csv"),
   csv("master_exception_register.csv"),
+  // El registro de excepciones solo conserva la clave "Excel:NNN". El destino
+  // interno que esa misma fila produjo vive aquí, y sin él la pregunta llega a
+  // la Mesa sin nada que la propietaria pueda abrir.
+  csv("source_row_reconciliation.csv"),
 ]);
 
 const { data: sourceRows, error: sourceError } = await admin
@@ -351,7 +355,41 @@ const existingVariantScopeKeys = new Set(
   existingVariantScopes.map((row) => `${row.source_record_id}:${row.variant_id}`),
 );
 
-const desiredProductCases = productMatches.map((row) => {
+// El catálogo manda sobre el corte de investigación. Las tablas de research son
+// una foto de una fecha; si un producto interno dejó de existir —porque era un
+// artículo DEMO retirado, o porque se fusionó— la fila que lo cita no puede
+// entrar: la clave foránea la rechaza y con ella se cae la reconstrucción
+// entera. Se omite esa fila y se dice cuántas y cuáles, porque un descarte
+// silencioso se lee después como cobertura completa.
+const catalogProductIds = new Set((await selectAll("products", "id")).map((row) => row.id));
+const catalogVariantIds = new Set((await selectAll("product_variants", "id")).map((row) => row.id));
+const catalogShadeIds = new Set((await selectAll("color_shades", "id")).map((row) => row.id));
+
+// Un identificador que ya no está en el catálogo se deja en nulo. La excepción
+// sigue existiendo y sigue siendo trabajo pendiente; lo que se pierde es un
+// enlace muerto que además tumbaría la carga entera por clave foránea.
+const idOrNull = (id, universe) => (id && universe.has(id) ? id : null);
+
+function dropOutsideCatalog(rows, label, ...idFields) {
+  const inCatalog = (row) => idFields.every((field) => catalogProductIds.has(row[field]));
+  const kept = rows.filter(inCatalog);
+  const dropped = rows.filter((row) => !inCatalog(row));
+  if (dropped.length) {
+    const sample = dropped.slice(0, 5).map((row) => idFields.map((field) => row[field]).join(" → "));
+    console.warn(
+      `[catalog-enrichment-stage] ${label}: se omiten ${dropped.length} fila(s) que citan productos ausentes del catálogo. Ejemplos: ${sample.join("; ")}`,
+    );
+  }
+  return kept;
+}
+
+const productMatchesInCatalog = dropOutsideCatalog(
+  productMatches,
+  "reconciliación de productos oficiales",
+  "internal_product_id",
+);
+
+const desiredProductCases = productMatchesInCatalog.map((row) => {
   const brand = officialBrandName[row.internal_brand] || row.internal_brand;
   const externalId = `p:${row.official_product_id}`;
   const sourceRecordId = sourceRecordIds.get(`${brand}:product:${externalId}`);
@@ -393,7 +431,14 @@ const productReconciliationCases = await stageReconciliationCases(
   desiredProductCases,
 );
 
-const relationRows = relations.map((row) => ({
+const relationsInCatalog = dropOutsideCatalog(
+  relations,
+  "candidatas de relación",
+  "source_product_id",
+  "target_product_id",
+);
+
+const relationRows = relationsInCatalog.map((row) => ({
   source_product_id: row.source_product_id,
   target_product_id: row.target_product_id,
   relation_type: row.relation_type,
@@ -446,13 +491,28 @@ function exceptionType(row) {
   return "identity_ambiguous";
 }
 
+// Destino interno de cada fila del libro fuente, por su número de fila. Es el
+// enlace que la excepción necesita para dejar de ser un texto suelto.
+const sourceRowTarget = new Map(
+  sourceRowMatches
+    .filter((row) => row.internal_product_id && catalogProductIds.has(row.internal_product_id))
+    .map((row) => [`Excel:${row.source_excel_row}`, {
+      product_id: row.internal_product_id,
+      variant_id: idOrNull(row.internal_variant_id, catalogVariantIds),
+    }]),
+);
+
 const exceptionRows = exceptions.map((row) => {
   const productOrVariantId = /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(row.entity_key) ? row.entity_key : null;
+  const sourceRow = row.exception_scope === "SOURCE_ROW" ? sourceRowTarget.get(row.entity_key) : null;
   return {
     exception_key: sha256(`${row.exception_scope}|${row.entity_key}|${row.exception_type}`),
     brand_id: brandIdByName[row.brand.toLowerCase()] || null,
-    variant_id: row.exception_scope === "IMAGE" ? productOrVariantId : null,
-    shade_id: row.exception_scope === "TONE" ? productOrVariantId : null,
+    product_id: sourceRow?.product_id ?? null,
+    variant_id: row.exception_scope === "IMAGE"
+      ? idOrNull(productOrVariantId, catalogVariantIds)
+      : (sourceRow?.variant_id ?? null),
+    shade_id: row.exception_scope === "TONE" ? idOrNull(productOrVariantId, catalogShadeIds) : null,
     exception_type: exceptionType(row),
     severity: row.severity.toLowerCase(),
     status: "open",

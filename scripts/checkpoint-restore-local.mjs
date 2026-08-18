@@ -301,6 +301,25 @@ end;
 $checkpoint$;
 `);
 
+// La compuerta de necesidad (0122) es una función determinista de la evidencia,
+// no una decisión humana: dada la misma Mesa da siempre los mismos veredictos.
+// Si no se aplica aquí, una base recién reconstruida le presenta a la
+// propietaria las 596 preguntas en bruto en vez de las que puede decidir, y el
+// estado reconstruido dejaría de parecerse al que se certificó.
+psql(`
+do $checkpoint$
+declare review_preview jsonb;
+begin
+  review_preview := public.preview_catalog_review_reprocess_v1('checkpoint-compuerta-necesidad-v1');
+  perform public.apply_catalog_review_reprocess_v1(
+    (review_preview->>'previewId')::uuid,
+    review_preview->>'previewFingerprint',
+    'checkpoint-compuerta-necesidad-apply-v1'
+  );
+end;
+$checkpoint$;
+`);
+
 const counts = psql(`
 select jsonb_build_object(
   'products', (select count(*) from public.products),

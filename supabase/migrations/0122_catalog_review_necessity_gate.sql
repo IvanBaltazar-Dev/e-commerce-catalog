@@ -447,6 +447,10 @@ from desired;
 
 -- Nada de esto es superficie pública. Son auxiliares de la Mesa y del plan de
 -- reprocesamiento, así que ningún rol del catálogo público puede ejecutarlos.
+revoke all on function public.catalog_review_source_row_link_v1(text)
+  from public, anon, authenticated;
+revoke all on function public.normalize_catalog_review_source_row_v1()
+  from public, anon, authenticated;
 revoke all on function public.catalog_review_discriminative_tokens_v1(text)
   from public, anon, authenticated;
 revoke all on function public.catalog_review_tone_code_v1(text)
