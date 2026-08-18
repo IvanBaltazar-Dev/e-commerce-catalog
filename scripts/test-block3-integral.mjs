@@ -14,6 +14,7 @@ import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadSupabaseScriptEnv } from "./lib/supabase-script-env.mjs";
+import { purgeIntegralDocumentsQuietly } from "./lib/integral-cleanup.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const { env, isLocal } = loadSupabaseScriptEnv({ rootDir: ROOT, scriptName: "test-block3-integral" });
@@ -30,6 +31,24 @@ const asAdmin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPAB
 
 let failures = 0;
 const money = (value) => Math.round(Number(value) * 100) / 100;
+
+// Esta prueba se lee de arriba abajo, sin envolverla en una función, y por eso
+// no tiene un `finally` donde poner la limpieza. El efecto es el mismo: se
+// anota lo que se va creando y se retira tanto al terminar bien como al
+// romperse, antes de que el proceso muera. Solo se borra lo anotado aquí: los
+// documentos de la sede real que no creó esta prueba no se tocan.
+const owned = { saleIds: [], reservationIds: [], cartIds: [] };
+let alreadyPurged = false;
+async function purgeOwned() {
+  if (alreadyPurged) return;
+  alreadyPurged = true;
+  await purgeIntegralDocumentsQuietly(owned, "la integral del Bloque 3");
+}
+process.on("unhandledRejection", async (reason) => {
+  await purgeOwned();
+  console.error(reason);
+  process.exit(1);
+});
 
 function check(label, condition, detail) {
   if (condition) console.log(`  ok   ${label}`);
@@ -217,6 +236,7 @@ check("el carrito se crea y sincroniza", cartOpen.status === 200 && cartOpen.bod
 
 const cartToken = cartOpen.body.data.publicToken;
 const cartId = cartOpen.body.data.id;
+owned.cartIds.push(cartId);
 
 check("con el precio reevaluado por el motor, no almacenado",
   Number(cartOpen.body.data.evaluation?.lines?.[0]?.unitPrice) === 15,
@@ -333,6 +353,8 @@ const stockAfterReserve = must(
     .eq("variant_id", variant.id).eq("branch_id", branchId).single(),
   "stock reservado"
 );
+owned.reservationIds.push(reservation.id);
+
 
 check("la reserva compromete sin descontar", stockAfterReserve.reserved >= 3,
   JSON.stringify(stockAfterReserve));
@@ -352,6 +374,8 @@ const sale = await rpc("register_sale", {
   // que reservó: `isBuyer` lo dice sin repetir su nombre.
   p_parties: [{ role: "pickup_authorized", isBuyer: true }]
 });
+
+owned.saleIds.push(sale.id);
 
 check("la reserva se convierte en venta pagada exacta", money(sale.total) === 45.0,
   JSON.stringify(sale.total));
@@ -436,6 +460,7 @@ const tiktokCart = await tiktokVisitor("/api/catalog/cart", {
 });
 
 const tiktokCartId = tiktokCart.body.data.id;
+owned.cartIds.push(tiktokCartId);
 
 await service.from("public_carts")
   .update({ last_activity_at: new Date(Date.now() - 96 * 3600000).toISOString() })
@@ -476,6 +501,7 @@ const metricsAfter = await rpc("omnichannel_metrics", {});
 check("la métrica de abandono lo cuenta",
   Number(metricsAfter.carts?.expired ?? 0) >= 1, JSON.stringify(metricsAfter.carts));
 
+await purgeOwned();
 await asAdmin.auth.signOut().catch(() => undefined);
 
 console.log(failures === 0

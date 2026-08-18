@@ -246,7 +246,114 @@ const demoBranch = must(
   await service.from("branches").select("id").eq("is_default", true).limit(1).single(),
   "sede demo"
 );
-const saleVariant = correcto.lineas[0].variantId;
+
+// La venta de esta prueba NO puede ocurrir sobre un artículo DEMO. La
+// asistencia de IA queda enlazada a ella para siempre —la base prohíbe borrar
+// la interacción y prohíbe reasignar su venta, y eso es justo lo que esta misma
+// prueba verifica—, así que la venta tampoco se puede retirar. Si cayera sobre
+// un fixture temporal, ese fixture dejaría de ser temporal y el catálogo
+// operativo se quedaría con artículos DEMO para siempre.
+//
+// Por eso la evidencia vive en un artículo propio, fuera de la marca DEMO. Se
+// activa para vender y se desactiva al terminar: la venta y su evidencia
+// permanecen, que es el contrato, pero la dueña no ve un producto de prueba en
+// su catálogo.
+const EVIDENCE_CODE = "B4EV-IA-001";
+const EVIDENCE_SKU = "B4EV-IA-001-UNICA";
+
+// Idempotente en los dos niveles: una corrida anterior pudo dejar el producto
+// creado y la variante no, y ese estado tiene que poder repararse solo.
+async function ensureEvidenceVariant() {
+  let productId = must(
+    await service.from("products").select("id").eq("code", EVIDENCE_CODE).maybeSingle(),
+    "producto de evidencia"
+  )?.id ?? null;
+
+  if (productId) {
+    const variant = must(
+      await service.from("product_variants").select("id").eq("sku", EVIDENCE_SKU).maybeSingle(),
+      "variante de evidencia"
+    );
+    if (variant) {
+      must(await service.from("product_variants")
+        .update({ is_active: true, availability_status: "available" }).eq("id", variant.id),
+        "reactivar la variante de evidencia");
+      must(await service.from("products").update({ is_active: true }).eq("id", productId),
+        "reactivar el producto de evidencia");
+      return { variantId: variant.id, productId };
+    }
+  }
+
+  const brand = must(await service.from("brands").select("id").eq("slug", "generica-sin-marca").maybeSingle(), "marca base")
+    ?? must(await service.from("brands").select("id").not("slug", "eq", "demo-professional").limit(1).single(), "marca cualquiera");
+  const category = must(await service.from("categories").select("id").limit(1).single(), "categoría base");
+  const template = must(await service.from("attribute_templates").select("id").limit(1).single(), "plantilla base");
+
+  const product = productId ? { id: productId } : must(
+    await service.from("products").insert({
+      code: EVIDENCE_CODE,
+      slug: "b4-evidencia-ia",
+      brand_id: brand.id,
+      category_id: category.id,
+      template_id: template.id,
+      name: "Evidencia de asistencia IA (integral B4)",
+      presentation: "1 unidad",
+      product_type: "accesorio",
+      unit_price: 10,
+      wholesale_price: 8,
+      // Publicado como cualquier artículo vendible: el contrato de venta exige
+      // que la variante sea pública. Deja de verse porque al terminar se
+      // desactiva, no porque se esconda a medias.
+      editorial_status: "published",
+      // Nace inactivo a propósito: la base exige que un producto activo tenga
+      // ya su variante predeterminada, y esa todavía no existe.
+      is_active: false
+    }).select("id").single(),
+    "crear el producto de evidencia"
+  );
+
+  const variant = must(
+    await service.from("product_variants").insert({
+      product_id: product.id, sku: EVIDENCE_SKU, name: "Única",
+      variant_key: "unica", is_default: true, availability_status: "available"
+    }).select("id").single(),
+    "crear la variante de evidencia"
+  );
+
+  // Una variante disponible y publicada no puede existir sin precio minorista
+  // vigente: la base lo exige y hace bien. Se le pone el de la lista minorista.
+  const retailList = must(
+    await service.from("price_lists").select("id").eq("price_type", "retail").limit(1).maybeSingle(),
+    "lista minorista"
+  ) ?? must(await service.from("price_lists").select("id").limit(1).single(), "cualquier lista");
+  must(
+    await service.from("variant_prices").insert({
+      variant_id: variant.id, price_list_id: retailList.id, amount: 10, minimum_quantity: 1
+    }),
+    "precio de la variante de evidencia"
+  );
+
+  must(await service.from("products").update({ is_active: true }).eq("id", product.id),
+    "activar el producto de evidencia");
+
+  return { variantId: variant.id, productId: product.id };
+}
+
+const evidence = await ensureEvidenceVariant();
+must(
+  await service.rpc("apply_inventory_movement", {
+    p_variant_id: evidence.variantId,
+    p_branch_id: demoBranch.id,
+    p_movement_type: "receipt",
+    p_quantity: 5,
+    p_unit_cost: 10,
+    p_source_type: "test_fixture",
+    p_source_label: "test:block4",
+    p_reason: "Existencias para la venta de evidencia de IA"
+  }),
+  "reponer la variante de evidencia"
+);
+const saleVariant = evidence.variantId;
 
 const sale = must(
   await asAdmin.rpc("register_sale", {
@@ -350,6 +457,12 @@ await service.from("content_proposals").delete().like("title", "%[B4-INTEGRAL]%"
 const deletionAttempt = await service.from("ai_interactions").delete().eq("id", failedId);
 check("La evidencia de IA no se puede borrar ni con service_role",
   deletionAttempt.error != null);
+
+// El producto de evidencia se retira de la vista. No se borra —su venta lleva
+// una asistencia de IA enlazada, y eso es indeleble por contrato— pero deja de
+// aparecer en el catálogo de la dueña hasta la próxima corrida.
+await service.from("product_variants").update({ is_active: false }).eq("sku", EVIDENCE_SKU);
+await service.from("products").update({ is_active: false }).eq("code", EVIDENCE_CODE);
 
 const failed = results.filter((r) => !r.ok);
 console.log(

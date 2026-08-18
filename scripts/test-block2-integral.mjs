@@ -668,11 +668,19 @@ try {
 } finally {
   await asAdmin.auth.signOut().catch(() => undefined);
 
+  // Lo que esta prueba creó se retira aquí, no en la siguiente ejecución. Todo
+  // el circuito ocurre dentro de sus dos sedes, así que la misma limpieza que
+  // abría la prueba la cierra: borra por sede propia, de la hoja a la raíz, y
+  // no toca un solo documento de la sede real. Sin esto, las líneas de venta
+  // sobre variantes DEMO quedaban vivas e impedían retirar el fixture.
+  await cleanPreviousRun().catch((error) => {
+    console.warn(`  aviso  la limpieza del Bloque 2 no pudo completarse: ${error.message}`);
+  });
+
   // Las sedes de la prueba se DESACTIVAN al terminar. Se quedaban activas para
   // siempre, y como la dueña ve todas las sedes activas, el panel le ofrecía
   // «Sede integral» y «Sede integral destino» junto a la suya: dos sedes que no
-  // existen, en el desplegable con el que se registra una venta. No se borran
-  // —tienen ventas y kardex colgando— pero dejan de aparecer.
+  // existen, en el desplegable con el que se registra una venta.
   await service.from("branches")
     .update({ is_active: false })
     .in("code", [BRANCH_CODE, DEST_BRANCH_CODE]);
