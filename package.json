@@ -111,7 +111,8 @@
     "media:export": "node scripts/gate-media-rebuild.mjs export --env .env.supabase.local",
     "media:restore": "node scripts/gate-media-rebuild.mjs restore --env .env.supabase.local",
     "gate:media-rebuild": "node scripts/gate-media-rebuild.mjs verify --env .env.supabase.local",
-    "test:media-adversarial": "node scripts/test-media-rebuild-adversarial.mjs --env .env.supabase.local"
+    "test:media-adversarial": "node scripts/test-media-rebuild-adversarial.mjs --env .env.supabase.local",
+    "media:campaign": "node scripts/media-campaign.mjs --env .env.supabase.local"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",
