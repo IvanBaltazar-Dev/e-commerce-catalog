@@ -312,10 +312,14 @@ async function ensureEvidenceVariant() {
     "crear el producto de evidencia"
   );
 
+  // Nace «a consultar» a propósito, igual que el producto nace inactivo: una
+  // variante disponible sin precio vigente no puede existir, y el precio
+  // todavía no está. Se declara disponible unas líneas más abajo, cuando ya
+  // tiene con qué venderse.
   const variant = must(
     await service.from("product_variants").insert({
       product_id: product.id, sku: EVIDENCE_SKU, name: "Única",
-      variant_key: "unica", is_default: true, availability_status: "available"
+      variant_key: "unica", is_default: true, availability_status: "consult"
     }).select("id").single(),
     "crear la variante de evidencia"
   );
@@ -333,6 +337,9 @@ async function ensureEvidenceVariant() {
     "precio de la variante de evidencia"
   );
 
+  must(await service.from("product_variants")
+    .update({ availability_status: "available" }).eq("id", variant.id),
+    "declarar disponible la variante de evidencia");
   must(await service.from("products").update({ is_active: true }).eq("id", product.id),
     "activar el producto de evidencia");
 

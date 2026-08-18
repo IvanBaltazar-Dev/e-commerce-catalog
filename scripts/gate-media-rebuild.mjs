@@ -63,6 +63,29 @@ const sha256 = (buffer) => crypto.createHash("sha256").update(buffer).digest("he
 const localPathFor = (entry) => path.join(MEDIA_ROOT, entry.bucket, ...entry.path.split("/"));
 
 /**
+ * Huella agregada del patrimonio multimedia, al mismo nivel que las que ya
+ * existen para PostgreSQL y para el grafo.
+ *
+ * Contar archivos no basta: 172 objetos pueden ser otros 172 objetos, o los
+ * mismos colgando de otros productos. La huella incorpora contenido Y dueño, y
+ * en orden estable, así que solo coincide si son exactamente los mismos bytes
+ * asociados exactamente a las mismas entidades.
+ */
+function mediaFingerprint(entries) {
+  const lines = entries
+    .flatMap((entry) => {
+      const owners = entry.owners?.length
+        ? entry.owners.map((owner) => `${owner.variantId ? "variant" : "product"}:${owner.variantId ?? owner.productId}`)
+        : ["none:none"];
+      return owners.sort().map((owner) => [
+        entry.bucket, entry.path, entry.sha256, entry.bytes, entry.mime, owner,
+      ].join("|"));
+    })
+    .sort();
+  return crypto.createHash("sha256").update(lines.join("\n")).digest("hex");
+}
+
+/**
  * Lo que la base declara que existe, con su dueño. Un medio sin producto ni
  * variante detrás no es patrimonio: es un archivo que nadie reclama, y el
  * manifiesto lo dice en vez de callarlo.
@@ -158,6 +181,7 @@ if (action === "export") {
   await fs.writeFile(MANIFEST_PATH, `${JSON.stringify({
     schema_version: 1,
     storage_contract: "bellaroshe-media-storage-v1",
+    fingerprint: mediaFingerprint(entries),
     exported_objects: entries.length,
     missing_objects: missing,
     files: entries,
@@ -166,6 +190,7 @@ if (action === "export") {
   console.log(JSON.stringify({
     accion: "export",
     objetosCopiados: entries.length,
+    huellaDelPatrimonio: mediaFingerprint(entries),
     sinArchivoEnStorage: missing.length,
     almacenLocal: MEDIA_ROOT,
     manifiesto: MANIFEST_PATH,
@@ -207,6 +232,7 @@ if (action === "export") {
   const unowned = [];      // el medio no cuelga de ningún producto ni variante
   const undeclared = [];   // el metadato no está en el manifiesto
 
+  const live = [];
   for (const asset of declared) {
     const key = `${asset.bucket}/${asset.path}`;
     const buffer = await download(asset.bucket, asset.path);
@@ -217,6 +243,11 @@ if (action === "export") {
     if (expected && expected !== digest) divergent.push(key);
     if (!manifestByKey.has(key)) undeclared.push(key);
     if (asset.owners.length === 0) unowned.push(key);
+
+    live.push({
+      bucket: asset.bucket, path: asset.path, sha256: digest,
+      bytes: buffer.byteLength, mime: asset.mime, owners: asset.owners,
+    });
   }
 
   const declaredKeys = new Set(declared.map((asset) => `${asset.bucket}/${asset.path}`));
@@ -228,11 +259,17 @@ if (action === "export") {
     }
   }
 
+  const liveFingerprint = mediaFingerprint(live);
+  const manifestFingerprint = manifest?.fingerprint ?? null;
+
   const sample = (list) => list.slice(0, 5);
   const report = {
     accion: "verify",
     mediosDeclarados: declared.length,
     objetosEnManifiesto: manifest?.files?.length ?? 0,
+    huellaDelPatrimonio: liveFingerprint,
+    huellaDelManifiesto: manifestFingerprint,
+    huellaCoincide: manifestFingerprint === null ? null : manifestFingerprint === liveFingerprint,
     mediosFantasma: phantom.length,
     archivosHuerfanos: orphan.length,
     hashesDivergentes: divergent.length,
@@ -246,8 +283,12 @@ if (action === "export") {
       sinDeclarar: sample(undeclared),
     },
   };
+  // La huella es la última condición y no la más blanda: aunque cada objeto
+  // esté y cada hash cuadre, si el conjunto no es idéntico al declarado —porque
+  // un medio cambió de dueño, por ejemplo— el patrimonio dejó de ser el mismo.
   const green = phantom.length === 0 && orphan.length === 0 && divergent.length === 0
-    && unowned.length === 0 && undeclared.length === 0;
+    && unowned.length === 0 && undeclared.length === 0
+    && (manifestFingerprint === null || manifestFingerprint === liveFingerprint);
   report.resultado = green ? "VERDE" : "ROJO";
 
   console.log(JSON.stringify(report, null, 2));
