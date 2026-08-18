@@ -20,34 +20,21 @@ const QUEUES_MIGRATION_PATH = path.join(ROOT, "supabase", "migrations", "0096_ac
 const IDENTITY_REDIRECT_MIGRATION_PATH = path.join(ROOT, "supabase", "migrations", "0100_catalog_review_identity_redirect.sql");
 const CONTAINER = process.env.SUPABASE_DB_CONTAINER ?? "supabase_db_e-commerce-catalog";
 
-const CATALOG_TABLES = new Set([
-  "attribute_definitions",
-  "attribute_options",
-  "attribute_templates",
-  "media_assets",
-  "brands",
-  "brand_product_families",
-  "catalog_metadata",
-  "categories",
-  "product_lines",
-  "color_shades",
-  "suppliers",
-  "products",
-  "product_variants",
-  "product_suppliers",
-  "price_lists",
-  "product_attribute_values",
-  "product_images",
-  "product_line_product_families",
-  "product_media",
-  "product_relations",
-  "template_attributes",
-  "template_attribute_comparisons",
-  "template_attribute_conditions",
-  "variant_attribute_values",
-  "variant_prices",
-  "wholesale_rules",
-]);
+// Las tablas del corte YA NO se nombran aquí. El contrato de recuperación
+// (0128) las declara en la base, con su clase y su motivo, y un detector avisa
+// cuando aparece una que guarda decisiones y nadie la incorporó. Una lista
+// escondida en un guion fue exactamente cómo se perdió el patrimonio de una
+// campaña entera sin que nada fallara.
+const CATALOG_TABLES = new Set(
+  psql(`
+    select string_agg(entity, ',' order by entity)
+    from public.catalog_recovery_contract
+    where in_checkpoint and in_baseline_dump;
+  `).split(",").map((entity) => entity.trim()).filter(Boolean),
+);
+if (CATALOG_TABLES.size === 0) {
+  throw new Error("El contrato de recuperación está vacío: revisa la migración 0128.");
+}
 
 function sha256(filePath) {
   return crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex");
