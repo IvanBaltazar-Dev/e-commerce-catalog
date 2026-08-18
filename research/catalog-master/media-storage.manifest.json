@@ -1,66 +1,9 @@
 {
   "schema_version": 1,
   "storage_contract": "bellaroshe-media-storage-v1",
-  "fingerprint": "a66c645ee162bc9ca322af35e13802277355200f12f66f87abf9c81f5a69f984",
-  "exported_objects": 172,
-  "missing_objects": [
-    "catalog-assets/productos/MAS-ESM-4C95F3/main.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/actual.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/amable.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/artesana.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/autentica.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bri-ajedrez.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bri-arcoiris.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bri-benevolente.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bri-confianza.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bri-coral.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bri-destellos.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bri-galactico.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bri-rosa.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bri-seda.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bri-tres-oros.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/cool.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/dec-azul-rey.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/dec-negro.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/dec-tiza.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/emocional.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/empatica.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/emprendedora.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/encantadora.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/entretenida.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/exagerada.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fiera.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fot-adaptable.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fot-bipolar.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fot-doble.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fot-inestable.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fot-polifacetica.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fot-susceptible.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/generosa.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/glamorosa.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/granizado.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/imponente.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/innovadora.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/inspiradora.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/intimidante.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/liberada.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/marinera.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/materialista.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/neurotica.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/original.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/provocadora.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/provocativa.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/refinada.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/regia.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/serena.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/tirana.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/toxica.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/trascendental.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/vanguardista.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/visos-plata.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/visos-rosa.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/zangana.webp"
-  ],
+  "fingerprint": "9cf7ce2f546eb76457b17013e1bf719b7fabaeb87e13ade3ff0be1f2e2d88955",
+  "exported_objects": 228,
+  "missing_objects": [],
   "files": [
     {
       "bucket": "catalog-assets",
@@ -68,7 +11,7 @@
       "sha256": "43d210215b6279389af849573287d5ef2c0d6911e2bf32a970d317891c818ee9",
       "bytes": 41628,
       "mime": "image/webp",
-      "mediaAssetId": "e6d7fe85-d315-4c31-949f-25661c41fb10",
+      "mediaAssetId": "a00d5884-e820-4c31-8239-fd79149e1d15",
       "owners": [
         {
           "productId": null,
@@ -84,7 +27,7 @@
       "sha256": "04348d38a5ed16ecd608d2e6b94a86a4a4275171855d9001d55cb8bbca873632",
       "bytes": 41122,
       "mime": "image/webp",
-      "mediaAssetId": "0027b493-cdf5-4a1e-bd24-4b31029b5d2a",
+      "mediaAssetId": "f3bf1414-2945-4ebe-898a-dc0db4378fba",
       "owners": [
         {
           "productId": null,
@@ -100,7 +43,7 @@
       "sha256": "7b03c9b0679c1fce8fb99f23d1a12dcd1dce9d984683ebd266e56f4cb1a62c8c",
       "bytes": 81320,
       "mime": "image/webp",
-      "mediaAssetId": "5eaa9f53-da16-4cf9-8afa-0efdb7c6460e",
+      "mediaAssetId": "a3340431-cabe-4905-b19c-ab2ef4b70870",
       "owners": [
         {
           "productId": null,
@@ -116,7 +59,7 @@
       "sha256": "cfe432e27548e85dc2dd6f8b5e1d2af05f8376e218417390b5e6b68716a27e0a",
       "bytes": 42384,
       "mime": "image/webp",
-      "mediaAssetId": "4094ad16-e6c3-474f-8af9-ee038cf2ecf2",
+      "mediaAssetId": "519abf8d-2eee-4922-927e-525932957d30",
       "owners": [
         {
           "productId": null,
@@ -132,7 +75,7 @@
       "sha256": "f60b66f4190a39c6e14f4928e9f642e5c42e3f149d2c499712721764eeb57fd2",
       "bytes": 43530,
       "mime": "image/webp",
-      "mediaAssetId": "fe4ba4bf-5608-4883-8732-ced1199bc7bd",
+      "mediaAssetId": "e73d4582-0f6c-4b56-b859-84f33fdfe2be",
       "owners": [
         {
           "productId": null,
@@ -148,7 +91,7 @@
       "sha256": "876bfbde96256250a5c4f5d8731b59d28cf065d1a58a050385c781604ed6feac",
       "bytes": 38158,
       "mime": "image/webp",
-      "mediaAssetId": "c4e7edaa-662e-4a0f-9038-44ad096b652b",
+      "mediaAssetId": "df1776a4-2fa3-4f34-8a87-beaf13d29304",
       "owners": [
         {
           "productId": null,
@@ -164,7 +107,7 @@
       "sha256": "4dfff8f08beee77aaacf81136caa0c22224b331672ef3ad6d8684630f92120ef",
       "bytes": 43038,
       "mime": "image/webp",
-      "mediaAssetId": "2e2efee2-4c66-43eb-ad96-291f9bdcf519",
+      "mediaAssetId": "fee45b9b-518e-4a84-a2bc-ecc1746bfd5c",
       "owners": [
         {
           "productId": null,
@@ -180,7 +123,7 @@
       "sha256": "58be75c02150262182a1b30c510ac4ee04d86bd80a60a2768d9887ef27867a5a",
       "bytes": 42772,
       "mime": "image/webp",
-      "mediaAssetId": "77ea953a-2ef0-4892-9d4b-07e849ebaf06",
+      "mediaAssetId": "855434fe-e635-4bdf-8c0b-72862ee785c2",
       "owners": [
         {
           "productId": null,
@@ -196,7 +139,7 @@
       "sha256": "4112ad4f1511f16c157d3b82acc18ecf6c3efb69f4e4a72407984e97a64b302c",
       "bytes": 43134,
       "mime": "image/webp",
-      "mediaAssetId": "889f49f3-f236-4cc0-a508-6a92c3f77a68",
+      "mediaAssetId": "ceaf9867-2878-491a-80d5-a84e4be19b1b",
       "owners": [
         {
           "productId": null,
@@ -212,7 +155,7 @@
       "sha256": "c8812b795237c46996107c82ac42169046d6f554cc9ffcd22fdf6f41b510763e",
       "bytes": 39672,
       "mime": "image/webp",
-      "mediaAssetId": "bb2707c8-6538-4fdb-a2a1-a163157015b8",
+      "mediaAssetId": "ca784080-ca59-4f7e-b36a-2558f04ea23b",
       "owners": [
         {
           "productId": null,
@@ -228,7 +171,7 @@
       "sha256": "268aa1f2890e9d9f9a0da276a3b96c88cb595404893012be31bb3c15d694a30f",
       "bytes": 38614,
       "mime": "image/webp",
-      "mediaAssetId": "83c50dc7-70ce-4626-b2f3-be6019321ea2",
+      "mediaAssetId": "b07cc4ca-f2e2-4557-bb0d-5ab11fd75332",
       "owners": [
         {
           "productId": null,
@@ -244,7 +187,7 @@
       "sha256": "1b5bd451dc32c47db054eda710e0b87191919c8ca06ac2270e276f6fae5b4b3c",
       "bytes": 41688,
       "mime": "image/webp",
-      "mediaAssetId": "50270a23-df7a-497d-8cef-0966edd9807c",
+      "mediaAssetId": "7ee4056d-df63-4dc7-aa22-2c911bbd787d",
       "owners": [
         {
           "productId": null,
@@ -260,7 +203,7 @@
       "sha256": "d082dd27dc42f934de638b61386209b345dd2855bc60caeec4d7ef0e4c3616cc",
       "bytes": 54534,
       "mime": "image/webp",
-      "mediaAssetId": "faa92ca0-0828-4681-a684-e465585a473e",
+      "mediaAssetId": "e6808471-0d7d-4bc9-b444-3b1a4ed380cd",
       "owners": [
         {
           "productId": null,
@@ -276,7 +219,7 @@
       "sha256": "85794958d6703957d0d586289b3227b444021c31bfc9788088a99560b54f310c",
       "bytes": 38872,
       "mime": "image/webp",
-      "mediaAssetId": "a341c1b7-a190-42fb-ac0c-73f73c2f4d16",
+      "mediaAssetId": "65c30daf-0e5b-4b62-adf5-03d318275810",
       "owners": [
         {
           "productId": null,
@@ -292,7 +235,7 @@
       "sha256": "e39df6c9a31d0fb8292b9a827a738a2ba0d13539f587fccb3044102f88c7b8c1",
       "bytes": 72326,
       "mime": "image/webp",
-      "mediaAssetId": "eb17aec7-b903-4df5-b4cb-8c2c7e2c7f23",
+      "mediaAssetId": "bad67a7e-96d8-4add-93b6-cd4c269ca553",
       "owners": [
         {
           "productId": null,
@@ -308,7 +251,7 @@
       "sha256": "92100a18559aefa6e65600341f92032728e4b16863c6c279b4dfbbd3b13803df",
       "bytes": 38460,
       "mime": "image/webp",
-      "mediaAssetId": "384b0959-3d60-484f-aea0-f936b3e11093",
+      "mediaAssetId": "2fe8d788-5294-461b-af07-4a68d932c554",
       "owners": [
         {
           "productId": null,
@@ -324,7 +267,7 @@
       "sha256": "994988a6a99a474e4854b6a8f03bc85444d7788e94391591c5c7d7c13403d44e",
       "bytes": 41092,
       "mime": "image/webp",
-      "mediaAssetId": "64f00854-71fd-4e96-9a8d-6eaf6f8adadb",
+      "mediaAssetId": "b30bc3f2-1f75-4437-ad94-0470b1fca242",
       "owners": [
         {
           "productId": null,
@@ -340,7 +283,7 @@
       "sha256": "e5518e4eb73dc843ed0800e3024e64227bc57c01cf49bc8254f26198fe97a46c",
       "bytes": 39142,
       "mime": "image/webp",
-      "mediaAssetId": "34a4811e-72ab-4e38-a26b-5606e5fb9edc",
+      "mediaAssetId": "e96953a8-3d50-49b7-b6e0-51d92e830caa",
       "owners": [
         {
           "productId": null,
@@ -356,7 +299,7 @@
       "sha256": "7a87702f0b896d42ebba9bf401f46cf8fa33774ec9a71e53617647b9ebbdb669",
       "bytes": 38710,
       "mime": "image/webp",
-      "mediaAssetId": "bc0eabe5-24fb-4411-a001-7bb7c79666ae",
+      "mediaAssetId": "9460a6e9-971e-4a6b-9821-3f70b64c6eb5",
       "owners": [
         {
           "productId": null,
@@ -372,7 +315,7 @@
       "sha256": "9a344cbca845fbc157656cf589b597b13d1821cdc9650a443f201a7a36d0389e",
       "bytes": 79028,
       "mime": "image/webp",
-      "mediaAssetId": "7f6132c1-daf3-45af-a674-1db5e24c5d76",
+      "mediaAssetId": "daf9a12e-02a6-4e54-8225-a49e9e08fafe",
       "owners": [
         {
           "productId": null,
@@ -388,7 +331,7 @@
       "sha256": "417342dd4e982866c93e905014042fc87c86b412e9452adce92bd68174c57c42",
       "bytes": 57934,
       "mime": "image/webp",
-      "mediaAssetId": "91295b6a-af06-4a9b-8fcb-d6688a5ad1d0",
+      "mediaAssetId": "cce8b40f-48aa-49a9-852c-31e4cc980c1d",
       "owners": [
         {
           "productId": null,
@@ -404,7 +347,7 @@
       "sha256": "1685436dddee8860f8c902ea7e49033e5f552bd7696c7e705e2854ba05c97292",
       "bytes": 37448,
       "mime": "image/webp",
-      "mediaAssetId": "2d1a37e2-f21a-47ea-bb3f-71f7119b6997",
+      "mediaAssetId": "614fda89-6b47-4ec4-9ab9-13a4f76e7be4",
       "owners": [
         {
           "productId": null,
@@ -420,7 +363,7 @@
       "sha256": "74fc036000661d2708fa0db35b71b306e2fc580bfccccfe75010faab1818cf57",
       "bytes": 43768,
       "mime": "image/webp",
-      "mediaAssetId": "1d062441-286e-467b-922e-9b5644d83012",
+      "mediaAssetId": "df31eff9-7a15-40a1-89cd-8b858e87a15b",
       "owners": [
         {
           "productId": null,
@@ -436,7 +379,7 @@
       "sha256": "1c7d0192eef7c10d373ba2675eb08236c96830ef5386d81a50dfbde2a61e3d30",
       "bytes": 40404,
       "mime": "image/webp",
-      "mediaAssetId": "1ef865f5-a1a3-46a3-8ecd-e73878679728",
+      "mediaAssetId": "1a148cdd-c6f4-4036-b2dd-2ce5bb505447",
       "owners": [
         {
           "productId": null,
@@ -452,7 +395,7 @@
       "sha256": "28c1d70687c0c7260bd0e2ed36157a4607cc8bbdc9031b5392d6e0a6f5e57919",
       "bytes": 39716,
       "mime": "image/webp",
-      "mediaAssetId": "7cdf396b-c49a-478e-aeb2-85be9d0e9394",
+      "mediaAssetId": "5d2a1e37-acc6-47b7-8825-15348fc49f73",
       "owners": [
         {
           "productId": null,
@@ -468,7 +411,7 @@
       "sha256": "d50463934d847bb7fe2f9877b5a9ae01c82f0cc7e2c6210e28b5c04df0a1fe1b",
       "bytes": 40786,
       "mime": "image/webp",
-      "mediaAssetId": "7370dac0-5598-4a09-b5ef-cba3b695b277",
+      "mediaAssetId": "ec5b74b2-f106-4f0b-a953-8cde99bc5f0e",
       "owners": [
         {
           "productId": null,
@@ -484,7 +427,7 @@
       "sha256": "aa7806a12096ebb5b6578742f2b705bf3572bde9f94daff2835106bc57d28fdc",
       "bytes": 42216,
       "mime": "image/webp",
-      "mediaAssetId": "f4af98c1-70bf-4cdb-b17d-a9cb87b3cb35",
+      "mediaAssetId": "3a0a6e28-cf26-438d-b557-5a20adb489e4",
       "owners": [
         {
           "productId": null,
@@ -500,7 +443,7 @@
       "sha256": "eaaed6e015068d9bd4017ad48e676c2e4129fdd042de8de3970d672ac296fae0",
       "bytes": 84118,
       "mime": "image/webp",
-      "mediaAssetId": "690aedd7-1653-44b4-bdad-7c97a63692f9",
+      "mediaAssetId": "ec2d9965-aa24-4333-bbf7-55855ecca31d",
       "owners": [
         {
           "productId": null,
@@ -516,7 +459,7 @@
       "sha256": "9b65800d5447c7752ce6b1cd627bd3161ee0bcd8854f48a58c399cbee51103a3",
       "bytes": 70640,
       "mime": "image/webp",
-      "mediaAssetId": "ea6dcf55-a289-408d-9d59-0e8fc277a4fd",
+      "mediaAssetId": "111ffffb-5742-4ccc-9bad-15b6bab2ef5d",
       "owners": [
         {
           "productId": null,
@@ -532,7 +475,7 @@
       "sha256": "3d4261ad9e2dc3562c8874def277ca42bd7062ecf01cb1d0abf8371d4577441c",
       "bytes": 42216,
       "mime": "image/webp",
-      "mediaAssetId": "7f8151bf-c51b-4f66-9f80-9b69dcc4e209",
+      "mediaAssetId": "5e829cfd-af68-425a-af79-78df645e03ad",
       "owners": [
         {
           "productId": null,
@@ -548,7 +491,7 @@
       "sha256": "9be9b6ae53e56a2b11c9bf187020c08fe535a9b4642f98f6929469a5da3ca619",
       "bytes": 43802,
       "mime": "image/webp",
-      "mediaAssetId": "6936c226-6d4f-40e4-b29f-3767e79e4a8c",
+      "mediaAssetId": "266b0f54-4d66-4f90-a296-898201a68e97",
       "owners": [
         {
           "productId": null,
@@ -564,7 +507,7 @@
       "sha256": "3109d3d65809dd328d38eca912e21a767c1e21172378f11c9fe0835ce7da7e91",
       "bytes": 41438,
       "mime": "image/webp",
-      "mediaAssetId": "255cf5e0-4323-468a-8850-4cbdb4903d21",
+      "mediaAssetId": "91448d8d-02de-4618-9864-26cc87f4e306",
       "owners": [
         {
           "productId": null,
@@ -580,7 +523,7 @@
       "sha256": "10f8f1b8cb0f6b2ab8bf0649ca22c462e1d2ed7c3ea69f6c14df13c25f1c0f21",
       "bytes": 39908,
       "mime": "image/webp",
-      "mediaAssetId": "a2a0850f-22a3-4568-9e69-7fbc49decbe3",
+      "mediaAssetId": "c3b321d6-e7a4-42b3-84c0-22f5a32c76d3",
       "owners": [
         {
           "productId": null,
@@ -596,7 +539,7 @@
       "sha256": "2881a610d7e897f1fee77e0f0fe9d5c777982d34e9d0adb6a76157e1bc30b494",
       "bytes": 46946,
       "mime": "image/webp",
-      "mediaAssetId": "ed109499-df66-4b7d-8a93-65a8477baf22",
+      "mediaAssetId": "cd3ed8c0-3ce5-43b8-9ccd-f89f253b9a8e",
       "owners": [
         {
           "productId": null,
@@ -612,7 +555,7 @@
       "sha256": "05bc5faced372ecbe899ac338fe50c5971c092dc78aecc6b20f16c1eb230b382",
       "bytes": 46242,
       "mime": "image/webp",
-      "mediaAssetId": "1ee5f543-d3e6-40f6-b588-8279423df5c0",
+      "mediaAssetId": "ea662661-9437-4feb-82e2-5db0dfa90073",
       "owners": [
         {
           "productId": null,
@@ -628,7 +571,7 @@
       "sha256": "1f1901f963ac9da389719918595f30f601bac921533d14963e1095b8e2c89388",
       "bytes": 42920,
       "mime": "image/webp",
-      "mediaAssetId": "270185ae-ffcc-43e4-afcd-b54efd30034b",
+      "mediaAssetId": "4a3becc4-1d1f-42cf-b79c-ef349fb879be",
       "owners": [
         {
           "productId": null,
@@ -644,7 +587,7 @@
       "sha256": "8931a15db4d7eae9bc5fc05ca94e00a0c3a593a960888482ed65ca54f647d3a2",
       "bytes": 38600,
       "mime": "image/webp",
-      "mediaAssetId": "1beea90d-2e2c-400d-827a-361fa5bbb720",
+      "mediaAssetId": "11b5d4dc-3387-4718-aa61-f550feb59410",
       "owners": [
         {
           "productId": null,
@@ -660,7 +603,7 @@
       "sha256": "a94fe2fbf3567e2bf954cc459b0f153fd78856678caa30db08dea27fae870cef",
       "bytes": 42820,
       "mime": "image/webp",
-      "mediaAssetId": "1ae2b74b-ff8b-406a-b170-ea051d02d8d9",
+      "mediaAssetId": "6d27b6ac-2e7c-46c1-be55-753079891da7",
       "owners": [
         {
           "productId": null,
@@ -676,7 +619,7 @@
       "sha256": "c6e9610c83bcda051f6fd681f2add1e24599b121c07e57bde009b502d57feccb",
       "bytes": 59446,
       "mime": "image/webp",
-      "mediaAssetId": "262c0601-3a88-4b3a-bd26-643d2fbbc478",
+      "mediaAssetId": "9e941e34-ae3d-495d-a8c9-3a39d9d75c31",
       "owners": [
         {
           "productId": null,
@@ -692,7 +635,7 @@
       "sha256": "93cd4ee36d2a4a31b0e87ea7dc4e97f37b8bf7e6c2f151c36c5e7995879b08a0",
       "bytes": 74276,
       "mime": "image/webp",
-      "mediaAssetId": "8ef24d6c-c59f-4f8c-8f2e-282459cb5978",
+      "mediaAssetId": "b686daf1-731f-4730-b9ed-936718d283b0",
       "owners": [
         {
           "productId": null,
@@ -708,7 +651,7 @@
       "sha256": "5df9cf383c7e03ac7151e40bcf8da01e91c3b7971251c69687130af94836aad6",
       "bytes": 40048,
       "mime": "image/webp",
-      "mediaAssetId": "a914209e-067a-407a-994c-946914250238",
+      "mediaAssetId": "dc19408c-a5b5-449c-bd9b-6276077e9d2d",
       "owners": [
         {
           "productId": null,
@@ -724,7 +667,7 @@
       "sha256": "a6a218b9ce4380346546dec284b7e1bded9ed8ad02e903afad20679050e9c10c",
       "bytes": 83884,
       "mime": "image/webp",
-      "mediaAssetId": "5e0d2678-a9d8-41c1-a265-c433a127763b",
+      "mediaAssetId": "8fec97ff-46f2-4b93-b863-bebbf531d595",
       "owners": [
         {
           "productId": null,
@@ -740,7 +683,7 @@
       "sha256": "51fdad96b0cb9fdd761b9da49d008b51c5da8a7b453045a6bad0a31a9f451056",
       "bytes": 42398,
       "mime": "image/webp",
-      "mediaAssetId": "ea376989-d97c-4546-9182-ccd60efe3863",
+      "mediaAssetId": "56fed71f-a176-4252-86ac-15078e96c574",
       "owners": [
         {
           "productId": null,
@@ -756,7 +699,7 @@
       "sha256": "0d040e7a7ab0494069ca2b6745de852197c122793c51dd5ddb4e4a707f41ba74",
       "bytes": 40652,
       "mime": "image/webp",
-      "mediaAssetId": "d459f7e6-2ba5-4fa5-bc6b-ffa38c5c68bb",
+      "mediaAssetId": "48ca811e-62be-4c53-a238-1d9af5b8ab39",
       "owners": [
         {
           "productId": null,
@@ -772,7 +715,7 @@
       "sha256": "6f2c59ce4d3721f1a74c84d7212c044c1a11333d4ede4aec8ee980e12b3d37f3",
       "bytes": 40726,
       "mime": "image/webp",
-      "mediaAssetId": "156e8c3e-7287-484b-9ac8-4aefd6526fae",
+      "mediaAssetId": "b2041f56-bd88-4fd0-abae-dbb717a35fad",
       "owners": [
         {
           "productId": null,
@@ -788,7 +731,7 @@
       "sha256": "340c1dc3af360bd981e18b1e8b4efd3c41166340cb044b722d7e22384df92846",
       "bytes": 37262,
       "mime": "image/webp",
-      "mediaAssetId": "3fd4c0cd-4f33-44b9-8bb3-57050260b108",
+      "mediaAssetId": "af1a7694-68a7-40b3-a344-5ff74167ee03",
       "owners": [
         {
           "productId": null,
@@ -804,7 +747,7 @@
       "sha256": "e9fbccd8fdcbc7d7b68cdc1573929ac1fb2fa4e773b0e181d7c953b23c819bfc",
       "bytes": 70682,
       "mime": "image/webp",
-      "mediaAssetId": "46fe74be-9ca9-491a-9674-efe0e3e884e5",
+      "mediaAssetId": "9835015b-a11f-4eab-a30c-429c9c621fcc",
       "owners": [
         {
           "productId": null,
@@ -820,7 +763,7 @@
       "sha256": "3143a038a0b63db90f427c9c2597801e8d75080453a7e3692d5eed3efbdf0389",
       "bytes": 40378,
       "mime": "image/webp",
-      "mediaAssetId": "e9ccfb21-98b1-432a-8e2d-09e90d122ecb",
+      "mediaAssetId": "f354b849-4c62-4814-893f-c47b1ccece7d",
       "owners": [
         {
           "productId": null,
@@ -836,7 +779,7 @@
       "sha256": "f10e2213843f0c1f21d98323def42d4950222da35337daf203825d6415cd1ba6",
       "bytes": 33888,
       "mime": "image/webp",
-      "mediaAssetId": "08191065-655e-4257-a0d9-233ab323a5ba",
+      "mediaAssetId": "0894a483-b182-42bc-99b2-b954d8e7a0dd",
       "owners": [
         {
           "productId": null,
@@ -852,7 +795,7 @@
       "sha256": "1b17124f0a8fd7505f13967aaf8f4891f1708cfc993c4b25bdef130313a2bcc9",
       "bytes": 39066,
       "mime": "image/webp",
-      "mediaAssetId": "41e3f695-1427-45fd-9045-53b3f3b6c4e8",
+      "mediaAssetId": "7fda09cb-b0d1-41ff-ab61-f6c72aaef201",
       "owners": [
         {
           "productId": null,
@@ -868,7 +811,7 @@
       "sha256": "c75c15bdc199d2d376f46def0db3a9248fb639b4d0c3bdfe820942932e75faa6",
       "bytes": 40204,
       "mime": "image/webp",
-      "mediaAssetId": "a7acecae-0f95-4047-b1e4-710f142be566",
+      "mediaAssetId": "6d5e1d6c-7577-490e-9ffb-a382fedffd41",
       "owners": [
         {
           "productId": null,
@@ -884,7 +827,7 @@
       "sha256": "de150f212883c441e097e16d9932849a27afc021acacfef466705446b3319e7b",
       "bytes": 66310,
       "mime": "image/webp",
-      "mediaAssetId": "afb8e0b9-399a-4eba-b1e0-45daef99d6d9",
+      "mediaAssetId": "0de4bcfd-2cfc-400c-86d3-388d8387d6a0",
       "owners": [
         {
           "productId": null,
@@ -900,7 +843,7 @@
       "sha256": "63609b6c68f6537bfd36f7629f9911517f387ad880365aedffadd535a01d31e1",
       "bytes": 42708,
       "mime": "image/webp",
-      "mediaAssetId": "021e29b0-7b5f-4ff2-a369-376ebf368d0e",
+      "mediaAssetId": "497279ba-9c3c-41f5-9815-d467e35f65ee",
       "owners": [
         {
           "productId": null,
@@ -916,7 +859,7 @@
       "sha256": "5cc7a1ec55db62fda98e6f05b20de1e63f3abb7dd212f5b173db79ff15a69bf3",
       "bytes": 38318,
       "mime": "image/webp",
-      "mediaAssetId": "0e9f492b-c311-4fe4-9af4-7b261690fb57",
+      "mediaAssetId": "21d4a2fc-a107-40b0-97ee-399afc97377c",
       "owners": [
         {
           "productId": null,
@@ -932,7 +875,7 @@
       "sha256": "f9bb16a163cb25798ee445f276759131da571aa72d7b354afa635e5c76a54e4c",
       "bytes": 34680,
       "mime": "image/webp",
-      "mediaAssetId": "f7af0eb5-6d7c-4167-9299-13a11a74f1c2",
+      "mediaAssetId": "044257c1-3d12-4b3c-94c4-1a1160981a2a",
       "owners": [
         {
           "productId": null,
@@ -948,7 +891,7 @@
       "sha256": "7e413f54a24752669c9cec011f39874a6a74e32dc05256aaab8c885906c3aa98",
       "bytes": 45350,
       "mime": "image/webp",
-      "mediaAssetId": "c44734da-cfd6-43c4-8100-4461e1f36f0d",
+      "mediaAssetId": "9b705652-131d-4d35-95f7-7d57d9645e0a",
       "owners": [
         {
           "productId": null,
@@ -964,7 +907,7 @@
       "sha256": "1c0e069a08180f4336f55a86e26ad631dbd9e8f60462f0639879a53994448661",
       "bytes": 41126,
       "mime": "image/webp",
-      "mediaAssetId": "7f410395-9ba8-4dd8-b29b-3a7f708ab011",
+      "mediaAssetId": "9e022f9f-e803-4e87-b104-e0ef772b124b",
       "owners": [
         {
           "productId": null,
@@ -980,7 +923,7 @@
       "sha256": "248614617880d0f13dcb369a2c879f96e5289c3ae94f5ad78c8b545d0bc37792",
       "bytes": 43762,
       "mime": "image/webp",
-      "mediaAssetId": "3bfba8a0-d3cf-47e4-95d8-d79863445bec",
+      "mediaAssetId": "0db6b7c5-37d4-4bdb-8e20-ae41ebd31d4d",
       "owners": [
         {
           "productId": null,
@@ -996,7 +939,7 @@
       "sha256": "7460074c4e7b77f08fb3abb84d4185ab7ddfcbe3a923d7ee56bfb7c356d3bfe0",
       "bytes": 43904,
       "mime": "image/webp",
-      "mediaAssetId": "b3712e50-ce5f-473f-9c07-01d675472683",
+      "mediaAssetId": "5ed57940-9327-47d2-901e-24f4966b4ba9",
       "owners": [
         {
           "productId": null,
@@ -1012,7 +955,7 @@
       "sha256": "cad764ee4cabb6263ac2b7240d718bf556ed596faa3d897d60bb292d2e3d9024",
       "bytes": 38220,
       "mime": "image/webp",
-      "mediaAssetId": "85c82d38-0a38-4e1e-9b99-91b57d85c194",
+      "mediaAssetId": "65e9679f-cd41-415d-84ff-52dbcddfe188",
       "owners": [
         {
           "productId": null,
@@ -1028,7 +971,7 @@
       "sha256": "2aa328aee7d6d7879adb662b705d3a93c0bcd598a8b350fe72cdbfccd00250d4",
       "bytes": 64960,
       "mime": "image/webp",
-      "mediaAssetId": "cff56568-1f3d-424f-97ea-4e7299256f34",
+      "mediaAssetId": "615a1e92-d955-4b9c-bbb1-86773efa9d03",
       "owners": [
         {
           "productId": null,
@@ -1044,7 +987,7 @@
       "sha256": "8b15369d682aae545596d8b8c163912fe0a99b2a89599e7666bf3523dd4cd73b",
       "bytes": 41604,
       "mime": "image/webp",
-      "mediaAssetId": "07916a13-bd58-4be4-b473-11ed2736f25c",
+      "mediaAssetId": "ec1a1af0-905d-4af1-bb1f-772a66ef1a5a",
       "owners": [
         {
           "productId": null,
@@ -1060,7 +1003,7 @@
       "sha256": "4721f1cbe6a866d874c542a88e9e756c526f4757b74bcfa7d417f66fa0557c20",
       "bytes": 43194,
       "mime": "image/webp",
-      "mediaAssetId": "6f2d7f2e-4cc7-40ca-b842-24fd2ffe7228",
+      "mediaAssetId": "57663f86-6f4a-439f-b29c-b206dcd7b13e",
       "owners": [
         {
           "productId": null,
@@ -1076,7 +1019,7 @@
       "sha256": "2bca0a3663bbf7d4bc41c2ae6e1718574eb50f865869fe3e71faacc2f03b72ef",
       "bytes": 60768,
       "mime": "image/webp",
-      "mediaAssetId": "fbbaf0f0-1594-41a5-a53a-1fdb8f0f4428",
+      "mediaAssetId": "d82d6440-e7a5-4c18-aa89-c8c9f9fdf998",
       "owners": [
         {
           "productId": null,
@@ -1092,7 +1035,7 @@
       "sha256": "16c271354551a4e8ca18578cd3efbe36fa93007c15a075dcb1857e182f43472f",
       "bytes": 76560,
       "mime": "image/webp",
-      "mediaAssetId": "25c79676-a1b5-4c7d-95ec-a0d02234fa3f",
+      "mediaAssetId": "21028a54-fff4-4957-ba4a-87eb6c079369",
       "owners": [
         {
           "productId": null,
@@ -1108,7 +1051,7 @@
       "sha256": "fb7b6380331b67e43bd00ceaea74afa5692734058d21959c16658b092a74742b",
       "bytes": 37452,
       "mime": "image/webp",
-      "mediaAssetId": "583cae8e-7c7b-4835-8156-157c2f7eabd7",
+      "mediaAssetId": "d5a7c8eb-6436-4174-91a6-a965b0eb9c38",
       "owners": [
         {
           "productId": null,
@@ -1124,7 +1067,7 @@
       "sha256": "56c0380394c45d2017db0836915c7d74cb944004f0b63b259ee01d9cbea6cff4",
       "bytes": 34080,
       "mime": "image/webp",
-      "mediaAssetId": "2faad112-4dcb-48b8-9382-2b11b7558040",
+      "mediaAssetId": "bb520d4a-c932-4cfc-a3b0-df0ba795550e",
       "owners": [
         {
           "productId": null,
@@ -1140,7 +1083,7 @@
       "sha256": "23fdca41d68e0f9c3c18e131ac4924ff83860ba437427e6c9e53229ec91c70c8",
       "bytes": 38216,
       "mime": "image/webp",
-      "mediaAssetId": "fd289829-70b7-49d7-8475-446cf471fbe8",
+      "mediaAssetId": "bfb240e6-b657-4149-b74d-dfc802f46e83",
       "owners": [
         {
           "productId": null,
@@ -1156,7 +1099,7 @@
       "sha256": "3a7c0ec90ee06f9318139ee581926d7b527dee5f6affde7e1ccfa5cced337aca",
       "bytes": 41212,
       "mime": "image/webp",
-      "mediaAssetId": "842f73f4-5bae-4996-9cba-5b2556ab54e3",
+      "mediaAssetId": "d676cd80-e6cb-41d9-b9aa-5fa7a3e9a790",
       "owners": [
         {
           "productId": null,
@@ -1172,11 +1115,27 @@
       "sha256": "6ae3e535e9ed384f95bb437c0d412c7d33874e1c059207c17e4c31a7598a00bb",
       "bytes": 40346,
       "mime": "image/webp",
-      "mediaAssetId": "10713e45-19fd-4367-bb1a-8468a5393ae2",
+      "mediaAssetId": "f92bc6f7-347e-446b-b73a-b3be79959907",
       "owners": [
         {
           "productId": null,
           "variantId": "ffc2fbd6-7088-46aa-8cf3-5694fdb8133e",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/main.webp",
+      "sha256": "2178be81b41087cab951588e425fd1d69e9240665399f500b4760020e11c395d",
+      "bytes": 50200,
+      "mime": "image/webp",
+      "mediaAssetId": "d005296d-2031-4b72-8845-83ef1a95a3f6",
+      "owners": [
+        {
+          "productId": "e909fcdf-fe79-4e55-8d6c-59cfe7fc8b6e",
+          "variantId": null,
           "role": "main"
         }
       ],
@@ -1216,6 +1175,22 @@
     },
     {
       "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/actual.webp",
+      "sha256": "d51a9df44076c9dc3c464c5187ee8d505a9924ba7db78c7ff2081f4cad010bec",
+      "bytes": 60158,
+      "mime": "image/webp",
+      "mediaAssetId": "7f83aa4e-a642-4002-9dd2-8a922854a4d9",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "958dbc0b-d0f5-49ee-833d-c57edc461219",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
       "path": "productos/MAS-ESM-4C95F3/tonos/adorable.webp",
       "sha256": "960ac3110437076449221a8c0514295911c6387ba338c8a29ecaa76ccdf29491",
       "bytes": 30350,
@@ -1225,6 +1200,22 @@
         {
           "productId": null,
           "variantId": "ebd6be7e-92ca-4b4b-9233-4cfe633b6a84",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/amable.webp",
+      "sha256": "b5778ebb9f28acf7c38b55b8a26b9008f816c1bec3bf64be0539851431dff57e",
+      "bytes": 60194,
+      "mime": "image/webp",
+      "mediaAssetId": "d20504cd-0299-4642-bea9-00f333696818",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "8711f1e0-1037-4c67-afa1-3ee9da97804b",
           "role": "main"
         }
       ],
@@ -1296,6 +1287,22 @@
     },
     {
       "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/artesana.webp",
+      "sha256": "2b44d0d3743eb447620444418bd1ce39988b88a706938995ee05bd6ef9d925ee",
+      "bytes": 62550,
+      "mime": "image/webp",
+      "mediaAssetId": "2b5d9109-4b36-4a47-aa94-448685903114",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "00b83203-7ff2-4a21-8a57-6cddaa70b6a0",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
       "path": "productos/MAS-ESM-4C95F3/tonos/astuta.webp",
       "sha256": "697a3b49ca2dbe52d7a7556e69511be7c68e6f3ace3e2f19528da19ef717f1d0",
       "bytes": 30108,
@@ -1353,6 +1360,22 @@
         {
           "productId": null,
           "variantId": "c2d51191-6465-49d7-983b-ebb0efaad2ff",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/autentica.webp",
+      "sha256": "f3b353928663b61f1fb84dff4c938ec3d22331cab05f7a463b89db8b89d85a40",
+      "bytes": 56290,
+      "mime": "image/webp",
+      "mediaAssetId": "99f81c7a-6b22-448a-82a3-6a9c117fd377",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "76d094d8-eaa3-4763-a84d-22411b223623",
           "role": "main"
         }
       ],
@@ -1433,6 +1456,166 @@
         {
           "productId": null,
           "variantId": "67adc5f8-8e58-403d-9957-adf0fa040746",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/bri-ajedrez.webp",
+      "sha256": "b7f8bff34bc128a7d24059ed69264f1f5fb966675e4b5af79daff91c50531ebd",
+      "bytes": 57150,
+      "mime": "image/webp",
+      "mediaAssetId": "5a95867c-13e5-454f-9136-b1148b68b95f",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "1db49f80-80b4-46bd-879e-758f07e292dc",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/bri-arcoiris.webp",
+      "sha256": "e0863ca5d4a599660b622140807142e085131c8a06fa4b9f209492cc4b2da50d",
+      "bytes": 58656,
+      "mime": "image/webp",
+      "mediaAssetId": "d1aa04bf-719f-47a0-9d06-6d0ad1bf8ddb",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "bb633ae0-c624-48b8-ad79-5c89fea94d68",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/bri-benevolente.webp",
+      "sha256": "b043e3ad427f74b8bee0dcad0d7970d1f487ee68449edb61ccc7de3055c74b6c",
+      "bytes": 59510,
+      "mime": "image/webp",
+      "mediaAssetId": "edaa0aca-e347-4c3a-bd5a-bbc3ab3a38de",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "aa4d2531-cb29-4c0a-a40d-3d967f0ea130",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/bri-confianza.webp",
+      "sha256": "ab90f2b4c077dfd1a8752eb35655cba1e4969015e0edcc3a96295e1b6f3f50f8",
+      "bytes": 64558,
+      "mime": "image/webp",
+      "mediaAssetId": "77ce700b-1258-4972-aff7-192be8eb98e1",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "0531dae6-90f9-4668-83a3-bc265c6b5821",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/bri-coral.webp",
+      "sha256": "ef3febd3eabd6bef1ebb0c345fcf4789cf1c67a8c5ad29e96b67cc48f59eed18",
+      "bytes": 61430,
+      "mime": "image/webp",
+      "mediaAssetId": "89170e3c-4985-4d4c-844f-eb0bdd8aad8f",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "b1ac0f95-0d86-4ce5-854a-48ee96567dda",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/bri-destellos.webp",
+      "sha256": "4d4ad4cba66bb3335a1e7f6b1e54b33e9983e1a1ce1bbb1da4a27ecdd97931a2",
+      "bytes": 62054,
+      "mime": "image/webp",
+      "mediaAssetId": "3f24b9a5-32b9-4bf8-9c92-dfdfe951c7e6",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "fbe8685e-1fa6-4b39-878e-f51f31b8d506",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/bri-galactico.webp",
+      "sha256": "dbce32d20601610c977249ffdca3d962b067c5346a46ea8747e44308f417092f",
+      "bytes": 62168,
+      "mime": "image/webp",
+      "mediaAssetId": "b1295516-9360-4575-b693-ae345d329a87",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "2d6896cd-a5c2-4001-8a03-1e7eefcc107c",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/bri-rosa.webp",
+      "sha256": "e6ee5c62a9c38ef8af87048cce8461427631e6a33f1e553a59133c5f8d77108a",
+      "bytes": 63188,
+      "mime": "image/webp",
+      "mediaAssetId": "eb56feb0-1fb0-4e25-a8b5-238b400becb9",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "926b45ca-8ea7-4154-b6f9-ac178dee0557",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/bri-seda.webp",
+      "sha256": "481a87d905cc7743147e947cd3ffb013edf89551e04c72f244d67bfacfbbcc70",
+      "bytes": 55596,
+      "mime": "image/webp",
+      "mediaAssetId": "5e8751e0-6b05-40cd-9484-1f56f30cdf24",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "9e3f1d03-666d-426d-bac3-cca4826ae6a4",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/bri-tres-oros.webp",
+      "sha256": "58c81258f8fc7591742aaad3bc895d0e5d764ff454a8577d6d2e40477226eab2",
+      "bytes": 64482,
+      "mime": "image/webp",
+      "mediaAssetId": "4d977e89-70ef-4488-9e29-91005048697f",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "bb60c508-f9f7-4000-9866-ad61583eaceb",
           "role": "main"
         }
       ],
@@ -1632,6 +1815,22 @@
     },
     {
       "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/cool.webp",
+      "sha256": "f6f5b1a05b725898ffe841dce0cec5485cd843003be6fc3b156dca70c68d20e4",
+      "bytes": 61342,
+      "mime": "image/webp",
+      "mediaAssetId": "6a70d143-2565-4f71-ac63-d2855ec89ba0",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "6a67b54b-3954-4230-b482-8a38a1fabb58",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
       "path": "productos/MAS-ESM-4C95F3/tonos/dec-amarillo.webp",
       "sha256": "56db63e653f042ed729bb81492afc3314e6141e51fc1573c6fe04bcec1d12a7d",
       "bytes": 50716,
@@ -1641,6 +1840,22 @@
         {
           "productId": null,
           "variantId": "7f006bca-1580-4e6b-a419-76733fc215bf",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/dec-azul-rey.webp",
+      "sha256": "eafd6bd9ca3ea27b3bdb775181bab56e1547c789e611ec49eb4dcf01c720aa0c",
+      "bytes": 53418,
+      "mime": "image/webp",
+      "mediaAssetId": "676644e4-b3f6-4864-a149-30109d19291c",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "c45c45ac-bac4-4e5b-b228-1bb0e0bc1115",
           "role": "main"
         }
       ],
@@ -1673,6 +1888,38 @@
         {
           "productId": null,
           "variantId": "5a97dce5-492b-4b3b-b988-df134bb50fae",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/dec-negro.webp",
+      "sha256": "d7b70ba574747e683c88212d1d6088b13c93cc157ce7afa47b41c7bccbe1022c",
+      "bytes": 52314,
+      "mime": "image/webp",
+      "mediaAssetId": "532ca606-1e3a-4780-95f3-cdc27c7e077a",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "2e86ebc0-c436-4d32-a55f-1d36375f3228",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/dec-tiza.webp",
+      "sha256": "65a0ff776b4001008fa148c433ff1fa0d1af5cc655b79f7d848189d84b9fab0b",
+      "bytes": 55368,
+      "mime": "image/webp",
+      "mediaAssetId": "9508601f-af56-41c5-9f2c-5d7ec7fc476d",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "1cdff16c-05e7-45c8-be8f-3f03e7044711",
           "role": "main"
         }
       ],
@@ -1792,6 +2039,86 @@
     },
     {
       "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/emocional.webp",
+      "sha256": "ee7a67f3109e36de520f23f2e30ecd530cc477c671d98223e11f4e7786bc794d",
+      "bytes": 62248,
+      "mime": "image/webp",
+      "mediaAssetId": "e256557a-1c12-42e6-9488-0aa675b412b7",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "a3b67166-ddea-4eab-9b11-d74bcee7f377",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/empatica.webp",
+      "sha256": "04f913748fd537c71ebdfad76fcd6119a7d907b5a93038b6c4d0f9000f8adde5",
+      "bytes": 53054,
+      "mime": "image/webp",
+      "mediaAssetId": "ef328c89-9188-4d95-9616-40628397f9e8",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "f67a985b-12a8-4e83-add1-40dd26a24b70",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/emprendedora.webp",
+      "sha256": "913e2a0960385e45a149cb91588d2079aa9df5bfe4f04d63bee8659d7d6f27ee",
+      "bytes": 63110,
+      "mime": "image/webp",
+      "mediaAssetId": "a820e4b8-eef3-4b55-9b89-17742cad9a78",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "670dd659-c94b-4688-82a6-481336e3f710",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/encantadora.webp",
+      "sha256": "75bc314605f0c67ac9fda98cdaf58ea19cef9638e193ff39129dc2071d97c1c1",
+      "bytes": 58400,
+      "mime": "image/webp",
+      "mediaAssetId": "c7b25719-be60-46bf-bef8-be7952f03499",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "65c656ec-2420-4f1d-909d-322c2dd5dd51",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/entretenida.webp",
+      "sha256": "e5cf1b919353ba76d132a7f2dbb340400d1881ad228e03a277b4f7d80a8a35d4",
+      "bytes": 60864,
+      "mime": "image/webp",
+      "mediaAssetId": "716dac49-6b71-4cd5-a46f-1ef11f007357",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "d529ce03-cac5-4cae-8e82-e3a3b0d55596",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
       "path": "productos/MAS-ESM-4C95F3/tonos/estupenda.webp",
       "sha256": "3e3fb7df31f104768c2c1b20a8efd7d40f382c79153689f2410e75a20ee3a5b0",
       "bytes": 30000,
@@ -1801,6 +2128,22 @@
         {
           "productId": null,
           "variantId": "83ecf7b1-9cb3-4487-a556-68eb28c5a107",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/exagerada.webp",
+      "sha256": "e69459027af49310f9f6dffe3d491054abbe7b98d9bae8f000e2dca9ca79c472",
+      "bytes": 58858,
+      "mime": "image/webp",
+      "mediaAssetId": "643d95d6-9bbf-4b55-a85a-dba016ffac0c",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "5d661667-d7dc-444f-8b12-cdf3e3ce3e87",
           "role": "main"
         }
       ],
@@ -1904,6 +2247,22 @@
     },
     {
       "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/fiera.webp",
+      "sha256": "7292cf2d99e537faf2714dae8e84144cff7ebb7d5e78a0c9d6416fde13ace8e7",
+      "bytes": 59276,
+      "mime": "image/webp",
+      "mediaAssetId": "328635a2-ac59-4a90-a0c6-7711f01a5795",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "c64a7ced-4ce3-4c48-9431-53b1160e0eef",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
       "path": "productos/MAS-ESM-4C95F3/tonos/fiesta.webp",
       "sha256": "b53015859cde3717f74a2420ac5d8bb7e17181450ac20ec3e8dce35248af183a",
       "bytes": 32144,
@@ -1914,6 +2273,102 @@
           "productId": null,
           "variantId": "8b2136d9-8cec-4d29-9dae-68265c77645b",
           "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/fot-adaptable.webp",
+      "sha256": "7ccff3483da3d41d400e682e4c39ee17224eb66adc780b487f53752fa90af804",
+      "bytes": 60258,
+      "mime": "image/webp",
+      "mediaAssetId": "4595c9df-1df1-4dbc-b82c-deef22bc6092",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "6c7874e1-a8fb-49fb-a5bd-435c4a016d9b",
+          "role": "swatch"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/fot-bipolar.webp",
+      "sha256": "040efa33b80dd83eaa7c9ce131efe935280bd0211acb9e779d2abaa8336a6104",
+      "bytes": 59766,
+      "mime": "image/webp",
+      "mediaAssetId": "62a6f491-4e3e-4266-baa6-d7a16e790e51",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "e22b02c6-ec33-4aaf-95f9-55d962210240",
+          "role": "swatch"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/fot-doble.webp",
+      "sha256": "03a237b53906f502dcc5c0171181f071dadcfa5d2e77176f2fa11a8c38ada508",
+      "bytes": 55532,
+      "mime": "image/webp",
+      "mediaAssetId": "05395792-84aa-4f68-8016-d2ecade63dfa",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "932a6dba-a996-45d1-9a16-db24604afb55",
+          "role": "swatch"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/fot-inestable.webp",
+      "sha256": "5ae279e0e856111fe622008e1d31e8500bd1778c77fc19681ab811529f5af3bd",
+      "bytes": 60516,
+      "mime": "image/webp",
+      "mediaAssetId": "e92e5ffd-2d57-40b5-9f59-95877826fd2f",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "4eacdc11-3ff9-47a2-b733-3975e94909f7",
+          "role": "swatch"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/fot-polifacetica.webp",
+      "sha256": "396d776c95a3925762862565fc3ecad382177be5f5e6af958302917e8c170ba4",
+      "bytes": 59900,
+      "mime": "image/webp",
+      "mediaAssetId": "104f209d-63f4-4e32-a6fe-d07c55399d2a",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "a55f0ecc-0ce4-43ba-8bee-e5e0372b4d60",
+          "role": "swatch"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/fot-susceptible.webp",
+      "sha256": "c323ac9630c66059b14d04c8cf6053de4335b4b0da27f910652d0b999fb71d34",
+      "bytes": 61878,
+      "mime": "image/webp",
+      "mediaAssetId": "da59a732-5343-461a-b35e-84f84d09d9f6",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "9c91914f-82c9-41e6-848d-035dcf6951be",
+          "role": "swatch"
         }
       ],
       "state": "owned"
@@ -1968,6 +2423,22 @@
     },
     {
       "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/generosa.webp",
+      "sha256": "50029ef540a2b884b8b0fa5ca88ada9d231aa003706ffb5448f7c6a305a4b873",
+      "bytes": 55902,
+      "mime": "image/webp",
+      "mediaAssetId": "60447a18-d75b-4464-94b8-049ee8be6314",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "7498280c-2008-465e-a47f-a648c9ea1216",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
       "path": "productos/MAS-ESM-4C95F3/tonos/gitana.webp",
       "sha256": "5dad96cf53aa4a92a48c17beb176f871ee81dbc0e9259892e731db02af1a692e",
       "bytes": 39544,
@@ -1977,6 +2448,22 @@
         {
           "productId": null,
           "variantId": "ef891be5-0e70-4284-a0f9-b05f386a211a",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/glamorosa.webp",
+      "sha256": "b024dfe97e8fda55ac682e5cfcd8d565097fd67fe94d65b90e50d152372d73cd",
+      "bytes": 61458,
+      "mime": "image/webp",
+      "mediaAssetId": "98886ac1-96c8-4384-a065-df4287a88bca",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "3e35528e-7d1c-49b6-9e93-06b5cc98a670",
           "role": "main"
         }
       ],
@@ -2009,6 +2496,22 @@
         {
           "productId": null,
           "variantId": "9dedff92-d829-4871-8735-b9539bdb74fe",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/granizado.webp",
+      "sha256": "d6446355cf204cb6ffd89401eeff62d3b8001ff87f87893c9dbf9da8d828eeec",
+      "bytes": 63952,
+      "mime": "image/webp",
+      "mediaAssetId": "4ae536b1-4704-4d7d-80e4-00e981d3401e",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "97d05d1f-e434-43ca-b659-e67574900362",
           "role": "main"
         }
       ],
@@ -2080,6 +2583,22 @@
     },
     {
       "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/imponente.webp",
+      "sha256": "33c647e2e936ead9c28dd5285dbcfa086683b9cb47be70db8af2a05ce4fc3306",
+      "bytes": 62750,
+      "mime": "image/webp",
+      "mediaAssetId": "0774e4eb-2253-4e15-a231-2cde3108546b",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "79897cc9-5edc-4b03-a2d4-95b3e2081985",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
       "path": "productos/MAS-ESM-4C95F3/tonos/indomable.webp",
       "sha256": "f02aa518aec6bac8294a8e2509e5c4c71bfe4ec38bf219c03c8ae44751774ede",
       "bytes": 67592,
@@ -2089,6 +2608,22 @@
         {
           "productId": null,
           "variantId": "cdf32e4f-d260-4979-898b-01136b222797",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/innovadora.webp",
+      "sha256": "b5c183c21e161ced9fd008e370ba20f75a0ca0fdfa7192a3ac119f87f1bdb305",
+      "bytes": 56356,
+      "mime": "image/webp",
+      "mediaAssetId": "35b342dc-d902-4a81-ab56-1e94f57ac90e",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "06463282-1518-4b0b-aac7-496e6e8e8cf3",
           "role": "main"
         }
       ],
@@ -2121,6 +2656,38 @@
         {
           "productId": null,
           "variantId": "c7649f2c-ed82-4924-94f5-950b948a9d19",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/inspiradora.webp",
+      "sha256": "34979ca20d8bd06fc7ee26f8cd3442e9bb257f395ffefacb1e8d82b390ececc1",
+      "bytes": 57456,
+      "mime": "image/webp",
+      "mediaAssetId": "a62c2aad-8094-4e85-9663-88d7b70ae7ba",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "3191b1f9-823b-4c4c-8350-b5159bd22e1f",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/intimidante.webp",
+      "sha256": "30435adfa216285fa298793f3740eab2a0994c79dad697b01ec4f2f5081bd953",
+      "bytes": 53242,
+      "mime": "image/webp",
+      "mediaAssetId": "5e76bb8e-c59d-4747-bf6a-3c2c0ffe3e23",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "d41b3efe-321d-4cdf-a445-a0a70897f7b7",
           "role": "main"
         }
       ],
@@ -2169,6 +2736,22 @@
         {
           "productId": null,
           "variantId": "83f19ea4-1d17-4dfe-a2a4-86667583d135",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/liberada.webp",
+      "sha256": "ff6df670be0cae8f106689177afec79a505afea6dad3980772ca8c0dbff27442",
+      "bytes": 53694,
+      "mime": "image/webp",
+      "mediaAssetId": "29d6e0ad-fa49-42d3-9dbd-b21d7674327e",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "29133a06-0bdf-4dbd-80db-778e78131019",
           "role": "main"
         }
       ],
@@ -2249,6 +2832,38 @@
         {
           "productId": null,
           "variantId": "c72e8505-8e54-4678-a617-2b0bb4ba3cdb",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/marinera.webp",
+      "sha256": "2e5e094146ecd64fafa01b3a48fb0688c9d850fa590bb8eecb0fa945db9b35d9",
+      "bytes": 60884,
+      "mime": "image/webp",
+      "mediaAssetId": "7b4ed364-af9a-416c-8f94-da6a7c2866a8",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "1a75c194-98a8-4d01-9512-586986076fba",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/materialista.webp",
+      "sha256": "e92b1b8cd246525027c7a419ccb3b98dc5a3a13fdafcf10030b68ef5ae5ce22d",
+      "bytes": 54062,
+      "mime": "image/webp",
+      "mediaAssetId": "969c742a-49a5-417d-86f3-5c46965f0ec1",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "7e0589e7-f8ca-42d0-9f9d-7d9e879f009f",
           "role": "main"
         }
       ],
@@ -2368,6 +2983,22 @@
     },
     {
       "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/neurotica.webp",
+      "sha256": "b3f74b4e44de7d8d6d982fb40090a4ec46bf805e1ad1621be1837d7b16a2107d",
+      "bytes": 56666,
+      "mime": "image/webp",
+      "mediaAssetId": "4b75011c-7f79-4c73-b41a-ef3e9ce48eee",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "674ebab9-e1c1-4c1a-a019-02c49d377ba5",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
       "path": "productos/MAS-ESM-4C95F3/tonos/nieve.webp",
       "sha256": "e74f52b13d597d0dbb945047556bacb4b174edac0aa179963c148c719ec5787d",
       "bytes": 67422,
@@ -2409,6 +3040,22 @@
         {
           "productId": null,
           "variantId": "b51228b7-0604-42c2-b7fc-48e790343a17",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/original.webp",
+      "sha256": "c8d27ca9696e53a3f5a5a9a4e280773f8fd045bdb8b0b78d3ea28e1f9d990d95",
+      "bytes": 57170,
+      "mime": "image/webp",
+      "mediaAssetId": "a03ffd98-33cb-4897-bfbb-e716fbcb2440",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "ab828704-5f45-4b44-8c35-65f3a7922501",
           "role": "main"
         }
       ],
@@ -2512,6 +3159,38 @@
     },
     {
       "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/provocadora.webp",
+      "sha256": "66277640d068cf04d56453ec1b5fae5b1a44fafe6fed56a353e1344c1a9364a5",
+      "bytes": 58800,
+      "mime": "image/webp",
+      "mediaAssetId": "1216e33f-f5a7-44b3-bc76-4333bb684cd5",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "9b58401e-488e-4834-a42e-fddac00f7af0",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/provocativa.webp",
+      "sha256": "1cf9877dd9538ed04ea85c7a2678cf05759cee8db86a9ab7d5de64341ee3773d",
+      "bytes": 63524,
+      "mime": "image/webp",
+      "mediaAssetId": "d3cb48ac-1483-49b0-9d13-bf1bba063b8b",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "52e3c6dd-2217-4659-9f8c-c76aba45ddf3",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
       "path": "productos/MAS-ESM-4C95F3/tonos/querendona.webp",
       "sha256": "bbe5431cf5047c8676ffa34435faa9971157be00e19fbe6fb78e1b23473850c9",
       "bytes": 31074,
@@ -2592,6 +3271,38 @@
     },
     {
       "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/refinada.webp",
+      "sha256": "273f56930ec8df4d46198c329a30edadba85887de4b9595b710c08907170393b",
+      "bytes": 57188,
+      "mime": "image/webp",
+      "mediaAssetId": "c2c9cce1-9828-41a4-92e6-caabf15a17fd",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "da16cf9e-e71c-4148-ae57-f71ca5e2f1d4",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/regia.webp",
+      "sha256": "830023b4b339ffe97209ee3d9ad42929dc274d23cf60c4be9b270d62368c38f5",
+      "bytes": 58982,
+      "mime": "image/webp",
+      "mediaAssetId": "af2abec0-917a-49f8-aac6-0fdbc079fd9d",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "3348f466-544f-4af0-b612-d1e6c62db9fe",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
       "path": "productos/MAS-ESM-4C95F3/tonos/revolucionaria.webp",
       "sha256": "176ff71a79a218847b7c7d5dad32508db97c7c720bf2bf8407e7ebc63b769536",
       "bytes": 31080,
@@ -2617,6 +3328,22 @@
         {
           "productId": null,
           "variantId": "3986fd05-751a-46b8-9453-1c7c7bd7f0b8",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/serena.webp",
+      "sha256": "b7ae7329f9a543765cf000c3badcd40c319306d44b8279303e4599a87f169a1f",
+      "bytes": 55160,
+      "mime": "image/webp",
+      "mediaAssetId": "61908eff-5b62-4826-bfb1-85bf5c1b46f2",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "ce1e349e-a3a4-48c7-86ae-829dfb4d8ff3",
           "role": "main"
         }
       ],
@@ -2736,6 +3463,22 @@
     },
     {
       "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/tirana.webp",
+      "sha256": "b2a19fafe2a4423668affe42447f291dee9b1bed6434e89ea4ccf3e6fe43a41e",
+      "bytes": 52034,
+      "mime": "image/webp",
+      "mediaAssetId": "e503f2e4-8332-422b-9590-1930ab43ba06",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "c214101a-0059-4dd5-8903-a82cd4ca469b",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
       "path": "productos/MAS-ESM-4C95F3/tonos/tiza.webp",
       "sha256": "40114531ade0f91e2aedd52f2171cbd3efdfd5ba886fbbd2770d34d57d036470",
       "bytes": 36584,
@@ -2768,6 +3511,22 @@
     },
     {
       "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/toxica.webp",
+      "sha256": "7ccb350747e5948097db2cd4b24890643e33a076e0ab98714af8511b01f0491d",
+      "bytes": 55526,
+      "mime": "image/webp",
+      "mediaAssetId": "67642603-7169-4867-91f8-14bc23f02047",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "67901b20-27f9-4884-b16e-e795567b8b5d",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
       "path": "productos/MAS-ESM-4C95F3/tonos/tranquila.webp",
       "sha256": "44d744ecbc3afa738a512b1b15e8edd1df0c906bbcded97fa2a75021fd8304a9",
       "bytes": 30858,
@@ -2778,6 +3537,22 @@
           "productId": null,
           "variantId": "1cbd060d-334a-4836-a707-9a344b33f593",
           "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/trascendental.webp",
+      "sha256": "6056be63aab13c2736caf6c83903c9397e934404ee88c17a13ce69b4ba682f91",
+      "bytes": 62024,
+      "mime": "image/webp",
+      "mediaAssetId": "535619e3-58a1-4a8e-a829-c06c0278d389",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "7b50f290-8a1f-4d13-87ac-c7304d426217",
+          "role": "swatch"
         }
       ],
       "state": "owned"
@@ -2800,6 +3575,22 @@
     },
     {
       "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/vanguardista.webp",
+      "sha256": "985a774662f74ebbaed83897d5d12342ab88aae72d33dea4d03d4ca6976205d9",
+      "bytes": 59574,
+      "mime": "image/webp",
+      "mediaAssetId": "67d8aefe-cddd-467a-8956-8bcce1946cb8",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "747caf99-55d9-4ed9-9a06-9c90ef658525",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
       "path": "productos/MAS-ESM-4C95F3/tonos/virginal.webp",
       "sha256": "c955d94d54e377160de86a83ae9936bd029f6176522bbf013df415c1a31ee04b",
       "bytes": 29326,
@@ -2809,6 +3600,54 @@
         {
           "productId": null,
           "variantId": "8646ea84-d2ee-4593-8397-ebf6efbc6a88",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/visos-plata.webp",
+      "sha256": "31418dc62e42316d98b13faf10537a7677f22ed9c367f3bd9036b98e8755ebca",
+      "bytes": 55768,
+      "mime": "image/webp",
+      "mediaAssetId": "d4ea15aa-e850-428b-8900-75a6f449deb1",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "ba35d5d7-3c0c-4e1e-aa07-d7b44076ef44",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/visos-rosa.webp",
+      "sha256": "2ca2216eb75e8924d844803e60c0a1f78b7e361fca35cf78ffd4be0a0f287ac0",
+      "bytes": 61804,
+      "mime": "image/webp",
+      "mediaAssetId": "8c1de563-42dd-401c-b329-db07e924d17c",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "299fe1d6-fae8-4f59-b799-149e1875651d",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/zangana.webp",
+      "sha256": "50e1ee40c3a53fa37b694f663a514268716e9199254662878f621fd21c1fcd36",
+      "bytes": 63904,
+      "mime": "image/webp",
+      "mediaAssetId": "ae881b1d-19d7-4c1a-9345-8ecd4ec03611",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "1c054ce1-8370-4062-ac18-9b8e63121bb6",
           "role": "main"
         }
       ],
