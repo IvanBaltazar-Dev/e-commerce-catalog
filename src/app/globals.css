@@ -438,146 +438,182 @@ button:disabled {
   color: var(--br-muted-soft);
 }
 
-/* ═══════ topbar ═══════ */
+/* ═══════ panel lateral ═══════ */
 
-.panel-shell {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.topbar {
+/* El ancho del carril es fijo: una navegación que se mueve al cambiar de
+   pantalla obliga a volver a buscar dónde estaba todo. */
+.panel-shell {
+  --rail: 244px;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+}
+
+.side-rail {
   position: sticky;
   top: 0;
+  align-self: start;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  padding: 16px 12px 12px;
+  box-sizing: border-box;
   z-index: 50;
-  background: #fff;
-  border-bottom: 1px solid var(--br-pink-line);
 }
 
-.topbar-progress {
+.side-progress {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 2;
-  width: 38%;
+  width: 100%;
   height: 2px;
-  background: var(--br-pink-deep);
-  animation: topbar-progress 900ms ease-in-out infinite;
+  background: var(--rose);
+  transform-origin: left;
+  animation: side-progress 900ms ease-in-out infinite;
 }
 
-@keyframes topbar-progress {
-  from { transform: translateX(-105%); }
-  to { transform: translateX(365%); }
+@keyframes side-progress {
+  from { transform: scaleX(0.05); }
+  to { transform: scaleX(1); }
 }
 
-.topbar-inner {
-  max-width: 1240px;
-  margin: 0 auto;
+.side-head {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 10px 22px;
-  flex-wrap: nowrap;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 6px 14px;
 }
 
-.topbar-logo {
-  height: 44px;
+.side-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 
-.topbar-title {
-  font-size: 15px;
-  font-weight: 600;
+.side-brand-text {
+  font-size: 14px;
+  font-weight: var(--fw-semibold);
   color: var(--br-ink-strong);
+  white-space: nowrap;
 }
 
-.topbar-nav {
+/* El botón de cerrar pertenece al cajón, no al carril fijo. */
+.side-close,
+.side-topbar,
+.side-backdrop {
+  display: none;
+}
+
+.side-nav {
   flex: 1;
   display: flex;
-  gap: 6px;
-  justify-content: center;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
+  flex-direction: column;
+  gap: 1px;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
-.topbar-nav::-webkit-scrollbar { display: none; }
-
-.nav-pill {
-  display: inline-flex;
-  align-items: center;
-  border: none;
-  background: transparent;
-  color: var(--br-nav-idle);
+.side-item {
+  display: block;
   border-radius: var(--r-sm);
-  padding: 9px 18px;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: none;
-  white-space: nowrap;
-}
-
-.nav-pill:hover {
-  color: var(--br-nav-idle);
-}
-
-.nav-pill--active,
-.nav-pill--active:hover {
-  background: var(--br-grad);
-  color: var(--surface);
-  box-shadow: var(--e-hover);
-}
-
-/* Segundo nivel (S2): dentro de un área, no encima de ella. Se distingue por
-   posición y por una subrayado fino, nunca por otra píldora fuerte: dos
-   acentos compitiendo dejan de señalar dónde estás. */
-.nav-subbar {
-  border-top: 1px solid var(--line);
-  background: var(--surface);
-}
-
-.nav-subbar-inner {
-  max-width: 1240px;
-  margin: 0 auto;
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  padding: 0 22px;
-  overflow-x: auto;
-}
-
-.nav-sub {
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
   padding: 10px 12px;
+  font-size: 13.5px;
+  font-weight: var(--fw-medium);
+  color: var(--br-nav-idle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.side-item:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+/* El dominio abierto se marca con peso y fondo suave. El acento fuerte queda
+   para la pantalla concreta: dos acentos compitiendo dejan de señalar dónde
+   estás. */
+.side-item--active,
+.side-item--active:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+  font-weight: var(--fw-semibold);
+}
+
+.side-sublist {
+  display: flex;
+  flex-direction: column;
+  margin: 2px 0 6px 12px;
+  padding-left: 10px;
+  border-left: 1px solid var(--line);
+}
+
+.side-sub {
+  display: block;
+  padding: 8px 10px;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
   font-size: 13px;
   font-weight: var(--fw-medium);
   color: var(--ink-3);
-  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.nav-sub:hover {
+.side-sub:hover {
   color: var(--ink);
 }
 
-.nav-sub--active,
-.nav-sub--active:hover {
-  color: var(--ink);
+.side-sub--active,
+.side-sub--active:hover {
+  color: var(--rose);
   font-weight: var(--fw-semibold);
-  border-bottom-color: var(--rose);
+  border-left-color: var(--rose);
 }
 
-.topbar-link {
-  font-size: 13px;
+.side-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 12px;
+  margin-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.side-foot-link {
+  font-size: 12.5px;
   color: var(--br-muted);
+  padding: 6px;
+}
+
+.side-foot-exit {
+  padding: 6px 12px;
+  font-size: 12.5px;
 }
 
 .panel-main {
   width: 100%;
   max-width: 1240px;
   margin: 0 auto;
-  flex: 1;
   box-sizing: border-box;
   padding: 22px;
 }
@@ -3269,49 +3305,112 @@ a.pub-cta-primary:hover {
   }
 }
 
-@media (max-width: 640px) {
-  .topbar {
+/* Por debajo del carril el lateral es un cajón. No se encoge a iconos: un
+   icono sin palabra obliga a adivinar, y adivinar cuesta más pasos que abrir. */
+@media (max-width: 900px) {
+  .panel-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .side-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 14px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .side-topbar-area {
+    font-size: 13.5px;
+    font-weight: var(--fw-semibold);
+    color: var(--br-ink-strong);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .side-burger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    cursor: pointer;
+  }
+
+  .side-burger-lines,
+  .side-burger-lines::before,
+  .side-burger-lines::after {
+    display: block;
+    width: 16px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--ink);
+    content: "";
+  }
+
+  .side-burger-lines {
     position: relative;
   }
 
-  .topbar-inner {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: 7px 10px;
-    padding: 8px 14px;
+  .side-burger-lines::before { position: absolute; top: -5px; }
+  .side-burger-lines::after { position: absolute; top: 5px; }
+
+  .side-rail {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: min(292px, 84vw);
+    transform: translateX(-102%);
+    transition: transform 180ms ease-out;
+    box-shadow: var(--e-hover);
+    z-index: 70;
   }
 
-  .topbar-logo {
-    width: 58px;
-    height: auto;
+  .side-rail--open {
+    transform: translateX(0);
   }
 
-  .topbar-title {
-    font-size: 13px;
-  }
-
-  .topbar-nav {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    width: 100%;
-    gap: 4px;
-  }
-
-  .nav-pill {
-    flex: 1;
+  .side-close {
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    padding: 7px 9px;
-    font-size: 12px;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: var(--r-sm);
+    background: transparent;
+    color: var(--ink-3);
+    font-size: 15px;
+    cursor: pointer;
   }
 
-  .topbar-link {
-    display: none;
+  .side-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    border: none;
+    padding: 0;
+    background: rgba(36, 22, 33, 0.34);
   }
 
-  .topbar .btn-ghost {
-    padding: 7px 11px;
+  /* El cajón cubre la pantalla; que además se deslice al aparecer no aporta
+     nada a quien pidió no ver movimiento. */
+  @media (prefers-reduced-motion: reduce) {
+    .side-rail { transition: none; }
   }
+}
 
+@media (max-width: 640px) {
   .panel-main {
     padding: 14px;
   }

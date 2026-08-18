@@ -89,9 +89,9 @@ async function entrar(page, cuenta) {
 
 const leerNav = () => ({
   ruta: window.location.pathname,
-  area: document.querySelector(".nav-pill--active")?.textContent?.trim() ?? null,
-  sub: document.querySelector(".nav-sub--active")?.textContent?.trim() ?? null,
-  todo: [...document.querySelectorAll(".topbar-nav .nav-pill, .nav-subbar .nav-sub")]
+  area: document.querySelector(".side-item--active")?.textContent?.trim() ?? null,
+  sub: document.querySelector(".side-sub--active")?.textContent?.trim() ?? null,
+  todo: [...document.querySelectorAll(".side-nav .side-item, .side-nav .side-sub")]
     .map((n) => n.textContent?.trim())
 });
 

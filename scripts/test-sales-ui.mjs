@@ -158,7 +158,7 @@ try {
   // la vendedora— pero hay que mirar los dos niveles, no solo el primero: su
   // caja vive dentro de Ventas.
   const navLabels = await page.$$eval(
-    ".topbar-nav .nav-pill, .nav-subbar .nav-sub",
+    ".side-nav .side-item, .side-nav .side-sub",
     (nodes) => nodes.map((node) => node.textContent?.trim())
   );
   const forbiddenSections = ["Productos", "Catálogo PDF", "Gastos", "Compras", "Importaciones"];

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { ToastProvider } from "@/components/admin/ToastProvider";
-import { Topbar } from "@/components/admin/Topbar";
+import { Sidebar } from "@/components/admin/Sidebar";
 import { panelRole } from "@/lib/auth/panel";
 
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
@@ -15,7 +15,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   return (
     <div className="panel-shell">
       <ToastProvider>
-        <Topbar role={role} />
+        <Sidebar role={role} />
         <main className="panel-main">{children}</main>
       </ToastProvider>
     </div>

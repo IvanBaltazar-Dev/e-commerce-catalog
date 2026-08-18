@@ -101,39 +101,48 @@ Venta, analítica, campañas y compras no se mezclan en la misma superficie.
 
 El origen de una reserva ya se conserva desde `0047_conversion_attribution.sql`, pero su lectura para vendedoras requiere un contrato estrecho o una política adicional. La recomendación es mostrarlo en Reservas porque ayuda a atender y no revela costo o margen; debe cerrarse junto con esa pantalla.
 
-## Navegación: de la barra superior al panel lateral
+## Navegación: el panel lateral
 
-La barra superior está en su último tramo: la navegación pasa a un panel
-lateral. Lo que se sustituye es la barra, no la arquitectura de información que
-la barra descubrió. Antes de tocar nada conviene separar las dos cosas.
+La barra superior ya no existe. La navegación es un carril lateral de 244 px
+fijo en escritorio y un cajón en pantallas por debajo de 900 px.
 
-Lo que debe sobrevivir a la mudanza, porque ya está resuelto y costó resolverlo:
+Lo que cambió es la forma. La arquitectura de información —los ocho dominios y
+sus entradas— salió de dentro del componente y vive en
+[`src/lib/admin/navigation.ts`](../src/lib/admin/navigation.ts), porque es
+información y no presentación: la misma lista alimenta el carril, el cajón y las
+pruebas que recorren rutas. Las URLs no se movieron.
 
-- **Los ocho dominios y sus entradas.** Hoy viven en `AREAS`, dentro de
-  `src/components/admin/Topbar.tsx`. Son información, no presentación: el panel
-  lateral debería leerlos del mismo sitio en vez de copiarlos. Extraerlos a un
-  módulo compartido es el primer paso natural del rediseño.
-- **El recorte por rol.** `areasVisibles` esconde las entradas que la vendedora
-  no puede usar y, además, oculta el área entera cuando se queda sin entradas.
-  Un dominio vacío no debe aparecer como un elemento muerto en el lateral.
-- **La carga bajo intención.** Todos los enlaces usan `prefetch={false}` y solo
-  precargan al pasar el puntero o recibir foco. Es lo que evita que abrir el
-  panel cargue las ocho áreas de golpe; `npm run test:admin-nav` lo vigila y la
-  regresión de la Mesa cuenta las cargas no solicitadas. Un lateral siempre
-  visible tiene más superficie de contacto que una barra, así que este cuidado
-  importa más, no menos.
-- **El segundo nivel condicional.** La subbarra solo aparece cuando el área
-  tiene dónde profundizar. En un lateral eso se traduce en no desplegar un
-  dominio de una sola pantalla.
-- **El estado activo derivado de la ruta**, no de un clic recordado.
+Cinco comportamientos se conservaron porque ya estaban resueltos:
 
-Lo que conviene resolver de paso, ya identificado:
+- **Un dominio sin entradas visibles no se dibuja.** La vendedora no ve
+  pantallas donde solo encontraría cero filas, ni un dominio que al abrirse esté
+  vacío.
+- **La carga ocurre bajo intención, nunca al pintar.** Todos los enlaces usan
+  `prefetch={false}` y precargan al pasar el puntero o recibir foco. Un carril
+  siempre visible tiene más superficie de contacto que una barra, así que este
+  cuidado importa más aquí, no menos. `npm run test:admin-nav` lo vigila y la
+  regresión de la Mesa cuenta las cargas no solicitadas.
+- **El segundo nivel solo existe donde hay dónde profundizar.** En el carril es
+  el dominio abierto mostrando sus entradas debajo, no otra barra. Un dominio de
+  una sola pantalla no despliega nada.
+- **Dónde estás se deduce de la ruta**, no de lo último que se pulsó.
+- **El acento fuerte es uno solo.** El dominio abierto se marca con peso y fondo
+  suave; la pantalla concreta lleva la barra rosa. Dos acentos compitiendo dejan
+  de señalar dónde estás.
 
-- `/admin/estructura` y `/admin/importaciones` son redirecciones disfrazadas de
-  pantalla. Al rehacer la navegación toca decidir si desaparecen o si la
-  redirección se vuelve explícita.
-- El móvil es el punto de partida, no una adaptación posterior: ninguna pantalla
-  se aprueba con una ventana estrecha, hay que emular dispositivo.
+En móvil el cajón se abre desde una cabecera compacta que además dice en qué
+dominio estás, y se cierra al navegar, con `Escape` o tocando fuera. Al cerrarse
+devuelve el foco al botón que lo abrió. No se encoge a iconos: un icono sin
+palabra obliga a adivinar, y adivinar cuesta más pasos que abrir el cajón.
 
-Mientras tanto, no se invierte en la barra superior: se mantiene funcionando y
-no se le añaden capacidades que habría que rehacer.
+Comprobado con emulación de dispositivo real (iPhone 13, no una ventana
+estrecha): sin desbordamiento horizontal, objetivo táctil de 44 px, fondo oscuro
+presente, `aria-expanded` correcto y foco devuelto.
+
+### Lo que quedó pendiente al mudarse
+
+`/admin/estructura` y `/admin/importaciones` siguen siendo redirecciones
+disfrazadas de pantalla. No aparecen en la navegación —nunca aparecieron— pero
+siguen siendo rutas alcanzables que prometen una pantalla y dejan al usuario en
+otra sin explicación. Toca decidir si desaparecen o si la redirección se vuelve
+explícita.

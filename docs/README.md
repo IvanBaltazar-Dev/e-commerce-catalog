@@ -22,6 +22,7 @@ Este índice es la puerta de entrada a la documentación vigente. La auditoría 
 | [Etapa 6 · Compuerta de necesidad](etapa-6-compuerta-necesidad.md) | Qué llega a la Mesa y por qué, relevancia comercial y sujeto de cada pregunta | cambia un veredicto de la compuerta o su efecto medido |
 | [Mapa de funciones sin sentido](mapa-funciones-sin-sentido.md) | Funciones que producen trabajo sin significado, con evidencia y qué hacer con cada una | se corrige una de ellas en origen o aparece otra |
 | [Auditoría específica de Etapa 1](etapa-1-auditoria-modelo.md) | Reutilización y cambios mínimos del modelo de conocimiento | cambia la frontera referencia/catálogo |
+| [Estructura del repositorio](estructura-repositorio.md) | Qué es cada carpeta, qué versiona Git y qué se puede borrar | aparece o desaparece una carpeta de trabajo |
 | [Migraciones](../supabase/migrations/README.md) | Historial técnico del esquema | se agrega una migración |
 | [Investigación de catálogo](../research/catalog-master/README.md) | Pipeline, evidencia externa y trabajo manual | cambia el pipeline o su corte medido |
 

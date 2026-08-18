@@ -4,7 +4,7 @@
  * Las pruebas de UI navegan la aplicación por selector y por estructura:
  *
  *   .order-qty button:last-child      .product-step-actions .btn-save
- *   .chip-row .opt-chip               .topbar-nav .nav-pill
+ *   .chip-row .opt-chip               .side-nav .side-item
  *
  * Es decir: un rediseño puede cambiar libremente lo que un selector SIGNIFICA,
  * pero no puede hacerlo desaparecer. Añadir clases nuevas es legítimo y solo

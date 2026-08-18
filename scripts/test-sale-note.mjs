@@ -172,8 +172,8 @@ async function main() {
 
   const panel = await page.$(".panel-shell");
   check("la página de la nota no monta el panel", panel === null);
-  const topbar = await page.$(".topbar, nav");
-  check("ni su barra de navegación", topbar === null);
+  const topbar = await page.$(".side-rail, .side-topbar, nav");
+  check("ni su navegación", topbar === null);
 
   // Y lo que de verdad importa: qué queda VISIBLE cuando el navegador cambia al
   // medio de impresión. Que el panel no esté montado es la mitad; la otra es
