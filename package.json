@@ -66,6 +66,7 @@
     "catalog:storage:verify": "node research/catalog-master/verify-local-storage.mjs",
     "checkpoint:restore:local": "node scripts/checkpoint-restore-local.mjs",
     "test:catalog-review-rerun": "node scripts/test-catalog-review-rerun.mjs --env .env.supabase.local",
+    "test:catalog-relation-decisions-ui": "node scripts/test-catalog-relation-decisions-ui.mjs",
     "gate:enriquecimiento": "node scripts/gate-enriquecimiento.mjs --env .env.supabase.local",
     "test:admin-search": "node scripts/test-admin-search-contracts.mjs",
     "test:admin-nav": "node scripts/check-nav.mjs",

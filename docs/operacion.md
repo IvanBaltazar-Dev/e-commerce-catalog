@@ -63,7 +63,7 @@ npm run test:db
 npm run audit:security
 ```
 
-El checkpoint semántico base llega hasta `0112`, el contrato funcional 4A hasta `0113`, el reprocesamiento universal 4B hasta `0114` y el read model humano 4C hasta `0115`. La última certificación reconstruyó 52 archivos y 1.246 pruebas pgTAP: claims de fuente, agregación, epistemología universal, ingesta fail-closed, sistema→etapa→rol→clase→requisito, preview inmutable de 323 relaciones y 18 decisiones agrupadas. La autorización humana de Etapa 4 no reemplaza esta certificación ni permite omitir gates.
+El checkpoint semántico base llega hasta `0112`, el contrato funcional 4A hasta `0113`, el reprocesamiento universal 4B hasta `0114`, el read model humano 4C hasta `0115` y el contrato de decisión/apply 4E hasta `0116`. La última certificación reconstruyó 53 archivos y 1.318 pruebas pgTAP: claims de fuente, agregación, epistemología universal, ingesta fail-closed, sistema→etapa→rol→clase→requisito, preview inmutable de 323 relaciones, 18 decisiones agrupadas y aplicación exacta con auditoría. La autorización humana de Etapa 4 no reemplaza esta certificación ni permite omitir gates.
 
 Gates especializados:
 
@@ -86,6 +86,8 @@ Gates especializados:
 | `npm run test:mcp:stage4b` | reporte MCP 4B de solo lectura con 323 resultados y cero promoción |
 | `npm run gate:stage4c` | tres familias reales, agrupación por causa, contrato de decisión, guardas comerciales y paridad del grafo |
 | `npm run test:mcp:stage4c` | reporte y cola MCP 4C de solo lectura; React no interpreta reglas |
+| `npm run test:mcp:stage4e` | cuatro lecturas y cuatro comandos de decisión; inspecciona sin mutar y certifica el contrato cerrado |
+| `npm run test:catalog-relation-decisions-ui` | cola, lenguaje, decisión no binaria y responsive de 4F sobre una aplicación local ya iniciada |
 | `npm run test:catalog-review-rerun` | reprocesamiento idempotente de la Mesa |
 | `npm run test:review-reprocess` | rerun nulo, fingerprint lógico y guardas de tablas comerciales |
 | `npm run test:venta` | pagos, concurrencia, venta y nota |
@@ -138,7 +140,9 @@ npm run graph:verify
 
 El informe queda en `research/catalog-master/reports/admiss-semantic-audit/`: matriz CSV de 121 productos, JSON con consultas/excerpts/fingerprints y resumen Markdown. La auditoría no crea trabajo en Mesa, no publica y no autoriza por sí sola una etapa. La autorización humana para iniciar Etapa 4 se registró el 2026-08-17 y conserva intactas todas las guardas.
 
-MCP v1 usa STDIO local y trece herramientas de lectura: añade `stage4a_system_class_report` a estado de catálogo, contexto de marca, última investigación, búsqueda en referencia, diferencias, brechas/contradicciones, casos humanos, reprocesamiento, embudo semántico, checkpoint universal, reporte de investigación y estado del grafo. No acepta SQL, shell, URL arbitraria, Cypher ni mutaciones de catálogo, precio, inventario o publicación.
+MCP v1 usa STDIO local. 4E añade cuatro lecturas y cuatro comandos acotados para preview, aplazamiento, reanudación y apply exacto; no acepta SQL, shell, URL arbitraria, Cypher ni mutaciones de catálogo, precio, inventario o publicación. Los comandos llaman los mismos contratos PostgreSQL que la interfaz y sincronizan el Graph Projector después de aplicar.
+
+Después de un `db reset`, `npm run checkpoint:restore:local` no solo restaura las 26 tablas comerciales: regenera staging, ejecuta el corte analítico 4B y sincroniza las 18 decisiones 4E. Así, ninguna prueba o pantalla depende de residuos locales.
 
 ## Reprocesamiento de la Mesa
 

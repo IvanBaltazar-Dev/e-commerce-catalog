@@ -75,6 +75,13 @@ import type {
   CatalogReviewTarget,
   CatalogReviewTransitionInput
 } from "@/lib/admin/catalog-review";
+import type {
+  CatalogRelationDecisionApplyResult,
+  CatalogRelationDecisionDetail,
+  CatalogRelationDecisionPreview,
+  CatalogRelationDecisionQueue,
+  CatalogRelationDecisionTransition,
+} from "@/lib/admin/catalog-relation-decisions";
 
 /** Fila de listado: la venta completa, sin líneas ni pagos. */
 export type SaleSummary = Omit<Sale, "lines" | "payments" | "taxDocument"> & { branchName?: string };
@@ -598,7 +605,49 @@ export const adminApi = {
     request<CatalogReviewCommandResult>(`/api/admin/catalog-review/${id}`, {
       method: "POST",
       body: JSON.stringify({ command: "transition", ...input })
-    })
+    }),
+  getCatalogRelationDecisions: (status = "pending", limit = 100, offset = 0) => {
+    const query = new URLSearchParams({ mode: "queue", status, limit: String(limit), offset: String(offset) });
+    return request<CatalogRelationDecisionQueue>(`/api/admin/catalog-review/relations?${query}`);
+  },
+  getCatalogRelationDecisionDetail: (decisionId: string, limit = 25, offset = 0) => {
+    const query = new URLSearchParams({
+      mode: "detail", decisionId, limit: String(limit), offset: String(offset),
+    });
+    return request<CatalogRelationDecisionDetail>(`/api/admin/catalog-review/relations?${query}`);
+  },
+  previewCatalogRelationDecision: (input: {
+    decisionId: string;
+    actionCode: string;
+    comment: string | null;
+    expectedWorkVersion: number;
+    idempotencyKey: string;
+  }) => request<CatalogRelationDecisionPreview>("/api/admin/catalog-review/relations", {
+    method: "POST", body: JSON.stringify({ command: "preview", ...input }),
+  }),
+  deferCatalogRelationDecision: (input: {
+    decisionId: string;
+    expectedWorkVersion: number;
+    reason: string;
+    deferMinutes: number;
+    idempotencyKey: string;
+  }) => request<CatalogRelationDecisionTransition>("/api/admin/catalog-review/relations", {
+    method: "POST", body: JSON.stringify({ command: "defer", ...input }),
+  }),
+  resumeCatalogRelationDecision: (input: {
+    decisionId: string;
+    expectedWorkVersion: number;
+    idempotencyKey: string;
+  }) => request<CatalogRelationDecisionTransition>("/api/admin/catalog-review/relations", {
+    method: "POST", body: JSON.stringify({ command: "resume", ...input }),
+  }),
+  applyCatalogRelationDecision: (input: {
+    previewId: string;
+    previewFingerprint: string;
+    idempotencyKey: string;
+  }) => request<CatalogRelationDecisionApplyResult>("/api/admin/catalog-review/relations", {
+    method: "POST", body: JSON.stringify({ command: "apply", ...input }),
+  })
 };
 
 export async function uploadCatalogImage(kind: "product-image" | "color-chart", file: File) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { AdminApiError, adminApi, publicAssetUrl, uploadCatalogImage } from "@/lib/admin/api";
 import type {
   CatalogReviewBootstrap,
@@ -483,6 +484,15 @@ export function CatalogReviewView({ initial }: { initial: CatalogReviewBootstrap
         </section>
 
         <div className="cr-home-grid">
+          <Link className="cr-card cr-relation-entry" href="/admin/catalogo/revisar/decisiones">
+            <div className="cr-card-icon"><Icon name="spark" /></div>
+            <div>
+              <span className="cr-overline">Decisiones de relaciones</span>
+              <h2>Revisar reglas y grupos de productos.</h2>
+              <p>Casos agrupados para decidir una sola vez, con productos inciertos fuera del cambio.</p>
+              <b>Abrir cola <Icon name="arrow" /></b>
+            </div>
+          </Link>
           <section className="cr-card cr-impact-card">
             <div className="cr-card-icon"><Icon name="spark" /></div>
             <div>
