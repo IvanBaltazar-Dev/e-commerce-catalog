@@ -35,11 +35,21 @@ Son cuentas `.invalid` exclusivamente locales. El rol developer es el único que
 
 ## Superficies principales
 
+El panel agrupa sus pantallas en ocho dominios, que son los que dibuja el panel
+lateral. La lista viva está en [`src/lib/admin/navigation.ts`](src/lib/admin/navigation.ts).
+
 - Público: `/`, `/producto/:slug`, `/seleccion`.
-- Catálogo: `/admin/productos`, `/admin/importaciones`, `/admin/catalog-review`, `/admin/pdf`.
-- Operación: `/admin/ventas`, `/admin/inventario`, `/admin/compras`, `/admin/gastos`, `/admin/caja`.
-- Relación comercial: `/admin/conversaciones`, `/admin/carritos`, `/admin/atribucion`.
-- Decisión: `/admin`, `/admin/analitica`, `/admin/asistente`.
+- Ventas: `/admin/ventas`, `/admin/caja`.
+- Inventario: `/admin/inventario`, `/admin/reposicion`.
+- Clientes: `/admin/conversaciones`, `/admin/carritos`.
+- Catálogo: `/admin/productos`, `/admin/catalogo/revisar`, `/admin/pdf`.
+- Compras: `/admin/compras`, `/admin/gastos`.
+- Marketing: `/admin/atribucion`, `/admin/campanas`, `/admin/canales`.
+- Analítica: `/admin/analitica`. Asistente: `/admin/asistente`.
+
+Dos rutas antiguas siguen respondiendo pero no son pantalla: `/admin/estructura`
+redirige al alta de productos y `/admin/importaciones` redirige a Revisar. No
+aparecen en la navegación y está pendiente decidir si desaparecen.
 
 Las rutas exactas pueden evolucionar; RLS y los contratos de servidor determinan el acceso real.
 

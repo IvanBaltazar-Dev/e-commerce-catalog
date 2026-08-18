@@ -27,7 +27,6 @@ existe para que ninguna carpeta del disco quede sin explicación.
 | `node_modules/` | Dependencias. | Sí, `npm ci`. |
 | `research/catalog-master/data/`, `sources/`, `local/` | Snapshots crudos de las fuentes oficiales y tablas derivadas. Pesan y cambian; Git guarda el manifiesto SHA-256, no el contenido. | No sin querer: son la entrada del pipeline. |
 | `outputs/` | Entregables generados para revisión humana (planillas, listas de captura). | Los `.xlsx` son entregables; los `.inspect.ndjson` que los acompañaban eran subproductos de herramienta y se retiraron. |
-| `backups/` | Volcados de la base anteriores al sistema de checkpoints (agosto de 2026). | **Decisión pendiente.** Ver abajo. |
 | `test-results/` | Capturas y reportes de las pruebas de interfaz y de los gates. | Sí. |
 | `.env.local`, `.env.supabase.local` | Credenciales locales. Nunca al historial. | No. |
 
@@ -50,10 +49,30 @@ invalide la caché de la otra. Si sobran, se borra la carpeta y basta.
 > Next, no del proyecto: hay que devolver el archivo a `.next` antes de
 > commitear.
 
-## Decisión pendiente sobre `backups/`
+## `backups/` NO es un archivo muerto: contiene el checkpoint
 
-Quedan 164 MB de tres volcados: uno completo y otro de solo datos del 10 de
-agosto de 2026, y un `.dump` del 12. Son anteriores al sistema de checkpoints,
-que hoy es el camino de restauración real (`npm run checkpoint:restore:local`).
-No se borraron porque borrar copias de seguridad no se deshace y la decisión es
-del dueño del dato, no de quien limpia.
+Conviene decirlo fuerte porque se aprendió rompiéndolo. El nombre de la carpeta
+engaña: dentro no hay solo respaldos viejos. Hay **dos archivos que el sistema
+necesita para reconstruirse**, declarados en
+`research/catalog-master/local-storage.manifest.json` con su tamaño y su
+SHA-256 exactos:
+
+| Archivo | Clase declarada | Para qué |
+|---|---|---|
+| `pre-reset-20260810-0359-datos.sql` | `database_checkpoint_data` | **Es el checkpoint.** `checkpoint:restore:local` lo lee, comprueba su hash y reconstruye desde él las 26 tablas. Sin este archivo el gate muere en el tercer paso. |
+| `bellaroshe-2026-08-12T10-42-24.dump` | `database_recovery_dump` | Volcado binario de recuperación declarado en el mismo manifiesto. |
+
+La fecha del nombre —10 de agosto— sugiere que está obsoleto y no lo está: es
+el corte de datos vigente sobre el que corren todas las migraciones posteriores.
+
+Lo que sí salió del repositorio el 18 de agosto de 2026, a
+`D:/init/bellaroshe-arqueologia-datos/`, es lo que el manifiesto **no** declara:
+`pre-reset-20260810-0359-completo.sql` (78 MB) y el par de la certificación 1C
+(10 MB). Eso sí es arqueología, y no se intentó certificarlo: verificar un
+respaldo obsoleto solo demostraría que ya no sirve.
+
+**Antes de mover cualquier cosa de `backups/`, mira el manifiesto.** Si el
+archivo aparece en `checkpoint_files`, es infraestructura viva.
+
+Con una salvedad conocida del checkpoint: reproduce PostgreSQL, no los objetos
+de Supabase Storage. Ese hueco lo cierra `npm run gate:media-rebuild`.
