@@ -118,6 +118,20 @@ select public.register_catalog_review_work_item_v1(
   'gate-necesidad-fingerprint-0005', '¿Este registro oficial corresponde al producto interno?');
 
 -- Caso 6 y 7 · filas fuente: una irrecuperable y otra con destino claro.
+--
+-- El destino ya no se adivina por parecido de nombre: lo escribe el cargador en
+-- la propia excepción. Así que la diferencia entre las dos es exactamente esa,
+-- que una tiene producto y la otra no.
+insert into public.catalog_enrichment_exceptions(
+  id, exception_key, exception_type, severity, status, title, product_id, details
+) values
+  ('01220000-0000-4000-8000-0000000000e1', 'gate-necesidad-sin-destino',
+   'identity_ambiguous', 'high', 'open', 'SOURCE_ROW: ARTEFACTO SIN DESTINO', null,
+   '{"source_scope":"SOURCE_ROW"}'),
+  ('01220000-0000-4000-8000-0000000000e2', 'gate-necesidad-con-destino',
+   'identity_ambiguous', 'high', 'open', 'SOURCE_ROW: GATE DEMO LIMA ZURQUITA 100/150',
+   '01220000-0000-4000-8000-0000000000a4', '{"source_scope":"SOURCE_ROW"}');
+
 select public.register_catalog_review_work_item_v1(
   'gate-necesidad-fila-colgada', 'enrichment_exception',
   '01220000-0000-4000-8000-0000000000e1', 'decision', 'identity', 'other', null,
@@ -171,10 +185,10 @@ select is((select verdict from gate_verdicts where work_family_key='gate-necesid
   '11 - una pareja coherente y con ventaja clara sigue siendo decisión humana');
 select is((select verdict from gate_verdicts where work_family_key='gate-necesidad-fila-colgada'),
   'source_row_reference_unresolvable',
-  '12 - una fila fuente sin ningún producto parecido no es una pregunta');
+  '12 - una fila fuente sin destino en su excepción no es una pregunta');
 select is((select verdict from gate_verdicts where work_family_key='gate-necesidad-fila-con-destino'),
   'human_decision',
-  '13 - una fila fuente con destino interno claro sí se pregunta');
+  '13 - una fila fuente cuyo cargador dejó el producto sí se pregunta');
 select is((select verdict from gate_verdicts where work_family_key='gate-necesidad-investigacion-marca'),
   'action_is_research_not_decision',
   '14 - buscar fabricante es investigación, no decisión comercial');
