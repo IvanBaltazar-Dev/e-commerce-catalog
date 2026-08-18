@@ -1,9 +1,9 @@
 # Bellaroshé · Plan vivo de Inteligencia de Catálogo
 
-**Versión:** 2.2 · Etapas 4F y 4G cerradas; Etapa 5 en implementación
+**Versión:** 2.4 · Etapa 5 y certificación técnica final cerradas
 **Última actualización:** 2026-08-17
 **Fuente de verdad:** PostgreSQL/Supabase
-**Estado:** Etapas 0–3 y 4A–4G completadas técnicamente; Etapa 5 en implementación
+**Estado:** Etapas 0–3, 4A–4G y 5 completadas y certificadas localmente; preproducción conserva gates humanos y de infraestructura
 
 Este documento dirige la construcción de la Inteligencia de Catálogo Bellaroshé. MCP es un adaptador de acceso; no es el sistema ni contiene lógica de negocio exclusiva.
 
@@ -495,7 +495,9 @@ El corte crea 2 sistemas en 2 dominios, 10 etapas, 11 roles, 11 clases, 11 puent
 
 ### Etapa 5 · Comando único
 
-Una campaña manual desde Codex investiga desde la última ejecución, reaudita, conserva historia, deja solo excepciones reales, sincroniza el grafo y presenta productos nuevos listos para decisión comercial humana.
+`0118` persiste una campaña manual con preview/fingerprint, nueve eventos auditados, reanudación idempotente y cierre condicionado a un grafo sin diferencias y una huella comercial intacta. `catalog:intelligence` investiga desde la última ejecución, certifica semántica, reprocesa Mesa y relaciones, sincroniza decisiones, aplica manifiestos aprobados, sincroniza/verifica Neo4j y separa referencias listas de las bloqueadas.
+
+La campaña final ADMISS cerró con 242 entidades sin cambios, 6 referencias listas para decisión, 2 bloqueadas por presentación, 18 decisiones pendientes y cero cambios comerciales, decisiones humanas o hechos canónicos automáticos. El reporte se expone por CLI y por el MCP de solo lectura `catalog_campaign_report`. La reconstrucción `0001`–`0118` pasó 55 archivos/1.420 pruebas y el grafo cerró con 13.185 nodos, 24.445 aristas y cero drift. Evidencia en [Etapa 5 · Campaña unificada](etapa-5-comando-unico.md).
 
 GraphRAG, automatización continua, Cloudflare, VPS y transporte MCP remoto permanecen fuera de alcance hasta que una necesidad real los justifique.
 
@@ -563,8 +565,8 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
   - [x] cerrar inspección accesible, build y recorrido real escritorio/móvil;
   - [ ] medir presencialmente la comprensión menor a un minuto antes de producción.
 - [x] **Expansión controlada:** aplicar manifiestos Gel/Pestañas, medir deuda, impedir membresías automáticas y verificar el grafo.
-- [ ] **Etapa 5:** implementar comando único, delta desde la última ejecución y reporte comercial para la propietaria.
-- [ ] **Certificación final:** reconstrucción completa, todas las suites, seguridad, tipos, lint, build, Graph verify, documentación, árbol limpio, commits y push final.
+- [x] **Etapa 5:** implementar comando único, delta desde la última ejecución y reporte comercial para la propietaria.
+- [x] **Certificación final:** reconstrucción completa, todas las suites, seguridad, tipos, lint, build, Graph verify, documentación, árbol limpio, commits y push final.
 
 ### Decisiones y diseño
 
@@ -668,7 +670,7 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 - [x] Implementar y certificar 4E: preview/apply exacto, auditoría y concurrencia.
 - [x] Certificar técnicamente 4F: `Catálogo → Revisar` sobre contratos cerrados.
 - [x] Escalar controladamente el conocimiento a Gel y Pestañas después del gate del frontend.
-- [ ] Implementar comando único y reporte comercial.
+- [x] Implementar comando único y reporte comercial.
 
 ## 14. Registro de actualizaciones
 
@@ -696,3 +698,5 @@ Los riesgos generales de la plataforma permanecen en [Calidad y riesgos](calidad
 | 2026-08-17 | Etapa 4E implementada | `0116`, 18 decisiones persistidas, preview/apply exacto, idempotencia, concurrencia, auditoría, aplazamiento y graph verify; 72 pruebas específicas y 1.318 pgTAP completas |
 | 2026-08-17 | Etapa 4F cerrada técnicamente | Cola y decisión reales en `Catálogo → Revisar`, preview/confirmación, comentario, guardado pendiente, reanudación, evidencia bajo demanda, lenguaje natural y revisión escritorio/móvil; medición humana reservada para preproducción |
 | 2026-08-17 | Etapa 4G cerrada | `0117`, manifiestos Gel/Pestañas, 2 sistemas, 10 etapas, 11 clases, 5 relaciones propuestas, 8 decisiones reales cubiertas, cero productos/canonización/efectos comerciales y grafo sin drift |
+| 2026-08-17 | Etapa 5 implementada | `0118`, comando unificado con nueve pasos auditados, delta ADMISS, 6 referencias listas/2 bloqueadas, 60 pruebas específicas, reporte MCP, cero efectos comerciales y grafo sin drift |
+| 2026-08-17 | Certificación técnica final | Reconstrucción `0001`–`0118`, 55 archivos/1.420 pruebas, seguridad, tipos, lint, build y MCP en verde; 13.185 nodos/24.445 aristas sin drift |

@@ -1,6 +1,6 @@
 # Migraciones de base de datos
 
-Este directorio es el historial real y acumulativo de Bellaroshé. El corte documental vigente llega a `0117`. Las migraciones aplicadas no se reescriben, renombran, consolidan ni eliminan; toda corrección nueva recibe el siguiente número y sus pruebas.
+Este directorio es el historial real y acumulativo de Bellaroshé. El corte documental vigente llega a `0118`. Las migraciones aplicadas no se reescriben, renombran, consolidan ni eliminan; toda corrección nueva recibe el siguiente número y sus pruebas.
 
 ## Mapa del historial
 
@@ -31,6 +31,7 @@ Este directorio es el historial real y acumulativo de Bellaroshé. El corte docu
 | `0115` | Read model humano de 18 decisiones agrupadas en tres familias, sin apply |
 | `0116` | Decisiones persistidas, Mesa, preview/apply exacto, comentario, aplazamiento, auditoría y verificación |
 | `0117` | Expansión controlada por manifiestos universales, toda aserción nueva pendiente de evidencia y sin catálogo comercial |
+| `0118` | Campaña unificada con preview, nueve pasos auditados, reanudación idempotente, preparación comercial y guardas de grafo/comercio |
 
 Los nombres de archivo son el detalle autoritativo. Este mapa evita duplicar una descripción extensa que pronto queda desactualizada.
 
@@ -56,6 +57,7 @@ Los nombres de archivo son el detalle autoritativo. Este mapa evita duplicar una
 - `0113_universal_system_class_model.sql`: amplía el modelo 0086 sin tablas paralelas, valida estados epistemológicos y conserva intactas las 323 relaciones diferidas.
 - `0114_universal_relation_reprocessing.sql`–`0116_catalog_relation_decision_apply.sql`: clasifica relaciones históricas, las agrupa para decisión humana y aplica únicamente una intención confirmada.
 - `0117_controlled_system_expansion.sql`: añade sistemas mediante manifiestos acotados con preview/fingerprint/apply, auditoría y cero clasificación automática de productos.
+- `0118_catalog_intelligence_campaign.sql`: orquesta contratos cerrados, conserva eventos por paso y entrega un reporte humano sin publicar, fijar precios, asignar stock ni decidir por la propietaria.
 
 ## Aplicación local
 

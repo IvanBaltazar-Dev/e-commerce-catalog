@@ -392,6 +392,19 @@ registerReadTool(server, "stage4g_controlled_expansion_report", {
   "stage4g controlled expansion report",
 ));
 
+registerReadTool(server, "catalog_campaign_report", {
+  title: "Etapa 5 · Campaña de Inteligencia",
+  description: "Resume la última campaña unificada o una campaña concreta: cambios encontrados, productos listos o bloqueados, decisiones pendientes, grafo y guardas comerciales.",
+  inputSchema: {
+    campaignId: z.string().uuid().optional(),
+  },
+}, async ({ campaignId }) => must(
+  await database.rpc("get_catalog_intelligence_campaign_report_v1", {
+    p_campaign_id: campaignId ?? null,
+  }),
+  "catalog intelligence campaign report",
+));
+
 registerWriteTool(server, "stage4e_decision_preview", {
   title: "Etapa 4E · Preparar Decisión",
   description: "Congela el efecto exacto de una acción y devuelve la huella que la persona debe confirmar antes de aplicar.",

@@ -63,7 +63,7 @@ npm run test:db
 npm run audit:security
 ```
 
-El checkpoint semántico base llega hasta `0112`, el contrato funcional 4A hasta `0113`, el reprocesamiento universal 4B hasta `0114`, el read model humano 4C hasta `0115`, el contrato de decisión/apply 4E hasta `0116` y la expansión controlada hasta `0117`. La certificación cubre claims de fuente, agregación, epistemología universal, ingesta fail-closed, sistema→etapa→rol→clase→requisito, preview inmutable de 323 relaciones, 18 decisiones agrupadas, aplicación exacta con auditoría y manifiestos sin clasificación automática. La autorización humana de Etapa 4 no reemplaza esta certificación ni permite omitir gates.
+El checkpoint semántico base llega hasta `0112`, el contrato funcional 4A hasta `0113`, el reprocesamiento universal 4B hasta `0114`, el read model humano 4C hasta `0115`, el contrato de decisión/apply 4E hasta `0116`, la expansión controlada hasta `0117` y la campaña unificada hasta `0118`. La certificación cubre claims de fuente, agregación, epistemología universal, ingesta fail-closed, sistema→etapa→rol→clase→requisito, preview inmutable de 323 relaciones, 18 decisiones agrupadas, aplicación exacta con auditoría, manifiestos sin clasificación automática y nueve pasos de campaña con huella comercial estable. La autorización humana de Etapa 4 no reemplaza esta certificación ni permite omitir gates.
 
 Gates especializados:
 
@@ -91,6 +91,9 @@ Gates especializados:
 | `npm run system:expand -- run-approved` | aplica idempotentemente los manifiestos Gel/Pestañas aprobados, sin productos ni efectos comerciales |
 | `npm run gate:controlled-expansion` | preview/apply de manifiestos, fronteras epistémicas/comerciales y paridad completa del grafo |
 | `npm run test:mcp:stage4g` | reporte MCP de expansión de solo lectura |
+| `npm run catalog:intelligence -- preview|run|report ...` | prepara, ejecuta/reanuda o consulta una campaña unificada local |
+| `npm run gate:stage5` | nueve pasos, reporte humano, fronteras comercial/epistémica y paridad completa del grafo |
+| `npm run test:mcp:stage5` | reporte MCP de campaña de solo lectura |
 | `npm run test:catalog-review-rerun` | reprocesamiento idempotente de la Mesa |
 | `npm run test:review-reprocess` | rerun nulo, fingerprint lógico y guardas de tablas comerciales |
 | `npm run test:venta` | pagos, concurrencia, venta y nota |
@@ -144,6 +147,18 @@ npm run graph:verify
 El informe queda en `research/catalog-master/reports/admiss-semantic-audit/`: matriz CSV de 121 productos, JSON con consultas/excerpts/fingerprints y resumen Markdown. La auditoría no crea trabajo en Mesa, no publica y no autoriza por sí sola una etapa. La autorización humana para iniciar Etapa 4 se registró el 2026-08-17 y conserva intactas todas las guardas.
 
 MCP v1 usa STDIO local. 4E añade cuatro lecturas y cuatro comandos acotados para preview, aplazamiento, reanudación y apply exacto; no acepta SQL, shell, URL arbitraria, Cypher ni mutaciones de catálogo, precio, inventario o publicación. Los comandos llaman los mismos contratos PostgreSQL que la interfaz y sincronizan el Graph Projector después de aplicar.
+
+Etapa 5 añade `catalog_campaign_report` como lectura y mantiene la ejecución fuera de MCP. El flujo operacional es:
+
+```bash
+npm run catalog:intelligence -- preview --source-key admiss-co-official --brand ADMISS --campaign-key <clave>
+npm run catalog:intelligence -- run --source-key admiss-co-official --brand ADMISS --campaign-key <clave>
+npm run catalog:intelligence -- report --campaign-id <uuid>
+npm run gate:stage5
+npm run test:mcp:stage5
+```
+
+Repetir `run` con la misma clave reanuda pasos cerrados; no los duplica. `--skip-research` solo reutiliza el universo persistido y conserva los otros ocho pasos. La campaña sigue siendo manual, local y no comercial.
 
 Después de un `db reset`, `npm run checkpoint:restore:local` no solo restaura las 26 tablas comerciales: regenera staging, ejecuta el corte analítico 4B y sincroniza las 18 decisiones 4E. Así, ninguna prueba o pantalla depende de residuos locales.
 

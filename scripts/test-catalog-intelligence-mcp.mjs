@@ -54,6 +54,7 @@ try {
     "stage4e_decision_detail",
     "stage4e_decision_verify",
     "stage4g_controlled_expansion_report",
+    "catalog_campaign_report",
     "stage4e_decision_preview",
     "stage4e_decision_defer",
     "stage4e_decision_resume",
