@@ -23,6 +23,7 @@ Este índice es la puerta de entrada a la documentación vigente. La auditoría 
 | [Etapa 7 · Patrimonio multimedia](etapa-7-patrimonio-multimedia.md) | Manifiesto de Storage, huella agregada, verificación en dos direcciones y certificación adversarial | cambia el contrato de medios o su gate |
 | [Mapa de funciones sin sentido](mapa-funciones-sin-sentido.md) | Funciones que producen trabajo sin significado, con evidencia y qué hacer con cada una | se corrige una de ellas en origen o aparece otra |
 | [Auditoría específica de Etapa 1](etapa-1-auditoria-modelo.md) | Reutilización y cambios mínimos del modelo de conocimiento | cambia la frontera referencia/catálogo |
+| [Medición de escala 2026-08-18](medicion-escala-20260818.md) | Búsqueda a 100k, rutas del panel y Universo de Referencia contra el código actual | se vuelve a certificar la escala |
 | [Estructura del repositorio](estructura-repositorio.md) | Qué es cada carpeta, qué versiona Git y qué se puede borrar | aparece o desaparece una carpeta de trabajo |
 | [Migraciones](../supabase/migrations/README.md) | Historial técnico del esquema | se agrega una migración |
 | [Investigación de catálogo](../research/catalog-master/README.md) | Pipeline, evidencia externa y trabajo manual | cambia el pipeline o su corte medido |
