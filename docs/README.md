@@ -20,6 +20,7 @@ Este índice es la puerta de entrada a la documentación vigente. La auditoría 
 | [Etapa 4G · Expansión controlada de sistemas](etapa-4g-expansion-controlada-sistemas.md) | Manifiestos universales, guardas epistémicas, pilotos Gel/Pestañas y gate | cambia la expansión de conocimiento o sus manifiestos aprobados |
 | [Etapa 5 · Campaña unificada](etapa-5-comando-unico.md) | Comando único, delta, preparación comercial, auditoría y reporte para la propietaria | cambia la orquestación de campañas o su frontera comercial |
 | [Etapa 6 · Compuerta de necesidad](etapa-6-compuerta-necesidad.md) | Qué llega a la Mesa y por qué, relevancia comercial y sujeto de cada pregunta | cambia un veredicto de la compuerta o su efecto medido |
+| [Etapa 7 · Patrimonio multimedia](etapa-7-patrimonio-multimedia.md) | Manifiesto de Storage, huella agregada, verificación en dos direcciones y certificación adversarial | cambia el contrato de medios o su gate |
 | [Mapa de funciones sin sentido](mapa-funciones-sin-sentido.md) | Funciones que producen trabajo sin significado, con evidencia y qué hacer con cada una | se corrige una de ellas en origen o aparece otra |
 | [Auditoría específica de Etapa 1](etapa-1-auditoria-modelo.md) | Reutilización y cambios mínimos del modelo de conocimiento | cambia la frontera referencia/catálogo |
 | [Estructura del repositorio](estructura-repositorio.md) | Qué es cada carpeta, qué versiona Git y qué se puede borrar | aparece o desaparece una carpeta de trabajo |

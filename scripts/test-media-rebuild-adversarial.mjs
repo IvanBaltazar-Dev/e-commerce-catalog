@@ -174,7 +174,41 @@ check("el mismo archivo colgado de otra entidad cambia la huella",
   `${mudado.huellaDelPatrimonio} vs ${baseline}`);
 check("y el gate lo detecta como patrimonio distinto", mudado.resultado === "ROJO");
 
-console.log("\n7. Se retira el patrimonio de prueba");
+console.log("\n7. Destrucción y recuperación: se vacía Storage y se restaura");
+must(await service.from("product_media").delete().eq("media_asset_id", fixtures[0].assetId),
+  "deshacer el dueño prestado");
+must(
+  await service.from("product_media").insert({
+    media_asset_id: fixtures[0].assetId, product_id: fixtures[0].variant.product_id,
+    variant_id: fixtures[0].variant.id, media_role: "gallery", is_primary: false, sort_order: 900,
+  }),
+  "devolver el medio a su variante"
+);
+check("devuelto el dueño, la huella vuelve a ser la congelada",
+  runGate("verify").huellaDelPatrimonio === baseline);
+
+// Se borran los BYTES, no los metadatos: es exactamente lo que pasó el 18 de
+// agosto y lo que el checkpoint tiene que saber deshacer.
+must(await service.storage.from(BUCKET).remove(fixtures.map((fixture) => fixture.path)),
+  "vaciar Storage");
+const destruido = runGate("verify");
+check("sin bytes, el gate se pone ROJO aunque PostgreSQL esté intacto",
+  destruido.resultado === "ROJO" && destruido.mediosFantasma === fixtures.length,
+  JSON.stringify(destruido.ejemplos.fantasma));
+
+const devuelto = runGate("restore");
+check("el restore devuelve todos los objetos desde el almacén local",
+  devuelto.objetosDevueltos === fixtures.length && devuelto.fallos.length === 0,
+  JSON.stringify(devuelto.fallos));
+
+const recuperado = runGate("verify");
+check("y tras recuperar, el gate vuelve a VERDE", recuperado.resultado === "VERDE",
+  JSON.stringify(recuperado.ejemplos));
+check("con la MISMA huella que antes de destruir",
+  recuperado.huellaDelPatrimonio === baseline,
+  `${recuperado.huellaDelPatrimonio} vs ${baseline}`);
+
+console.log("\n8. Se retira el patrimonio de prueba");
 for (const fixture of fixtures) {
   await service.from("product_media").delete().eq("media_asset_id", fixture.assetId);
   await service.from("media_assets").delete().eq("id", fixture.assetId);
