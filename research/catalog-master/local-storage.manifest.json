@@ -251,16 +251,24 @@
   ],
   "checkpoint_files": [
     {
-      "path": "backups/pre-reset-20260810-0359-datos.sql",
-      "class": "database_checkpoint_data",
-      "bytes": 76381170,
-      "sha256": "e1f2582d8e815a3c1244a2b4a2c16c351455e4e5becd9433fbcb45c8e739acc2"
-    },
-    {
       "path": "backups/bellaroshe-2026-08-12T10-42-24.dump",
       "class": "database_recovery_dump",
       "bytes": 5137537,
       "sha256": "5236ff2d7f4b7f488f31895665331fa3423cd8deb8c9d56bf4e8ac382cf66796"
+    },
+    {
+      "path": "backups/pre-reset-20260810-0359-datos.sql",
+      "class": "database_checkpoint_baseline",
+      "bytes": 76381170,
+      "sha256": "e1f2582d8e815a3c1244a2b4a2c16c351455e4e5becd9433fbcb45c8e739acc2"
+    },
+    {
+      "path": "backups/certificado-2026-08-18T15-48-51-datos.sql",
+      "class": "database_checkpoint_data",
+      "bytes": 2133521,
+      "sha256": "6b19d3de3f4ca13fef608df569000e9dddc1cfcf8b9b25344b90ac3b97d9f529",
+      "certified_at": "2026-08-18T15:48:53.107Z",
+      "entities": 31
     }
   ],
   "totals": {
