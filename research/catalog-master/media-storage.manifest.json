@@ -1,30 +1,14 @@
 {
   "schema_version": 1,
   "storage_contract": "bellaroshe-media-storage-v1",
-  "fingerprint": "863be7d0ac1bc1ac81ecc7c007cac8b031ae4669cd46a700eb249bf4d1cda862",
-  "exported_objects": 2,
+  "fingerprint": "a66c645ee162bc9ca322af35e13802277355200f12f66f87abf9c81f5a69f984",
+  "exported_objects": 172,
   "missing_objects": [
     "catalog-assets/productos/MAS-ESM-4C95F3/main.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/abrumadora.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/activista.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/actual.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/adorable.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/amable.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/amante.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/amigable.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/amistosa.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/arriesgada.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/artesana.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/astuta.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/atractiva.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/atrevida.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/ausente.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/autentica.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bailadora.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bella.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bendecida.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/blanco-nacar.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bombon.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bri-ajedrez.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bri-arcoiris.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bri-benevolente.webp",
@@ -35,130 +19,44 @@
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bri-rosa.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bri-seda.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/bri-tres-oros.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/burlona.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/buscona.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/calmada.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/campeona.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/candidata.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/casquivana.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/chic.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/comica.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/compulsiva.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/conectada.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/consentida.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/controladora.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/cool.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/dec-amarillo.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/dec-azul-rey.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/dec-escarchado-dorado.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/dec-escarchado-plata.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/dec-negro.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/dec-tiza.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/dinamica.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/distinguida.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/diva.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/dominante.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/educada.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/ejecutiva.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/electrica.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/emocional.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/empatica.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/emprendedora.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/encantadora.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/entretenida.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/estupenda.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/exagerada.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/exotica.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/expresiva.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/extraordinaria.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/famosa.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fanatica.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/farandulera.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fiera.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fiesta.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fot-adaptable.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fot-bipolar.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fot-doble.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fot-inestable.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fot-polifacetica.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fot-susceptible.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/frances.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fresca.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/fufurufa.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/generosa.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/gitana.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/glamorosa.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/golosa.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/gomela.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/granizado.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/humana.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/idealista.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/ilusion.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/imparable.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/imponente.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/indomable.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/innovadora.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/inquieta.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/insinuante.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/inspiradora.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/intimidante.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/intrigante.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/intuitiva.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/juguetona.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/liberada.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/linda.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/luchadora.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/lujuriosa.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/magica.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/malvada.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/marinera.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/materialista.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/matrimonio.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/metodica.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/mimada.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/morronga.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/nativa.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/natural.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/negro.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/neurotica.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/nieve.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/novia.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/orgullosa.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/original.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/paciente.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/perfeccionista.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/presumida.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/primera-dama.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/prisionera.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/profesional.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/provocadora.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/provocativa.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/querendona.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/quisquillosa.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/razonable.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/rebelde.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/recatada.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/refinada.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/regia.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/revolucionaria.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/sangre-toro.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/serena.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/sexy.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/silenciosa.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/sofisticada.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/solidaria.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/soltera.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/talentosa.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/tierna.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/tirana.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/tiza.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/torera.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/toxica.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/tranquila.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/trascendental.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/tremenda.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/vanguardista.webp",
-    "catalog-assets/productos/MAS-ESM-4C95F3/tonos/virginal.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/visos-plata.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/visos-rosa.webp",
     "catalog-assets/productos/MAS-ESM-4C95F3/tonos/zangana.webp"
@@ -166,32 +64,2752 @@
   "files": [
     {
       "bucket": "catalog-assets",
-      "path": "pruebas/media-adversarial/adversarial-dos.png",
-      "sha256": "fdb5efd52f36691a7e275bdce10e64cf10d329ae771e1ef1b7d1cc1957ce5ceb",
-      "bytes": 13,
-      "mime": "image/png",
-      "mediaAssetId": "0d3295ec-b21b-4f63-92c9-c84772e2895e",
+      "path": "campana-1/0176330d-69a0-4492-b2bb-1130d89c1779.webp",
+      "sha256": "43d210215b6279389af849573287d5ef2c0d6911e2bf32a970d317891c818ee9",
+      "bytes": 41628,
+      "mime": "image/webp",
+      "mediaAssetId": "e6d7fe85-d315-4c31-949f-25661c41fb10",
       "owners": [
         {
           "productId": null,
-          "variantId": "e492eef6-9bb8-4ef3-8b8e-4d9935a4d4d5",
-          "role": "gallery"
+          "variantId": "0176330d-69a0-4492-b2bb-1130d89c1779",
+          "role": "main"
         }
       ],
       "state": "owned"
     },
     {
       "bucket": "catalog-assets",
-      "path": "pruebas/media-adversarial/adversarial-uno.png",
-      "sha256": "08738549f78a9051d8eb3f10fd8bcb46c1854f6d92e59bd85ef8fc621ff9391a",
-      "bytes": 13,
-      "mime": "image/png",
-      "mediaAssetId": "e90f41d8-f93c-42bb-8e5a-4788b0abfb20",
+      "path": "campana-1/061fec84-68ce-4189-a4e7-ea6d4e3d2975.webp",
+      "sha256": "04348d38a5ed16ecd608d2e6b94a86a4a4275171855d9001d55cb8bbca873632",
+      "bytes": 41122,
+      "mime": "image/webp",
+      "mediaAssetId": "0027b493-cdf5-4a1e-bd24-4b31029b5d2a",
       "owners": [
         {
           "productId": null,
-          "variantId": "e8efd940-2de1-4ddd-b940-a4147430dfaa",
-          "role": "gallery"
+          "variantId": "061fec84-68ce-4189-a4e7-ea6d4e3d2975",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/0629585d-bf71-4d43-ad40-fecf7bd13cc3.webp",
+      "sha256": "7b03c9b0679c1fce8fb99f23d1a12dcd1dce9d984683ebd266e56f4cb1a62c8c",
+      "bytes": 81320,
+      "mime": "image/webp",
+      "mediaAssetId": "5eaa9f53-da16-4cf9-8afa-0efdb7c6460e",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "0629585d-bf71-4d43-ad40-fecf7bd13cc3",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/0d933166-b80e-4116-9088-3b2b918f7133.webp",
+      "sha256": "cfe432e27548e85dc2dd6f8b5e1d2af05f8376e218417390b5e6b68716a27e0a",
+      "bytes": 42384,
+      "mime": "image/webp",
+      "mediaAssetId": "4094ad16-e6c3-474f-8af9-ee038cf2ecf2",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "0d933166-b80e-4116-9088-3b2b918f7133",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/16537643-7d47-4de4-95b8-fd0c0314b3a4.webp",
+      "sha256": "f60b66f4190a39c6e14f4928e9f642e5c42e3f149d2c499712721764eeb57fd2",
+      "bytes": 43530,
+      "mime": "image/webp",
+      "mediaAssetId": "fe4ba4bf-5608-4883-8732-ced1199bc7bd",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "16537643-7d47-4de4-95b8-fd0c0314b3a4",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/186684b7-586f-4298-a1df-7cfc189febf6.webp",
+      "sha256": "876bfbde96256250a5c4f5d8731b59d28cf065d1a58a050385c781604ed6feac",
+      "bytes": 38158,
+      "mime": "image/webp",
+      "mediaAssetId": "c4e7edaa-662e-4a0f-9038-44ad096b652b",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "186684b7-586f-4298-a1df-7cfc189febf6",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/206f0dbb-ccd2-456b-9eeb-8ae571dfdc94.webp",
+      "sha256": "4dfff8f08beee77aaacf81136caa0c22224b331672ef3ad6d8684630f92120ef",
+      "bytes": 43038,
+      "mime": "image/webp",
+      "mediaAssetId": "2e2efee2-4c66-43eb-ad96-291f9bdcf519",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "206f0dbb-ccd2-456b-9eeb-8ae571dfdc94",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/25566c73-ec62-4492-bb5c-0737db7d684c.webp",
+      "sha256": "58be75c02150262182a1b30c510ac4ee04d86bd80a60a2768d9887ef27867a5a",
+      "bytes": 42772,
+      "mime": "image/webp",
+      "mediaAssetId": "77ea953a-2ef0-4892-9d4b-07e849ebaf06",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "25566c73-ec62-4492-bb5c-0737db7d684c",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/27743da4-b96d-44fb-a1be-c4711ae8f08a.webp",
+      "sha256": "4112ad4f1511f16c157d3b82acc18ecf6c3efb69f4e4a72407984e97a64b302c",
+      "bytes": 43134,
+      "mime": "image/webp",
+      "mediaAssetId": "889f49f3-f236-4cc0-a508-6a92c3f77a68",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "27743da4-b96d-44fb-a1be-c4711ae8f08a",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/2b84cb11-a028-40bd-954c-5102380ef274.webp",
+      "sha256": "c8812b795237c46996107c82ac42169046d6f554cc9ffcd22fdf6f41b510763e",
+      "bytes": 39672,
+      "mime": "image/webp",
+      "mediaAssetId": "bb2707c8-6538-4fdb-a2a1-a163157015b8",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "2b84cb11-a028-40bd-954c-5102380ef274",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/2cce1b2d-e661-4de0-b064-cd7241cb3e94.webp",
+      "sha256": "268aa1f2890e9d9f9a0da276a3b96c88cb595404893012be31bb3c15d694a30f",
+      "bytes": 38614,
+      "mime": "image/webp",
+      "mediaAssetId": "83c50dc7-70ce-4626-b2f3-be6019321ea2",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "2cce1b2d-e661-4de0-b064-cd7241cb3e94",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/2de91e6a-9db6-4dee-895b-d40a458d9e9b.webp",
+      "sha256": "1b5bd451dc32c47db054eda710e0b87191919c8ca06ac2270e276f6fae5b4b3c",
+      "bytes": 41688,
+      "mime": "image/webp",
+      "mediaAssetId": "50270a23-df7a-497d-8cef-0966edd9807c",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "2de91e6a-9db6-4dee-895b-d40a458d9e9b",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/2f67db18-b96f-4778-a011-53ecdff4f633.webp",
+      "sha256": "d082dd27dc42f934de638b61386209b345dd2855bc60caeec4d7ef0e4c3616cc",
+      "bytes": 54534,
+      "mime": "image/webp",
+      "mediaAssetId": "faa92ca0-0828-4681-a684-e465585a473e",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "2f67db18-b96f-4778-a011-53ecdff4f633",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/3903d6e3-0572-44eb-b442-b1d6cfcb01c9.webp",
+      "sha256": "85794958d6703957d0d586289b3227b444021c31bfc9788088a99560b54f310c",
+      "bytes": 38872,
+      "mime": "image/webp",
+      "mediaAssetId": "a341c1b7-a190-42fb-ac0c-73f73c2f4d16",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "3903d6e3-0572-44eb-b442-b1d6cfcb01c9",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/3d840949-b235-47e9-88bd-317ce4fd097d.webp",
+      "sha256": "e39df6c9a31d0fb8292b9a827a738a2ba0d13539f587fccb3044102f88c7b8c1",
+      "bytes": 72326,
+      "mime": "image/webp",
+      "mediaAssetId": "eb17aec7-b903-4df5-b4cb-8c2c7e2c7f23",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "3d840949-b235-47e9-88bd-317ce4fd097d",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/4830bb73-bcd9-4348-8476-f764982d3929.webp",
+      "sha256": "92100a18559aefa6e65600341f92032728e4b16863c6c279b4dfbbd3b13803df",
+      "bytes": 38460,
+      "mime": "image/webp",
+      "mediaAssetId": "384b0959-3d60-484f-aea0-f936b3e11093",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "4830bb73-bcd9-4348-8476-f764982d3929",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/4e0814c4-4cc8-4bd3-8b43-89b232fb03c8.webp",
+      "sha256": "994988a6a99a474e4854b6a8f03bc85444d7788e94391591c5c7d7c13403d44e",
+      "bytes": 41092,
+      "mime": "image/webp",
+      "mediaAssetId": "64f00854-71fd-4e96-9a8d-6eaf6f8adadb",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "4e0814c4-4cc8-4bd3-8b43-89b232fb03c8",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/50e1f378-953c-4df4-9ff5-ae3d9def00ee.webp",
+      "sha256": "e5518e4eb73dc843ed0800e3024e64227bc57c01cf49bc8254f26198fe97a46c",
+      "bytes": 39142,
+      "mime": "image/webp",
+      "mediaAssetId": "34a4811e-72ab-4e38-a26b-5606e5fb9edc",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "50e1f378-953c-4df4-9ff5-ae3d9def00ee",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/59f36047-951d-487e-8cf4-54954c5a536e.webp",
+      "sha256": "7a87702f0b896d42ebba9bf401f46cf8fa33774ec9a71e53617647b9ebbdb669",
+      "bytes": 38710,
+      "mime": "image/webp",
+      "mediaAssetId": "bc0eabe5-24fb-4411-a001-7bb7c79666ae",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "59f36047-951d-487e-8cf4-54954c5a536e",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/5a8117e1-170b-40c1-90f8-395b95679439.webp",
+      "sha256": "9a344cbca845fbc157656cf589b597b13d1821cdc9650a443f201a7a36d0389e",
+      "bytes": 79028,
+      "mime": "image/webp",
+      "mediaAssetId": "7f6132c1-daf3-45af-a674-1db5e24c5d76",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "5a8117e1-170b-40c1-90f8-395b95679439",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/5ea55e43-bdce-45a4-a959-09ef4190c793.webp",
+      "sha256": "417342dd4e982866c93e905014042fc87c86b412e9452adce92bd68174c57c42",
+      "bytes": 57934,
+      "mime": "image/webp",
+      "mediaAssetId": "91295b6a-af06-4a9b-8fcb-d6688a5ad1d0",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "5ea55e43-bdce-45a4-a959-09ef4190c793",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/5f679700-7772-425a-8d56-98ae58f0a9ed.webp",
+      "sha256": "1685436dddee8860f8c902ea7e49033e5f552bd7696c7e705e2854ba05c97292",
+      "bytes": 37448,
+      "mime": "image/webp",
+      "mediaAssetId": "2d1a37e2-f21a-47ea-bb3f-71f7119b6997",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "5f679700-7772-425a-8d56-98ae58f0a9ed",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/6188cb31-8efd-473c-98ac-3844f8d588e6.webp",
+      "sha256": "74fc036000661d2708fa0db35b71b306e2fc580bfccccfe75010faab1818cf57",
+      "bytes": 43768,
+      "mime": "image/webp",
+      "mediaAssetId": "1d062441-286e-467b-922e-9b5644d83012",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "6188cb31-8efd-473c-98ac-3844f8d588e6",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/62f31908-ddbf-470b-b3c7-d66823a6bb34.webp",
+      "sha256": "1c7d0192eef7c10d373ba2675eb08236c96830ef5386d81a50dfbde2a61e3d30",
+      "bytes": 40404,
+      "mime": "image/webp",
+      "mediaAssetId": "1ef865f5-a1a3-46a3-8ecd-e73878679728",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "62f31908-ddbf-470b-b3c7-d66823a6bb34",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/638d2c01-6e08-443b-afc9-b7ff7e1e2e18.webp",
+      "sha256": "28c1d70687c0c7260bd0e2ed36157a4607cc8bbdc9031b5392d6e0a6f5e57919",
+      "bytes": 39716,
+      "mime": "image/webp",
+      "mediaAssetId": "7cdf396b-c49a-478e-aeb2-85be9d0e9394",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "638d2c01-6e08-443b-afc9-b7ff7e1e2e18",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/6493bbf6-a020-4047-a5be-9e547b636d59.webp",
+      "sha256": "d50463934d847bb7fe2f9877b5a9ae01c82f0cc7e2c6210e28b5c04df0a1fe1b",
+      "bytes": 40786,
+      "mime": "image/webp",
+      "mediaAssetId": "7370dac0-5598-4a09-b5ef-cba3b695b277",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "6493bbf6-a020-4047-a5be-9e547b636d59",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/690966a2-824b-4cc9-8029-f48b446bd330.webp",
+      "sha256": "aa7806a12096ebb5b6578742f2b705bf3572bde9f94daff2835106bc57d28fdc",
+      "bytes": 42216,
+      "mime": "image/webp",
+      "mediaAssetId": "f4af98c1-70bf-4cdb-b17d-a9cb87b3cb35",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "690966a2-824b-4cc9-8029-f48b446bd330",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/6b92e760-d98a-469b-98a2-eeaf89642fca.webp",
+      "sha256": "eaaed6e015068d9bd4017ad48e676c2e4129fdd042de8de3970d672ac296fae0",
+      "bytes": 84118,
+      "mime": "image/webp",
+      "mediaAssetId": "690aedd7-1653-44b4-bdad-7c97a63692f9",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "6b92e760-d98a-469b-98a2-eeaf89642fca",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/6be4e122-9a02-4a9a-8403-7fcd3207c213.webp",
+      "sha256": "9b65800d5447c7752ce6b1cd627bd3161ee0bcd8854f48a58c399cbee51103a3",
+      "bytes": 70640,
+      "mime": "image/webp",
+      "mediaAssetId": "ea6dcf55-a289-408d-9d59-0e8fc277a4fd",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "6be4e122-9a02-4a9a-8403-7fcd3207c213",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/72238c42-74ce-4791-8f9b-5c786ac27844.webp",
+      "sha256": "3d4261ad9e2dc3562c8874def277ca42bd7062ecf01cb1d0abf8371d4577441c",
+      "bytes": 42216,
+      "mime": "image/webp",
+      "mediaAssetId": "7f8151bf-c51b-4f66-9f80-9b69dcc4e209",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "72238c42-74ce-4791-8f9b-5c786ac27844",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/74d23e7b-352e-4cc8-be5b-ccc70475a267.webp",
+      "sha256": "9be9b6ae53e56a2b11c9bf187020c08fe535a9b4642f98f6929469a5da3ca619",
+      "bytes": 43802,
+      "mime": "image/webp",
+      "mediaAssetId": "6936c226-6d4f-40e4-b29f-3767e79e4a8c",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "74d23e7b-352e-4cc8-be5b-ccc70475a267",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/74d62c51-ad50-4c4d-9482-910707689ec9.webp",
+      "sha256": "3109d3d65809dd328d38eca912e21a767c1e21172378f11c9fe0835ce7da7e91",
+      "bytes": 41438,
+      "mime": "image/webp",
+      "mediaAssetId": "255cf5e0-4323-468a-8850-4cbdb4903d21",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "74d62c51-ad50-4c4d-9482-910707689ec9",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/7b09d7d5-330f-490a-8fb9-30cda62c6d8f.webp",
+      "sha256": "10f8f1b8cb0f6b2ab8bf0649ca22c462e1d2ed7c3ea69f6c14df13c25f1c0f21",
+      "bytes": 39908,
+      "mime": "image/webp",
+      "mediaAssetId": "a2a0850f-22a3-4568-9e69-7fbc49decbe3",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "7b09d7d5-330f-490a-8fb9-30cda62c6d8f",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/81a0ca45-00de-47cc-bbbf-c231d8fa9866.webp",
+      "sha256": "2881a610d7e897f1fee77e0f0fe9d5c777982d34e9d0adb6a76157e1bc30b494",
+      "bytes": 46946,
+      "mime": "image/webp",
+      "mediaAssetId": "ed109499-df66-4b7d-8a93-65a8477baf22",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "81a0ca45-00de-47cc-bbbf-c231d8fa9866",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/8303ed38-0ee6-4284-a50e-5ac41117ca66.webp",
+      "sha256": "05bc5faced372ecbe899ac338fe50c5971c092dc78aecc6b20f16c1eb230b382",
+      "bytes": 46242,
+      "mime": "image/webp",
+      "mediaAssetId": "1ee5f543-d3e6-40f6-b588-8279423df5c0",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "8303ed38-0ee6-4284-a50e-5ac41117ca66",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/8bed11c4-531e-492c-8a37-dee6d5f2c2bf.webp",
+      "sha256": "1f1901f963ac9da389719918595f30f601bac921533d14963e1095b8e2c89388",
+      "bytes": 42920,
+      "mime": "image/webp",
+      "mediaAssetId": "270185ae-ffcc-43e4-afcd-b54efd30034b",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "8bed11c4-531e-492c-8a37-dee6d5f2c2bf",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/908bfb7a-2e78-4c4f-8b54-1360c55d49e2.webp",
+      "sha256": "8931a15db4d7eae9bc5fc05ca94e00a0c3a593a960888482ed65ca54f647d3a2",
+      "bytes": 38600,
+      "mime": "image/webp",
+      "mediaAssetId": "1beea90d-2e2c-400d-827a-361fa5bbb720",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "908bfb7a-2e78-4c4f-8b54-1360c55d49e2",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/93514275-6676-43e7-a7f8-f10521389b27.webp",
+      "sha256": "a94fe2fbf3567e2bf954cc459b0f153fd78856678caa30db08dea27fae870cef",
+      "bytes": 42820,
+      "mime": "image/webp",
+      "mediaAssetId": "1ae2b74b-ff8b-406a-b170-ea051d02d8d9",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "93514275-6676-43e7-a7f8-f10521389b27",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/9b1c4289-dabc-4181-bea3-ce10379d705b.webp",
+      "sha256": "c6e9610c83bcda051f6fd681f2add1e24599b121c07e57bde009b502d57feccb",
+      "bytes": 59446,
+      "mime": "image/webp",
+      "mediaAssetId": "262c0601-3a88-4b3a-bd26-643d2fbbc478",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "9b1c4289-dabc-4181-bea3-ce10379d705b",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/a16b4ff5-6c2c-45e7-9cf9-0fc85ed03424.webp",
+      "sha256": "93cd4ee36d2a4a31b0e87ea7dc4e97f37b8bf7e6c2f151c36c5e7995879b08a0",
+      "bytes": 74276,
+      "mime": "image/webp",
+      "mediaAssetId": "8ef24d6c-c59f-4f8c-8f2e-282459cb5978",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "a16b4ff5-6c2c-45e7-9cf9-0fc85ed03424",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/a707cf70-cc37-4a15-a3ef-b282614a6404.webp",
+      "sha256": "5df9cf383c7e03ac7151e40bcf8da01e91c3b7971251c69687130af94836aad6",
+      "bytes": 40048,
+      "mime": "image/webp",
+      "mediaAssetId": "a914209e-067a-407a-994c-946914250238",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "a707cf70-cc37-4a15-a3ef-b282614a6404",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/a89c4eee-588e-4bb5-b0fa-88e20cd9ff92.webp",
+      "sha256": "a6a218b9ce4380346546dec284b7e1bded9ed8ad02e903afad20679050e9c10c",
+      "bytes": 83884,
+      "mime": "image/webp",
+      "mediaAssetId": "5e0d2678-a9d8-41c1-a265-c433a127763b",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "a89c4eee-588e-4bb5-b0fa-88e20cd9ff92",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/b1398811-6247-4bda-9dac-8b1037060add.webp",
+      "sha256": "51fdad96b0cb9fdd761b9da49d008b51c5da8a7b453045a6bad0a31a9f451056",
+      "bytes": 42398,
+      "mime": "image/webp",
+      "mediaAssetId": "ea376989-d97c-4546-9182-ccd60efe3863",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "b1398811-6247-4bda-9dac-8b1037060add",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/b56b8f44-65a8-46eb-bf8e-657ccefc0b71.webp",
+      "sha256": "0d040e7a7ab0494069ca2b6745de852197c122793c51dd5ddb4e4a707f41ba74",
+      "bytes": 40652,
+      "mime": "image/webp",
+      "mediaAssetId": "d459f7e6-2ba5-4fa5-bc6b-ffa38c5c68bb",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "b56b8f44-65a8-46eb-bf8e-657ccefc0b71",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/b7a84a02-30e2-4582-81ad-b3a96ef3f808.webp",
+      "sha256": "6f2c59ce4d3721f1a74c84d7212c044c1a11333d4ede4aec8ee980e12b3d37f3",
+      "bytes": 40726,
+      "mime": "image/webp",
+      "mediaAssetId": "156e8c3e-7287-484b-9ac8-4aefd6526fae",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "b7a84a02-30e2-4582-81ad-b3a96ef3f808",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/bca7c99b-9ccb-45a3-ab0f-30a4b301720e.webp",
+      "sha256": "340c1dc3af360bd981e18b1e8b4efd3c41166340cb044b722d7e22384df92846",
+      "bytes": 37262,
+      "mime": "image/webp",
+      "mediaAssetId": "3fd4c0cd-4f33-44b9-8bb3-57050260b108",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "bca7c99b-9ccb-45a3-ab0f-30a4b301720e",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/be6ffaa2-b6bc-4f5f-8be3-a96a705ff619.webp",
+      "sha256": "e9fbccd8fdcbc7d7b68cdc1573929ac1fb2fa4e773b0e181d7c953b23c819bfc",
+      "bytes": 70682,
+      "mime": "image/webp",
+      "mediaAssetId": "46fe74be-9ca9-491a-9674-efe0e3e884e5",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "be6ffaa2-b6bc-4f5f-8be3-a96a705ff619",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/c5074cc5-dd45-4813-ac49-e106d700b6c9.webp",
+      "sha256": "3143a038a0b63db90f427c9c2597801e8d75080453a7e3692d5eed3efbdf0389",
+      "bytes": 40378,
+      "mime": "image/webp",
+      "mediaAssetId": "e9ccfb21-98b1-432a-8e2d-09e90d122ecb",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "c5074cc5-dd45-4813-ac49-e106d700b6c9",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/c61e08b9-45b5-477b-bebd-0fc5becb56d0.webp",
+      "sha256": "f10e2213843f0c1f21d98323def42d4950222da35337daf203825d6415cd1ba6",
+      "bytes": 33888,
+      "mime": "image/webp",
+      "mediaAssetId": "08191065-655e-4257-a0d9-233ab323a5ba",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "c61e08b9-45b5-477b-bebd-0fc5becb56d0",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/c62e801a-5942-447c-90bc-c2b8a6791fc5.webp",
+      "sha256": "1b17124f0a8fd7505f13967aaf8f4891f1708cfc993c4b25bdef130313a2bcc9",
+      "bytes": 39066,
+      "mime": "image/webp",
+      "mediaAssetId": "41e3f695-1427-45fd-9045-53b3f3b6c4e8",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "c62e801a-5942-447c-90bc-c2b8a6791fc5",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/c6e37e0c-5eb0-4486-b573-f8f489db29ed.webp",
+      "sha256": "c75c15bdc199d2d376f46def0db3a9248fb639b4d0c3bdfe820942932e75faa6",
+      "bytes": 40204,
+      "mime": "image/webp",
+      "mediaAssetId": "a7acecae-0f95-4047-b1e4-710f142be566",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "c6e37e0c-5eb0-4486-b573-f8f489db29ed",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/c71954f6-d2a6-46d6-9376-b6aff18375da.webp",
+      "sha256": "de150f212883c441e097e16d9932849a27afc021acacfef466705446b3319e7b",
+      "bytes": 66310,
+      "mime": "image/webp",
+      "mediaAssetId": "afb8e0b9-399a-4eba-b1e0-45daef99d6d9",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "c71954f6-d2a6-46d6-9376-b6aff18375da",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/c936df2a-4bbe-4c5a-8744-3e0b52bdd3ee.webp",
+      "sha256": "63609b6c68f6537bfd36f7629f9911517f387ad880365aedffadd535a01d31e1",
+      "bytes": 42708,
+      "mime": "image/webp",
+      "mediaAssetId": "021e29b0-7b5f-4ff2-a369-376ebf368d0e",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "c936df2a-4bbe-4c5a-8744-3e0b52bdd3ee",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/ca367801-722e-48b5-b0a7-dfd50877f76a.webp",
+      "sha256": "5cc7a1ec55db62fda98e6f05b20de1e63f3abb7dd212f5b173db79ff15a69bf3",
+      "bytes": 38318,
+      "mime": "image/webp",
+      "mediaAssetId": "0e9f492b-c311-4fe4-9af4-7b261690fb57",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "ca367801-722e-48b5-b0a7-dfd50877f76a",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/d1fb7ca0-6508-441c-88e3-fe83ef7f77b2.webp",
+      "sha256": "f9bb16a163cb25798ee445f276759131da571aa72d7b354afa635e5c76a54e4c",
+      "bytes": 34680,
+      "mime": "image/webp",
+      "mediaAssetId": "f7af0eb5-6d7c-4167-9299-13a11a74f1c2",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "d1fb7ca0-6508-441c-88e3-fe83ef7f77b2",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/d22d4f1b-02dd-45d9-bdbe-e86e875273cb.webp",
+      "sha256": "7e413f54a24752669c9cec011f39874a6a74e32dc05256aaab8c885906c3aa98",
+      "bytes": 45350,
+      "mime": "image/webp",
+      "mediaAssetId": "c44734da-cfd6-43c4-8100-4461e1f36f0d",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "d22d4f1b-02dd-45d9-bdbe-e86e875273cb",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/d6613281-096f-4dc8-ab36-d8c51a034769.webp",
+      "sha256": "1c0e069a08180f4336f55a86e26ad631dbd9e8f60462f0639879a53994448661",
+      "bytes": 41126,
+      "mime": "image/webp",
+      "mediaAssetId": "7f410395-9ba8-4dd8-b29b-3a7f708ab011",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "d6613281-096f-4dc8-ab36-d8c51a034769",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/d8ad71f6-d17b-43c7-8fba-ebc477bc634c.webp",
+      "sha256": "248614617880d0f13dcb369a2c879f96e5289c3ae94f5ad78c8b545d0bc37792",
+      "bytes": 43762,
+      "mime": "image/webp",
+      "mediaAssetId": "3bfba8a0-d3cf-47e4-95d8-d79863445bec",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "d8ad71f6-d17b-43c7-8fba-ebc477bc634c",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/dc358a98-d795-471b-a237-7bbbdea8a0bb.webp",
+      "sha256": "7460074c4e7b77f08fb3abb84d4185ab7ddfcbe3a923d7ee56bfb7c356d3bfe0",
+      "bytes": 43904,
+      "mime": "image/webp",
+      "mediaAssetId": "b3712e50-ce5f-473f-9c07-01d675472683",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "dc358a98-d795-471b-a237-7bbbdea8a0bb",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/df66fef9-70d0-4ab5-a707-ba2584ad21c1.webp",
+      "sha256": "cad764ee4cabb6263ac2b7240d718bf556ed596faa3d897d60bb292d2e3d9024",
+      "bytes": 38220,
+      "mime": "image/webp",
+      "mediaAssetId": "85c82d38-0a38-4e1e-9b99-91b57d85c194",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "df66fef9-70d0-4ab5-a707-ba2584ad21c1",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/e457126b-0299-42f4-9cb6-b8c704cbe8ea.webp",
+      "sha256": "2aa328aee7d6d7879adb662b705d3a93c0bcd598a8b350fe72cdbfccd00250d4",
+      "bytes": 64960,
+      "mime": "image/webp",
+      "mediaAssetId": "cff56568-1f3d-424f-97ea-4e7299256f34",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "e457126b-0299-42f4-9cb6-b8c704cbe8ea",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/e548b4d4-8c2b-4c9b-9e8c-129bbfdc8cc7.webp",
+      "sha256": "8b15369d682aae545596d8b8c163912fe0a99b2a89599e7666bf3523dd4cd73b",
+      "bytes": 41604,
+      "mime": "image/webp",
+      "mediaAssetId": "07916a13-bd58-4be4-b473-11ed2736f25c",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "e548b4d4-8c2b-4c9b-9e8c-129bbfdc8cc7",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/eb8711fb-b640-4cb8-8a8f-2a3cc0142f2c.webp",
+      "sha256": "4721f1cbe6a866d874c542a88e9e756c526f4757b74bcfa7d417f66fa0557c20",
+      "bytes": 43194,
+      "mime": "image/webp",
+      "mediaAssetId": "6f2d7f2e-4cc7-40ca-b842-24fd2ffe7228",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "eb8711fb-b640-4cb8-8a8f-2a3cc0142f2c",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/eb97ba68-970b-4a7f-bb89-ab9a164a8ac7.webp",
+      "sha256": "2bca0a3663bbf7d4bc41c2ae6e1718574eb50f865869fe3e71faacc2f03b72ef",
+      "bytes": 60768,
+      "mime": "image/webp",
+      "mediaAssetId": "fbbaf0f0-1594-41a5-a53a-1fdb8f0f4428",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "eb97ba68-970b-4a7f-bb89-ab9a164a8ac7",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/ef36b91d-b6dc-4770-beea-07af6fb41d92.webp",
+      "sha256": "16c271354551a4e8ca18578cd3efbe36fa93007c15a075dcb1857e182f43472f",
+      "bytes": 76560,
+      "mime": "image/webp",
+      "mediaAssetId": "25c79676-a1b5-4c7d-95ec-a0d02234fa3f",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "ef36b91d-b6dc-4770-beea-07af6fb41d92",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/f17c3214-8931-4f1c-b89a-6ae261e137cb.webp",
+      "sha256": "fb7b6380331b67e43bd00ceaea74afa5692734058d21959c16658b092a74742b",
+      "bytes": 37452,
+      "mime": "image/webp",
+      "mediaAssetId": "583cae8e-7c7b-4835-8156-157c2f7eabd7",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "f17c3214-8931-4f1c-b89a-6ae261e137cb",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/f4ca3972-7cdf-4c77-b643-df6f698807a3.webp",
+      "sha256": "56c0380394c45d2017db0836915c7d74cb944004f0b63b259ee01d9cbea6cff4",
+      "bytes": 34080,
+      "mime": "image/webp",
+      "mediaAssetId": "2faad112-4dcb-48b8-9382-2b11b7558040",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "f4ca3972-7cdf-4c77-b643-df6f698807a3",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/f73fa1fc-c3c9-4215-9600-ec13178a78fe.webp",
+      "sha256": "23fdca41d68e0f9c3c18e131ac4924ff83860ba437427e6c9e53229ec91c70c8",
+      "bytes": 38216,
+      "mime": "image/webp",
+      "mediaAssetId": "fd289829-70b7-49d7-8475-446cf471fbe8",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "f73fa1fc-c3c9-4215-9600-ec13178a78fe",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/fdcabbbc-8321-4962-830d-f1bafb858fab.webp",
+      "sha256": "3a7c0ec90ee06f9318139ee581926d7b527dee5f6affde7e1ccfa5cced337aca",
+      "bytes": 41212,
+      "mime": "image/webp",
+      "mediaAssetId": "842f73f4-5bae-4996-9cba-5b2556ab54e3",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "fdcabbbc-8321-4962-830d-f1bafb858fab",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "campana-1/ffc2fbd6-7088-46aa-8cf3-5694fdb8133e.webp",
+      "sha256": "6ae3e535e9ed384f95bb437c0d412c7d33874e1c059207c17e4c31a7598a00bb",
+      "bytes": 40346,
+      "mime": "image/webp",
+      "mediaAssetId": "10713e45-19fd-4367-bb1a-8468a5393ae2",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "ffc2fbd6-7088-46aa-8cf3-5694fdb8133e",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/abrumadora.webp",
+      "sha256": "8eb12c1af3204ff1351ece8aa1639e73b34a441f21d0952ed95404f7f824aa7f",
+      "bytes": 41028,
+      "mime": "image/webp",
+      "mediaAssetId": "9ecc1c4f-45cb-406d-b8c4-455c6093c479",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "df7c6e7b-f59f-49f1-9f4b-aa1037211a62",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/activista.webp",
+      "sha256": "ba9de1359157a4efb5cef5a5f6814591d7f072bf7e110fe9e36c92607dca788b",
+      "bytes": 24058,
+      "mime": "image/webp",
+      "mediaAssetId": "8d32cf84-06f2-47ee-b437-88d5708a1eda",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "536100d6-12d5-4539-93a3-c0492d7abd82",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/adorable.webp",
+      "sha256": "960ac3110437076449221a8c0514295911c6387ba338c8a29ecaa76ccdf29491",
+      "bytes": 30350,
+      "mime": "image/webp",
+      "mediaAssetId": "df8b02ac-7806-447c-be1a-294b3741b487",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "ebd6be7e-92ca-4b4b-9233-4cfe633b6a84",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/amante.webp",
+      "sha256": "369d245524a02355938f10209f6fb7e84148638458b31a5ba3102f6f14af1a3f",
+      "bytes": 24216,
+      "mime": "image/webp",
+      "mediaAssetId": "2bec5498-034a-44b6-a1c5-6d92c083994d",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "3edc26da-8d2e-4e07-9f1d-84463efa20e0",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/amigable.webp",
+      "sha256": "2f3c8e8efda39fdf159b96b4b3173122de406a086c635819b700fe4810b74d7f",
+      "bytes": 40140,
+      "mime": "image/webp",
+      "mediaAssetId": "7c5a3106-edf2-4c14-9a25-67b6e2ae12d9",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "215189fa-0a6c-454e-8181-b3109e32c30b",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/amistosa.webp",
+      "sha256": "0210f4bfc83ea78f33702e0e4cd6d0095e5d57bc68bd83f046bed44535c33d77",
+      "bytes": 31604,
+      "mime": "image/webp",
+      "mediaAssetId": "3f4e35d6-3b19-4235-9df8-5c37acf4e1e5",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "3befc337-77d0-4c82-b80c-8551489f1702",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/arriesgada.webp",
+      "sha256": "0d1530ccb4a1871351a7c4eb2bef776d119c69a2162e4d0dd2ab0c383d344f2f",
+      "bytes": 42044,
+      "mime": "image/webp",
+      "mediaAssetId": "fdb4b0d8-4d02-4f1a-b6c7-922676d52608",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "b4ead3ee-b656-4141-beae-d3d87d7e33fa",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/astuta.webp",
+      "sha256": "697a3b49ca2dbe52d7a7556e69511be7c68e6f3ace3e2f19528da19ef717f1d0",
+      "bytes": 30108,
+      "mime": "image/webp",
+      "mediaAssetId": "5a0a561b-c062-4da1-b695-45c8ea5fc73d",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "3fb9ce13-0533-4c38-9a8b-981d7518b097",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/atractiva.webp",
+      "sha256": "49f6408381b6bfb4b39babfb223d6556690e66dce25bad8b416f5969d698e650",
+      "bytes": 33880,
+      "mime": "image/webp",
+      "mediaAssetId": "a5d16c36-3a65-4193-9def-9fb19b481e09",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "c2272b67-a908-4712-9834-db442f5ca184",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/atrevida.webp",
+      "sha256": "bcbfae2a6b340cd9481bd4295904125e087b2386458d5150a832857beb42f54d",
+      "bytes": 32448,
+      "mime": "image/webp",
+      "mediaAssetId": "e1f9f019-0bfe-4a03-a033-3bc55fbfc16b",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "89bbc5bd-b1cc-4571-a045-c225293a681f",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/ausente.webp",
+      "sha256": "97c3043fbbe11ee3d53e3a86182ca01ef389ac4525b9f14f5dab011c0bd3cfc8",
+      "bytes": 42072,
+      "mime": "image/webp",
+      "mediaAssetId": "27fb5ae9-9f7e-410a-9fa3-ff6796504bd0",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "c2d51191-6465-49d7-983b-ebb0efaad2ff",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/bailadora.webp",
+      "sha256": "a6165831329bb9852ef403ea799e685ab67145d464fa2bea303ee1870af92bcf",
+      "bytes": 33868,
+      "mime": "image/webp",
+      "mediaAssetId": "b94adba3-cf69-4050-bc48-5765401fc974",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "ef7ccf96-9cb4-4f22-bcb2-1797a518e41a",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/bella.webp",
+      "sha256": "f6400ac16030b629c44219ed12ebbeafe2a6c3fdb666170784cb2f1989dbad99",
+      "bytes": 25980,
+      "mime": "image/webp",
+      "mediaAssetId": "2c5455ff-6e6c-48f8-922c-aeab30d77dcb",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "b3ef6ea3-2f4c-45b1-9a5a-9350c6e6961a",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/bendecida.webp",
+      "sha256": "964f5691c846a902e621f8d9fa71180498ee2cedb167d8e233fc69add5bd7cf7",
+      "bytes": 30226,
+      "mime": "image/webp",
+      "mediaAssetId": "4e1f6d5b-5257-488d-aaa2-09a3ce5f4f3b",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "a4fea015-ce51-4d14-bb1c-8b82e9101484",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/blanco-nacar.webp",
+      "sha256": "a29366924a5bd1fb4209d620a69f7709d79e650dba47142361e99b3a33ac6806",
+      "bytes": 34632,
+      "mime": "image/webp",
+      "mediaAssetId": "de1afd9e-21f3-4a6a-b3eb-4e66faa61a40",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "ce302bef-b622-4afb-8738-68ed7a06a731",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/bombon.webp",
+      "sha256": "5c64e908af2949250017290a7a2b732523e35032df3549f79d9cf0cbf12e6d40",
+      "bytes": 32970,
+      "mime": "image/webp",
+      "mediaAssetId": "ada490c4-a26c-4692-a515-790c4e9dcb59",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "67adc5f8-8e58-403d-9957-adf0fa040746",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/burlona.webp",
+      "sha256": "a6490e579e43959b963cb0e0970e18290bfdcced85740d50c25c5e1b8aaf0c5e",
+      "bytes": 30974,
+      "mime": "image/webp",
+      "mediaAssetId": "e9a0e070-db25-4c12-8c5d-fd27f3a7ca06",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "58d5c89f-809c-4e5c-a5bb-6f4e27eacef7",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/buscona.webp",
+      "sha256": "b7d20bc6814cc62c6e124ab2b45794bcec4a9e9d9a7d3501a66986180f449612",
+      "bytes": 27932,
+      "mime": "image/webp",
+      "mediaAssetId": "86392b29-743f-4129-a423-d5043cb75844",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "3eeaa220-d738-42a8-b114-b6b29dd505da",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/calmada.webp",
+      "sha256": "9e1e33db4f702af19a60fb2e6f2fcebdf444f6fdcf00767c19eed62b845defb3",
+      "bytes": 28380,
+      "mime": "image/webp",
+      "mediaAssetId": "8336117c-3cd7-412a-8d07-cc5848b4f50e",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "0c8c4410-1fb2-400f-a112-24a9713a3952",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/campeona.webp",
+      "sha256": "c6439437c91f168f5e134c52efea08114a34266d59d63d482a717dde7659b059",
+      "bytes": 30252,
+      "mime": "image/webp",
+      "mediaAssetId": "2ee28616-3712-4d2f-807e-2db1ab857bd3",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "1297ff32-6b1f-4444-a764-75b5edffab07",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/candidata.webp",
+      "sha256": "0473bb36250bb91895a0b665778cc83001468cd64358c65e80c9dc82d0f9887f",
+      "bytes": 33596,
+      "mime": "image/webp",
+      "mediaAssetId": "85746144-1f7c-4868-89e3-89df29404721",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "6d89f491-64dc-46b1-9ea1-430dbc683292",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/casquivana.webp",
+      "sha256": "3fb8df16fc39193db944e026f59a14f1817c5880358b5d223ee4e95ac900593e",
+      "bytes": 40004,
+      "mime": "image/webp",
+      "mediaAssetId": "233e9606-6167-4fe8-8f9e-45d60884fa92",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "fe91b90a-3247-4d89-a3d9-65d909fc4cd9",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/chic.webp",
+      "sha256": "486f5317c3903927d376c092607bbea712cfa67dd6714fa1e616cfe2aad17775",
+      "bytes": 36382,
+      "mime": "image/webp",
+      "mediaAssetId": "3e596f49-5d58-4c54-8b58-2150655bf40d",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "f32b2349-9309-46c8-a711-aec30a0373b8",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/comica.webp",
+      "sha256": "dadd107f221d6e3f8a9085f77b6f57b8c73d826778320c69fc73fc9de3a335c2",
+      "bytes": 38936,
+      "mime": "image/webp",
+      "mediaAssetId": "d5b0d9a4-fb45-47a9-b8a8-a0bd7bf7e13f",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "9fba811c-23fb-4eb5-a046-7b89a32511e8",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/compulsiva.webp",
+      "sha256": "5c56dc5a5b956d93aa0c1d3126e6a4ecd52d138caeeb4295ab63e4257874fa35",
+      "bytes": 35600,
+      "mime": "image/webp",
+      "mediaAssetId": "9a975173-36a6-4717-a620-b6cf4786806d",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "02b57bc8-817e-4b31-9532-1ab64c03f65c",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/conectada.webp",
+      "sha256": "bb53c54c1981282ac23cbf05f6f9377ba30cf0882f8dfc5ff009846cd7e10cb5",
+      "bytes": 35066,
+      "mime": "image/webp",
+      "mediaAssetId": "c01d7339-45a9-4397-97df-1361259c98f7",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "cc613e08-2eaa-4407-ba51-3926394c8490",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/consentida.webp",
+      "sha256": "988eb5d4728fc5f26942b69d9d3a4b24cbc246f1c4f5dfd4316475f61f80dde1",
+      "bytes": 39382,
+      "mime": "image/webp",
+      "mediaAssetId": "d75fefc8-e49a-4d76-86c8-8ba22b48883a",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "7a7e6b90-840f-4b3c-a82c-b39c26e031b7",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/controladora.webp",
+      "sha256": "6606499d7d069aa5f1c92e9a4931703a3363989787f0f1b152102c3ae71aba0b",
+      "bytes": 18328,
+      "mime": "image/webp",
+      "mediaAssetId": "6d05b4f4-6a5b-4996-a466-58c0e5f8355d",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "511958db-7fe3-4764-91b7-c749bf8f3622",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/dec-amarillo.webp",
+      "sha256": "56db63e653f042ed729bb81492afc3314e6141e51fc1573c6fe04bcec1d12a7d",
+      "bytes": 50716,
+      "mime": "image/webp",
+      "mediaAssetId": "54ec5322-ce7a-4723-8793-2f4c87305791",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "7f006bca-1580-4e6b-a419-76733fc215bf",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/dec-escarchado-dorado.webp",
+      "sha256": "8de9271a9b42174a38845e075a322204e4dded77b35ab5b20f6d61a13d9b509d",
+      "bytes": 65230,
+      "mime": "image/webp",
+      "mediaAssetId": "72076bda-f2a2-4d70-af18-82cafa421d0c",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "bd2b8cb6-ab69-4c0c-b7bc-2225d7eae1d7",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/dec-escarchado-plata.webp",
+      "sha256": "2e863dfdd26235c5203ef7e3f5115f72b43f4d6660012e2db644246ef2a0878d",
+      "bytes": 63834,
+      "mime": "image/webp",
+      "mediaAssetId": "a8c27041-be79-4d73-a105-9ab4a58ccbbb",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "5a97dce5-492b-4b3b-b988-df134bb50fae",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/dinamica.webp",
+      "sha256": "e3d0195760be7bb9d9774a6ed0973b5e81250ed1703f69d565958ece9838fe45",
+      "bytes": 32976,
+      "mime": "image/webp",
+      "mediaAssetId": "0960a723-4a5d-44c9-a8b5-65e79e596d14",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "179ff047-84c2-4dae-a2cb-60256a3bbb3a",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/distinguida.webp",
+      "sha256": "5e4485516ddc47d70331484f33c67ca4500f37aa6d1d7d466fadc13295febd4d",
+      "bytes": 32188,
+      "mime": "image/webp",
+      "mediaAssetId": "9cdc3095-39f8-4c9b-9e84-e6ea9ef64ceb",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "a1cfecbc-1147-4be1-bb49-7b7e13661eda",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/diva.webp",
+      "sha256": "2cc2d50a85be3a2db94a1dbfc15502a5508cf91757ac0545a214d1fe3690a7b8",
+      "bytes": 27490,
+      "mime": "image/webp",
+      "mediaAssetId": "97a15694-efbc-4f32-b240-34ad2dfdb385",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "ca2eeceb-5c6e-4bf0-b782-86ef60fe42f4",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/dominante.webp",
+      "sha256": "a610d882bd3c2fc12b20a8857055795f880dc69e2848538399b8a5b6e1929d70",
+      "bytes": 34278,
+      "mime": "image/webp",
+      "mediaAssetId": "e6425ef4-014c-44ff-9b1f-804fa8879575",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "26d75922-d5e6-4307-a30d-79ac5e432e63",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/educada.webp",
+      "sha256": "542487e6dd6075fbf9127399045e25adf2991b39263c76d4921aee7330f58e39",
+      "bytes": 29066,
+      "mime": "image/webp",
+      "mediaAssetId": "06350500-bc00-4cd8-aa7d-436358450cd1",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "d9321319-7621-49b5-af5b-4b8581a306bc",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/ejecutiva.webp",
+      "sha256": "55061ccd82b376e19cc4ae7857daf9181a69b4956dd95d99e54b6354ecdffdac",
+      "bytes": 24080,
+      "mime": "image/webp",
+      "mediaAssetId": "f7af6603-d811-4c4b-80bf-24cacea7137d",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "918e170e-864b-40a8-900b-7990827684c6",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/electrica.webp",
+      "sha256": "66e0b9e77ae2a25796fc507065053b891b3d35508714707cdc6c7244f96fdb47",
+      "bytes": 38410,
+      "mime": "image/webp",
+      "mediaAssetId": "8850e80a-f270-44f0-bcd1-e5ea5684c068",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "8ffd7648-05dc-4976-9a12-ed2f86b08f5f",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/estupenda.webp",
+      "sha256": "3e3fb7df31f104768c2c1b20a8efd7d40f382c79153689f2410e75a20ee3a5b0",
+      "bytes": 30000,
+      "mime": "image/webp",
+      "mediaAssetId": "b5f4b94a-e382-4465-9ea6-f071a2a92021",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "83ecf7b1-9cb3-4487-a556-68eb28c5a107",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/exotica.webp",
+      "sha256": "bdc82d993d378c64b30ed5974940cf77fcbd6c69881e1e2a3b7a81504221e1b4",
+      "bytes": 67354,
+      "mime": "image/webp",
+      "mediaAssetId": "cc5fa673-6cd7-49c6-81c2-da0e72563728",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "9d2d18a4-84f8-4eee-b55c-68f3543cb697",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/expresiva.webp",
+      "sha256": "d67f2e8b8140f9ca1ea4984b0c93d1e6b474c7a2c971652ea0786f74cf0ca6fd",
+      "bytes": 30486,
+      "mime": "image/webp",
+      "mediaAssetId": "3c385346-1d9f-4dbb-9475-ae2578e29fc7",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "07357d78-a733-4292-b28e-14c633dd7ef6",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/extraordinaria.webp",
+      "sha256": "149dff691805e54d8a89990fad1a1374bb69d0ec669d3c59038deb095f7d90dc",
+      "bytes": 31034,
+      "mime": "image/webp",
+      "mediaAssetId": "fd452dea-0d8d-470c-a4c6-e2f974133f2c",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "fa001c79-b9eb-45f2-832c-c8ccc9b81193",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/famosa.webp",
+      "sha256": "b3cab869131695fbb5d3ba59a11580c1d3b8d8d5de39bcaf4299eb4a4e21181f",
+      "bytes": 27752,
+      "mime": "image/webp",
+      "mediaAssetId": "51b15418-a726-4f45-a3af-eeb87e7e02ed",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "dac8e3e5-8202-4ce4-855a-c158c4cc30aa",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/fanatica.webp",
+      "sha256": "cfa802acc926bd7fb39389fbee483a7c5a270a3d823db074d4adc4aff4ecdc5a",
+      "bytes": 32110,
+      "mime": "image/webp",
+      "mediaAssetId": "2ddc9de3-82a2-40f1-9ba4-2183951a007d",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "f0a610dc-f97f-405e-888d-3342e8d0b39b",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/farandulera.webp",
+      "sha256": "89b9ef22512ddc24da916741c1acdb76e3b7cde16cd9894b1ad86b4d3b36807d",
+      "bytes": 32516,
+      "mime": "image/webp",
+      "mediaAssetId": "595463cf-2e36-480f-b63e-3404119a6d6a",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "4318718b-afa1-4c7e-bcda-33595b750dad",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/fiesta.webp",
+      "sha256": "b53015859cde3717f74a2420ac5d8bb7e17181450ac20ec3e8dce35248af183a",
+      "bytes": 32144,
+      "mime": "image/webp",
+      "mediaAssetId": "33225b83-edd4-4657-80e7-5a3e13bc0109",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "8b2136d9-8cec-4d29-9dae-68265c77645b",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/frances.webp",
+      "sha256": "174bde2c204d2a1eb7328a9fa89f51a942399c7c4d0c42ab2b3e24a35dd26c35",
+      "bytes": 66626,
+      "mime": "image/webp",
+      "mediaAssetId": "c9bbb43f-c560-43f1-84c6-fb25b05c9852",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "e377db1f-12fc-41bb-b2df-ec438a27caff",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/fresca.webp",
+      "sha256": "6203aef020ad5968aa2371779edfd51eb28c860fc74ff7986eacedbf8474e89f",
+      "bytes": 28504,
+      "mime": "image/webp",
+      "mediaAssetId": "ccaa01e2-8bd1-475c-90eb-56c1db537023",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "1800b070-fbd0-4ff2-8b6a-f05894395a6c",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/fufurufa.webp",
+      "sha256": "c8bc14cd482cafcc9285a619109046287ce81af6f5c39cd6742c15bb646980c8",
+      "bytes": 30564,
+      "mime": "image/webp",
+      "mediaAssetId": "f10db666-a994-42e5-ae77-426720d63d05",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "4300ddf1-7268-45a7-875f-a1d14bc52185",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/gitana.webp",
+      "sha256": "5dad96cf53aa4a92a48c17beb176f871ee81dbc0e9259892e731db02af1a692e",
+      "bytes": 39544,
+      "mime": "image/webp",
+      "mediaAssetId": "e69c934c-a96b-4dcb-a866-a5992e8f3b6f",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "ef891be5-0e70-4284-a0f9-b05f386a211a",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/golosa.webp",
+      "sha256": "64e2de6eb66a3be034ac56494f6f134683067042bd068fa19481a212b70060c8",
+      "bytes": 31748,
+      "mime": "image/webp",
+      "mediaAssetId": "28b317f8-60b9-461c-b3f6-85190d30bd91",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "a618e861-5dd8-42ca-92d1-328eb2845dbd",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/gomela.webp",
+      "sha256": "998bee6aaa98c3ccfeaebef0bcbaf8c50630e845159b245c22b13c0eea64e40d",
+      "bytes": 33496,
+      "mime": "image/webp",
+      "mediaAssetId": "514928a6-91d1-4a60-81c8-2dd36362237b",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "9dedff92-d829-4871-8735-b9539bdb74fe",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/humana.webp",
+      "sha256": "791717a49576b66524effd5f03161d8ba3ef346da914256fdc7554a86d950fb1",
+      "bytes": 43784,
+      "mime": "image/webp",
+      "mediaAssetId": "541cf537-ace8-4351-862b-cbdd6a53c6fc",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "781a31a2-6567-4ddf-bfee-2ae9b1362b42",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/idealista.webp",
+      "sha256": "59049a00a3abc7c53a154bf9f0b4667c4330d7298ae40f31ef613fa791181669",
+      "bytes": 24416,
+      "mime": "image/webp",
+      "mediaAssetId": "5a696592-e2ba-4f35-88de-f74da19b11b0",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "d062d81f-1ae7-479f-952c-bd208336bba2",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/ilusion.webp",
+      "sha256": "3acb66f7a67adf8d91b78c654e2bbef19363dcdee41a020788691a23b0388fc4",
+      "bytes": 20392,
+      "mime": "image/webp",
+      "mediaAssetId": "4d0f0e1e-8945-4cb7-afd8-e8edc4540380",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "b7d565dd-965d-4afa-9036-ec2554c1967e",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/imparable.webp",
+      "sha256": "c714a067e7d49d4ad8cf3975386ec9759cb6b401b774e062ad290817b07f0326",
+      "bytes": 66976,
+      "mime": "image/webp",
+      "mediaAssetId": "56f55d52-a130-4866-af83-8bc8e4cf5347",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "470843cb-87a5-4986-9ddc-7b0929d15be4",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/indomable.webp",
+      "sha256": "f02aa518aec6bac8294a8e2509e5c4c71bfe4ec38bf219c03c8ae44751774ede",
+      "bytes": 67592,
+      "mime": "image/webp",
+      "mediaAssetId": "a410898b-d010-406d-8ec2-50cab2e3eee0",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "cdf32e4f-d260-4979-898b-01136b222797",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/inquieta.webp",
+      "sha256": "37a2655791e25dcb3d67d588ee384d3361799d6461c395074172a838227c6f8c",
+      "bytes": 39810,
+      "mime": "image/webp",
+      "mediaAssetId": "4f7ed3ab-0a21-4df7-b85a-9c974e69c274",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "2d1c7136-fd49-409e-847b-19f636ab6ec0",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/insinuante.webp",
+      "sha256": "bafd94b158dfbd967382608d10da4e0b8a5b1c8dee24445127590a68e40e1fed",
+      "bytes": 34126,
+      "mime": "image/webp",
+      "mediaAssetId": "9535cd0f-8aab-4990-b363-4e27cb8a9e8a",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "c7649f2c-ed82-4924-94f5-950b948a9d19",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/intrigante.webp",
+      "sha256": "d041aba91c341513f4971343676cdc200425cf675e2933dd132a83142975615f",
+      "bytes": 25334,
+      "mime": "image/webp",
+      "mediaAssetId": "a59a68ce-ecf5-4a4a-bd0c-2d0de49fe37f",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "4fbaff91-2930-48ab-8935-b54d6103eaa6",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/intuitiva.webp",
+      "sha256": "45fba3d3c56631588bd6ea7a4a65adf3f38f0329665215639739d6997b99683c",
+      "bytes": 28734,
+      "mime": "image/webp",
+      "mediaAssetId": "fcdaa710-4262-4228-a404-47bc38e5f124",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "8dee4c72-b0d7-4832-bd3d-7149e2773c5b",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/juguetona.webp",
+      "sha256": "4f5988dccef3be390dac2228078b82bc051b10d6f97753940f370f7e881d8772",
+      "bytes": 23910,
+      "mime": "image/webp",
+      "mediaAssetId": "72ca80ac-74c9-4f6e-818e-68f1ef151447",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "83f19ea4-1d17-4dfe-a2a4-86667583d135",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/linda.webp",
+      "sha256": "993c15069e009043115e8553cab4b8f218aa458381ef29c7a76d552223df8a2e",
+      "bytes": 67864,
+      "mime": "image/webp",
+      "mediaAssetId": "07cbabb8-867d-4c65-8c17-52ce0074e019",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "7c823009-b259-4479-8a6b-e1573872db6c",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/luchadora.webp",
+      "sha256": "17723c993e4b72ae4743966ca12b6fb26716ed116f6b6b683caeed539d1bad2e",
+      "bytes": 25088,
+      "mime": "image/webp",
+      "mediaAssetId": "60932ff0-d054-43e4-9b05-d71b087ecb06",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "46ab5399-150d-47f5-af9c-ec9c0d7603ae",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/lujuriosa.webp",
+      "sha256": "70dde2f049ba27c8b9d97916995cb8e84cace28602bfe12b24aec9d5fc1022c5",
+      "bytes": 36768,
+      "mime": "image/webp",
+      "mediaAssetId": "2bc47232-da5e-4e3d-9119-71e01b418574",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "8d467d78-8fc7-494c-bae6-e4da4b273abf",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/magica.webp",
+      "sha256": "9289e81919dd83d6eb1083dd372198bb177d2945329c69af2133763603b78084",
+      "bytes": 29702,
+      "mime": "image/webp",
+      "mediaAssetId": "fb354e0b-786b-46e7-8919-caef8c7f8db4",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "49e61cfc-75b8-48f4-bc27-74260aca3662",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/malvada.webp",
+      "sha256": "26e86a01248ed6fc4acccc0f8318a592813cc3e6cae570fb554739acd1a4917d",
+      "bytes": 32478,
+      "mime": "image/webp",
+      "mediaAssetId": "25c78cf4-d747-41d9-9f0b-b52aefa87843",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "c72e8505-8e54-4678-a617-2b0bb4ba3cdb",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/matrimonio.webp",
+      "sha256": "8eeffd93712e8f38180f094d4d128e4609e2728df4fdc44f2d92ad944088ce7f",
+      "bytes": 21816,
+      "mime": "image/webp",
+      "mediaAssetId": "262b9902-f82b-43ef-926c-1ff38a06f2dc",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "5c64fbb5-6ba8-4ad2-be7f-63db812db79c",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/metodica.webp",
+      "sha256": "fc241fa9a811bf3e331cd0c64523d1d9a8bbe38bcb2f36a3187198efcac7a8e9",
+      "bytes": 45632,
+      "mime": "image/webp",
+      "mediaAssetId": "463f24a7-3ea6-43dc-b85d-cfe54d4876e7",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "acaed824-37b8-4264-82ca-05f2ee326e65",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/mimada.webp",
+      "sha256": "e3d26f475e6ec7224cd4ad368f5ca4104fc2b9a932162e0712b6b23b42f43af6",
+      "bytes": 23658,
+      "mime": "image/webp",
+      "mediaAssetId": "febde978-c8df-47ec-a09d-8e3b471fbe29",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "755f2b34-e647-43cc-9842-64d53fd20dc5",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/morronga.webp",
+      "sha256": "8b73c58b2f819319b09d5b03e82a34f32e6e91b83395c2edd629ef2fda5962ba",
+      "bytes": 24324,
+      "mime": "image/webp",
+      "mediaAssetId": "cdab3532-7550-4858-99fb-449d65759648",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "c0c76b44-3733-44b4-b0b8-3c6ebeacb662",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/nativa.webp",
+      "sha256": "23fc850f71c5b409b04d50e25bbf55c5a77d27fc67a90dd8f9e0f4ce90104c01",
+      "bytes": 24996,
+      "mime": "image/webp",
+      "mediaAssetId": "4561c20c-2046-4fad-9968-d206ff2c371c",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "58544105-2043-4f51-868a-bc9fd25d3a6b",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/natural.webp",
+      "sha256": "1852740a1cd1909a33a8ce4a0e5af1f5d83ea4eb860957fdd0dc486c274df553",
+      "bytes": 21620,
+      "mime": "image/webp",
+      "mediaAssetId": "21d934ce-3134-4ed1-b263-1282bb28c591",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "d6395cb2-9e60-4a08-9ebc-71141e1df5eb",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/negro.webp",
+      "sha256": "4971c89182684a2506e212c524a300d05d00ff7cf04f0c7db2d2c1caa4f10e47",
+      "bytes": 30192,
+      "mime": "image/webp",
+      "mediaAssetId": "2d84a593-37ca-45a7-b60e-73608e6c46fb",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "e9c5d216-2d13-4918-bcf9-9de7f9d98863",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/nieve.webp",
+      "sha256": "e74f52b13d597d0dbb945047556bacb4b174edac0aa179963c148c719ec5787d",
+      "bytes": 67422,
+      "mime": "image/webp",
+      "mediaAssetId": "a6316748-7dda-43c2-ba0c-9bc04cab3613",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "f35980b3-a1dc-4ee8-bdfa-5d7fd11e180b",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/novia.webp",
+      "sha256": "1d6db6879a9fb01f84e106eec5d54defd1a8de839f2b213e0236edc40f68a5df",
+      "bytes": 23632,
+      "mime": "image/webp",
+      "mediaAssetId": "60f4193c-ea12-4695-9f1e-485bc5a3fbfc",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "6d7b5a02-2525-4f28-b09b-1d4728627c18",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/orgullosa.webp",
+      "sha256": "a5153d31c087641f5bd2698b3aa16fbff13c4776b2fc3bf63ef73abb6ea826d4",
+      "bytes": 24742,
+      "mime": "image/webp",
+      "mediaAssetId": "ae385f41-a1c4-4fe3-8e26-7ec426cd66c2",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "b51228b7-0604-42c2-b7fc-48e790343a17",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/paciente.webp",
+      "sha256": "e465ff666ecb3b1364df8ff0e6c21db1495090a3c31f388ef53e7c575eda6d21",
+      "bytes": 26480,
+      "mime": "image/webp",
+      "mediaAssetId": "7029c4fa-1cbc-4485-bc5f-56aa6797b599",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "0ab71fbb-4582-4d44-8249-a144fe37fe6a",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/perfeccionista.webp",
+      "sha256": "877b7e721391c180dda0589ae7a6b88dd167aaaa2c5d9999e47cbd0df7ef604f",
+      "bytes": 21900,
+      "mime": "image/webp",
+      "mediaAssetId": "0b033a93-b622-4148-b0f1-681eff7755ff",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "5df45302-8e09-4982-9cd5-465c1157b8d5",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/presumida.webp",
+      "sha256": "1f98983796e6435f604d00a55aa991e5fb583553608fb7fa847b7a6eec930a4c",
+      "bytes": 29242,
+      "mime": "image/webp",
+      "mediaAssetId": "31d51947-1450-4388-9ece-b91a153a4d67",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "158ab194-a2b4-46a6-8514-2ba4212a95bc",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/primera-dama.webp",
+      "sha256": "f727ac713e364079bb37a73e7344ae1ae039a8fb01064d794fdcbd48f0178950",
+      "bytes": 27184,
+      "mime": "image/webp",
+      "mediaAssetId": "4da32fe9-ee7f-4ca9-8e24-1aa05cdb29d2",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "b49ea512-030f-4234-bb05-8ce2ce4dad40",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/prisionera.webp",
+      "sha256": "03620cb33a42b1c4eb679da41350352aaac6e97262d0c3f0e375efa50f4de35b",
+      "bytes": 27808,
+      "mime": "image/webp",
+      "mediaAssetId": "efac654f-8432-481b-aa54-a5165074f0b8",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "47faba5e-ac6a-46fd-9975-3cda1f83033f",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/profesional.webp",
+      "sha256": "242fc3b7aeb78d64f24c775c6002d6a5c4c4de250d58b7f16101fa24edba939b",
+      "bytes": 31670,
+      "mime": "image/webp",
+      "mediaAssetId": "85030063-e674-43ff-85cb-174e88595233",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "a6f279cb-8f21-4f6d-bb08-28482c288495",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/querendona.webp",
+      "sha256": "bbe5431cf5047c8676ffa34435faa9971157be00e19fbe6fb78e1b23473850c9",
+      "bytes": 31074,
+      "mime": "image/webp",
+      "mediaAssetId": "4fa59423-a883-44b2-8540-0989bfa43cb1",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "ace88505-9064-4a3a-ba09-d8e1b0e30f87",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/quisquillosa.webp",
+      "sha256": "d03784012ed4a66becac914a1549a37c9a250bc6670a4de58e6b0102aa9a29d3",
+      "bytes": 69304,
+      "mime": "image/webp",
+      "mediaAssetId": "82b15d0b-bdcd-44b2-ad79-b9301993a353",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "5332143b-c3d0-4e4d-9373-7c538a59b5a4",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/razonable.webp",
+      "sha256": "1c6dcd612719d51294bfdfb8f88df9257b58e988b83f80c897445f19bb674a23",
+      "bytes": 25434,
+      "mime": "image/webp",
+      "mediaAssetId": "3a38e136-dc06-40c0-92e8-1a129e885fe0",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "a760be88-5c8b-49a6-b721-0c40160634be",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/rebelde.webp",
+      "sha256": "e535a6bc66cf38a7269620566caaad5f58e638bea42bd679b7e7a14ffc755860",
+      "bytes": 22132,
+      "mime": "image/webp",
+      "mediaAssetId": "bd369135-6e4d-4829-aceb-ecbd44187846",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "e469768f-2671-434c-86e5-00d2643d0104",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/recatada.webp",
+      "sha256": "632dc4a45feb4ee2e6630b40aafa7926536f02080f5eea8679c5075078f0f9cf",
+      "bytes": 22636,
+      "mime": "image/webp",
+      "mediaAssetId": "191b8f7c-8833-49a7-9b8b-d71291308781",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "71268125-d0cd-4dd7-b14f-3c39484b1cc1",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/revolucionaria.webp",
+      "sha256": "176ff71a79a218847b7c7d5dad32508db97c7c720bf2bf8407e7ebc63b769536",
+      "bytes": 31080,
+      "mime": "image/webp",
+      "mediaAssetId": "41a4a373-dd00-4972-b4be-30853aab15af",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "435ade13-e7b8-4ed0-b8cf-016381d45c9e",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/sangre-toro.webp",
+      "sha256": "24973d3d0c3f9d59839d02e3a1f4068347af3ad6f54f4cb64d3041b51e077cde",
+      "bytes": 67794,
+      "mime": "image/webp",
+      "mediaAssetId": "8c21fc39-ec66-48c8-b2c1-2d861f990f86",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "3986fd05-751a-46b8-9453-1c7c7bd7f0b8",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/sexy.webp",
+      "sha256": "cd30f59827d75a854fe873d4099cceeeca7bc8ab9b415cafc9ce48a1ec50f5e2",
+      "bytes": 29128,
+      "mime": "image/webp",
+      "mediaAssetId": "099eb4c5-24fe-4933-918b-0bf6d3be2509",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "289cc6b8-abf5-4591-876e-4e7f46c54f1d",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/silenciosa.webp",
+      "sha256": "fea2a7fb91a6a6713d3c517d0ab0ad3c03720b43f24b10da4da4ca193978bc3a",
+      "bytes": 68068,
+      "mime": "image/webp",
+      "mediaAssetId": "42e32681-5f8a-4fb0-a187-078d09b22609",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "503bf169-1738-4f98-89d0-6a932472a62c",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/sofisticada.webp",
+      "sha256": "4c62b221ad00b15cf9e1dbe4dd21be7fd37e8d7aa8801a7835195557c766022a",
+      "bytes": 27324,
+      "mime": "image/webp",
+      "mediaAssetId": "0c3375bd-abf5-48d7-85f3-e955c90c405e",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "07d170d2-157e-479f-8c94-ec954a9d49d0",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/solidaria.webp",
+      "sha256": "fd3be4822f974692ec054189367dda25a679c69c2cfde54e1168cf23b4fd78ab",
+      "bytes": 21364,
+      "mime": "image/webp",
+      "mediaAssetId": "083cd4fa-29e9-43d1-a427-4f1cac9a9819",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "29a00592-bf45-4d02-aae9-70e0d0f65c87",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/soltera.webp",
+      "sha256": "a521499e3cce0374c19bd416f974d58dd7a973cd6a3607abb6fa577d540c7373",
+      "bytes": 22402,
+      "mime": "image/webp",
+      "mediaAssetId": "a6a7ab1b-3186-4b34-8e5a-bc534f2124cc",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "7dbb6d90-cc75-43dd-a61f-195803993de5",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/talentosa.webp",
+      "sha256": "4b2ff8be7c17a679cb4b3e758d5056a037f8c79c36383efb5902422a8433de76",
+      "bytes": 34162,
+      "mime": "image/webp",
+      "mediaAssetId": "cbee0d83-49ec-4c00-97ce-6d6e03554804",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "9ec03a00-c54b-4b81-b82f-00b6b201592d",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/tierna.webp",
+      "sha256": "be8d995b9df87122a1a4d31710dd9a40f1b593c8c319e23884580b4600e403cf",
+      "bytes": 21858,
+      "mime": "image/webp",
+      "mediaAssetId": "4f5e6463-33b2-4fee-83ff-560ed6004375",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "85bfe2ff-aaaf-42cf-a76c-6f1b0beedf5c",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/tiza.webp",
+      "sha256": "40114531ade0f91e2aedd52f2171cbd3efdfd5ba886fbbd2770d34d57d036470",
+      "bytes": 36584,
+      "mime": "image/webp",
+      "mediaAssetId": "b3fdd07c-1a42-4bb3-bb60-f616f13bcf9a",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "420c3af9-3176-4908-8438-7e905f3cc6c0",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/torera.webp",
+      "sha256": "ecae8298c54a5eb16b6ed0ab894a02f5bc833a923ca20c953f1a6f6e56bafaaf",
+      "bytes": 24936,
+      "mime": "image/webp",
+      "mediaAssetId": "cceede7a-5c0a-4ddf-9317-d5d07499a1ed",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "08733d0e-d2d5-482c-9a5f-57258e564384",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/tranquila.webp",
+      "sha256": "44d744ecbc3afa738a512b1b15e8edd1df0c906bbcded97fa2a75021fd8304a9",
+      "bytes": 30858,
+      "mime": "image/webp",
+      "mediaAssetId": "f4fa440e-2d92-4484-95c7-031bed630671",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "1cbd060d-334a-4836-a707-9a344b33f593",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/tremenda.webp",
+      "sha256": "1ae687b3e866bd0714047488ee43cd42af88888c8c3064f06ee707bd3c9e3738",
+      "bytes": 50836,
+      "mime": "image/webp",
+      "mediaAssetId": "d6f2abb9-3e6c-4bad-982a-f697a8654487",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "3628ed9c-52c3-48c2-9df5-589609e93361",
+          "role": "main"
+        }
+      ],
+      "state": "owned"
+    },
+    {
+      "bucket": "catalog-assets",
+      "path": "productos/MAS-ESM-4C95F3/tonos/virginal.webp",
+      "sha256": "c955d94d54e377160de86a83ae9936bd029f6176522bbf013df415c1a31ee04b",
+      "bytes": 29326,
+      "mime": "image/webp",
+      "mediaAssetId": "f5e53784-c31a-4201-b09d-9fdceb07127a",
+      "owners": [
+        {
+          "productId": null,
+          "variantId": "8646ea84-d2ee-4593-8397-ebf6efbc6a88",
+          "role": "main"
         }
       ],
       "state": "owned"
