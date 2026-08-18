@@ -113,8 +113,34 @@ function paisGs1(codigo) {
   return "prefijo no asignado";
 }
 
-const filas = parseCsv(readFileSync(path.resolve(RUTA), "utf8"));
-const conCodigo = filas.filter((f) => (f.codigo_barras ?? "").trim());
+// Se aceptan las dos hojas: la técnica y la de tienda. La de tienda no lleva
+// variant_id —a propósito, quien recorre la estantería no debe ver un uuid— así
+// que se localiza por el código del sistema, que es el que ya aparece en las
+// hojas y albaranes y sobrevive a que se reordenen las filas.
+const CABECERAS = {
+  codigo_barras: ["codigo_barras", "CÓDIGO DE BARRAS", "CODIGO DE BARRAS"],
+  codigo_interno: ["codigo_interno", "Código del sistema", "Codigo del sistema"],
+  producto: ["producto", "Producto"],
+  variante: ["variante", "Variante"],
+  variant_id: ["variant_id"]
+};
+
+function campo(fila, cual) {
+  for (const nombre of CABECERAS[cual]) {
+    if (fila[nombre] !== undefined && String(fila[nombre]).trim() !== "") return String(fila[nombre]).trim();
+  }
+  return "";
+}
+
+const crudas = parseCsv(readFileSync(path.resolve(RUTA), "utf8"));
+const filas = crudas.map((f) => ({
+  codigo_barras: campo(f, "codigo_barras"),
+  codigo_interno: campo(f, "codigo_interno"),
+  producto: campo(f, "producto"),
+  variante: campo(f, "variante"),
+  variant_id: campo(f, "variant_id")
+}));
+const conCodigo = filas.filter((f) => f.codigo_barras);
 
 console.log(`Filas en la hoja: ${filas.length}`);
 console.log(`Con código de barras rellenado: ${conCodigo.length}`);
@@ -173,17 +199,38 @@ if (!APLICAR) {
   process.exit(0);
 }
 
-let hechas = 0, fallos = 0;
+let hechas = 0, fallos = 0, sinLocalizar = 0;
 for (const v of unicas) {
+  let id = v.variant_id;
+
+  // Sin uuid —la hoja de tienda no lo lleva— se busca por el código del
+  // sistema, mirando también sku_interno: una variante que ya migró a SKU de
+  // fabricante conserva ahí el correlativo que la hoja imprimió.
+  if (!id && v.codigo_interno) {
+    const { data } = await db
+      .from("product_variants")
+      .select("id")
+      .or(`sku.eq.${v.codigo_interno},sku_interno.eq.${v.codigo_interno}`)
+      .limit(2);
+    if (!data || data.length !== 1) {
+      sinLocalizar += 1;
+      console.error(`   ? ${v.codigo_interno.padEnd(24)} ${v.producto} · ${v.variante} — ${!data || !data.length ? "no encontrado" : "ambiguo"}`);
+      continue;
+    }
+    id = data[0].id;
+  }
+  if (!id) { sinLocalizar += 1; continue; }
+
   const { error } = await db.from("product_variants").update({
     barcode: v.codigo,
     barcode_origen: "CAPTURA_FISICA",
     barcode_capturado_en: new Date().toISOString()
-  }).eq("id", v.variant_id);
+  }).eq("id", id);
   if (error) { fallos += 1; console.error(`   ✗ ${v.codigo}: ${error.message}`); continue; }
   hechas += 1;
 }
 
 console.log(`\nGuardados: ${hechas}`);
+console.log(`Sin localizar en el catálogo: ${sinLocalizar}`);
 console.log(`Fallos: ${fallos}`);
 console.log(`\nSiguiente: npm run graph:sync  — para que el grafo cuente la identidad nueva.`);

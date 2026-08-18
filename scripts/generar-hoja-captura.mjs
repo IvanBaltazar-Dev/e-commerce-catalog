@@ -118,6 +118,41 @@ writeFileSync(
   "utf8"
 );
 
+// ── La misma hoja, para quien la va a rellenar ──────────────────────────────
+//
+// Quien recorre la estantería con el envase en la mano no necesita ver
+// «variant_id» ni «prefijo_proveedor». Ver columnas que no entiende ni puede
+// rellenar es la forma más rápida de que una hoja se abandone a la mitad.
+//
+// Se queda «Código del sistema» porque es el puente: es lo que ya aparece en
+// las hojas y albaranes de la tienda, y es lo que permite devolver los datos a
+// su sitio aunque se reordenen las filas.
+const SIMPLE = [
+  ["Grupo", "grupo_sesion"],
+  ["Marca del envase", "marca_etiqueta"],
+  ["Producto", "producto"],
+  ["Presentación", "presentacion"],
+  ["Variante", "variante"],
+  ["Código del sistema", "codigo_interno"],
+  ["CÓDIGO DE BARRAS", "codigo_barras"],
+  ["Código impreso en el envase", "codigo_impreso_en_envase"],
+  ["Marca impresa en el envase", "marca_impresa_en_envase"],
+  ["Contenido (ml, gr, unidades)", "contenido_neto"],
+  ["País de origen", "pais_origen"],
+  ["¿Fotos tomadas? (sí/no)", "fotos_tomadas"],
+  ["Notas", "notas"]
+];
+const salidaSimple = path.join(ROOT, "outputs", "hoja-captura-tienda.csv");
+writeFileSync(
+  salidaSimple,
+  "﻿" +
+    [
+      SIMPLE.map(([titulo]) => csv(titulo)).join(","),
+      ...filas.map((f) => SIMPLE.map(([, campo]) => csv(f[campo])).join(","))
+    ].join("\n") + "\n",
+  "utf8"
+);
+
 console.log(`Variantes activas: ${variantes.filter((v) => v.is_active && v.products?.is_active).length}`);
 console.log(`Ya identificadas (SKU de fabricante o código de barras): ${variantes.filter((v) => v.is_active && v.products?.is_active && (v.sku_origen === "OFICIAL_MARCA" || v.barcode)).length}`);
 console.log(`A capturar: ${filas.length}\n`);
