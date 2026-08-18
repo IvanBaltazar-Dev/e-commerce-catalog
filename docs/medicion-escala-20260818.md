@@ -59,8 +59,39 @@ corrida.
 
 ## Universo de Referencia
 
-Corrida a continuación con 150.000 referencias adicionales, sobre el mismo
-volumen comercial. El resultado se anexa aquí.
+150.000 referencias sintéticas adicionales sobre el mismo volumen comercial.
+Cada consulta comprobada usa el índice que se espera de ella, no uno cualquiera:
+
+| Consulta | Tiempo | Umbral | Índice |
+|---|---|---|---|
+| Similitud acotada por marca | **106,13 ms** | 500 ms | `catalog_reference_products_brand_name_knn_idx` |
+| Observaciones por sujeto | 0,286 ms | 100 ms | `catalog_observations_reference_variant_idx` |
+| Deltas por estado | 0,137 ms | 100 ms | `catalog_reference_presence_events_delta_idx` |
+
+La resolución exacta dentro del universo ocurre en fracciones de milisegundo; el
+único caso que se acerca a su umbral es la búsqueda por similitud, y se queda en
+la quinta parte.
+
+**Contrato del grafo**, recorrido en streaming sobre el volumen completo:
+
+- 905.306 nodos y 1.607.374 aristas;
+- 45,1 s de proyección;
+- **59,4 MB** de crecimiento de memoria residente.
+
+Ese último número es el que importa: recorrer un millón y medio de aristas sin
+cargarlas en memoria es lo que hace que el contrato escale. El gate retira sus
+referencias sintéticas al terminar.
+
+## Qué demuestra y qué no
+
+Demuestra **capacidad técnica de escala**: el modelo aguanta cien mil productos
+comerciales y ciento cincuenta mil referencias sin degradarse.
+
+No demuestra que ese dataset exista. Las referencias eran sintéticas, sembradas
+para certificar arquitectura y rendimiento. El conocimiento real investigado a
+fondo hasta hoy es ADMISS. Llenar el Universo de Referencia con marcas reales es
+trabajo posterior, y deliberadamente posterior: primero que la infraestructura
+aguante, después llenarla.
 
 ## Después de medir
 
