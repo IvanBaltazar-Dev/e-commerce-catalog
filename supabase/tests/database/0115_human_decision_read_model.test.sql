@@ -17,8 +17,8 @@ select is((select count(*) from public.catalog_relation_endpoint_profiles
 select is((select count(distinct family_code) from public.catalog_decision_read_model_v1),3::bigint,
   '6 - real data produces three human decision families');
 select is((select count(*) from public.catalog_decision_read_model_v1),18::bigint,
-  '7 - shared causes reduce 263 detections to 18 decisions');
-select is((select sum(affected_count) from public.catalog_decision_read_model_v1),263::bigint,
+  '7 - shared causes reduce 259 real detections to 18 decisions');
+select is((select sum(affected_count) from public.catalog_decision_read_model_v1),259::bigint,
   '8 - decision cases cover all material non-evidence-debt detections');
 
 select is((select count(*) from public.catalog_decision_read_model_v1
@@ -31,21 +31,21 @@ select is((select count(*) from public.catalog_decision_read_model_v1
   where family_code='FALSE_PAIR_RETIREMENT'),4::bigint,
   '11 - false pairs aggregate to four decisions');
 select is((select max(affected_count) from public.catalog_decision_read_model_v1
-  where family_code='FALSE_PAIR_RETIREMENT'),88,
-  '12 - one lamp cause represents 88 false pairs in one decision');
+  where family_code='FALSE_PAIR_RETIREMENT'),86,
+  '12 - one lamp cause represents 86 real false pairs in one decision');
 
 select is((select count(*) from public.catalog_relation_reprocess_items item
   join public.catalog_relation_reprocess_runs run on run.id=item.reprocess_run_id
   where run.id=(select id from public.catalog_relation_reprocess_runs
     where status in ('previewed','applied') order by created_at desc,id desc limit 1)
-    and item.classification='NEEDS_EVIDENCE'),60::bigint,
-  '13 - sixty evidence debts remain outside human decisions');
-select is((public.get_catalog_stage4c_report_v1()->'metrics'->>'automaticEvidenceDebtExcluded')::integer,60,
+    and item.classification='NEEDS_EVIDENCE'),57::bigint,
+  '13 - fifty-seven evidence debts remain outside human decisions');
+select is((public.get_catalog_stage4c_report_v1()->'metrics'->>'automaticEvidenceDebtExcluded')::integer,57,
   '14 - report makes the excluded automatic debt explicit');
 select is((public.get_catalog_stage4c_report_v1()->'metrics'->>'familyCount')::integer,3,
   '15 - report certifies three families, not merely three rows');
-select is((public.get_catalog_stage4c_report_v1()->'metrics'->>'individualReviewAvoided')::numeric,0.9316::numeric,
-  '16 - aggregation avoids 93.16 percent of individual review');
+select is((public.get_catalog_stage4c_report_v1()->'metrics'->>'individualReviewAvoided')::numeric,0.9305::numeric,
+  '16 - aggregation avoids 93.05 percent of individual review');
 
 select is((select count(*) from public.catalog_decision_read_model_v1
   where nullif(trim(title),'') is null

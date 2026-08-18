@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Rol = "admin" | "developer" | "seller";
@@ -114,9 +115,19 @@ function areasVisibles(role: Rol): Area[] {
 export function Topbar({ role }: { role: Rol }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
 
   const areas = areasVisibles(role);
   const activa = areas.find((area) => area.entradas.some((e) => pathname.startsWith(e.href)));
+  const navigationPending = Boolean(pendingHref && !pathname.startsWith(pendingHref));
+
+  function intent(href: string) {
+    router.prefetch(href);
+  }
+
+  function beginNavigation(href: string) {
+    if (!pathname.startsWith(href)) setPendingHref(href);
+  }
 
   async function handleLogout() {
     await getSupabaseBrowserClient().auth.signOut();
@@ -125,11 +136,19 @@ export function Topbar({ role }: { role: Rol }) {
   }
 
   return (
-    <div className="topbar">
+    <div className={`topbar${navigationPending ? " topbar--navigating" : ""}`} aria-busy={navigationPending}>
+      {navigationPending ? <span className="topbar-progress" aria-label="Cargando sección" /> : null}
       <div className="topbar-inner">
         {/* El logo es la vuelta a casa, convención universal. No se añade un
             área «Inicio»: son ocho dominios y el Inicio no es uno de ellos. */}
-        <Link href={role === "seller" ? "/admin/ventas" : "/admin/inicio"} aria-label="Ir al inicio">
+        <Link
+          href={role === "seller" ? "/admin/ventas" : "/admin/inicio"}
+          aria-label="Ir al inicio"
+          prefetch={false}
+          onPointerEnter={() => intent(role === "seller" ? "/admin/ventas" : "/admin/inicio")}
+          onFocus={() => intent(role === "seller" ? "/admin/ventas" : "/admin/inicio")}
+          onClick={() => beginNavigation(role === "seller" ? "/admin/ventas" : "/admin/inicio")}
+        >
           <Image
             src="/brand/logo-sm.png"
             alt="Bellaroshé"
@@ -145,6 +164,10 @@ export function Topbar({ role }: { role: Rol }) {
             <Link
               key={area.id}
               href={area.entradas[0].href}
+              prefetch={false}
+              onPointerEnter={() => intent(area.entradas[0].href)}
+              onFocus={() => intent(area.entradas[0].href)}
+              onClick={() => beginNavigation(area.entradas[0].href)}
               className={area.id === activa?.id ? "nav-pill nav-pill--active" : "nav-pill"}
             >
               {area.label}
@@ -168,6 +191,10 @@ export function Topbar({ role }: { role: Rol }) {
               <Link
                 key={entrada.href}
                 href={entrada.href}
+                prefetch={false}
+                onPointerEnter={() => intent(entrada.href)}
+                onFocus={() => intent(entrada.href)}
+                onClick={() => beginNavigation(entrada.href)}
                 className={pathname.startsWith(entrada.href) ? "nav-sub nav-sub--active" : "nav-sub"}
               >
                 {entrada.label}

@@ -30,6 +30,7 @@ const STEPS = [
   { name: "Artefactos locales del checkpoint verificados", cmd: "npm", args: ["run", "catalog:storage:verify"] },
   { name: "Base vacía → migraciones 0001–0108 + seed base", cmd: "npx", args: ["supabase", "db", "reset", "--local"] },
   { name: "Restaurar catálogo, investigación y Mesa del checkpoint", cmd: "npm", args: ["run", "checkpoint:restore:local"] },
+  { name: "Fixtures DEMO aislados para pruebas", cmd: "npm", args: ["run", "seed:test-catalog"] },
   { name: "Seeds mínimos de operación", cmd: "npm", args: ["run", "seed:demo-operation"] },
   { name: "Fixtures sintéticos del Universo de Referencia", cmd: "npm", args: ["run", "stage1:fixtures"] },
   { name: "pgTAP completo", cmd: "npx", args: ["supabase", "test", "db", "--local"] },
@@ -87,6 +88,7 @@ console.log(`\nGATE DE RECONSTRUCCIÓN TOTAL · corrida #${runNumber}\nBase: se 
 
 const report = [];
 let failed = false;
+let demoFixturesLoaded = false;
 
 for (const step of STEPS) {
   process.stdout.write(`▶ ${step.name} … `);
@@ -94,11 +96,26 @@ for (const step of STEPS) {
   const ok = result.code === 0;
   console.log(ok ? `✓ ${result.seconds}s` : `✗ FALLÓ (${result.seconds}s)`);
   report.push({ name: step.name, ok, seconds: result.seconds, tail: result.out.split("\n").slice(-12).join("\n") });
+  if (ok && step.name === "Fixtures DEMO aislados para pruebas") demoFixturesLoaded = true;
   if (!ok) {
     failed = true;
     console.error(`\n--- salida final de «${step.name}» ---\n${result.out.split("\n").slice(-30).join("\n")}\n`);
     break; // Un gate no sigue sobre una base a medias: se corta y se corrige.
   }
+}
+
+if (demoFixturesLoaded) {
+  process.stdout.write("▶ Retirar fixtures DEMO del catálogo operativo … ");
+  const cleanup = await run("npm", ["run", "cleanup:test-catalog"]);
+  const ok = cleanup.code === 0;
+  console.log(ok ? `✓ ${cleanup.seconds}s` : `✗ FALLÓ (${cleanup.seconds}s)`);
+  report.push({
+    name: "Retirar fixtures DEMO del catálogo operativo",
+    ok,
+    seconds: cleanup.seconds,
+    tail: cleanup.out.split("\n").slice(-12).join("\n"),
+  });
+  if (!ok) failed = true;
 }
 
 const lines = [
@@ -114,7 +131,7 @@ const lines = [
   ""
 ];
 if (failed) {
-  const failedStep = report[report.length - 1];
+  const failedStep = report.find((step) => !step.ok) ?? report[report.length - 1];
   lines.push(`### Cola de salida del paso fallido (${failedStep.name})`, "```", failedStep.tail, "```");
 }
 

@@ -126,8 +126,8 @@ function IdentityComparison({ caseItem }: { caseItem: CatalogReviewCase }) {
             </div>
           </div>
         </div>
-        <section className="cr-internal-section">
-          <header><span>Datos normalizados en la base</span><small>{catalogFacts.length} campos</small></header>
+        <details className="cr-internal-section cr-internal-details">
+          <summary><span>Ver datos internos</span><small>{catalogFacts.length} campos</small></summary>
           <dl className="cr-internal-facts">
             {catalogFacts.map((fact) => (
               <div className={fact.status ? `is-${fact.status}` : undefined} key={fact.label}>
@@ -135,7 +135,7 @@ function IdentityComparison({ caseItem }: { caseItem: CatalogReviewCase }) {
               </div>
             ))}
           </dl>
-        </section>
+        </details>
         {source ? (
           <section className="cr-internal-section cr-internal-section--source">
             <header>
@@ -167,15 +167,15 @@ function DecisionScope({ caseItem }: { caseItem: CatalogReviewCase }) {
   return (
     <section className="cr-scope" aria-label="Alcance exacto de la decisión">
       <div className="cr-scope-main">
-        <span><Icon name="shield" /> Qué resuelve esta pantalla</span>
+        <span><Icon name="shield" /> Qué estás decidiendo</span>
         <strong>{caseItem.decisionScope.resolves}</strong>
       </div>
-      <div className="cr-scope-effects">
-        <p><b>Si eliges Sí</b>{caseItem.decisionScope.approveEffect}</p>
-        <p><b>Si eliges No</b>{caseItem.decisionScope.rejectEffect}</p>
-      </div>
       <details>
-        <summary>Qué seguirá pendiente aunque decidas ahora</summary>
+        <summary>Ver exactamente qué cambia y qué seguirá pendiente</summary>
+        <div className="cr-scope-effects">
+          <p><b>Si confirmas</b>{caseItem.decisionScope.approveEffect}</p>
+          <p><b>Si rechazas</b>{caseItem.decisionScope.rejectEffect}</p>
+        </div>
         <ul>{caseItem.decisionScope.doesNotResolve.map((item) => <li key={item}>{item}</li>)}</ul>
       </details>
     </section>
@@ -612,15 +612,6 @@ export function CatalogReviewView({ initial }: { initial: CatalogReviewBootstrap
             ? <IdentityComparison caseItem={caseItem} />
             : <section className="cr-subject"><Visual url={caseItem.entity.imageUrl} label={caseItem.entity.name} tone="rose" /><div><span>{caseItem.entity.type}</span><h2>{caseItem.entity.name}</h2><p>{caseItem.entity.description ?? caseItem.findingSummary}</p></div></section>}
 
-          <DecisionScope caseItem={caseItem} />
-
-          {visualEvidence.length ? (
-            <details className="cr-evidence-disclosure" open={caseItem.hasContradiction}>
-              <summary><span><Icon name="shield" /> Evidencia y alternativas</span><small>{visualEvidence.length} elementos</small></summary>
-              <div className="cr-evidence-grid">{visualEvidence.map((item) => <EvidenceCard item={item} key={item.id} />)}</div>
-            </details>
-          ) : null}
-
           <section className="cr-decision">
             <div className="cr-question"><span>Tu decisión</span><h2>{caseItem.question}</h2></div>
             <div className="cr-options">{caseItem.options.map((item) => <OptionButton key={item.id} option={item} selected={selectedOption === item.id} onSelect={() => setSelectedOption(item.id)} />)}</div>
@@ -716,6 +707,15 @@ export function CatalogReviewView({ initial }: { initial: CatalogReviewBootstrap
               <label><span>Volver a mostrar</span><select value={deferMinutes} onChange={(event) => setDeferMinutes(Number(event.target.value))}><option value={60}>En 1 hora</option><option value={1440}>Mañana</option><option value={10080}>En 7 días</option></select></label>
               <div><button type="button" className="cr-secondary" onClick={defer} disabled={!deferReason.trim() || busy}>{busy ? "Guardando…" : "Posponer sin resolver"}</button><button type="button" className="cr-link-button" onClick={() => setShowDefer(false)}>Cancelar</button></div>
             </section>
+          ) : null}
+
+          <DecisionScope caseItem={caseItem} />
+
+          {visualEvidence.length ? (
+            <details className="cr-evidence-disclosure" open={caseItem.hasContradiction}>
+              <summary><span><Icon name="shield" /> Evidencia reunida</span><small>{visualEvidence.length} elementos</small></summary>
+              <div className="cr-evidence-grid">{visualEvidence.map((item) => <EvidenceCard item={item} key={item.id} />)}</div>
+            </details>
           ) : null}
         </main>
       </div>

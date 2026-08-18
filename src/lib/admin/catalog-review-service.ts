@@ -153,13 +153,19 @@ function caseKind(row: QueueRow): CatalogReviewCase["caseKind"] {
   return "general_decision";
 }
 
+function isFamilyMembershipCase(row: QueueRow) {
+  return row.source_type === "reconciliation_case"
+    && row.subject_type === "product"
+    && row.purpose === "identity";
+}
+
 function titleFor(row: QueueRow) {
   if (row.context.semanticOrigin === "problem_group") {
     return "Resuelve una ambigüedad compartida de la regla";
   }
   switch (caseKind(row)) {
-    case "identity_match": return row.subject_type === "product"
-      ? "Confirma dónde pertenece este registro oficial"
+    case "identity_match": return isFamilyMembershipCase(row)
+      ? "Confirma la familia de esta ficha oficial"
       : "Confirma la identidad de este producto";
     case "identity_conflict": return "Aclara qué producto representa este registro";
     case "image_review": return "Comprueba si esta imagen corresponde";
@@ -171,9 +177,12 @@ function titleFor(row: QueueRow) {
 }
 
 function questionFor(row: QueueRow) {
+  const evidence = object(row.context.evidence);
+  const official = text(evidence.official_title) ?? row.recommendation ?? "Esta ficha oficial";
+  const internal = text(evidence.internal_name) ?? "esta familia del catálogo";
   switch (caseKind(row)) {
-    case "identity_match": return row.subject_type === "product"
-      ? "¿Este registro oficial pertenece a este producto base y debe continuar como una de sus variantes?"
+    case "identity_match": return isFamilyMembershipCase(row)
+      ? `¿«${official}» pertenece a la familia ${internal}?`
       : "¿El registro oficial y el registro interno representan la misma variante comercial?";
     case "identity_conflict": return "¿La evidencia disponible permite confirmar la identidad sin adivinar?";
     case "image_review": return "¿La imagen muestra exactamente esta presentación o variante?";
@@ -196,24 +205,24 @@ function optionsFor(row: QueueRow): CatalogReviewOption[] {
   }
 
   if (row.source_type === "reconciliation_case") {
-    const productFamily = row.subject_type === "product";
+    const productFamily = isFamilyMembershipCase(row);
     return [
       {
         id: "approve",
         actionCode: "approve",
-        label: productFamily ? "Sí, pertenece aquí" : "Sí, corresponden",
+        label: productFamily ? "Sí, pertenece a esta familia" : "Sí, es la misma variante",
         description: productFamily
-          ? "Confirma que el registro oficial forma parte de este producto base."
-          : "Confirma que ambos registros representan la misma variante.",
+          ? "Confirma solo la familia; no la identifica como uno de los tonos que ya existen."
+          : "Confirma que ambos registros representan exactamente la misma variante.",
         tone: "confirm",
         requiresReason: true,
       },
       {
         id: "reject",
         actionCode: "reject",
-        label: productFamily ? "No, pertenece a otro producto" : "No, corresponde a otro producto o variante",
+        label: productFamily ? "No, es otra clase de producto" : "No, es otra variante",
         description: productFamily
-          ? "Cierra solo esta comparación y permite señalar el destino correcto o dejar evidencia para encontrarlo."
+          ? "Rechaza esta familia como destino y permite indicar dónde debería clasificarse."
           : "Cierra solo esta comparación; puedes señalar el destino correcto o dejar fotos, enlaces y datos para investigarlo.",
         tone: "reject",
         requiresReason: true,
@@ -348,11 +357,13 @@ async function entityFor(supabase: Supabase, row: QueueRow): Promise<CatalogRevi
     const mediaPath = text(mediaAsset.storage_path) ?? text(data.main_image_path);
     return {
       id: text(data.id),
-      type: "Producto base interno",
+      type: isFamilyMembershipCase(row) ? "Familia interna" : "Producto base interno",
       name: text(data.name) ?? fallback.name,
       code: text(data.code),
       brand: nestedName(data.brands),
-      description: text(data.description),
+      description: isFamilyMembershipCase(row)
+        ? `Agrupa ${variants.count ?? 0} variantes del catálogo; no representa un tono específico.`
+        : text(data.description),
       imageUrl: assetUrl(supabase, mediaPath, text(mediaAsset.bucket) ?? "catalog-assets"),
       parent: null,
       facts: [
@@ -524,8 +535,10 @@ function evidenceFor(row: QueueRow, entity: CatalogReviewEntity): CatalogReviewE
     const candidate = text(evidence[key]);
     if (candidate) add({
       id: key,
-      kind: "warning",
-      label: `Alternativa ${index + 2}`,
+      kind: isFamilyMembershipCase(row) ? "fact" : "warning",
+      label: isFamilyMembershipCase(row)
+        ? `Otra ficha que también coincidió con la familia ${index + 1}`
+        : `Alternativa ${index + 2}`,
       value: candidate,
     });
   }
@@ -545,10 +558,13 @@ function findingFor(row: QueueRow, entity: CatalogReviewEntity) {
     return `${number(row.context.problemCount)} problemas en ${number(row.context.affectedProductCount)} productos comparten la misma regla o causa raíz. La Mesa decide el criterio una vez; no revisa cada producto.`;
   }
   if (row.source_type === "reconciliation_case") {
-    const confidence = score > 0 ? `${Math.round(score * 100)} % de similitud` : "sin similitud suficiente";
     if (row.subject_type === "product") {
-      return `${official ?? "El registro oficial"} fue comparado con el producto base ${entity.name}. El algoritmo encontró ${confidence}; confirma si pertenece a esta familia usando nombre, línea, código e imagen.`;
+      const signal = score > 0
+        ? `La comparación automática encontró ${Math.round(score * 100)} % de similitud.`
+        : "La comparación automática no dio una similitud suficientemente clara.";
+      return `${official ?? "La ficha oficial"} describe un artículo concreto. ${entity.name} reúne varias variantes. ${signal} Esto solo sugiere que puede pertenecer a la familia; no significa que sea igual a uno de sus tonos.`;
     }
+    const confidence = score > 0 ? `${Math.round(score * 100)} % de similitud` : "sin similitud suficiente";
     return `${entity.name} fue comparado con ${official ?? "un registro oficial"}. El algoritmo encontró ${confidence}; tu decisión debe basarse en nombre, código, presentación e imagen.`;
   }
   if (row.source_type === "enrichment_exception") {
@@ -583,15 +599,26 @@ function decisionScopeFor(row: QueueRow, entity: CatalogReviewEntity): CatalogRe
     const internal = row.subject_type === "variant"
       ? `la variante interna ${entity.name}${entity.code ? ` (${entity.code})` : ""}`
       : `el producto interno ${entity.name}${entity.code ? ` (${entity.code})` : ""}`;
+    const familyMembership = isFamilyMembershipCase(row);
     return {
-      resolves: `Únicamente decide si «${official}» y ${internal} representan el mismo artículo comercial.`,
-      approveEffect: "Confirma esta correspondencia puntual y conserva la ficha oficial como evidencia de esta identidad.",
-      rejectEffect: "Rechaza únicamente esta pareja. Si señalas otro destino, el sistema crea una nueva candidata separada; si no, conserva tus referencias como trabajo pendiente.",
+      resolves: familyMembership
+        ? `Decide únicamente si «${official}» forma parte de la familia ${entity.name}.`
+        : `Decide únicamente si «${official}» y ${internal} representan la misma variante comercial.`,
+      approveEffect: familyMembership
+        ? "Confirma la pertenencia a la familia. No la enlaza con un tono existente ni crea automáticamente una variante."
+        : "Confirma esta correspondencia puntual y conserva la ficha oficial como evidencia de esta identidad.",
+      rejectEffect: familyMembership
+        ? "Descarta esta familia como destino; puedes indicar otra clasificación o dejar una observación para investigarla."
+        : "Rechaza únicamente esta pareja. Si señalas otro destino, el sistema crea una nueva candidata separada; si no, conserva tus referencias como trabajo pendiente.",
       doesNotResolve: [
-        variantCount && Number(variantCount) > 1
+        familyMembership
+          ? "No afirma que la ficha oficial sea igual a una de las variantes existentes."
+          : variantCount && Number(variantCount) > 1
           ? `No confirma automáticamente las otras ${Math.max(Number(variantCount) - 1, 0)} variantes del producto base.`
           : "No confirma automáticamente otros productos o variantes.",
-        "No aprueba en bloque fotografías, tonos, presentaciones ni atributos que tengan su propia evidencia pendiente.",
+        familyMembership
+          ? "No crea el tono faltante ni publica su fotografía sin el proceso de medios."
+          : "No aprueba en bloque fotografías, tonos, presentaciones ni atributos que tengan su propia evidencia pendiente.",
         "No crea relaciones de compatibilidad, uso conjunto o recomendación entre productos.",
       ],
     };
@@ -609,8 +636,10 @@ function warningsFor(row: QueueRow): string[] {
   const context = object(row.context);
   const evidence = object(context.evidence);
   const warnings: string[] = [];
-  if (row.has_contradiction) warnings.push("Hay señales contradictorias: revisa las alternativas antes de decidir.");
-  if (evidence.ambiguous === true) warnings.push("Más de un registro obtuvo una puntuación similar.");
+  if (row.has_contradiction && !isFamilyMembershipCase(row)) warnings.push("Hay señales contradictorias: revisa las alternativas antes de decidir.");
+  if (evidence.ambiguous === true) warnings.push(isFamilyMembershipCase(row)
+    ? "Varias fichas oficiales coincidieron con esta familia porque representan tonos distintos; no deben tratarse como el mismo artículo."
+    : "Más de un registro obtuvo una puntuación similar.");
   if (number(context.score) > 0 && number(context.score) < 0.8) warnings.push("La similitud automática es menor a 80 %.");
   if (row.purpose === "relation") warnings.push("Misma marca o mismo sistema no equivalen a compatibilidad demostrada.");
   if (row.context.semanticOrigin === "problem_group" && text(row.context.partitionKey)) {
@@ -676,13 +705,16 @@ async function presentCase(supabase: Supabase, row: QueueRow): Promise<CatalogRe
     relatedWorkFor(supabase, row),
   ]);
 
+  const displayContradiction = row.has_contradiction && !isFamilyMembershipCase(row);
   return {
     id: row.id,
     workKey: row.work_key,
     rowVersion: number(row.row_version),
     caseKind: caseKind(row),
     title: titleFor(row),
-    eyebrow: `${purposeLabel(row.purpose)} · ${row.has_contradiction ? "señales contradictorias" : "decisión humana"}`,
+    eyebrow: isFamilyMembershipCase(row)
+      ? "Familia del catálogo · decisión humana"
+      : `${purposeLabel(row.purpose)} · ${displayContradiction ? "señales contradictorias" : "decisión humana"}`,
     question: questionFor(row),
     findingSummary: findingFor(row, entity),
     entity,
@@ -697,7 +729,7 @@ async function presentCase(supabase: Supabase, row: QueueRow): Promise<CatalogRe
     },
     warnings: warningsFor(row),
     risk: row.risk_level,
-    hasContradiction: row.has_contradiction,
+    hasContradiction: displayContradiction,
     canSkip: true,
     canRequestCapture: ["identity", "image", "attribute"].includes(row.purpose),
     history,

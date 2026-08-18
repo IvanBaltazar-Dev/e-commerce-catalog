@@ -69,6 +69,13 @@ async function entrar(page, cuenta) {
   await page.goto(`${BASE_URL}/admin/login`, { waitUntil: "domcontentloaded", timeout: 60000 });
   if (!new URL(page.url()).pathname.endsWith("/login")) return true;
   await page.waitForSelector('input[type="email"]', { timeout: 20000 });
+  // En desarrollo el HTML puede llegar antes que el bundle de React. Escribir
+  // antes de la hidratación deja el campo visible pero el estado del formulario
+  // vacío, y produce un falso fallo de autenticación.
+  await page.waitForFunction(() => {
+    const button = document.querySelector('button[type="submit"]');
+    return Boolean(button && Object.keys(button).some((key) => key.startsWith("__reactProps")));
+  }, { timeout: 20000 });
   await page.$eval('input[type="email"]', (n) => { n.value = ""; });
   await page.$eval('input[type="password"]', (n) => { n.value = ""; });
   await page.type('input[type="email"]', cuenta.email);

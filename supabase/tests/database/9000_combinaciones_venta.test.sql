@@ -26,6 +26,22 @@ select plan(16);
 -- `request_tax_document`), no por INSERT a mano: lo que se prueba es lo que la
 -- pantalla llama, no una versión simplificada.
 
+-- El fixture comercial se crea dentro de esta transacción. La suite ya no
+-- depende de que el catálogo operativo conserve productos o stock DEMO.
+insert into public.inventory_stock(variant_id, branch_id, on_hand, reserved)
+select variant.id, branch.id, 30, 0
+from public.product_variants variant
+join public.products product on product.id=variant.product_id
+cross join public.branches branch
+where variant.is_active and variant.tracks_inventory
+  and product.is_active and product.editorial_status='published'
+  and branch.code='PRINCIPAL'
+  and coalesce(product.unit_price,0)>2
+order by variant.id
+limit 1
+on conflict (variant_id,branch_id) do update
+set on_hand=greatest(public.inventory_stock.on_hand,30), reserved=0;
+
 create temporary table fx on commit drop as
 select
   b.id as branch_id,

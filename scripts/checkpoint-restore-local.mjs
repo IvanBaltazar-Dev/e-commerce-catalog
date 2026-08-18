@@ -134,13 +134,6 @@ ${blocks.join("\n\n")}
 update public.suppliers
 set company_id = (select id from public.companies order by created_at, id limit 1);
 
--- El volcado conserva el indicador de inventario de la demo, pero el kardex
--- operativo se reconstruye por el contrato load_initial_inventory en el paso
--- siguiente del gate. Se marca pendiente para no fabricar stock por COPY.
-update public.product_variants
-set tracks_inventory = false
-where sku in ('DEMO-ESM-ROJO', 'DEMO-ESM-NUDE', 'DEMO-ACC-001-UNICA');
-
 set local session_replication_role = origin;
 
 -- El checkpoint reemplaza attribute_templates con triggers suspendidos. La
@@ -233,6 +226,40 @@ commit;
 console.log(`Restaurando ${blocks.length} tablas desde un volcado verificado (${digest.slice(0, 12)}…).`);
 psql(restoreSql);
 
+// El checkpoint histórico contiene cinco productos DEMO que ya no forman
+// parte del catálogo operativo. Se retiran antes de regenerar staging y Mesa;
+// los fixtures de pruebas se cargan de forma explícita por sus propios gates.
+psql(`
+begin;
+delete from public.wholesale_rules
+where product_id in (
+  select product.id from public.products product left join public.brands brand on brand.id=product.brand_id
+  where product.code like 'DEMO-%' or product.slug like 'demo-%' or brand.slug='demo-professional'
+) or variant_id in (
+  select variant.id from public.product_variants variant join public.products product on product.id=variant.product_id
+  left join public.brands brand on brand.id=product.brand_id
+  where product.code like 'DEMO-%' or product.slug like 'demo-%' or brand.slug='demo-professional'
+);
+delete from public.product_relations
+where source_product_id in (
+  select product.id from public.products product left join public.brands brand on brand.id=product.brand_id
+  where product.code like 'DEMO-%' or product.slug like 'demo-%' or brand.slug='demo-professional'
+) or target_product_id in (
+  select product.id from public.products product left join public.brands brand on brand.id=product.brand_id
+  where product.code like 'DEMO-%' or product.slug like 'demo-%' or brand.slug='demo-professional'
+);
+delete from public.products product using public.brands brand
+where product.brand_id=brand.id
+  and (product.code like 'DEMO-%' or product.slug like 'demo-%' or brand.slug='demo-professional');
+delete from public.media_assets media
+where (media.storage_path like 'demo/%' or media.metadata->>'demo'='true')
+  and not exists (select 1 from public.product_media association where association.media_asset_id=media.id)
+  and not exists (select 1 from public.brands brand where brand.logo_media_id=media.id);
+delete from public.brands brand where brand.slug='demo-professional'
+  and not exists (select 1 from public.products product where product.brand_id=brand.id);
+commit;
+`);
+
 // 0093 retiró tres asignaciones demasiado amplias y 0095 endureció una
 // brecha. Se reaplican porque el replay canónico de 0091 acaba de materializar
 // filas que no existían cuando las migraciones corrieron sobre la base vacía.
@@ -262,12 +289,12 @@ do $checkpoint$
 declare relation_preview jsonb;
 begin
   relation_preview := public.preview_catalog_relation_reprocess_v1(
-    'checkpoint-stage4b-preview-v1', 323
+    'checkpoint-stage4b-preview-v2-no-demo', 316
   );
   perform public.apply_catalog_relation_reprocess_v1(
     (relation_preview->>'previewId')::uuid,
     relation_preview->>'previewFingerprint',
-    'checkpoint-stage4b-apply-v1'
+    'checkpoint-stage4b-apply-v2-no-demo'
   );
   perform public.sync_catalog_relation_decisions_v1();
 end;
@@ -297,7 +324,7 @@ select jsonb_build_object(
 )::text;
 `);
 const reconstructed = JSON.parse(counts);
-if (reconstructed.products !== 1056 || reconstructed.variants !== 1578
+if (reconstructed.products !== 1051 || reconstructed.variants !== 1570
     || reconstructed.acrylic_internal_roles !== 45 || reconstructed.acrylic_reference_roles !== 2
     || reconstructed.relation_decisions !== 18) {
   throw new Error(`Conteos reconstruidos inesperados: ${counts}`);

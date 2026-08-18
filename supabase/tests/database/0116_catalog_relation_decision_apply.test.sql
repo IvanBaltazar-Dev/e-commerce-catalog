@@ -24,11 +24,11 @@ where family_code='ENDPOINT_SCOPE_RECLASSIFICATION' and affected=38
 limit 1;
 create temp table stage4e_false_case as
 select * from stage4e_ranked_cases
-where family_code='FALSE_PAIR_RETIREMENT' and affected=88
+where family_code='FALSE_PAIR_RETIREMENT' and affected=86
 limit 1;
 create temp table stage4e_adjust_case as
 select * from stage4e_ranked_cases
-where family_code='FALSE_PAIR_RETIREMENT' and affected<>88
+where family_code='FALSE_PAIR_RETIREMENT' and affected<>86
 order by family_rank limit 1;
 create temp table stage4e_reject_case as
 select * from stage4e_ranked_cases
@@ -101,13 +101,16 @@ select has_function('public','transition_catalog_relation_decision_v1',
 select has_function('public','verify_catalog_relation_decision_v1',array['text'],
   '9 - post-sync verification is explicit');
 
-select is((select count(*) from public.catalog_relation_decisions),18::bigint,
+select is((select count(*) from public.catalog_relation_decisions where status='pending'),18::bigint,
   '10 - the 18 real Stage 4C decisions are persisted');
-select is((select count(distinct work_item_id) from public.catalog_relation_decisions),18::bigint,
+select is((select count(distinct work_item_id) from public.catalog_relation_decisions where status='pending'),18::bigint,
   '11 - there is one Mesa work item per shared cause');
-select is((select count(*) from public.catalog_relation_decision_items),263::bigint,
-  '12 - frozen decisions cover all 263 human-actionable detections');
-select is((select count(distinct family_code) from public.catalog_relation_decisions),3::bigint,
+select is((select count(*) from public.catalog_relation_decision_items item
+  join public.catalog_relation_decisions decision on decision.id=item.decision_id
+  where decision.status='pending'),259::bigint,
+  '12 - frozen pending decisions cover all 259 real human-actionable detections');
+select is((select count(distinct family_code) from public.catalog_relation_decisions
+  where status='pending'),3::bigint,
   '13 - all three decision families are operational');
 select ok((public.get_catalog_stage4e_report_v1()->'guards'->>'oneWorkPerSharedDecision')::boolean,
   '14 - the report certifies one work item per decision');
@@ -130,8 +133,8 @@ select is((select count(*) from public.catalog_relation_decision_queue_v1
   '19 - every pending case includes decide, adjust-or-reject, and save-for-later');
 
 select is((public.get_catalog_relation_decision_detail_v1(
-  (select public_decision_id from stage4e_class_case),25,0)->>'affectedTotal')::integer,19,
-  '20 - the real gel color to gel top case exposes all 19 affected pairs');
+    (select public_decision_id from stage4e_class_case),25,0)->>'affectedTotal')::integer,17,
+  '20 - the real gel color to gel top case exposes all 17 real affected pairs');
 select ok((public.get_catalog_relation_decision_detail_v1(
   (select public_decision_id from stage4e_class_case),1,0)
     ->'affected'->0->>'evidenceLabel') like 'Lo identificamos por el nombre%',
@@ -190,8 +193,8 @@ select is((select result->>'status' from stage4e_class_preview),'previewed',
 select is(length((select result->>'previewFingerprint' from stage4e_class_preview)),64,
   '31 - preview confirmation has a SHA-256 fingerprint');
 select is((select result->'impact'->>'candidateRowsChanged'
-  from stage4e_class_preview)::integer,19,
-  '32 - gel color to gel top preview names exactly 19 candidate changes');
+  from stage4e_class_preview)::integer,17,
+  '32 - gel color to gel top preview names exactly 17 real candidate changes');
 select is((public.preview_catalog_relation_decision_v1(
   (select public_decision_id from stage4e_class_case),'ACCEPT_CLASS_RULE',
   'Confirmo solo los productos mostrados.',1,
@@ -229,12 +232,12 @@ select is((public.apply_catalog_relation_decision_v1(
 select is((select count(*) from public.catalog_relation_candidates candidate
   join public.catalog_relation_decision_items item on item.candidate_id=candidate.id
   where item.decision_id=(select id from stage4e_class_case)
-    and candidate.status='approved' and candidate.resolution_kind='class_rule'),19::bigint,
-  '38 - all and only 19 frozen candidates record class-rule resolution');
+    and candidate.status='approved' and candidate.resolution_kind='class_rule'),17::bigint,
+  '38 - all and only 17 frozen candidates record class-rule resolution');
 select is((select count(*) from public.catalog_relation_rules rule
   where rule.metadata->>'stage4eDecisionId'=
     (select public_decision_id from stage4e_class_case)),1::bigint,
-  '39 - one shared rule replaces 19 row-level interpretations');
+  '39 - one shared rule replaces 17 row-level interpretations');
 select is((select count(*) from public.catalog_class_members member
   where member.metadata->>'stage4eDecisionId'=
     (select public_decision_id from stage4e_class_case)),
@@ -292,8 +295,8 @@ select public.preview_catalog_relation_decision_v1(
   null,1,'pgtap-stage4e-false-preview-0001',(select actor_id from stage4e_actor)
 ) as result;
 select is((select result->'impact'->>'candidateRowsChanged'
-  from stage4e_false_preview)::integer,88,
-  '49 - lamp false-pair preview names exactly 88 candidates');
+  from stage4e_false_preview)::integer,86,
+  '49 - lamp false-pair preview names exactly 86 real candidates');
 create temp table stage4e_false_apply as
 select public.apply_catalog_relation_decision_v1(
   (select (result->>'previewId')::uuid from stage4e_false_preview),
@@ -305,10 +308,10 @@ select is((select result->>'status' from stage4e_false_apply),'applied',
 select is((select count(*) from public.catalog_relation_candidates candidate
   join public.catalog_relation_decision_items item on item.candidate_id=candidate.id
   where item.decision_id=(select id from stage4e_false_case)
-    and candidate.status='rejected' and candidate.resolution_kind='incorrect'),88::bigint,
-  '51 - all 88 lamp false pairs are rejected without deletion');
+    and candidate.status='rejected' and candidate.resolution_kind='incorrect'),86::bigint,
+  '51 - all 86 real lamp false pairs are rejected without deletion');
 select is((select count(*) from public.catalog_relation_decision_items
-  where decision_id=(select id from stage4e_false_case)),88::bigint,
+  where decision_id=(select id from stage4e_false_case)),86::bigint,
   '52 - immutable false-pair history remains complete');
 select is((select count(*) from public.catalog_relation_rules rule
     where rule.metadata->>'stage4eDecisionId'=

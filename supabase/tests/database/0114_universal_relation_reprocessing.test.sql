@@ -26,9 +26,9 @@ select is((select count(*) from public.catalog_relation_endpoint_profiles where 
   '6 - endpoint vocabulary covers the historical cohort');
 select is((select count(*) from public.catalog_relation_reprocess_profiles where is_active),13::bigint,
   '7 - thirteen shared rules replace per-row decisions');
-select is((select count(*) from public.catalog_relation_reprocess_plan_v1),323::bigint,
-  '8 - the engine analyzes all 323 historical candidates');
-select is((select count(distinct candidate_id) from public.catalog_relation_reprocess_plan_v1),323::bigint,
+select is((select count(*) from public.catalog_relation_reprocess_plan_v1),316::bigint,
+  '8 - the engine analyzes all 316 real historical candidates');
+select is((select count(distinct candidate_id) from public.catalog_relation_reprocess_plan_v1),316::bigint,
   '9 - every historical candidate appears exactly once');
 select is((select count(*) from public.catalog_relation_reprocess_plan_v1
   where classification not in (
@@ -63,12 +63,12 @@ select is((select count(*) from public.catalog_relation_reprocess_plan_v1
   '17 - missing evidence alone creates no human work');
 
 select throws_ok($$
-  select public.preview_catalog_relation_reprocess_v1('pgtap-stage4b-wrong-count',322)
-$$,'40001','La cohorte historica contiene 323 candidatas; se esperaban 322.',
+  select public.preview_catalog_relation_reprocess_v1('pgtap-stage4b-wrong-count',315)
+$$,'40001','La cohorte historica contiene 316 candidatas; se esperaban 315.',
   '18 - preview refuses a changing cohort');
 
 create temp table stage4b_preview as
-select public.preview_catalog_relation_reprocess_v1('pgtap-stage4b-preview-v1',323) as result;
+select public.preview_catalog_relation_reprocess_v1('pgtap-stage4b-preview-v2-no-demo',316) as result;
 
 select is((select result->>'status' from stage4b_preview),'previewed',
   '19 - first pass remains preview-only');
@@ -76,10 +76,10 @@ select is(length((select result->>'snapshotFingerprint' from stage4b_preview)),6
   '20 - snapshot has a SHA-256 fingerprint');
 select is(length((select result->>'previewFingerprint' from stage4b_preview)),64,
   '21 - immutable preview has a SHA-256 fingerprint');
-select is(((select result->'metrics'->>'historicalCandidates' from stage4b_preview))::integer,323,
+select is(((select result->'metrics'->>'historicalCandidates' from stage4b_preview))::integer,316,
   '22 - frozen metrics cover the complete cohort');
 select is((public.preview_catalog_relation_reprocess_v1(
-  'pgtap-stage4b-preview-v1',323)->>'idempotentReplay')::boolean,true,
+  'pgtap-stage4b-preview-v2-no-demo',316)->>'idempotentReplay')::boolean,true,
   '23 - preview idempotency returns the same snapshot');
 
 select throws_ok($$
