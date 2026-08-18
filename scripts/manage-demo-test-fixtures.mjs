@@ -22,7 +22,30 @@ function psql(sql) {
 if (mode === "load") {
   const seed = fs.readFileSync(path.join(ROOT, "supabase", "seeds", "0002_v2_demo.sql"), "utf8");
   psql(`begin;\n${seed}\ncommit;`);
-  console.log("Fixtures DEMO cargados temporalmente para pruebas.");
+
+  // Mientras los artículos DEMO vivían dentro del checkpoint, su inventario
+  // venía con ellos. Al aislarlos como fixture, el seed dejó de traerlo: los
+  // productos nacían sin existencias en la sede por defecto y la integral
+  // omnicanal moría al convertir el carrito en reserva —el carrito público usa
+  // esa sede, no las que las integrales crean para sí—. El fixture tiene que
+  // reponer lo que el checkpoint daba, o no es el mismo punto de partida.
+  psql(`
+begin;
+insert into public.inventory_stock (variant_id, branch_id, on_hand)
+select variant.id, branch.id, 100
+from public.product_variants variant
+join public.products product on product.id = variant.product_id
+left join public.brands brand on brand.id = product.brand_id
+cross join lateral (
+  select id from public.branches where is_default limit 1
+) as branch
+where product.code like 'DEMO-%' or product.slug like 'demo-%' or brand.slug = 'demo-professional'
+on conflict (variant_id, branch_id) do update
+  set on_hand = greatest(public.inventory_stock.on_hand, excluded.on_hand),
+      updated_at = now();
+commit;
+`);
+  console.log("Fixtures DEMO cargados temporalmente para pruebas, con existencias en la sede por defecto.");
 } else {
   psql(`
 begin;
