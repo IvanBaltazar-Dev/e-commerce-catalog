@@ -78,6 +78,27 @@ function registerReadTool(server, name, config, handler) {
   });
 }
 
+function registerWriteTool(server, name, config, handler, { destructive = false } = {}) {
+  server.registerTool(name, {
+    ...config,
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: destructive,
+      idempotentHint: true,
+      openWorldHint: false,
+    },
+  }, async (input) => {
+    try {
+      return result(await handler(input));
+    } catch (error) {
+      return {
+        content: [{ type: "text", text: error instanceof Error ? error.message : String(error) }],
+        isError: true,
+      };
+    }
+  });
+}
+
 const server = new McpServer({
   name: "bellaroshe-catalog-intelligence",
   version: "1.0.0",
@@ -305,6 +326,177 @@ registerReadTool(server, "stage4c_decision_queue", {
   }),
   "stage4c decision queue",
 ));
+
+registerReadTool(server, "stage4e_decision_report", {
+  title: "Etapa 4E · Estado del Contrato de Aplicación",
+  description: "Certifica expedientes agrupados, aplazamientos, previews, decisiones aplicadas y guardas de precio, stock, publicación y conocimiento canónico.",
+  inputSchema: {},
+}, async () => must(
+  await database.rpc("get_catalog_stage4e_report_v1"),
+  "stage4e decision report",
+));
+
+registerReadTool(server, "stage4e_decision_queue", {
+  title: "Etapa 4E · Cola Operativa de Decisiones",
+  description: "Devuelve la cola real de Catálogo → Revisar con lenguaje humano, estado, versión, aplazamiento y acciones definidas por backend.",
+  inputSchema: {
+    status: z.enum([
+      "pending", "applied", "rejected", "adjustment_requested", "superseded", "all",
+    ]).default("pending"),
+    limit: z.number().int().min(1).max(100).default(25),
+    offset: z.number().int().min(0).default(0),
+  },
+}, async ({ status, limit, offset }) => must(
+  await database.rpc("get_catalog_relation_decision_queue_v1", {
+    p_status: status,
+    p_limit: limit,
+    p_offset: offset,
+  }),
+  "stage4e decision queue",
+));
+
+registerReadTool(server, "stage4e_decision_detail", {
+  title: "Etapa 4E · Detalle de Decisión",
+  description: "Abre un caso con afectados paginados, explicación natural, evidencia bajo demanda, propuesta exacta y trazabilidad técnica.",
+  inputSchema: {
+    decisionId: z.string().min(1).max(120),
+    itemLimit: z.number().int().min(1).max(100).default(25),
+    itemOffset: z.number().int().min(0).default(0),
+  },
+}, async ({ decisionId, itemLimit, itemOffset }) => must(
+  await database.rpc("get_catalog_relation_decision_detail_v1", {
+    p_decision_id: decisionId,
+    p_item_limit: itemLimit,
+    p_item_offset: itemOffset,
+  }),
+  "stage4e decision detail",
+));
+
+registerReadTool(server, "stage4e_decision_verify", {
+  title: "Etapa 4E · Verificar Decisión Aplicada",
+  description: "Comprueba resolución, evento inmutable y capa del grafo después de sincronizar; no modifica el catálogo.",
+  inputSchema: { decisionId: z.string().min(1).max(120) },
+}, async ({ decisionId }) => must(
+  await database.rpc("verify_catalog_relation_decision_v1", {
+    p_decision_id: decisionId,
+  }),
+  "stage4e decision verify",
+));
+
+registerWriteTool(server, "stage4e_decision_preview", {
+  title: "Etapa 4E · Preparar Decisión",
+  description: "Congela el efecto exacto de una acción y devuelve la huella que la persona debe confirmar antes de aplicar.",
+  inputSchema: {
+    decisionId: z.string().min(1).max(120),
+    actionCode: z.enum([
+      "ACCEPT_CLASS_RULE", "REJECT_CLASS_RULE", "ACCEPT_MEMBERSHIP_SCOPE",
+      "ADJUST_ENDPOINT_PROFILE", "ACCEPT_FALSE_PAIR_RETIREMENT",
+    ]),
+    comment: z.string().max(1000).nullable().default(null),
+    expectedWorkVersion: z.number().int().positive(),
+    idempotencyKey: z.string().min(8).max(200),
+    actorId: z.string().uuid(),
+  },
+}, async ({ decisionId, actionCode, comment, expectedWorkVersion, idempotencyKey, actorId }) => must(
+  await database.rpc("preview_catalog_relation_decision_v1", {
+    p_decision_id: decisionId,
+    p_action_code: actionCode,
+    p_comment: comment,
+    p_expected_work_version: expectedWorkVersion,
+    p_idempotency_key: idempotencyKey,
+    p_actor_id: actorId,
+  }),
+  "stage4e decision preview",
+));
+
+registerWriteTool(server, "stage4e_decision_defer", {
+  title: "Etapa 4E · Anotar y Guardar Pendiente",
+  description: "Guarda una nota y fecha de retorno sin resolver el caso ni cambiar candidatas o conocimiento.",
+  inputSchema: {
+    decisionId: z.string().min(1).max(120),
+    expectedWorkVersion: z.number().int().positive(),
+    reason: z.string().min(1).max(1000),
+    deferMinutes: z.number().int().min(5).max(10080).default(1440),
+    idempotencyKey: z.string().min(8).max(200),
+    actorId: z.string().uuid(),
+  },
+}, async ({ decisionId, expectedWorkVersion, reason, deferMinutes, idempotencyKey, actorId }) => must(
+  await database.rpc("transition_catalog_relation_decision_v1", {
+    p_decision_id: decisionId,
+    p_expected_work_version: expectedWorkVersion,
+    p_action_code: "KEEP_DEFERRED",
+    p_reason: reason,
+    p_defer_minutes: deferMinutes,
+    p_idempotency_key: idempotencyKey,
+    p_actor_id: actorId,
+  }),
+  "stage4e decision defer",
+));
+
+registerWriteTool(server, "stage4e_decision_resume", {
+  title: "Etapa 4E · Reanudar Decisión",
+  description: "Devuelve un caso aplazado a la cola activa conservando su historia.",
+  inputSchema: {
+    decisionId: z.string().min(1).max(120),
+    expectedWorkVersion: z.number().int().positive(),
+    idempotencyKey: z.string().min(8).max(200),
+    actorId: z.string().uuid(),
+  },
+}, async ({ decisionId, expectedWorkVersion, idempotencyKey, actorId }) => must(
+  await database.rpc("transition_catalog_relation_decision_v1", {
+    p_decision_id: decisionId,
+    p_expected_work_version: expectedWorkVersion,
+    p_action_code: "RESUME",
+    p_reason: null,
+    p_defer_minutes: 1440,
+    p_idempotency_key: idempotencyKey,
+    p_actor_id: actorId,
+  }),
+  "stage4e decision resume",
+));
+
+registerWriteTool(server, "stage4e_decision_apply", {
+  title: "Etapa 4E · Aplicar Decisión Exacta",
+  description: "Aplica únicamente el preview confirmado, sincroniza la proyección Neo4j y verifica auditoría y capa epistemológica.",
+  inputSchema: {
+    previewId: z.string().uuid(),
+    previewFingerprint: z.string().length(64),
+    idempotencyKey: z.string().min(8).max(200),
+    actorId: z.string().uuid(),
+  },
+}, async ({ previewId, previewFingerprint, idempotencyKey, actorId }) => {
+  const applied = must(await database.rpc("apply_catalog_relation_decision_v1", {
+    p_preview_id: previewId,
+    p_preview_fingerprint: previewFingerprint,
+    p_idempotency_key: idempotencyKey,
+    p_actor_id: actorId,
+  }), "stage4e decision apply");
+
+  // Sync también corre en un replay idempotente. Si Neo4j falla después del
+  // commit PostgreSQL, repetir el mismo comando repara la proyección sin volver
+  // a decidir ni duplicar el evento.
+  const driver = createGraphDriverFromEnv(env);
+  const postgres = createPostgresPoolFromEnv(env);
+  let graph;
+  try {
+    graph = await new GraphProjector({
+      supabase: database,
+      postgres,
+      driver,
+      database: env.NEO4J_DATABASE || undefined,
+    }).sync();
+  } finally {
+    await driver.close();
+    await postgres.end();
+  }
+  const verification = must(await database.rpc("verify_catalog_relation_decision_v1", {
+    p_decision_id: applied.decisionId,
+  }), "stage4e decision verify after graph sync");
+  if (!verification.passed || !graph.ok) {
+    throw new Error(`La decisión se aplicó pero la verificación final falló: ${JSON.stringify({ graph, verification })}`);
+  }
+  return { apply: applied, graph, verification };
+}, { destructive: true });
 
 registerReadTool(server, "research_report", {
   title: "Informe de Investigación",

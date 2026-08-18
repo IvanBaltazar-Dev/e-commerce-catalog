@@ -84,6 +84,7 @@
     "test:mcp:stage4a": "node scripts/test-stage4a-mcp-report.mjs",
     "test:mcp:stage4b": "node scripts/test-stage4b-mcp-report.mjs",
     "test:mcp:stage4c": "node scripts/test-stage4c-mcp-report.mjs",
+    "test:mcp:stage4e": "node scripts/test-stage4e-mcp-contract.mjs",
     "test:stage2:admiss": "node scripts/test-stage2-admiss-acceptance.mjs --env .env.supabase.local",
     "review:reprocess": "node scripts/catalog-review-reprocess.mjs --env .env.supabase.local",
     "test:review-reprocess": "node scripts/test-catalog-review-reprocess.mjs --env .env.supabase.local",

@@ -253,6 +253,27 @@ const identityScopeCorrection = extractStatement(
 );
 psql(`${identityScopeCorrection}\n`);
 
+// 4B–4E dependen de la cohorte comercial restaurada, que por diseño llega
+// después de las migraciones durante un reset. Reconstruye el preview analítico
+// estable y, a partir de él, los 18 expedientes agrupados de la Mesa. Ninguna
+// decisión humana se aplica aquí.
+psql(`
+do $checkpoint$
+declare relation_preview jsonb;
+begin
+  relation_preview := public.preview_catalog_relation_reprocess_v1(
+    'checkpoint-stage4b-preview-v1', 323
+  );
+  perform public.apply_catalog_relation_reprocess_v1(
+    (relation_preview->>'previewId')::uuid,
+    relation_preview->>'previewFingerprint',
+    'checkpoint-stage4b-apply-v1'
+  );
+  perform public.sync_catalog_relation_decisions_v1();
+end;
+$checkpoint$;
+`);
+
 const counts = psql(`
 select jsonb_build_object(
   'products', (select count(*) from public.products),
@@ -260,6 +281,7 @@ select jsonb_build_object(
   'suppliers', (select count(*) from public.suppliers),
   'source_records', (select count(*) from public.catalog_source_records),
   'review_items', (select count(*) from public.catalog_review_work_items),
+  'relation_decisions', (select count(*) from public.catalog_relation_decisions),
   'acrylic_internal_roles', (
     select count(*) from public.product_system_roles role
     join public.catalog_systems system on system.id = role.system_id
@@ -276,7 +298,8 @@ select jsonb_build_object(
 `);
 const reconstructed = JSON.parse(counts);
 if (reconstructed.products !== 1056 || reconstructed.variants !== 1578
-    || reconstructed.acrylic_internal_roles !== 45 || reconstructed.acrylic_reference_roles !== 2) {
+    || reconstructed.acrylic_internal_roles !== 45 || reconstructed.acrylic_reference_roles !== 2
+    || reconstructed.relation_decisions !== 18) {
   throw new Error(`Conteos reconstruidos inesperados: ${counts}`);
 }
 console.log(JSON.stringify({ checkpoint: "restored", sha256: digest, ...reconstructed }, null, 2));

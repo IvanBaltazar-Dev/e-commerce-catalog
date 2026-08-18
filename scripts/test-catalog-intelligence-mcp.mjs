@@ -46,6 +46,17 @@ try {
     "semantic_campaign_report",
     "semantic_checkpoint_report",
     "stage4a_system_class_report",
+    "stage4b_relation_reprocess_report",
+    "stage4c_decision_report",
+    "stage4c_decision_queue",
+    "stage4e_decision_report",
+    "stage4e_decision_queue",
+    "stage4e_decision_detail",
+    "stage4e_decision_verify",
+    "stage4e_decision_preview",
+    "stage4e_decision_defer",
+    "stage4e_decision_resume",
+    "stage4e_decision_apply",
     "research_report",
     "graph_status",
   ];
@@ -53,8 +64,19 @@ try {
   if (JSON.stringify(names) !== JSON.stringify([...expectedTools].sort())) {
     throw new Error(`Herramientas MCP inesperadas: ${names.join(", ")}`);
   }
+  const writeTools = new Set([
+    "stage4e_decision_preview", "stage4e_decision_defer",
+    "stage4e_decision_resume", "stage4e_decision_apply",
+  ]);
   for (const tool of listed.tools) {
-    if (!tool.annotations?.readOnlyHint || tool.annotations?.destructiveHint) {
+    if (writeTools.has(tool.name)) {
+      if (tool.annotations?.readOnlyHint || !tool.annotations?.idempotentHint) {
+        throw new Error(`La herramienta ${tool.name} no declara su frontera de comando idempotente.`);
+      }
+      if (tool.name === "stage4e_decision_apply" && !tool.annotations?.destructiveHint) {
+        throw new Error("El apply 4E debe declarar que cambia estado material.");
+      }
+    } else if (!tool.annotations?.readOnlyHint || tool.annotations?.destructiveHint) {
       throw new Error(`La herramienta ${tool.name} no declara límites de solo lectura.`);
     }
     if (/(sql|shell|fetch|cypher|publish|inventory|price_write)/i.test(tool.name)) {
