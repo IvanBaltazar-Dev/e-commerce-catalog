@@ -16,7 +16,11 @@ const adminProductQuerySchema = paginationSchema.extend({
   // Estado editorial real: con 1,056 productos importados en borrador, un
   // filtro por is_active etiquetado «Publicado» mentía.
   estado: z.enum(["publicado", "borrador", "oculto"]).optional(),
-  brandId: z.string().uuid().optional()
+  brandId: z.string().uuid().optional(),
+  // Qué falta fotografiar es la pregunta que trae a la dueña a esta pantalla.
+  // Se filtra en el contrato porque 1,048 productos sin foto no caben en la
+  // página que está mirando.
+  foto: z.enum(["con_foto", "solo_respaldo", "sin_foto"]).optional()
 });
 
 function parseSearchParams(request: NextRequest) {
@@ -39,7 +43,8 @@ export async function GET(request: NextRequest) {
       p_active: params.active ?? null,
       p_brand_id: params.brandId ?? null,
       p_limit: params.limit,
-      p_offset: params.offset
+      p_offset: params.offset,
+      p_foto: params.foto ?? null
     });
 
     if (errorBusqueda) {
@@ -48,9 +53,11 @@ export async function GET(request: NextRequest) {
 
     const ids: string[] = busqueda?.ids ?? [];
     const total: number = busqueda?.total ?? 0;
+    const cobertura = busqueda?.cobertura ?? { con_foto: 0, solo_respaldo: 0, sin_foto: 0 };
+    const publicacion = busqueda?.publicacion ?? { publicado: 0, borrador: 0, oculto: 0 };
 
     if (ids.length === 0) {
-      return ok({ items: [], total, limit: params.limit, offset: params.offset });
+      return ok({ items: [], total, cobertura, publicacion, limit: params.limit, offset: params.offset });
     }
 
     // La forma anidada —marca, categoría, galería— la construye PostgREST, que
@@ -61,12 +68,24 @@ export async function GET(request: NextRequest) {
       throw error;
     }
 
+    // El estado fotográfico viene en la misma respuesta que los ids. Pedirlo
+    // aparte costaba entre 1,5 y 2,6 s: PostgREST no empuja el filtro por id
+    // dentro de una vista y materializaba los 1.051 productos para devolver 8.
+    const media: Record<string, unknown> = busqueda?.media ?? {};
+
     // PostgREST no garantiza el orden de un `in`, y el orden es del contrato.
     const porId = new Map((data ?? []).map((product) => [product.id, product]));
 
     return ok({
-      items: ids.map((id) => porId.get(id)).filter(Boolean),
+      items: ids
+        .map((id) => {
+          const product = porId.get(id);
+          return product ? { ...product, media_state: media[id] } : undefined;
+        })
+        .filter(Boolean),
       total,
+      cobertura,
+      publicacion,
       limit: params.limit,
       offset: params.offset
     });

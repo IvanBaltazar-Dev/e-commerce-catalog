@@ -2,7 +2,15 @@
 
 import { publicEnv } from "@/lib/env/public";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
-import type { ApiPdfExport, ApiProduct, ApiTaxonomy, ProductPayload } from "@/lib/admin/types";
+import type {
+  ApiPdfExport,
+  ApiPhotoCoverage,
+  ApiProduct,
+  ApiPublicationSplit,
+  ApiTaxonomy,
+  PhotoState,
+  ProductPayload
+} from "@/lib/admin/types";
 import type { AdminV2Bootstrap, AdminV2Product, AdminV2ProductInput } from "@/lib/admin/catalog-v2";
 import type {
   CreateReservationInput,
@@ -185,6 +193,7 @@ export const adminApi = {
     q?: string;
     estado?: "publicado" | "borrador" | "oculto";
     brandId?: string;
+    foto?: PhotoState;
   }) => {
     const search = new URLSearchParams();
     search.set("limit", String(params.pageSize));
@@ -192,7 +201,13 @@ export const adminApi = {
     if (params.q) search.set("q", params.q);
     if (params.estado) search.set("estado", params.estado);
     if (params.brandId) search.set("brandId", params.brandId);
-    return request<{ items: ApiProduct[]; total: number }>(`/api/admin/products?${search.toString()}`);
+    if (params.foto) search.set("foto", params.foto);
+    return request<{
+      items: ApiProduct[];
+      total: number;
+      cobertura: ApiPhotoCoverage;
+      publicacion: ApiPublicationSplit;
+    }>(`/api/admin/products?${search.toString()}`);
   },
   getProduct: (id: string) => request<ApiProduct>(`/api/admin/products/${id}`),
   createProduct: (payload: ProductPayload) =>

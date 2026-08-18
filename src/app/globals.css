@@ -888,6 +888,162 @@ button:disabled {
   letter-spacing: -1px;
 }
 
+/* ── Cómo va el catálogo ───────────────────────────────────────────────────
+   Dos preguntas que antes había que hacerle a la base de datos: qué está
+   publicado y qué falta fotografiar. Cada número es además su propio filtro,
+   así que el dato y el control de ese dato son el mismo elemento. */
+.cov-panel {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--br-pink-line);
+  border-radius: var(--r);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.cov-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.cov-label {
+  flex: none;
+  width: 82px;
+  color: var(--br-label);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.35px;
+  text-transform: uppercase;
+}
+
+.cov-meter {
+  flex: none;
+  width: 128px;
+  height: 5px;
+  border-radius: var(--r-pill);
+  background: var(--line);
+  overflow: hidden;
+}
+
+.cov-meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+  transition: width 0.25s ease;
+}
+
+.cov-meter-fill--ok {
+  background: var(--green);
+}
+
+.cov-segments {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.cov-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  color: var(--br-muted);
+  white-space: nowrap;
+}
+
+.cov-seg strong {
+  font-weight: 700;
+  color: var(--br-ink-strong);
+}
+
+.cov-seg:hover {
+  background: var(--hover);
+}
+
+.cov-seg--active {
+  border-color: var(--br-pink-line);
+  background: var(--br-pink-soft);
+  color: var(--br-pink-deep);
+}
+
+.cov-seg--active strong {
+  color: var(--br-pink-deep);
+}
+
+.cov-seg:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.cov-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.cov-dot--ok {
+  background: var(--green-dot);
+}
+
+.cov-dot--pend {
+  background: var(--gold);
+}
+
+/* Lo que falta se marca en hueco, no en rojo: son 1.048 productos sin foto y
+   un panel permanentemente en alarma deja de avisar de nada. */
+.cov-dot--off {
+  background: none;
+  box-shadow: inset 0 0 0 1.5px var(--line-2);
+}
+
+.admin-filterclear {
+  flex: none;
+  border: 1px solid var(--br-input-line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--br-muted);
+  cursor: pointer;
+}
+
+.admin-filterclear:hover {
+  background: var(--hover);
+  color: var(--br-pink-deep);
+  border-color: var(--br-pink-line);
+}
+
+@media (max-width: 780px) {
+  .cov-label {
+    width: auto;
+  }
+
+  .cov-meter {
+    flex: 1;
+    width: auto;
+    min-width: 60px;
+  }
+
+  .cov-segments {
+    flex-basis: 100%;
+  }
+}
+
 .rows {
   display: flex;
   flex-direction: column;
@@ -908,6 +1064,7 @@ button:disabled {
 }
 
 .row-thumb {
+  position: relative;
   width: 50px;
   height: 50px;
   flex: none;
@@ -926,6 +1083,22 @@ button:disabled {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* Un esmalte con 159 tonos y uno con una sola foto no son lo mismo, y la
+   miniatura sola no lo distingue. El contador va encima de la imagen porque el
+   dato es de la imagen: en una columna aparte competiría con el precio. */
+.row-thumb-count {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  padding: 1px 5px;
+  border-radius: var(--r-pill);
+  background: rgba(36, 22, 33, 0.72);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1.5;
 }
 
 .row-id {

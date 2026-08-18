@@ -21,6 +21,31 @@ export type ApiGalleryImage = {
   sort_order: number;
 };
 
+export type PhotoState = "con_foto" | "solo_respaldo" | "sin_foto";
+
+// Las fotos del catálogo cuelgan de las variantes, no del producto: un esmalte
+// con 159 tonos tiene 159 imágenes y ningún `main_image_path`. Esto resume, por
+// producto, lo que le llega por cualquiera de los dos caminos.
+export type ApiProductMediaState = {
+  estado_foto: PhotoState;
+  fotos_total: number;
+  fotos_envase: number;
+  fotos_construidas: number;
+  portada_path: string | null;
+};
+
+export type ApiPhotoCoverage = {
+  con_foto: number;
+  solo_respaldo: number;
+  sin_foto: number;
+};
+
+export type ApiPublicationSplit = {
+  publicado: number;
+  borrador: number;
+  oculto: number;
+};
+
 export type ApiProduct = {
   id: string;
   code: string;
@@ -47,6 +72,7 @@ export type ApiProduct = {
   brand: { id: string; name: string; slug: string } | null;
   category: { id: string; name: string; slug: string } | null;
   gallery: ApiGalleryImage[];
+  media_state?: ApiProductMediaState;
 };
 
 export type ApiPdfExport = {
