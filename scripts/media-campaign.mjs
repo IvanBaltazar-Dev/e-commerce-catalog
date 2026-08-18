@@ -268,6 +268,63 @@ if (action === "freeze") {
     },
   }, null, 2));
 
+} else if (action === "cleanup") {
+  // La limpieza NO la decide el auditor. El auditor detecta; la autoridad de
+  // patrimonio es la decisión terminal ya escrita en el expediente. Sin ella,
+  // borrar un huérfano para que el gate se ponga verde sería exactamente
+  // falsear el resultado que este sistema existe para evitar.
+  const campaign = must(
+    await service.from("catalog_media_campaigns").select("id").eq("campaign_key", campaignKey).single(),
+    "campaña"
+  );
+  const authorized = must(
+    await service.from("catalog_media_campaign_item_actions")
+      .select("id, object_ref, state, cause, origin_code, campaign_item_id, applied_at, catalog_media_campaign_items!inner(campaign_id)")
+      .in("state", ["DUPLICATE", "INVALID_SOURCE"])
+      .is("applied_at", null),
+    "acciones que autorizan retirar bytes"
+  );
+  const mine = authorized.filter((action) => {
+    const owner = Array.isArray(action.catalog_media_campaign_items)
+      ? action.catalog_media_campaign_items[0]
+      : action.catalog_media_campaign_items;
+    return owner?.campaign_id === campaign.id;
+  });
+
+  const removed = [];
+  const skipped = [];
+  for (const item of mine) {
+    // Un objeto todavía declarado como medio no se toca, diga lo que diga la
+    // acción: primero se retira el registro, después los bytes.
+    const declared = must(
+      await service.from("media_assets").select("id").eq("storage_path", item.object_ref).maybeSingle(),
+      "medio declarado con esa ruta"
+    );
+    if (declared) {
+      skipped.push({ objeto: item.object_ref, motivo: "sigue declarado como medio del catálogo" });
+      continue;
+    }
+    const { error } = await service.storage.from("catalog-assets").remove([item.object_ref]);
+    if (error) {
+      skipped.push({ objeto: item.object_ref, motivo: error.message });
+      continue;
+    }
+    must(
+      await service.from("catalog_media_campaign_item_actions")
+        .update({ applied_at: new Date().toISOString() }).eq("id", item.id),
+      "sellar la acción aplicada"
+    );
+    removed.push({ objeto: item.object_ref, estado: item.state, origen: item.origin_code });
+  }
+
+  console.log(JSON.stringify({
+    accion: "cleanup",
+    campana: campaignKey,
+    autorizadas: mine.length,
+    bytesRetirados: removed,
+    noAplicadas: skipped,
+  }, null, 2));
+
 } else {
-  throw new Error(`Acción desconocida: ${action}. Usa freeze o report.`);
+  throw new Error(`Acción desconocida: ${action}. Usa freeze, report o cleanup.`);
 }

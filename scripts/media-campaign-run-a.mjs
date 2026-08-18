@@ -109,7 +109,7 @@ async function writeLocal(root, relative, buffer) {
 async function settle(item, state, patch = {}, cause = null) {
   must(
     await service.from("catalog_media_campaign_items")
-      .update({ state, cause, processed_at: new Date().toISOString(), ...patch })
+      .update({ state, cause, run_id: run.id, processed_at: new Date().toISOString(), ...patch })
       .eq("id", item.id),
     `cerrar el expediente ${item.id}`
   );
@@ -138,8 +138,31 @@ if (campaign.status === "frozen") {
     "marcar la campaña en marcha");
 }
 
+// Toda la corrida vive dentro de un ciclo declarado. Lo que produzca queda
+// STAGED hasta que termine bien: si el proceso muere a mitad, sus archivos
+// quedan como rastro identificable y NO pueden decidir nada en la siguiente
+// ejecución. Ese fue exactamente el fallo que se corrige aquí.
+const run = must(
+  await service.from("catalog_media_runs")
+    .insert({ campaign_id: campaign.id, lane: "A", state: "STAGED" })
+    .select("id").single(),
+  "abrir la corrida"
+);
+
+async function settleRun(state, note) {
+  await service.from("catalog_media_runs")
+    .update({ state, settled_at: new Date().toISOString(), produced_assets: produced, note })
+    .eq("id", run.id);
+}
+process.on("unhandledRejection", async (reason) => {
+  await settleRun("ABORTED", String(reason).slice(0, 500));
+  console.error(reason);
+  process.exit(1);
+});
+
 const tally = { DOWNLOADED: 0, DEDUPLICATED: 0, DOWNLOAD_FAILED: 0, INVALID_IMAGE: 0 };
 let processed = 0;
+let produced = 0;
 
 for (const item of pending) {
   if (processed >= limit) break;
@@ -214,8 +237,9 @@ for (const item of pending) {
   // copias.
   const derivativeChecksum = sha256(derivative);
   const twin = must(
-    await service.from("media_assets").select("id, storage_path").eq("checksum", derivativeChecksum).maybeSingle(),
-    "medio con el mismo contenido"
+    await service.from("catalog_media_valid_patrimony_v1").select("id, storage_path")
+      .eq("checksum", derivativeChecksum).maybeSingle(),
+    "medio con el mismo contenido en patrimonio válido"
   );
 
   // La identidad editorial manda sobre el contenido. Si esta variante ya tiene
@@ -311,7 +335,14 @@ for (const item of pending) {
     },
   });
   tally.DOWNLOADED += 1;
+  produced += 1;
   console.log(`  ✓ ${label} · ${metadata.width}×${metadata.height} → ${derivativeMeta.width}×${derivativeMeta.height}`);
 }
 
-console.log(`\n${JSON.stringify({ procesados: processed, ...tally }, null, 2)}`);
+// La corrida se autoriza aquí y solo aquí. Hasta esta línea, todo lo que
+// produjo era rastro sin derecho a decidir nada.
+await settleRun("COMMITTED", `carril A · ${processed} expedientes`);
+
+console.log(`\n${JSON.stringify({
+  procesados: processed, ...tally, corrida: run.id, estadoDeLaCorrida: "COMMITTED",
+}, null, 2)}`);
