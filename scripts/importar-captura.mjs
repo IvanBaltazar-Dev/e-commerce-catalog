@@ -122,7 +122,10 @@ const CABECERAS = {
   codigo_interno: ["codigo_interno", "Código del sistema", "Codigo del sistema"],
   producto: ["producto", "Producto"],
   variante: ["variante", "Variante"],
-  variant_id: ["variant_id"]
+  // «Referencia» es como se llama variant_id en las hojas que ve la tienda: un
+  // uuid con ese nombre no invita a teclearlo, y es lo único que localiza el 58%
+  // de las variantes cuyo código del sistema es uno de los largos generados.
+  variant_id: ["variant_id", "Referencia", "referencia"]
 };
 
 function campo(fila, cual) {
@@ -153,8 +156,24 @@ if (!conCodigo.length) {
 
 const validas = [];
 const invalidas = [];
+const sinCodigo = [];
+
 for (const f of conCodigo) {
-  const codigo = f.codigo_barras.trim().replace(/[\s-]/g, "");
+  const bruto = f.codigo_barras.trim();
+
+  // «SIN CODIGO» no es un error de tecleo: es la respuesta de quien tuvo el
+  // envase en la mano y comprobó que no lo trae. Descartarla como inválida
+  // devolvería el producto a la lista de pendientes y obligaría a mirarlo otra
+  // vez — perdiendo justo el trabajo que sí se hizo.
+  //
+  // Se guarda como «se miró y no hay»: barcode en null, pero con fecha de
+  // captura. Esa pareja de valores no la produce ningún otro camino.
+  if (/^sin\s*codigo$/i.test(bruto.normalize("NFD").replace(/[̀-ͯ]/g, ""))) {
+    sinCodigo.push(f);
+    continue;
+  }
+
+  const codigo = bruto.replace(/[\s-]/g, "");
   if (!digitoDeControlValido(codigo)) {
     invalidas.push({ ...f, codigo, motivo: "el dígito de control no cierra: mal copiado o incompleto" });
     continue;
@@ -173,8 +192,9 @@ for (const v of validas) {
 const duplicados = [...porCodigo].filter(([, v]) => v.length > 1);
 const unicas = validas.filter((v) => porCodigo.get(v.codigo).length === 1);
 
-console.log(`  válidas:    ${validas.length}`);
-console.log(`  inválidas:  ${invalidas.length}`);
+console.log(`  con código:                                ${validas.length}`);
+console.log(`  sin código de barras (comprobado en mano):  ${sinCodigo.length}`);
+console.log(`  inválidas:                                 ${invalidas.length}`);
 console.log(`  duplicadas: ${validas.length - unicas.length} (en ${duplicados.length} códigos)`);
 
 if (invalidas.length) {
@@ -195,32 +215,35 @@ console.log(`\nDe dónde vienen (prefijo GS1):`);
 for (const [p, n] of [...porPais].sort((a, b) => b[1] - a[1])) console.log(`   ${String(n).padStart(4)}  ${p}`);
 
 if (!APLICAR) {
-  console.log(`\nEnsayo. Nada escrito. Añade --aplicar para guardar las ${unicas.length} válidas y únicas.`);
+  console.log(`\nEnsayo. Nada escrito. Añade --aplicar para guardar ${unicas.length} con código y ${sinCodigo.length} sin él.`);
   process.exit(0);
 }
 
-let hechas = 0, fallos = 0, sinLocalizar = 0;
-for (const v of unicas) {
-  let id = v.variant_id;
+let hechas = 0, fallos = 0, sinLocalizar = 0, marcadas = 0;
 
-  // Sin uuid —la hoja de tienda no lo lleva— se busca por el código del
-  // sistema, mirando también sku_interno: una variante que ya migró a SKU de
-  // fabricante conserva ahí el correlativo que la hoja imprimió.
-  if (!id && v.codigo_interno) {
-    const { data } = await db
-      .from("product_variants")
-      .select("id")
-      .or(`sku.eq.${v.codigo_interno},sku_interno.eq.${v.codigo_interno}`)
-      .limit(2);
-    if (!data || data.length !== 1) {
-      sinLocalizar += 1;
-      console.error(`   ? ${v.codigo_interno.padEnd(24)} ${v.producto} · ${v.variante} — ${!data || !data.length ? "no encontrado" : "ambiguo"}`);
-      continue;
-    }
-    id = data[0].id;
+// Sin uuid —la hoja lo lleva como «Referencia», y quien la imprime en papel
+// puede quedarse sin él— se busca por el código del sistema, mirando también
+// sku_interno: una variante que ya migró a SKU de fabricante conserva ahí el
+// correlativo que la hoja imprimió, y si no se mirase ahí, todo lo migrado
+// volvería «no encontrado».
+async function localizar(v) {
+  if (v.variant_id) return v.variant_id;
+  if (!v.codigo_interno) return null;
+  const { data } = await db
+    .from("product_variants")
+    .select("id")
+    .or(`sku.eq.${v.codigo_interno},sku_interno.eq.${v.codigo_interno}`)
+    .limit(2);
+  if (!data || data.length !== 1) {
+    console.error(`   ? ${v.codigo_interno.padEnd(24)} ${v.producto} · ${v.variante} — ${!data || !data.length ? "no encontrado" : "ambiguo"}`);
+    return null;
   }
-  if (!id) { sinLocalizar += 1; continue; }
+  return data[0].id;
+}
 
+for (const v of unicas) {
+  const id = await localizar(v);
+  if (!id) { sinLocalizar += 1; continue; }
   const { error } = await db.from("product_variants").update({
     barcode: v.codigo,
     barcode_origen: "CAPTURA_FISICA",
@@ -230,7 +253,23 @@ for (const v of unicas) {
   hechas += 1;
 }
 
-console.log(`\nGuardados: ${hechas}`);
+// «Se miró y no hay»: sin código pero con fecha de captura. Esa pareja de
+// valores no la produce ningún otro camino, y es lo que saca al producto de la
+// lista de pendientes para que nadie lo vuelva a buscar.
+for (const v of sinCodigo) {
+  const id = await localizar(v);
+  if (!id) { sinLocalizar += 1; continue; }
+  const { error } = await db.from("product_variants").update({
+    barcode: null,
+    barcode_origen: "CAPTURA_FISICA",
+    barcode_capturado_en: new Date().toISOString()
+  }).eq("id", id);
+  if (error) { fallos += 1; console.error(`   ✗ sin código: ${error.message}`); continue; }
+  marcadas += 1;
+}
+
+console.log(`\nGuardados con código: ${hechas}`);
+console.log(`Marcados «no tiene código»: ${marcadas}`);
 console.log(`Sin localizar en el catálogo: ${sinLocalizar}`);
 console.log(`Fallos: ${fallos}`);
 console.log(`\nSiguiente: npm run graph:sync  — para que el grafo cuente la identidad nueva.`);
