@@ -291,6 +291,11 @@ const { data: corrida, error: errCorrida } = await db
     actor_kind: "system",
     actor_label: "promover-universo-referencia.mjs",
     status: "running",
+    // Reabrir una corrida ya cerrada exige limpiar la fecha de fin: la
+    // restricción prohíbe «en curso» con finished_at puesto, y sin esto el
+    // segundo intento revienta después de haber escrito todos los casos.
+    finished_at: null,
+    result_fingerprint: null,
     input_fingerprint: huellaEntrada,
     scope: { fuentes: [...new Set(productos.map((p) => p.metadata.fuente))] },
     metrics: { productos: productos.length, variantes: variantes.length, medios: mediosUnicos.length }
