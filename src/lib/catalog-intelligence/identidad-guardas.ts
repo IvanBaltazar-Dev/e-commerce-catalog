@@ -22,6 +22,7 @@ export type ClaseIdentificador =
   | "GTIN"
   | "MANUFACTURER_SKU"
   | "SUPPLIER_SKU"
+  | "CODE_SYSTEM_SKU"
   | "MPN"
   | "SOURCE_EXTERNAL_ID"
   | "BELLAROSHE_SKU"
@@ -46,6 +47,11 @@ const RANGO: Record<ClaseIdentificador, number> = {
   GTIN: 100,
   MANUFACTURER_SKU: 90,
   SUPPLIER_SKU: 70,
+  // Un código de sistema —SS, DY, SH, LS241— identifica dentro del catálogo del
+  // exportador, y ese catálogo cruza marcas: `LS241-*` aparece bajo Candy
+  // Secret, bajo ICONSIGN y sin marca ninguna. Sirve para reconciliar contra el
+  // mismo sistema, no para afirmar de qué marca es el producto.
+  CODE_SYSTEM_SKU: 65,
   MPN: 60,
   SOURCE_EXTERNAL_ID: 50,
   BELLAROSHE_SKU: 0,

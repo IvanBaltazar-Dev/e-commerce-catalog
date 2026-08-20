@@ -82,6 +82,28 @@ const sacChoque = evaluarIdentidadPorIdentificador(
 assert.equal(sacChoque.veredicto, "COLLISION_GUARD",
   "SAC-4 de Konsung no es SAC-4 de Candy Secret aunque el texto coincida");
 
+// ── LS241: el sistema de códigos cruza marcas ─────────────────────────────
+// En importaciones a Perú del mismo periodo, LS241-* aparece bajo Candy Secret,
+// bajo ICONSIGN y sin marca. Nuestro LS241-080 es una lima en disco sin marca
+// comprada a WEDOR. El sistema identifica DENTRO del catálogo del exportador;
+// no dice de qué marca es el producto.
+const mismoSistema = evaluarIdentidadPorIdentificador(
+  { valor: "LS241-080", clase: "CODE_SYSTEM_SKU", emisor: "LS241", nombre: "Lima en Disco 80,120,180" },
+  { valor: "LS241-080", clase: "CODE_SYSTEM_SKU", emisor: "LS241", nombre: "Disco de lija 80/120/180 x60" },
+);
+assert.equal(mismoSistema.veredicto, "MATCH_EXACT",
+  "el mismo código del mismo sistema, con nombres compatibles, resuelve");
+
+const sistemasDistintos = evaluarIdentidadPorIdentificador(
+  { valor: "LS241-001", clase: "CODE_SYSTEM_SKU", emisor: "LS241", nombre: "Lash Lift Kit" },
+  { valor: "LS241-001", clase: "CODE_SYSTEM_SKU", emisor: "LSH2", nombre: "Top Coat 15 ml" },
+);
+assert.equal(sistemasDistintos.veredicto, "COLLISION_GUARD",
+  "el mismo texto en dos sistemas de códigos distintos no es el mismo código");
+
+assert.equal(puedeSostenerMatchExacto("CODE_SYSTEM_SKU"), true,
+  "un código de sistema sí identifica dentro de su catálogo de origen");
+
 // ── El rango por clase, no por columna ────────────────────────────────────
 assert.equal(puedeSostenerMatchExacto("GTIN"), true);
 assert.equal(puedeSostenerMatchExacto("MANUFACTURER_SKU"), true);
@@ -117,5 +139,6 @@ assert.equal(clasesIncompatibles("Lima 100/150", "Lima para Uñas 100/150"), fal
 assert.equal(seCorroboran("Lima 100/150", "Lima para Uñas 100/150"), true);
 assert.equal(seCorroboran("Gel Paint 001 Blanco", "Colors Lip Oil"), false);
 
-console.log("Guardas de identidad: choque CHE011, familia Cherimoya, SAC-4 entre emisores,");
-console.log("caso positivo Masglo/Admiss y rango por clase — todos verificados.");
+console.log("Guardas de identidad verificadas:");
+console.log("  choque CHE011 · familia Cherimoya · SAC-4 entre emisores");
+console.log("  LS241 entre sistemas de código · caso positivo Masglo/Admiss · rango por clase");
