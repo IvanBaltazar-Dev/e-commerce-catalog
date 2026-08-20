@@ -199,12 +199,41 @@ for (const p of activos) {
   let resultado = null;
 
   // A · código de proveedor histórico exacto
+  //
+  // Se mira en los dos niveles. Una fuente puede publicar variantes con SKU
+  // —Shopify— o solo productos con el código dentro del nombre —Sumerlabs—, y
+  // el código es el mismo dato en ambos casos. Buscarlo solo en variantes dejó
+  // las 680 fichas REVEL sin resolver una sola, teniendo `SH-496` a la vista en
+  // los dos lados.
+  //
+  // Y no se exige que la marca coincida: el sistema de códigos cruza marcas, y
+  // exigirlo descartaría un `SH-*` de REVEL contra un producto que el catálogo
+  // tiene como genérico. Lo que sí se exige es que los nombres se corroboren,
+  // porque sin marca que acote, el código solo no basta.
   const provs = provDe.get(p.id);
   if (provs) {
     for (const rv of refVariantes) {
       const rp = refProdPorId.get(rv.reference_product_id);
       if (!rp || rp.brand_id !== p.brand_id || !rv.sku) continue;
       if (provs.has(clave(rv.sku))) { resultado = { rp, señal: "A_CODIGO_PROVEEDOR", clase: "MATCH_EXACT", score: 1 }; break; }
+    }
+    if (!resultado) {
+      for (const rp of refProductos) {
+        const codigo = rp.metadata?.codigoObservado;
+        if (!codigo || !provs.has(clave(codigo))) continue;
+        const mismaMarca = rp.brand_id === p.brand_id;
+        const corrobora = jaccard(`${p.name} ${p.presentation ?? ""}`, rp.name) > 0;
+        if (mismaMarca || corrobora) {
+          resultado = {
+            rp,
+            señal: "A_CODIGO_PROVEEDOR_EN_PRODUCTO",
+            clase: mismaMarca ? "MATCH_EXACT" : "MATCH_STRONG",
+            score: mismaMarca ? 1 : 0.9,
+            nota: mismaMarca ? null : "el código cruza marcas; sostenido por corroboración de nombre"
+          };
+          break;
+        }
+      }
     }
   }
 
@@ -278,7 +307,7 @@ for (const p of activos) {
   anota(resumenProducto, resultado.clase);
   refDeProducto.set(p.id, resultado);
   casosProducto.push({
-    case_key: `recon:${huella.slice(0, 8)}:p:${p.id}`,
+    case_key: `recon:p:${p.id}`,
     entity_type: "product",
     product_id: p.id,
     reference_product_id: resultado.rp.id,
@@ -393,7 +422,7 @@ for (const v of varActivas) {
   anota(resumenVariante, elegida.clase);
   refDeVariante.set(v.id, elegida);
   casosVariante.push({
-    case_key: `recon:${huella.slice(0, 8)}:v:${v.id}`,
+    case_key: `recon:v:${v.id}`,
     entity_type: "variant",
     variant_id: v.id,
     reference_variant_id: elegida.rv.id,
@@ -548,6 +577,10 @@ const decididos = new Set(
     .map((c) => c.case_key).filter(Boolean)
 );
 
+// La clave identifica el EMPAREJAMIENTO, no la corrida. Cuando llevaba la
+// huella del congelado, añadir REVEL al universo generó claves nuevas para los
+// mismos pares y chocaron contra los casos vivos por el índice de unicidad
+// activa. La corrida ya se registra aparte, en research_run_id.
 const casos = [...casosProducto, ...casosVariante]
   .filter((c) => !decididos.has(c.case_key))
   .map((c) => ({ ...c, research_run_id: corrida.id }));

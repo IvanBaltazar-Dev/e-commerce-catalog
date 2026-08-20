@@ -107,6 +107,20 @@ for (const rp of refProductos) {
   apunta(base, "external_id", rp.primary_external_id, "SOURCE", fuente?.source_key ?? "DESCONOCIDA");
   apunta(base, "handle", rp.metadata?.handle, "SOURCE", fuente?.source_key ?? "DESCONOCIDA");
   apunta(base, "source_url", rp.source_url, "SOURCE", fuente?.source_key ?? "DESCONOCIDA");
+
+  // El código que la fuente escribe dentro del nombre o la descripción, cuando
+  // publica productos sin variantes. `SH-496` es el mismo código que Bellaroshé
+  // guarda como código de proveedor, y sin registrarlo aquí la reconciliación no
+  // tiene por dónde entrar: 680 fichas REVEL quedaron sin resolver una sola.
+  //
+  // Va al namespace del SISTEMA, no de la tienda: `SH-*` cruza categorías y
+  // marcas, y CHINO PUNO nos vende códigos del mismo sistema que REVEL.
+  const codigo = rp.metadata?.codigoObservado;
+  if (codigo) {
+    const sistema = (String(codigo).match(/^([A-Za-z]{1,5})/) ?? [])[1]?.toUpperCase();
+    apunta(base, "sku", codigo, sistema ? "CODE_SYSTEM" : "SOURCE",
+      sistema ?? (fuente?.source_key ?? "DESCONOCIDA"));
+  }
 }
 
 for (const rv of refVariantes) {

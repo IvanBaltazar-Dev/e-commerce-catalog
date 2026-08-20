@@ -143,7 +143,20 @@ for (const r of porTipo.product) {
       imagenesEnFuente: p.image_count ? Number(p.image_count) : null,
       publicadoEn: p.published_at ?? null,
       actualizadoEn: p.updated_at ?? null,
-      confianza: p.confidence ?? null
+      confianza: p.confidence ?? null,
+      // Una fuente puede publicar SOLO productos, sin variantes — Sumerlabs lo
+      // hace— y su código vive entonces a nivel de producto. Si no se sube
+      // aquí, el código no llega a los identificadores y la reconciliación se
+      // queda ciega ante 680 fichas que sí tenían con qué emparejar.
+      codigoObservado: p.codigo_observado ?? null,
+      categoriaFuente: p.source_category ?? null,
+      unidadesPorBox: p.unidades_por_box ?? null,
+      unidadesPorCajon: p.unidades_por_cajon ?? null,
+      contenido: p.contenido ?? null,
+      unidadContenido: p.unidad_contenido ?? null,
+      precioObservado: Number(p.price) || null,
+      moneda: p.currency ?? null,
+      disponibleEnFuente: p.available === true || p.available === "true"
     }
   });
 }
