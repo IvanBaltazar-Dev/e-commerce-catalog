@@ -1,28 +1,37 @@
 /**
- * Mueve a su sitio lo que metí en metadata teniendo tabla propia.
+ * Memoria de referencia: identificadores, precio histórico y presencia.
  *
- * Al promover el universo de referencia guardé el precio y los identificadores
- * dentro del jsonb `metadata`. Existían tres tablas hechas para eso y las dejé
- * vacías:
+ * Al promover el universo dejé el precio y los identificadores dentro del jsonb
+ * `metadata`. Eso convertía el precio en ESTADO ACTUAL, y un estado actual se
+ * pisa: el próximo rastreo habría sobrescrito el anterior y la historia se
+ * habría perdido sin que saltara nada.
  *
- *   catalog_reference_identifiers    identificador con tipo, normalizado
- *   catalog_reference_prices         observación de precio con fecha y moneda
- *   catalog_reference_presence_events qué cambió entre dos rastreos
+ * Aquí `metadata` pasa a ser solo la ENTRADA del backfill. El destino son las
+ * tres tablas que ya existían para esto y estaban vacías:
  *
- * No es cosmético. Un campo jsonb guarda UN precio; la tabla guarda una SERIE, y
- * la serie es lo que permite decir «mercado observado S/ 15–23, mediana 18.90,
- * última revisión el 12 de agosto». Con el valor suelto en metadata, el segundo
- * rastreo pisa el primero y la historia se pierde en silencio.
+ *   catalog_reference_identifiers     identificador con namespace y normalizado
+ *   catalog_reference_prices          observación de precio, append-only
+ *   catalog_reference_presence_events qué se vio, cuándo, y qué cambió
  *
- * Y el identificador normalizado es lo que hace barato el lote de 5.000: buscar
- * por `normalized_value` con índice, en vez de recorrer jsonb.
+ * Tres reglas que no se negocian:
+ *
+ * 1. La fecha es la REAL. Los seis catálogos se capturaron el 2026-08-10 a las
+ *    11:07:39.904Z, en un único instante. Fechar el backfill con la hora de hoy
+ *    inventaría ocho días de historia que nadie observó.
+ *
+ * 2. El precio nunca se actualiza. Mismo snapshot y mismo precio → misma clave →
+ *    el segundo backfill escribe cero. Precio distinto → fila nueva. Un UPDATE
+ *    sobre un precio observado sería falsificar lo que la tienda dijo.
+ *
+ * 3. Un GTIN no pertenece a quien lo observó. Cinco tiendas publicando el mismo
+ *    EAN son cinco evidencias de un identificador, no cinco identificadores.
  *
  * Uso:
  *   node scripts/poblar-referencia-canonica.mjs             (ensayo)
  *   node scripts/poblar-referencia-canonica.mjs --aplicar
  */
 import crypto from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
@@ -50,71 +59,120 @@ async function todas(tabla, select, filtro = (q) => q, orden = "id") {
   return filas;
 }
 
-const refProductos = await todas("catalog_reference_products", "id, primary_source_id, primary_source_record_id, primary_external_id, source_url, first_seen_run_id, last_seen_run_id, first_seen_at, last_seen_at, metadata");
-const refVariantes = await todas("catalog_reference_variants", "id, reference_product_id, primary_source_id, primary_source_record_id, primary_external_id, sku, barcode, presentation, first_seen_run_id, last_seen_run_id, first_seen_at, last_seen_at, metadata");
+const refProductos = await todas("catalog_reference_products",
+  "id, brand_id, primary_source_id, primary_source_record_id, primary_external_id, source_url, content_fingerprint, first_seen_run_id, last_seen_run_id, first_seen_at, last_seen_at, metadata");
+const refVariantes = await todas("catalog_reference_variants",
+  "id, reference_product_id, primary_source_id, primary_source_record_id, primary_external_id, sku, barcode, presentation, content_fingerprint, first_seen_run_id, last_seen_run_id, first_seen_at, last_seen_at, metadata");
+const registros = await todas("catalog_source_records", "id, source_id, captured_at, snapshot_id",
+  (q) => q.in("entity_type", ["product", "variant"]));
+const marcas = await todas("brands", "id, name");
+const fuentes = await todas("catalog_sources", "id, source_key, brand_id");
 
+const marcaPorId = new Map(marcas.map((b) => [b.id, b.name]));
+const fuentePorId = new Map(fuentes.map((f) => [f.id, f]));
+const registroPorId = new Map(registros.map((r) => [r.id, r]));
+const refProdPorId = new Map(refProductos.map((r) => [r.id, r]));
+
+/** La fecha real del registro que lo produjo. Nunca now(). */
+function cuandoSeVio(sourceRecordId, respaldo) {
+  return registroPorId.get(sourceRecordId)?.captured_at ?? respaldo;
+}
+
+// ── Identificadores ─────────────────────────────────────────────────────────
 const identificadores = [];
-const precios = [];
+
+function apunta(base, kind, valor, namespaceKind, namespaceKey) {
+  if (!valor || !String(valor).trim()) return;
+  identificadores.push({
+    ...base,
+    identifier_kind: kind,
+    observed_value: String(valor).trim(),
+    normalized_value: normaliza(valor) || String(valor).trim().toUpperCase(),
+    namespace_kind: namespaceKind,
+    namespace_key: namespaceKey
+  });
+}
 
 for (const rp of refProductos) {
+  const visto = cuandoSeVio(rp.primary_source_record_id, rp.first_seen_at);
   const base = {
     reference_product_id: rp.id, reference_variant_id: null,
     source_id: rp.primary_source_id, source_record_id: rp.primary_source_record_id,
     first_seen_run_id: rp.first_seen_run_id, last_seen_run_id: rp.last_seen_run_id,
-    first_seen_at: rp.first_seen_at, last_seen_at: rp.last_seen_at
+    first_seen_at: visto, last_seen_at: cuandoSeVio(rp.primary_source_record_id, rp.last_seen_at)
   };
-  if (rp.primary_external_id) identificadores.push({ ...base, identifier_kind: "external_id", observed_value: rp.primary_external_id, normalized_value: normaliza(rp.primary_external_id) });
-  if (rp.metadata?.handle) identificadores.push({ ...base, identifier_kind: "handle", observed_value: rp.metadata.handle, normalized_value: normaliza(rp.metadata.handle) });
-  if (rp.source_url) identificadores.push({ ...base, identifier_kind: "source_url", observed_value: rp.source_url, normalized_value: normaliza(rp.source_url) });
+  const fuente = fuentePorId.get(rp.primary_source_id);
+  // El id interno y el handle pertenecen a la TIENDA, no a la marca: el mismo
+  // producto en dos tiendas tendrá dos, y ninguno es más cierto que el otro.
+  apunta(base, "external_id", rp.primary_external_id, "SOURCE", fuente?.source_key ?? "DESCONOCIDA");
+  apunta(base, "handle", rp.metadata?.handle, "SOURCE", fuente?.source_key ?? "DESCONOCIDA");
+  apunta(base, "source_url", rp.source_url, "SOURCE", fuente?.source_key ?? "DESCONOCIDA");
 }
 
 for (const rv of refVariantes) {
+  const rp = refProdPorId.get(rv.reference_product_id);
+  const visto = cuandoSeVio(rv.primary_source_record_id, rv.first_seen_at);
   const base = {
     reference_product_id: null, reference_variant_id: rv.id,
     source_id: rv.primary_source_id, source_record_id: rv.primary_source_record_id,
     first_seen_run_id: rv.first_seen_run_id, last_seen_run_id: rv.last_seen_run_id,
-    first_seen_at: rv.first_seen_at, last_seen_at: rv.last_seen_at
+    first_seen_at: visto, last_seen_at: cuandoSeVio(rv.primary_source_record_id, rv.last_seen_at)
   };
-  if (rv.primary_external_id) identificadores.push({ ...base, identifier_kind: "external_id", observed_value: rv.primary_external_id, normalized_value: normaliza(rv.primary_external_id) });
-  if (rv.sku) identificadores.push({ ...base, identifier_kind: "sku", observed_value: rv.sku, normalized_value: normaliza(rv.sku) });
-  if (rv.barcode) identificadores.push({ ...base, identifier_kind: "barcode", observed_value: rv.barcode, normalized_value: normaliza(rv.barcode) });
+  const fuente = fuentePorId.get(rv.primary_source_id);
+  const marca = marcaPorId.get(rp?.brand_id) ?? "DESCONOCIDA";
 
-  const importe = rv.metadata?.precioObservado;
-  if (importe != null) {
-    // La clave del precio incluye el instante observado: dos rastreos del mismo
-    // producto en fechas distintas son dos observaciones, no una corrección. Sin
-    // eso, el segundo pisaría al primero y la serie no existiría.
-    const observadoEn = rv.last_seen_at;
-    precios.push({
-      price_key: `${rv.id}:${sha(`${importe}|${observadoEn}`)}`,
-      research_run_id: rv.last_seen_run_id,
-      reference_product_id: null,
-      reference_variant_id: rv.id,
-      source_id: rv.primary_source_id,
-      source_record_id: rv.primary_source_record_id,
-      // Moneda de la tienda de origen. No se convierte: convertir aquí sería
-      // inventar un tipo de cambio y una fecha que nadie observó.
-      currency: rv.metadata?.moneda ?? "PEN",
-      amount: importe,
-      presentation: rv.presentation ?? null,
-      external_availability: rv.metadata?.disponibleEnFuente === true ? "in_stock"
-        : rv.metadata?.disponibleEnFuente === false ? "out_of_stock" : null,
-      observed_at: observadoEn,
-      content_fingerprint: sha(`${importe}|${rv.metadata?.precioListaObservado ?? ""}|${rv.metadata?.disponibleEnFuente}`),
-      metadata: { precioListaObservado: rv.metadata?.precioListaObservado ?? null, origen: "promocion-universo" }
-    });
-  }
+  apunta(base, "external_id", rv.primary_external_id, "SOURCE", fuente?.source_key ?? "DESCONOCIDA");
+  // El SKU lo emite el fabricante: su namespace es la marca, no la tienda.
+  apunta(base, "sku", rv.sku, "BRAND", marca);
+  // El código de barras es global. Ponerle la tienda como namespace haría que
+  // el mismo EAN visto en dos sitios pareciera dos códigos distintos.
+  apunta(base, "barcode", rv.barcode, "GLOBAL_GS1", "GS1");
 }
 
-const porTipo = new Map();
-for (const i of identificadores) porTipo.set(i.identifier_kind, (porTipo.get(i.identifier_kind) ?? 0) + 1);
+// ── Precios: observaciones, no estado ───────────────────────────────────────
+const precios = [];
+for (const rv of refVariantes) {
+  const importe = rv.metadata?.precioObservado;
+  if (importe == null) continue;
+  const observadoEn = cuandoSeVio(rv.primary_source_record_id, rv.last_seen_at);
 
-console.log(`Identificadores de referencia a escribir: ${identificadores.length}`);
-for (const [k, n] of [...porTipo].sort((a, b) => b[1] - a[1])) console.log(`   ${String(n).padStart(6)}  ${k}`);
-console.log(`\nObservaciones de precio a escribir: ${precios.length}`);
-const monedas = new Map();
-for (const p of precios) monedas.set(p.currency, (monedas.get(p.currency) ?? 0) + 1);
-for (const [m, n] of monedas) console.log(`   ${String(n).padStart(6)}  ${m}`);
+  // La clave incluye instante Y precio. Mismo instante y mismo precio → misma
+  // clave → rerun cero. Precio distinto en el mismo instante sería una
+  // corrección de la fuente, y merece fila propia porque también es un hecho.
+  precios.push({
+    price_key: `${rv.id}:${sha(`${rv.primary_source_record_id}|${importe}|${observadoEn}`)}`,
+    research_run_id: rv.last_seen_run_id,
+    reference_product_id: null,
+    reference_variant_id: rv.id,
+    source_id: rv.primary_source_id,
+    source_record_id: rv.primary_source_record_id,
+    // Moneda de la tienda de origen, sin convertir: un tipo de cambio inventado
+    // aquí contaminaría toda comparación posterior.
+    currency: rv.metadata?.moneda ?? "PEN",
+    amount: importe,
+    presentation: rv.presentation ?? null,
+    external_availability: rv.metadata?.disponibleEnFuente === true ? "available"
+      : rv.metadata?.disponibleEnFuente === false ? "out_of_stock" : null,
+    observed_at: observadoEn,
+    content_fingerprint: sha(`${importe}|${rv.metadata?.precioListaObservado ?? ""}|${rv.metadata?.disponibleEnFuente}`),
+    metadata: {
+      precioListaObservado: rv.metadata?.precioListaObservado ?? null,
+      origen: "backfill-desde-metadata-de-promocion"
+    }
+  });
+}
+
+const instantes = new Set(precios.map((p) => p.observed_at));
+
+console.log(`Identificadores de referencia: ${identificadores.length}`);
+const porKind = new Map();
+for (const i of identificadores) porKind.set(`${i.identifier_kind} · ${i.namespace_kind}`, (porKind.get(`${i.identifier_kind} · ${i.namespace_kind}`) ?? 0) + 1);
+for (const [k, n] of [...porKind].sort((a, b) => b[1] - a[1])) console.log(`   ${String(n).padStart(6)}  ${k}`);
+
+console.log(`\nObservaciones de precio: ${precios.length}`);
+console.log(`   instantes de observación distintos: ${instantes.size}`);
+for (const i of [...instantes].sort()) console.log(`      ${i}`);
+console.log(`   (una sola captura: la serie empieza aquí y crece con el próximo rastreo)`);
 
 if (!APLICAR) {
   console.log(`\nEnsayo. Nada escrito. Añade --aplicar.`);
@@ -122,32 +180,93 @@ if (!APLICAR) {
 }
 
 async function enLotes(tabla, filas, conflicto, tam = 500) {
-  let hechas = 0;
+  let escritas = 0;
   for (let i = 0; i < filas.length; i += tam) {
     const lote = filas.slice(i, i + tam);
     const { error } = conflicto
-      ? await db.from(tabla).upsert(lote, { onConflict: conflicto })
+      ? await db.from(tabla).upsert(lote, { onConflict: conflicto, ignoreDuplicates: true })
       : await db.from(tabla).insert(lote);
     if (error) throw new Error(`${tabla}: ${error.message}`);
-    hechas += lote.length;
-    if (hechas % 3000 === 0 || hechas === filas.length) console.log(`   ${tabla}: ${hechas}/${filas.length}`);
+    escritas += lote.length;
+    if (escritas % 4000 === 0 || escritas === filas.length) console.log(`   ${tabla}: ${escritas}/${filas.length}`);
   }
 }
 
-// Los identificadores no tienen clave natural declarada en el esquema, así que
-// se limpia lo de esta procedencia antes de reescribir. Insertar sin limpiar
-// duplicaría en cada corrida, que es justo lo contrario de lo que este universo
-// debe hacer.
-const { count: previos } = await db.from("catalog_reference_identifiers").select("*", { count: "exact", head: true });
-if (previos) {
-  console.log(`   limpiando ${previos} identificadores de una corrida anterior…`);
-  await db.from("catalog_reference_identifiers").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-}
+const antesId = (await db.from("catalog_reference_identifiers").select("*", { count: "exact", head: true })).count ?? 0;
+const antesPx = (await db.from("catalog_reference_prices").select("*", { count: "exact", head: true })).count ?? 0;
 
-await enLotes("catalog_reference_identifiers", identificadores, null);
+await enLotes("catalog_reference_identifiers", identificadores,
+  "target_ref,identifier_kind,normalized_value");
 await enLotes("catalog_reference_prices", precios, "price_key");
 
-const { count: idFinal } = await db.from("catalog_reference_identifiers").select("*", { count: "exact", head: true });
-const { count: pxFinal } = await db.from("catalog_reference_prices").select("*", { count: "exact", head: true });
-console.log(`\ncatalog_reference_identifiers: ${idFinal}`);
-console.log(`catalog_reference_prices:      ${pxFinal}`);
+// ── Presencia ───────────────────────────────────────────────────────────────
+// El evento necesita una corrida-por-fuente, y esa tabla estaba vacía. Se crea
+// una por fuente con la fecha real de su captura, no con la de hoy.
+const porFuente = new Map();
+for (const rp of refProductos) {
+  if (!porFuente.has(rp.primary_source_id)) porFuente.set(rp.primary_source_id, []);
+  porFuente.get(rp.primary_source_id).push(rp);
+}
+
+const { data: corrida } = await db.from("catalog_research_runs")
+  .select("id").eq("actor_label", "promover-universo-referencia.mjs").limit(1).maybeSingle();
+
+let eventos = 0, corridasFuente = 0;
+if (corrida) {
+  for (const [sourceId, productos] of porFuente) {
+    const cuando = cuandoSeVio(productos[0].primary_source_record_id, productos[0].first_seen_at);
+    const { data: rs, error: errRs } = await db.from("catalog_research_run_sources").upsert({
+      research_run_id: corrida.id,
+      source_id: sourceId,
+      brand_id: fuentePorId.get(sourceId)?.brand_id ?? productos[0].brand_id,
+      scope_key: `backfill:${fuentePorId.get(sourceId)?.source_key ?? sourceId}`,
+      status: "succeeded",
+      input_fingerprint: sha(`${sourceId}|${productos.length}`),
+      started_at: cuando,
+      finished_at: cuando,
+      metrics: { productos: productos.length }
+    }, { onConflict: "research_run_id,source_id,scope_key" }).select("id").single();
+    if (errRs) { console.error(`   run_source ${sourceId}: ${errRs.message}`); continue; }
+    corridasFuente += 1;
+
+    const variantesDeFuente = refVariantes.filter((rv) => rv.primary_source_id === sourceId);
+    const lote = [
+      ...productos.map((rp) => ({
+        research_run_source_id: rs.id, reference_product_id: rp.id, reference_variant_id: null,
+        source_record_id: rp.primary_source_record_id,
+        delta_status: "first_seen", current_fingerprint: rp.content_fingerprint,
+        observed_at: cuandoSeVio(rp.primary_source_record_id, rp.first_seen_at),
+        metadata: { origen: "backfill" }
+      })),
+      ...variantesDeFuente.map((rv) => ({
+        research_run_source_id: rs.id, reference_product_id: null, reference_variant_id: rv.id,
+        source_record_id: rv.primary_source_record_id,
+        delta_status: "first_seen", current_fingerprint: rv.content_fingerprint,
+        observed_at: cuandoSeVio(rv.primary_source_record_id, rv.first_seen_at),
+        metadata: { origen: "backfill" }
+      }))
+    ];
+    // La unicidad (research_run_source_id, target_ref) ya la impone el esquema:
+    // una corrida no puede observar dos veces lo mismo. Se declara ignoreDuplicates
+    // para que el segundo backfill sea silenciosamente limpio en vez de reventar —
+    // «delta 0 porque está protegido» y «delta 0 porque falló» se leen igual en el
+    // recuento y significan cosas opuestas.
+    for (let i = 0; i < lote.length; i += 500) {
+      const trozo = lote.slice(i, i + 500);
+      const { data: escritos, error } = await db
+        .from("catalog_reference_presence_events")
+        .upsert(trozo, { onConflict: "research_run_source_id,target_ref", ignoreDuplicates: true })
+        .select("id");
+      if (error) { console.error(`   eventos: ${error.message}`); break; }
+      eventos += escritos?.length ?? 0;
+    }
+  }
+}
+
+const despuesId = (await db.from("catalog_reference_identifiers").select("*", { count: "exact", head: true })).count ?? 0;
+const despuesPx = (await db.from("catalog_reference_prices").select("*", { count: "exact", head: true })).count ?? 0;
+
+console.log(`\ncatalog_reference_identifiers: ${antesId} → ${despuesId}  (delta ${despuesId - antesId})`);
+console.log(`catalog_reference_prices:      ${antesPx} → ${despuesPx}  (delta ${despuesPx - antesPx})`);
+console.log(`catalog_research_run_sources:  ${corridasFuente}`);
+console.log(`catalog_reference_presence_events: ${eventos}`);
