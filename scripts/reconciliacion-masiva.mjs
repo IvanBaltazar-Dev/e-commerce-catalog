@@ -324,7 +324,26 @@ for (const v of varActivas) {
   // Supeditarlo a una señal más débil era invertir el orden que rige todo esto.
   if (v.sku && p) {
     const rv = idx.skuPorMarca.get(`${p.brand_id}::${clave(v.sku)}`);
-    if (rv) elegida = { rv, señal: "B_SKU_FABRICANTE", clase: "MATCH_EXACT", score: 1 };
+    if (rv) {
+      // Un SKU igual dentro de la misma marca todavía puede ser un choque de
+      // numeraciones. Nuestro correlativo «CHE011» coincide con el SKU real
+      // CHE011 de Cherimoya, que es un aceite labial, no nuestro gel paint —
+      // y sin esta guarda la reconciliación le descargó la foto del labial.
+      //
+      // La marca no protege porque en ambos lados es Cherimoya. Lo que protege
+      // es la procedencia: si nuestro sku ya está confirmado como del
+      // fabricante, el código manda y el nombre da igual. Si no lo está, hay
+      // que exigir que los nombres se toquen, exactamente como en
+      // auditar-coherencia-oficial.mjs.
+      const confirmado = v.sku_origen === "OFICIAL_MARCA";
+      const corrobora = jaccard(`${p.name} ${v.name}`, `${rv.name} ${rv.shade_name ?? ""}`) > 0;
+      if (confirmado || corrobora) {
+        elegida = { rv, señal: "B_SKU_FABRICANTE", clase: "MATCH_EXACT", score: 1 };
+      } else {
+        anota(resumenVariante, "CHOQUE_DE_NUMERACION");
+        continue;
+      }
+    }
   }
 
   const m = refDeProducto.get(v.product_id);
@@ -421,7 +440,7 @@ for (const [pid, m] of refDeProducto) {
 }
 
 // ── Informe ─────────────────────────────────────────────────────────────────
-const orden = ["MATCH_EXACT", "MATCH_STRONG", "MATCH_CANDIDATE", "CONTRADICTION", "UNRESOLVED", "SIN_REFERENCIA_DE_MARCA", "SIN_PRODUCTO_RECONCILIADO"];
+const orden = ["MATCH_EXACT", "MATCH_STRONG", "MATCH_CANDIDATE", "CONTRADICTION", "UNRESOLVED", "CHOQUE_DE_NUMERACION", "SIN_REFERENCIA_DE_MARCA", "SIN_PRODUCTO_RECONCILIADO"];
 const pinta = (mapa, total, excluir = []) => orden
   .filter((k) => mapa.has(k) && !excluir.includes(k))
   .map((k) => `   ${String(mapa.get(k)).padStart(5)}  ${String(Math.round(mapa.get(k) / total * 100)).padStart(3)}%  ${k}`)
@@ -518,7 +537,23 @@ const { data: corrida, error: errCorrida } = await db
   .select("id").single();
 if (errCorrida) throw new Error(`catalog_research_runs: ${errCorrida.message}`);
 
-const casos = [...casosProducto, ...casosVariante].map((c) => ({ ...c, research_run_id: corrida.id }));
+// Un caso ya decidido —aprobado, rechazado o superado— no se reabre por volver
+// a correr el proceso. Cuando se marcaron 25 como superados por choque de
+// numeración, el siguiente rerun intentó devolverlos a «proposed» y la
+// restricción lo paró, que es justo lo que debía pasar: una decisión no se
+// deshace por recalcular.
+const decididos = new Set(
+  (await todas("catalog_reconciliation_cases", "case_key, status",
+    (q) => q.in("status", ["approved", "rejected", "superseded"])))
+    .map((c) => c.case_key).filter(Boolean)
+);
+
+const casos = [...casosProducto, ...casosVariante]
+  .filter((c) => !decididos.has(c.case_key))
+  .map((c) => ({ ...c, research_run_id: corrida.id }));
+
+const respetados = casosProducto.length + casosVariante.length - casos.length;
+if (respetados) console.log(`   ${respetados} casos ya decididos: se respetan, no se reabren.`);
 for (let i = 0; i < casos.length; i += 300) {
   const lote = casos.slice(i, i + 300);
   const { error } = await db.from("catalog_reconciliation_cases").upsert(lote, { onConflict: "case_key" });
