@@ -86,10 +86,32 @@ async function insertBatches(table, rows, size = 300) {
   }
 }
 
-async function selectAll(queryFactory, operation, pageSize = 1000) {
+/**
+ * Paginado CON ORDEN ESTABLE. El orden no es cosmético: sin él, OFFSET/LIMIT
+ * sobre un resultado sin ordenar no está definido, y PostgreSQL puede devolver
+ * las filas en distinto orden en cada página.
+ *
+ * Medido sobre catalog_observations filtrando por observation_kind: 18.836 filas
+ * devueltas pero solo 10.808 llaves distintas. 8.028 filas repetidas y otras
+ * tantas que no salían nunca — el 43%. Con ORDER BY, las 18.836 únicas.
+ *
+ * Lo insidioso es que el TOTAL salía bien. Un recuento de filas no detecta esto:
+ * hay que contar llaves distintas. Y no falla siempre: catalog_reference_products
+ * con 4.079 filas y sin filtro paginaba perfecto. Aparece cuando el planificador
+ * elige un plan no determinista, que con filtro y tabla grande es lo normal.
+ *
+ * De ahí venía «No se resolvió el claim» en Masglo, Acrylove y MC Nails: la
+ * observación estaba escrita y el término existía, pero la relectura paginada no
+ * la devolvía. Bigen y Admiss pasaban porque necesitan resolver pocas llaves y
+ * les tocaba caer en la mitad que sí volvía.
+ */
+async function selectAll(queryFactory, operation, pageSize = 1000, orderBy = "id") {
   const rows = [];
   for (let offset = 0; ; offset += pageSize) {
-    const page = must(await queryFactory().range(offset, offset + pageSize - 1), `${operation} page ${offset}`);
+    const page = must(
+      await queryFactory().order(orderBy).range(offset, offset + pageSize - 1),
+      `${operation} page ${offset}`,
+    );
     rows.push(...page);
     if (page.length < pageSize) return rows;
   }
@@ -501,7 +523,7 @@ async function ingestOfficialSemantics({ source, brand, capture, run, productByE
   const existing = (await selectAll(
     () => admin.from("catalog_reference_product_semantics_v1")
       .select("reference_key,observation_id,observation_key,normalization_status"),
-    "existing source semantics",
+    "existing source semantics", 1000, "observation_key",
   )).filter((row) => row.reference_key.startsWith(`${source.source_key}:`));
   const observationByKey = new Map(existing.map((row) => [row.observation_key, row]));
   const missingKeys = [...currentKeys].filter((key) => !observationByKey.has(key));
@@ -540,7 +562,10 @@ async function ingestOfficialSemantics({ source, brand, capture, run, productByE
       updated_at: now,
     };
   });
-  await upsertBatches("catalog_observation_semantic_terms", links, "observation_id");
+  // Lotes pequeños: esta tabla tiene un trigger que materializa la cadena
+  // epistémica fila a fila, así que un lote de 300 agota el tiempo de la petición
+  // en la fuente más grande. MC Nails caía justo aquí con «statement timeout».
+  await upsertBatches("catalog_observation_semantic_terms", links, "observation_id", { size: 50 });
 
   const staleIds = existing
     .filter((row) => !currentKeys.has(row.observation_key) && row.normalization_status !== "superseded")
