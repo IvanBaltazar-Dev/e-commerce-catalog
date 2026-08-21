@@ -30,15 +30,32 @@ function sameOriginUrl(value, root) {
   }
 }
 
+const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+
 async function fetchSurface(url, expectedType = null) {
-  const response = await fetch(url, {
-    headers: {
-      accept: expectedType === "json" ? "application/json" : "text/plain,text/html,application/xml;q=0.9,*/*;q=0.5",
-      "user-agent": "BellarosheCatalogResearch/1.0 (+local-read-only)",
-    },
-    redirect: "follow",
-  });
-  const body = await response.text();
+  // Reintento con espera creciente. Sin esto, un solo 429 aborta la campaña
+  // entera a mitad de captura y deja la fuente sin cerrar — que es exactamente
+  // lo que pasaba al reejecutar Bigen: la tienda limita, el adaptador pedía con
+  // concurrencia 8 y sin reintento, y el primer 429 tiraba todo.
+  //
+  // Un 429 y un 5xx son temporales por definición: se espera y se vuelve. Un 404
+  // es una respuesta y se propaga tal cual, porque insistir no la cambia.
+  const esperas = [1500, 5000, 12000];
+  let response = null, body = null;
+  for (let intento = 0; intento <= esperas.length; intento += 1) {
+    response = await fetch(url, {
+      headers: {
+        accept: expectedType === "json" ? "application/json" : "text/plain,text/html,application/xml;q=0.9,*/*;q=0.5",
+        "user-agent": "BellarosheCatalogResearch/1.0 (+local-read-only)",
+      },
+      redirect: "follow",
+    });
+    body = await response.text();
+    if (response.ok) break;
+    const temporal = response.status === 429 || response.status === 408 || response.status >= 500;
+    if (!temporal || intento === esperas.length) break;
+    await espera(esperas[intento]);
+  }
   if (!response.ok) throw new Error(`Fuente oficial ${response.status} en ${url}`);
   if (expectedType === "json") {
     try {
@@ -125,7 +142,7 @@ async function fetchCollections(root, discoveredPath) {
   };
 }
 
-async function mapConcurrent(values, worker, concurrency = 8) {
+async function mapConcurrent(values, worker, concurrency = 3) {
   let cursor = 0;
   const output = new Array(values.length);
   await Promise.all(Array.from({ length: Math.min(concurrency, values.length) }, async () => {

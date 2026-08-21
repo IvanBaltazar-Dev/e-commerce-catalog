@@ -1,4 +1,27 @@
 {
+  "congelada_en": "sin fecha: se sella con la huella, no con el reloj",
+  "huella": "48ff184aea15300f46e900a571e141938dbafb6dfc9cf5fc5aed6b6764c47156",
+  "fuentes": 6,
+  "excepciones_propuestas": 26,
+  "huecos_de_clase": [
+    "official.sku",
+    "official.title",
+    "official.variant_title",
+    "official.vendor",
+    "official.product_type",
+    "availability.observed",
+    "official.primary_image",
+    "official.description",
+    "official.shade",
+    "official.line",
+    "official.finish"
+  ],
+  "contradicciones": [
+    "El pipeline emite predicados que el sistema de autoridad no conoce",
+    "identity.* concede «preferred» tanto al GTIN como al id interno de la tienda",
+    "price.* concede «acceptable» a las seis, en cinco monedas distintas",
+    "Los derivados del parser viajan indistinguibles de los campos literales"
+  ],
   "informe": [
     {
       "fuente": "masglo-es-official",
@@ -9,23 +32,15 @@
         {
           "campo": "sku",
           "entidad": "variant",
-          "predicado": "identity.manufacturer_sku",
+          "predicado": "official.sku",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 292,
           "conValor": 292,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 0.9,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "El SKU de fábrica manda dentro del espacio de nombres de su marca. Fuera de él no identifica nada: dos marcas pueden usar el mismo código para cosas distintas."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.sku»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "barcode",
@@ -33,20 +48,18 @@
           "predicado": "identity.gtin",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 292,
           "conValor": 283,
           "cobertura": 0.9691780821917808,
           "autoridadActual": {
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
+            "source_role": "IDENTITY",
             "authority_level": "preferred",
             "authority_score": 1,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Un GTIN identifica el producto en cualquier catálogo del mundo. Es la única identidad que no depende de que dos fuentes escriban el nombre igual."
+            "rationale": "Official sources are preferred for declared identity."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (97%)"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (97%)"
         },
         {
           "campo": "external_product_id",
@@ -54,20 +67,18 @@
           "predicado": "identity.source_external_id",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 304,
           "conValor": 304,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
             "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Es el id interno de la tienda. Sirve para volver a la ficha de la que salió el dato y para nada más: emparejar por él sería emparejar por número de fila."
+            "authority_level": "preferred",
+            "authority_score": 1,
+            "rationale": "Official sources are preferred for declared identity."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "external_variant_id",
@@ -75,177 +86,134 @@
           "predicado": "identity.source_external_id",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 292,
           "conValor": 292,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
             "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Es el id interno de la tienda. Sirve para volver a la ficha de la que salió el dato y para nada más: emparejar por él sería emparejar por número de fila."
+            "authority_level": "preferred",
+            "authority_score": 1,
+            "rationale": "Official sources are preferred for declared identity."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "title",
           "entidad": "product",
-          "predicado": "identity.name",
-          "dimension": "identity",
+          "predicado": "official.title",
+          "dimension": "type",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 304,
           "conValor": 304,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 1,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official sources are preferred for declared identity."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.title»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
+        },
+        {
+          "campo": "variant_title",
+          "entidad": "variant",
+          "predicado": "official.variant_title",
+          "dimension": "type",
+          "naturaleza": "LITERAL",
+          "universo": 292,
+          "conValor": 292,
+          "cobertura": 1,
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.variant_title»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "vendor",
           "entidad": "product",
-          "predicado": "identity.brand_declared",
+          "predicado": "official.vendor",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "etiqueta de tienda sin resolver: MASGLO, Masglo, Masglo Espana, bigen-usa.com, acryloveoficial",
           "universo": 304,
           "conValor": 304,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.6,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "La marca tal como la escribe la tienda, sin resolver. Medido en las seis fuentes: Masglo aparece como MASGLO, Masglo y Masglo España; Bigen como «bigen-usa.com»; Acrylove como «acryloveoficial». Es una etiqueta, no una entidad."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «acceptable» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.vendor»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "product_type",
           "entidad": "product",
-          "predicado": "semantic.type",
+          "predicado": "official.product_type",
           "dimension": "type",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "taxonomía de tienda, no canónica: 225 valores distintos en 1.395 fichas de Cherimoya",
           "universo": 304,
           "conValor": 289,
           "cobertura": 0.9506578947368421,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.9,
-            "source_role": "TECHNICAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «acceptable» y la evidencia lo respalda (95%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.product_type»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "(parsed) presentation",
           "entidad": "product",
-          "predicado": "semantic.packaging",
+          "predicado": "official.presentation",
           "dimension": "packaging",
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
-          "regla": "PRESENTACION_CANTIDAD_UNIDAD v1",
-          "nota": "regex determinista y reversible sobre título, tipo y tags",
+          "nota": "regex de cantidad+unidad sobre título, tipo y tags",
           "universo": 304,
           "conValor": 290,
           "cobertura": 0.9539473684210527,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.9,
-            "source_role": "TECHNICAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «acceptable» y la evidencia lo respalda (95%)"
+          "autoridadActual": null,
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "acceptable",
+          "score": 0.6,
+          "razon": "extraído del texto por regla determinista, 95% de cobertura; por debajo de un literal porque depende de que la fuente escriba la unidad"
         },
         {
           "campo": "(parsed) shadeName",
           "entidad": "product",
-          "predicado": "semantic.subtype",
-          "dimension": "subtype",
+          "predicado": "official.shade",
+          "dimension": "type",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "TONO_POR_SEGMENTO_DE_TITULO v1",
-          "nota": "asume que el título separa el tono con un guion rodeado de espacios",
+          "nota": "parte el título por « - » y asume que lo de delante es el tono",
           "universo": 304,
           "conValor": 244,
           "cobertura": 0.8026315789473685,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "supplemental por tope epistémico (DERIVED_INFERRED), 80% de cobertura con la regla TONO_POR_SEGMENTO_DE_TITULO v1; el tope es universal, no de esta fuente"
+          "autoridadActual": null,
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "supplemental",
+          "score": 0.35,
+          "razon": "inferido por nuestro parser con 80% de acierto en esta fuente; suplementario porque el valor es nuestro, no suyo"
         },
         {
           "campo": "(parsed) line",
           "entidad": "product",
-          "predicado": "semantic.type",
+          "predicado": "official.line",
           "dimension": "type",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "NAIL_ES_PRODUCT_SEMANTICS v1",
-          "nota": "vocabulario en español sobre los tags",
+          "nota": "busca en los tags un vocabulario en español que fijamos nosotros",
           "universo": 304,
           "conValor": 161,
           "cobertura": 0.5296052631578947,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "supplemental por tope epistémico (DERIVED_INFERRED), 53% de cobertura con la regla NAIL_ES_PRODUCT_SEMANTICS v1; el tope es universal, no de esta fuente"
+          "autoridadActual": null,
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "supplemental",
+          "score": 0.35,
+          "razon": "inferido por nuestro parser con 53% de acierto en esta fuente; suplementario porque el valor es nuestro, no suyo"
         },
         {
           "campo": "(parsed) finish",
           "entidad": "product",
-          "predicado": "semantic.finish",
+          "predicado": "official.finish",
           "dimension": "finish",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "NAIL_ES_PRODUCT_SEMANTICS v1",
-          "nota": "adjetivos de acabado en español sobre los tags",
+          "nota": "igual que line, con adjetivos de acabado en español",
           "universo": 304,
           "conValor": 100,
           "cobertura": 0.32894736842105265,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "supplemental por tope epistémico (DERIVED_INFERRED), 33% de cobertura con la regla NAIL_ES_PRODUCT_SEMANTICS v1; el tope es universal, no de esta fuente"
+          "autoridadActual": null,
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "inferido y solo resuelve el 33%: el vocabulario del parser no encaja con esta fuente"
         },
         {
           "campo": "price",
@@ -253,41 +221,46 @@
           "predicado": "price.observed",
           "dimension": "price",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 292,
           "conValor": 292,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.4,
+            "policy_id": "a59ab9e6-c30c-41e5-9a05-475f345605ea",
             "source_role": "COMMERCIAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Observación de precio en el mercado de la fuente. Nunca es autoridad sobre el precio propio, y su comparabilidad depende de que el mercado coincida — que es un dato de la fuente, no una regla de autoridad."
+            "authority_level": "acceptable",
+            "authority_score": 0.85,
+            "rationale": "Official prices are authoritative only as captured commercial observations."
           },
-          "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "292 precios en EUR, mercado ES: otra moneda y otra estructura de costes, no comparables con Perú"
+        },
+        {
+          "campo": "available",
+          "entidad": "variant",
+          "predicado": "availability.observed",
+          "dimension": null,
+          "naturaleza": "LITERAL",
+          "universo": 292,
+          "conValor": 292,
+          "cobertura": 1,
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «availability.observed»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "primary_image_url",
           "entidad": "product",
-          "predicado": "media.image",
+          "predicado": "official.primary_image",
           "dimension": "media",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 304,
           "conValor": 304,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 1,
-            "source_role": "MEDIA",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official media are preferred for source media."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.primary_image»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "image_url",
@@ -295,52 +268,32 @@
           "predicado": "media.image",
           "dimension": "media",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 778,
           "conValor": 778,
           "cobertura": 1,
           "autoridadActual": {
+            "policy_id": "4117bbc9-a8fa-4afb-97df-6bccd3e4c5c7",
+            "source_role": "MEDIA",
             "authority_level": "preferred",
             "authority_score": 1,
-            "source_role": "MEDIA",
-            "capped": false,
-            "cap_reason": null,
             "rationale": "Official media are preferred for source media."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
-        },
-        {
-          "campo": "available",
-          "entidad": "variant",
-          "predicado": null,
-          "dimension": null,
-          "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "noEsClaim": true,
-          "nota": "ya modelado en catalog_reference_prices.external_availability; nunca es stock de Bellaroshe",
-          "universo": 292,
-          "conValor": 292,
-          "cobertura": 1,
-          "autoridadActual": null,
-          "destino": "NO_APPLICABLE",
-          "razon": "no se emite como claim: ya modelado en catalog_reference_prices.external_availability; nunca es stock de Bellaroshe"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "description",
           "entidad": "product",
-          "predicado": null,
+          "predicado": "official.description",
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "noEsClaim": true,
-          "nota": "texto de origen: va en source_excerpt, no como afirmación. Es la ENTRADA de la que se derivarían composición o uso",
+          "nota": "el texto es literal; extraer de él composición o uso ya sería INFERIDO y no está hecho",
           "universo": 304,
           "conValor": 304,
           "cobertura": 1,
           "autoridadActual": null,
-          "destino": "NO_APPLICABLE",
-          "razon": "no se emite como claim: texto de origen: va en source_excerpt, no como afirmación. Es la ENTRADA de la que se derivarían composición o uso"
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.description»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "tags",
@@ -348,14 +301,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "bolsa sin vocabulario declarado: mezcla gama, tamaño, línea y promoción",
+          "nota": "bolsa de etiquetas sin vocabulario declarado: mezcla gama, tamaño, línea y promoción",
           "universo": 304,
           "conValor": 304,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; bolsa sin vocabulario declarado: mezcla gama, tamaño, línea y promoción"
+          "razon": "campo sin predicado; bolsa de etiquetas sin vocabulario declarado: mezcla gama, tamaño, línea y promoción"
         },
         {
           "campo": "handle",
@@ -363,14 +315,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "identificador de URL, no del producto",
           "universo": 304,
           "conValor": 304,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; identificador de URL, no del producto"
+          "razon": "campo sin predicado; identificador de URL, no del producto"
         },
         {
           "campo": "option1",
@@ -378,14 +329,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "el eje de variación no viene nombrado",
           "universo": 292,
           "conValor": 292,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; el eje de variación no viene nombrado"
+          "razon": "campo sin predicado; el eje de variación no viene nombrado"
         },
         {
           "campo": "width",
@@ -393,14 +343,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "píxeles de la imagen; NO es la dimensión dimensions del producto",
+          "nota": "píxeles de la imagen; NO es la dimensión «dimensions» del producto",
           "universo": 778,
           "conValor": 778,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; píxeles de la imagen; NO es la dimensión dimensions del producto"
+          "razon": "campo sin predicado; píxeles de la imagen; NO es la dimensión «dimensions» del producto"
         },
         {
           "campo": "height",
@@ -408,14 +357,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "ídem",
           "universo": 778,
           "conValor": 778,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; ídem"
+          "razon": "campo sin predicado; ídem"
         },
         {
           "campo": "image_position",
@@ -423,14 +371,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "orden de galería",
           "universo": 778,
           "conValor": 778,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; orden de galería"
+          "razon": "campo sin predicado; orden de galería"
         },
         {
           "campo": "published_at",
@@ -438,14 +385,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "fecha de publicación en la tienda",
           "universo": 304,
           "conValor": 304,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; fecha de publicación en la tienda"
+          "razon": "campo sin predicado; fecha de publicación en la tienda"
         },
         {
           "campo": "updated_at",
@@ -453,14 +399,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "última edición en la tienda",
           "universo": 304,
           "conValor": 304,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; última edición en la tienda"
+          "razon": "campo sin predicado; última edición en la tienda"
         },
         {
           "campo": "variant_count",
@@ -468,14 +413,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
           "nota": "recuento nuestro",
           "universo": 304,
           "conValor": 304,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; recuento nuestro"
+          "razon": "campo sin predicado; recuento nuestro"
         },
         {
           "campo": "image_count",
@@ -483,14 +427,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
           "nota": "recuento nuestro",
           "universo": 304,
           "conValor": 304,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; recuento nuestro"
+          "razon": "campo sin predicado; recuento nuestro"
         },
         {
           "campo": "confidence",
@@ -498,14 +441,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
-          "nota": "CONFIRMADO_OFICIAL lo escribimos nosotros",
+          "nota": "«CONFIRMADO_OFICIAL» lo escribimos nosotros; la tienda no publica su propia confianza",
           "universo": 304,
           "conValor": 292,
           "cobertura": 0.9605263157894737,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; CONFIRMADO_OFICIAL lo escribimos nosotros"
+          "razon": "campo sin predicado; «CONFIRMADO_OFICIAL» lo escribimos nosotros; la tienda no publica su propia confianza"
         },
         {
           "campo": "source_type",
@@ -513,14 +455,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
           "nota": "cómo lo capturamos",
           "universo": 304,
           "conValor": 304,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; cómo lo capturamos"
+          "razon": "campo sin predicado; cómo lo capturamos"
         },
         {
           "campo": "brand",
@@ -528,14 +469,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
-          "nota": "lo fija la campaña, no la ficha; vendor sí es de la fuente",
+          "nota": "lo fija la campaña al lanzarse, no la ficha; «vendor» sí es de la fuente",
           "universo": 304,
           "conValor": 292,
           "cobertura": 0.9605263157894737,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; lo fija la campaña, no la ficha; vendor sí es de la fuente"
+          "razon": "campo sin predicado; lo fija la campaña al lanzarse, no la ficha; «vendor» sí es de la fuente"
         }
       ]
     },
@@ -548,23 +488,15 @@
         {
           "campo": "sku",
           "entidad": "variant",
-          "predicado": "identity.manufacturer_sku",
+          "predicado": "official.sku",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 1395,
           "conValor": 1385,
           "cobertura": 0.992831541218638,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 0.9,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "El SKU de fábrica manda dentro del espacio de nombres de su marca. Fuera de él no identifica nada: dos marcas pueden usar el mismo código para cosas distintas."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (99%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.sku»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "barcode",
@@ -572,20 +504,20 @@
           "predicado": "identity.gtin",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 1395,
           "conValor": 0,
           "cobertura": 0,
           "autoridadActual": {
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
+            "source_role": "IDENTITY",
             "authority_level": "preferred",
             "authority_score": 1,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Un GTIN identifica el producto en cualquier catálogo del mundo. Es la única identidad que no depende de que dos fuentes escriban el nombre igual."
+            "rationale": "Official sources are preferred for declared identity."
           },
-          "destino": "NO_EMITIDO",
-          "razon": "0 de 1395: esta fuente no aporta este predicado"
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "la clase concede «preferred» pero esta fuente publica 0 de 1395: la autoridad sería vacía y la haría parecer una referencia que no es"
         },
         {
           "campo": "external_product_id",
@@ -593,20 +525,18 @@
           "predicado": "identity.source_external_id",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 1395,
           "conValor": 1395,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
             "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Es el id interno de la tienda. Sirve para volver a la ficha de la que salió el dato y para nada más: emparejar por él sería emparejar por número de fila."
+            "authority_level": "preferred",
+            "authority_score": 1,
+            "rationale": "Official sources are preferred for declared identity."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "external_variant_id",
@@ -614,177 +544,134 @@
           "predicado": "identity.source_external_id",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 1395,
           "conValor": 1395,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
             "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Es el id interno de la tienda. Sirve para volver a la ficha de la que salió el dato y para nada más: emparejar por él sería emparejar por número de fila."
+            "authority_level": "preferred",
+            "authority_score": 1,
+            "rationale": "Official sources are preferred for declared identity."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "title",
           "entidad": "product",
-          "predicado": "identity.name",
-          "dimension": "identity",
+          "predicado": "official.title",
+          "dimension": "type",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 1395,
           "conValor": 1395,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 1,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official sources are preferred for declared identity."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.title»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
+        },
+        {
+          "campo": "variant_title",
+          "entidad": "variant",
+          "predicado": "official.variant_title",
+          "dimension": "type",
+          "naturaleza": "LITERAL",
+          "universo": 1395,
+          "conValor": 1395,
+          "cobertura": 1,
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.variant_title»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "vendor",
           "entidad": "product",
-          "predicado": "identity.brand_declared",
+          "predicado": "official.vendor",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "etiqueta de tienda sin resolver: MASGLO, Masglo, Masglo Espana, bigen-usa.com, acryloveoficial",
           "universo": 1395,
           "conValor": 1395,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.6,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "La marca tal como la escribe la tienda, sin resolver. Medido en las seis fuentes: Masglo aparece como MASGLO, Masglo y Masglo España; Bigen como «bigen-usa.com»; Acrylove como «acryloveoficial». Es una etiqueta, no una entidad."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «acceptable» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.vendor»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "product_type",
           "entidad": "product",
-          "predicado": "semantic.type",
+          "predicado": "official.product_type",
           "dimension": "type",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "taxonomía de tienda, no canónica: 225 valores distintos en 1.395 fichas de Cherimoya",
           "universo": 1395,
           "conValor": 1393,
           "cobertura": 0.9985663082437276,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.9,
-            "source_role": "TECHNICAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «acceptable» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.product_type»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "(parsed) presentation",
           "entidad": "product",
-          "predicado": "semantic.packaging",
+          "predicado": "official.presentation",
           "dimension": "packaging",
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
-          "regla": "PRESENTACION_CANTIDAD_UNIDAD v1",
-          "nota": "regex determinista y reversible sobre título, tipo y tags",
+          "nota": "regex de cantidad+unidad sobre título, tipo y tags",
           "universo": 1395,
           "conValor": 561,
           "cobertura": 0.4021505376344086,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.9,
-            "source_role": "TECHNICAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «acceptable» y la evidencia lo respalda (40%)"
+          "autoridadActual": null,
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "supplemental",
+          "score": 0.3,
+          "razon": "extraído del texto por regla determinista, 40% de cobertura; por debajo de un literal porque depende de que la fuente escriba la unidad"
         },
         {
           "campo": "(parsed) shadeName",
           "entidad": "product",
-          "predicado": "semantic.subtype",
-          "dimension": "subtype",
+          "predicado": "official.shade",
+          "dimension": "type",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "TONO_POR_SEGMENTO_DE_TITULO v1",
-          "nota": "asume que el título separa el tono con un guion rodeado de espacios",
+          "nota": "parte el título por « - » y asume que lo de delante es el tono",
           "universo": 1395,
           "conValor": 0,
           "cobertura": 0,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "NO_EMITIDO",
-          "razon": "0 de 1395: esta fuente no aporta este predicado"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "0 de 1395: nada sobre lo que declarar autoridad"
         },
         {
           "campo": "(parsed) line",
           "entidad": "product",
-          "predicado": "semantic.type",
+          "predicado": "official.line",
           "dimension": "type",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "NAIL_ES_PRODUCT_SEMANTICS v1",
-          "nota": "vocabulario en español sobre los tags",
+          "nota": "busca en los tags un vocabulario en español que fijamos nosotros",
           "universo": 1395,
           "conValor": 0,
           "cobertura": 0,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "NO_EMITIDO",
-          "razon": "0 de 1395: esta fuente no aporta este predicado"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "0 de 1395: nada sobre lo que declarar autoridad"
         },
         {
           "campo": "(parsed) finish",
           "entidad": "product",
-          "predicado": "semantic.finish",
+          "predicado": "official.finish",
           "dimension": "finish",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "NAIL_ES_PRODUCT_SEMANTICS v1",
-          "nota": "adjetivos de acabado en español sobre los tags",
+          "nota": "igual que line, con adjetivos de acabado en español",
           "universo": 1395,
           "conValor": 0,
           "cobertura": 0,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "NO_EMITIDO",
-          "razon": "0 de 1395: esta fuente no aporta este predicado"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "0 de 1395: nada sobre lo que declarar autoridad"
         },
         {
           "campo": "price",
@@ -792,41 +679,46 @@
           "predicado": "price.observed",
           "dimension": "price",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 1395,
           "conValor": 1395,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.4,
+            "policy_id": "a59ab9e6-c30c-41e5-9a05-475f345605ea",
             "source_role": "COMMERCIAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Observación de precio en el mercado de la fuente. Nunca es autoridad sobre el precio propio, y su comparabilidad depende de que el mercado coincida — que es un dato de la fuente, no una regla de autoridad."
+            "authority_level": "acceptable",
+            "authority_score": 0.85,
+            "rationale": "Official prices are authoritative only as captured commercial observations."
           },
-          "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "supplemental",
+          "score": 0.45,
+          "razon": "1395 precios en PEN, mismo mercado (PE): sirven para situar un rango, nunca para fijar precio propio"
+        },
+        {
+          "campo": "available",
+          "entidad": "variant",
+          "predicado": "availability.observed",
+          "dimension": null,
+          "naturaleza": "LITERAL",
+          "universo": 1395,
+          "conValor": 1395,
+          "cobertura": 1,
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «availability.observed»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "primary_image_url",
           "entidad": "product",
-          "predicado": "media.image",
+          "predicado": "official.primary_image",
           "dimension": "media",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 1395,
           "conValor": 1395,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 1,
-            "source_role": "MEDIA",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official media are preferred for source media."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.primary_image»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "image_url",
@@ -834,52 +726,32 @@
           "predicado": "media.image",
           "dimension": "media",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 2309,
           "conValor": 2309,
           "cobertura": 1,
           "autoridadActual": {
+            "policy_id": "4117bbc9-a8fa-4afb-97df-6bccd3e4c5c7",
+            "source_role": "MEDIA",
             "authority_level": "preferred",
             "authority_score": 1,
-            "source_role": "MEDIA",
-            "capped": false,
-            "cap_reason": null,
             "rationale": "Official media are preferred for source media."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
-        },
-        {
-          "campo": "available",
-          "entidad": "variant",
-          "predicado": null,
-          "dimension": null,
-          "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "noEsClaim": true,
-          "nota": "ya modelado en catalog_reference_prices.external_availability; nunca es stock de Bellaroshe",
-          "universo": 1395,
-          "conValor": 1395,
-          "cobertura": 1,
-          "autoridadActual": null,
-          "destino": "NO_APPLICABLE",
-          "razon": "no se emite como claim: ya modelado en catalog_reference_prices.external_availability; nunca es stock de Bellaroshe"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "description",
           "entidad": "product",
-          "predicado": null,
+          "predicado": "official.description",
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "noEsClaim": true,
-          "nota": "texto de origen: va en source_excerpt, no como afirmación. Es la ENTRADA de la que se derivarían composición o uso",
+          "nota": "el texto es literal; extraer de él composición o uso ya sería INFERIDO y no está hecho",
           "universo": 1395,
           "conValor": 1322,
           "cobertura": 0.9476702508960574,
           "autoridadActual": null,
-          "destino": "NO_APPLICABLE",
-          "razon": "no se emite como claim: texto de origen: va en source_excerpt, no como afirmación. Es la ENTRADA de la que se derivarían composición o uso"
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.description»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "tags",
@@ -887,14 +759,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "bolsa sin vocabulario declarado: mezcla gama, tamaño, línea y promoción",
+          "nota": "bolsa de etiquetas sin vocabulario declarado: mezcla gama, tamaño, línea y promoción",
           "universo": 1395,
           "conValor": 56,
           "cobertura": 0.04014336917562724,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; bolsa sin vocabulario declarado: mezcla gama, tamaño, línea y promoción"
+          "razon": "campo sin predicado; bolsa de etiquetas sin vocabulario declarado: mezcla gama, tamaño, línea y promoción"
         },
         {
           "campo": "handle",
@@ -902,14 +773,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "identificador de URL, no del producto",
           "universo": 1395,
           "conValor": 1395,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; identificador de URL, no del producto"
+          "razon": "campo sin predicado; identificador de URL, no del producto"
         },
         {
           "campo": "option1",
@@ -917,14 +787,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "el eje de variación no viene nombrado",
           "universo": 1395,
           "conValor": 0,
           "cobertura": 0,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; el eje de variación no viene nombrado"
+          "razon": "campo sin predicado; el eje de variación no viene nombrado"
         },
         {
           "campo": "width",
@@ -932,14 +801,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "píxeles de la imagen; NO es la dimensión dimensions del producto",
+          "nota": "píxeles de la imagen; NO es la dimensión «dimensions» del producto",
           "universo": 2309,
           "conValor": 0,
           "cobertura": 0,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; píxeles de la imagen; NO es la dimensión dimensions del producto"
+          "razon": "campo sin predicado; píxeles de la imagen; NO es la dimensión «dimensions» del producto"
         },
         {
           "campo": "height",
@@ -947,14 +815,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "ídem",
           "universo": 2309,
           "conValor": 0,
           "cobertura": 0,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; ídem"
+          "razon": "campo sin predicado; ídem"
         },
         {
           "campo": "image_position",
@@ -962,14 +829,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "orden de galería",
           "universo": 2309,
           "conValor": 2309,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; orden de galería"
+          "razon": "campo sin predicado; orden de galería"
         },
         {
           "campo": "published_at",
@@ -977,14 +843,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "fecha de publicación en la tienda",
           "universo": 1395,
           "conValor": 0,
           "cobertura": 0,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; fecha de publicación en la tienda"
+          "razon": "campo sin predicado; fecha de publicación en la tienda"
         },
         {
           "campo": "updated_at",
@@ -992,14 +857,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "última edición en la tienda",
           "universo": 1395,
           "conValor": 0,
           "cobertura": 0,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; última edición en la tienda"
+          "razon": "campo sin predicado; última edición en la tienda"
         },
         {
           "campo": "variant_count",
@@ -1007,14 +871,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
           "nota": "recuento nuestro",
           "universo": 1395,
           "conValor": 1395,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; recuento nuestro"
+          "razon": "campo sin predicado; recuento nuestro"
         },
         {
           "campo": "image_count",
@@ -1022,14 +885,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
           "nota": "recuento nuestro",
           "universo": 1395,
           "conValor": 1395,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; recuento nuestro"
+          "razon": "campo sin predicado; recuento nuestro"
         },
         {
           "campo": "confidence",
@@ -1037,14 +899,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
-          "nota": "CONFIRMADO_OFICIAL lo escribimos nosotros",
+          "nota": "«CONFIRMADO_OFICIAL» lo escribimos nosotros; la tienda no publica su propia confianza",
           "universo": 1395,
           "conValor": 1395,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; CONFIRMADO_OFICIAL lo escribimos nosotros"
+          "razon": "campo sin predicado; «CONFIRMADO_OFICIAL» lo escribimos nosotros; la tienda no publica su propia confianza"
         },
         {
           "campo": "source_type",
@@ -1052,14 +913,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
           "nota": "cómo lo capturamos",
           "universo": 1395,
           "conValor": 1395,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; cómo lo capturamos"
+          "razon": "campo sin predicado; cómo lo capturamos"
         },
         {
           "campo": "brand",
@@ -1067,14 +927,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
-          "nota": "lo fija la campaña, no la ficha; vendor sí es de la fuente",
+          "nota": "lo fija la campaña al lanzarse, no la ficha; «vendor» sí es de la fuente",
           "universo": 1395,
           "conValor": 1395,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; lo fija la campaña, no la ficha; vendor sí es de la fuente"
+          "razon": "campo sin predicado; lo fija la campaña al lanzarse, no la ficha; «vendor» sí es de la fuente"
         }
       ]
     },
@@ -1087,23 +946,15 @@
         {
           "campo": "sku",
           "entidad": "variant",
-          "predicado": "identity.manufacturer_sku",
+          "predicado": "official.sku",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 0.9,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "El SKU de fábrica manda dentro del espacio de nombres de su marca. Fuera de él no identifica nada: dos marcas pueden usar el mismo código para cosas distintas."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.sku»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "barcode",
@@ -1111,20 +962,20 @@
           "predicado": "identity.gtin",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 121,
           "conValor": 0,
           "cobertura": 0,
           "autoridadActual": {
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
+            "source_role": "IDENTITY",
             "authority_level": "preferred",
             "authority_score": 1,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Un GTIN identifica el producto en cualquier catálogo del mundo. Es la única identidad que no depende de que dos fuentes escriban el nombre igual."
+            "rationale": "Official sources are preferred for declared identity."
           },
-          "destino": "NO_EMITIDO",
-          "razon": "0 de 121: esta fuente no aporta este predicado"
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "la clase concede «preferred» pero esta fuente publica 0 de 121: la autoridad sería vacía y la haría parecer una referencia que no es"
         },
         {
           "campo": "external_product_id",
@@ -1132,20 +983,18 @@
           "predicado": "identity.source_external_id",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
             "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Es el id interno de la tienda. Sirve para volver a la ficha de la que salió el dato y para nada más: emparejar por él sería emparejar por número de fila."
+            "authority_level": "preferred",
+            "authority_score": 1,
+            "rationale": "Official sources are preferred for declared identity."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "external_variant_id",
@@ -1153,177 +1002,134 @@
           "predicado": "identity.source_external_id",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
             "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Es el id interno de la tienda. Sirve para volver a la ficha de la que salió el dato y para nada más: emparejar por él sería emparejar por número de fila."
+            "authority_level": "preferred",
+            "authority_score": 1,
+            "rationale": "Official sources are preferred for declared identity."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "title",
           "entidad": "product",
-          "predicado": "identity.name",
-          "dimension": "identity",
+          "predicado": "official.title",
+          "dimension": "type",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 1,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official sources are preferred for declared identity."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.title»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
+        },
+        {
+          "campo": "variant_title",
+          "entidad": "variant",
+          "predicado": "official.variant_title",
+          "dimension": "type",
+          "naturaleza": "LITERAL",
+          "universo": 121,
+          "conValor": 121,
+          "cobertura": 1,
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.variant_title»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "vendor",
           "entidad": "product",
-          "predicado": "identity.brand_declared",
+          "predicado": "official.vendor",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "etiqueta de tienda sin resolver: MASGLO, Masglo, Masglo Espana, bigen-usa.com, acryloveoficial",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.6,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "La marca tal como la escribe la tienda, sin resolver. Medido en las seis fuentes: Masglo aparece como MASGLO, Masglo y Masglo España; Bigen como «bigen-usa.com»; Acrylove como «acryloveoficial». Es una etiqueta, no una entidad."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «acceptable» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.vendor»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "product_type",
           "entidad": "product",
-          "predicado": "semantic.type",
+          "predicado": "official.product_type",
           "dimension": "type",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "taxonomía de tienda, no canónica: 225 valores distintos en 1.395 fichas de Cherimoya",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.9,
-            "source_role": "TECHNICAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «acceptable» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.product_type»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "(parsed) presentation",
           "entidad": "product",
-          "predicado": "semantic.packaging",
+          "predicado": "official.presentation",
           "dimension": "packaging",
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
-          "regla": "PRESENTACION_CANTIDAD_UNIDAD v1",
-          "nota": "regex determinista y reversible sobre título, tipo y tags",
+          "nota": "regex de cantidad+unidad sobre título, tipo y tags",
           "universo": 121,
           "conValor": 119,
           "cobertura": 0.9834710743801653,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.9,
-            "source_role": "TECHNICAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «acceptable» y la evidencia lo respalda (98%)"
+          "autoridadActual": null,
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "acceptable",
+          "score": 0.6,
+          "razon": "extraído del texto por regla determinista, 98% de cobertura; por debajo de un literal porque depende de que la fuente escriba la unidad"
         },
         {
           "campo": "(parsed) shadeName",
           "entidad": "product",
-          "predicado": "semantic.subtype",
-          "dimension": "subtype",
+          "predicado": "official.shade",
+          "dimension": "type",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "TONO_POR_SEGMENTO_DE_TITULO v1",
-          "nota": "asume que el título separa el tono con un guion rodeado de espacios",
+          "nota": "parte el título por « - » y asume que lo de delante es el tono",
           "universo": 121,
           "conValor": 98,
           "cobertura": 0.8099173553719008,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "supplemental por tope epistémico (DERIVED_INFERRED), 81% de cobertura con la regla TONO_POR_SEGMENTO_DE_TITULO v1; el tope es universal, no de esta fuente"
+          "autoridadActual": null,
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "supplemental",
+          "score": 0.35,
+          "razon": "inferido por nuestro parser con 81% de acierto en esta fuente; suplementario porque el valor es nuestro, no suyo"
         },
         {
           "campo": "(parsed) line",
           "entidad": "product",
-          "predicado": "semantic.type",
+          "predicado": "official.line",
           "dimension": "type",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "NAIL_ES_PRODUCT_SEMANTICS v1",
-          "nota": "vocabulario en español sobre los tags",
+          "nota": "busca en los tags un vocabulario en español que fijamos nosotros",
           "universo": 121,
           "conValor": 120,
           "cobertura": 0.9917355371900827,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "supplemental por tope epistémico (DERIVED_INFERRED), 99% de cobertura con la regla NAIL_ES_PRODUCT_SEMANTICS v1; el tope es universal, no de esta fuente"
+          "autoridadActual": null,
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "supplemental",
+          "score": 0.35,
+          "razon": "inferido por nuestro parser con 99% de acierto en esta fuente; suplementario porque el valor es nuestro, no suyo"
         },
         {
           "campo": "(parsed) finish",
           "entidad": "product",
-          "predicado": "semantic.finish",
+          "predicado": "official.finish",
           "dimension": "finish",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "NAIL_ES_PRODUCT_SEMANTICS v1",
-          "nota": "adjetivos de acabado en español sobre los tags",
+          "nota": "igual que line, con adjetivos de acabado en español",
           "universo": 121,
           "conValor": 96,
           "cobertura": 0.7933884297520661,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "supplemental por tope epistémico (DERIVED_INFERRED), 79% de cobertura con la regla NAIL_ES_PRODUCT_SEMANTICS v1; el tope es universal, no de esta fuente"
+          "autoridadActual": null,
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "supplemental",
+          "score": 0.35,
+          "razon": "inferido por nuestro parser con 79% de acierto en esta fuente; suplementario porque el valor es nuestro, no suyo"
         },
         {
           "campo": "price",
@@ -1331,41 +1137,46 @@
           "predicado": "price.observed",
           "dimension": "price",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.4,
+            "policy_id": "a59ab9e6-c30c-41e5-9a05-475f345605ea",
             "source_role": "COMMERCIAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Observación de precio en el mercado de la fuente. Nunca es autoridad sobre el precio propio, y su comparabilidad depende de que el mercado coincida — que es un dato de la fuente, no una regla de autoridad."
+            "authority_level": "acceptable",
+            "authority_score": 0.85,
+            "rationale": "Official prices are authoritative only as captured commercial observations."
           },
-          "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "121 precios en COP, mercado CO: otra moneda y otra estructura de costes, no comparables con Perú"
+        },
+        {
+          "campo": "available",
+          "entidad": "variant",
+          "predicado": "availability.observed",
+          "dimension": null,
+          "naturaleza": "LITERAL",
+          "universo": 121,
+          "conValor": 121,
+          "cobertura": 1,
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «availability.observed»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "primary_image_url",
           "entidad": "product",
-          "predicado": "media.image",
+          "predicado": "official.primary_image",
           "dimension": "media",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 1,
-            "source_role": "MEDIA",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official media are preferred for source media."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.primary_image»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "image_url",
@@ -1373,52 +1184,32 @@
           "predicado": "media.image",
           "dimension": "media",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 197,
           "conValor": 197,
           "cobertura": 1,
           "autoridadActual": {
+            "policy_id": "4117bbc9-a8fa-4afb-97df-6bccd3e4c5c7",
+            "source_role": "MEDIA",
             "authority_level": "preferred",
             "authority_score": 1,
-            "source_role": "MEDIA",
-            "capped": false,
-            "cap_reason": null,
             "rationale": "Official media are preferred for source media."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
-        },
-        {
-          "campo": "available",
-          "entidad": "variant",
-          "predicado": null,
-          "dimension": null,
-          "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "noEsClaim": true,
-          "nota": "ya modelado en catalog_reference_prices.external_availability; nunca es stock de Bellaroshe",
-          "universo": 121,
-          "conValor": 121,
-          "cobertura": 1,
-          "autoridadActual": null,
-          "destino": "NO_APPLICABLE",
-          "razon": "no se emite como claim: ya modelado en catalog_reference_prices.external_availability; nunca es stock de Bellaroshe"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "description",
           "entidad": "product",
-          "predicado": null,
+          "predicado": "official.description",
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "noEsClaim": true,
-          "nota": "texto de origen: va en source_excerpt, no como afirmación. Es la ENTRADA de la que se derivarían composición o uso",
+          "nota": "el texto es literal; extraer de él composición o uso ya sería INFERIDO y no está hecho",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
           "autoridadActual": null,
-          "destino": "NO_APPLICABLE",
-          "razon": "no se emite como claim: texto de origen: va en source_excerpt, no como afirmación. Es la ENTRADA de la que se derivarían composición o uso"
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.description»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "tags",
@@ -1426,14 +1217,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "bolsa sin vocabulario declarado: mezcla gama, tamaño, línea y promoción",
+          "nota": "bolsa de etiquetas sin vocabulario declarado: mezcla gama, tamaño, línea y promoción",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; bolsa sin vocabulario declarado: mezcla gama, tamaño, línea y promoción"
+          "razon": "campo sin predicado; bolsa de etiquetas sin vocabulario declarado: mezcla gama, tamaño, línea y promoción"
         },
         {
           "campo": "handle",
@@ -1441,14 +1231,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "identificador de URL, no del producto",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; identificador de URL, no del producto"
+          "razon": "campo sin predicado; identificador de URL, no del producto"
         },
         {
           "campo": "option1",
@@ -1456,14 +1245,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "el eje de variación no viene nombrado",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; el eje de variación no viene nombrado"
+          "razon": "campo sin predicado; el eje de variación no viene nombrado"
         },
         {
           "campo": "width",
@@ -1471,14 +1259,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "píxeles de la imagen; NO es la dimensión dimensions del producto",
+          "nota": "píxeles de la imagen; NO es la dimensión «dimensions» del producto",
           "universo": 197,
           "conValor": 197,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; píxeles de la imagen; NO es la dimensión dimensions del producto"
+          "razon": "campo sin predicado; píxeles de la imagen; NO es la dimensión «dimensions» del producto"
         },
         {
           "campo": "height",
@@ -1486,14 +1273,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "ídem",
           "universo": 197,
           "conValor": 197,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; ídem"
+          "razon": "campo sin predicado; ídem"
         },
         {
           "campo": "image_position",
@@ -1501,14 +1287,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "orden de galería",
           "universo": 197,
           "conValor": 197,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; orden de galería"
+          "razon": "campo sin predicado; orden de galería"
         },
         {
           "campo": "published_at",
@@ -1516,14 +1301,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "fecha de publicación en la tienda",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; fecha de publicación en la tienda"
+          "razon": "campo sin predicado; fecha de publicación en la tienda"
         },
         {
           "campo": "updated_at",
@@ -1531,14 +1315,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "última edición en la tienda",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; última edición en la tienda"
+          "razon": "campo sin predicado; última edición en la tienda"
         },
         {
           "campo": "variant_count",
@@ -1546,14 +1329,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
           "nota": "recuento nuestro",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; recuento nuestro"
+          "razon": "campo sin predicado; recuento nuestro"
         },
         {
           "campo": "image_count",
@@ -1561,14 +1343,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
           "nota": "recuento nuestro",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; recuento nuestro"
+          "razon": "campo sin predicado; recuento nuestro"
         },
         {
           "campo": "confidence",
@@ -1576,14 +1357,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
-          "nota": "CONFIRMADO_OFICIAL lo escribimos nosotros",
+          "nota": "«CONFIRMADO_OFICIAL» lo escribimos nosotros; la tienda no publica su propia confianza",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; CONFIRMADO_OFICIAL lo escribimos nosotros"
+          "razon": "campo sin predicado; «CONFIRMADO_OFICIAL» lo escribimos nosotros; la tienda no publica su propia confianza"
         },
         {
           "campo": "source_type",
@@ -1591,14 +1371,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
           "nota": "cómo lo capturamos",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; cómo lo capturamos"
+          "razon": "campo sin predicado; cómo lo capturamos"
         },
         {
           "campo": "brand",
@@ -1606,14 +1385,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
-          "nota": "lo fija la campaña, no la ficha; vendor sí es de la fuente",
+          "nota": "lo fija la campaña al lanzarse, no la ficha; «vendor» sí es de la fuente",
           "universo": 121,
           "conValor": 121,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; lo fija la campaña, no la ficha; vendor sí es de la fuente"
+          "razon": "campo sin predicado; lo fija la campaña al lanzarse, no la ficha; «vendor» sí es de la fuente"
         }
       ]
     },
@@ -1626,23 +1404,15 @@
         {
           "campo": "sku",
           "entidad": "variant",
-          "predicado": "identity.manufacturer_sku",
+          "predicado": "official.sku",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 136,
           "conValor": 134,
           "cobertura": 0.9852941176470589,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 0.9,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "El SKU de fábrica manda dentro del espacio de nombres de su marca. Fuera de él no identifica nada: dos marcas pueden usar el mismo código para cosas distintas."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (99%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.sku»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "barcode",
@@ -1650,20 +1420,20 @@
           "predicado": "identity.gtin",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 136,
           "conValor": 0,
           "cobertura": 0,
           "autoridadActual": {
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
+            "source_role": "IDENTITY",
             "authority_level": "preferred",
             "authority_score": 1,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Un GTIN identifica el producto en cualquier catálogo del mundo. Es la única identidad que no depende de que dos fuentes escriban el nombre igual."
+            "rationale": "Official sources are preferred for declared identity."
           },
-          "destino": "NO_EMITIDO",
-          "razon": "0 de 136: esta fuente no aporta este predicado"
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "la clase concede «preferred» pero esta fuente publica 0 de 136: la autoridad sería vacía y la haría parecer una referencia que no es"
         },
         {
           "campo": "external_product_id",
@@ -1671,20 +1441,18 @@
           "predicado": "identity.source_external_id",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 29,
           "conValor": 29,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
             "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Es el id interno de la tienda. Sirve para volver a la ficha de la que salió el dato y para nada más: emparejar por él sería emparejar por número de fila."
+            "authority_level": "preferred",
+            "authority_score": 1,
+            "rationale": "Official sources are preferred for declared identity."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "external_variant_id",
@@ -1692,177 +1460,136 @@
           "predicado": "identity.source_external_id",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 136,
           "conValor": 136,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
             "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Es el id interno de la tienda. Sirve para volver a la ficha de la que salió el dato y para nada más: emparejar por él sería emparejar por número de fila."
+            "authority_level": "preferred",
+            "authority_score": 1,
+            "rationale": "Official sources are preferred for declared identity."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "title",
           "entidad": "product",
-          "predicado": "identity.name",
-          "dimension": "identity",
+          "predicado": "official.title",
+          "dimension": "type",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 29,
           "conValor": 29,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 1,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official sources are preferred for declared identity."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.title»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
+        },
+        {
+          "campo": "variant_title",
+          "entidad": "variant",
+          "predicado": "official.variant_title",
+          "dimension": "type",
+          "naturaleza": "LITERAL",
+          "universo": 136,
+          "conValor": 136,
+          "cobertura": 1,
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.variant_title»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "vendor",
           "entidad": "product",
-          "predicado": "identity.brand_declared",
+          "predicado": "official.vendor",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "etiqueta de tienda sin resolver: MASGLO, Masglo, Masglo Espana, bigen-usa.com, acryloveoficial",
           "universo": 29,
           "conValor": 29,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.6,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "La marca tal como la escribe la tienda, sin resolver. Medido en las seis fuentes: Masglo aparece como MASGLO, Masglo y Masglo España; Bigen como «bigen-usa.com»; Acrylove como «acryloveoficial». Es una etiqueta, no una entidad."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «acceptable» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.vendor»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "product_type",
           "entidad": "product",
-          "predicado": "semantic.type",
+          "predicado": "official.product_type",
           "dimension": "type",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "taxonomía de tienda, no canónica: 225 valores distintos en 1.395 fichas de Cherimoya",
           "universo": 29,
           "conValor": 0,
           "cobertura": 0,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.9,
-            "source_role": "TECHNICAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "NO_EMITIDO",
-          "razon": "0 de 29: esta fuente no aporta este predicado"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "0 de 29: nada sobre lo que declarar autoridad"
         },
         {
           "campo": "(parsed) presentation",
           "entidad": "product",
-          "predicado": "semantic.packaging",
+          "predicado": "official.presentation",
           "dimension": "packaging",
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
-          "regla": "PRESENTACION_CANTIDAD_UNIDAD v1",
-          "nota": "regex determinista y reversible sobre título, tipo y tags",
+          "nota": "regex de cantidad+unidad sobre título, tipo y tags",
           "universo": 29,
           "conValor": 5,
           "cobertura": 0.1724137931034483,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.9,
-            "source_role": "TECHNICAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «acceptable» y la evidencia lo respalda (17%)"
+          "autoridadActual": null,
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "supplemental",
+          "score": 0.3,
+          "razon": "extraído del texto por regla determinista, 17% de cobertura; por debajo de un literal porque depende de que la fuente escriba la unidad"
         },
         {
           "campo": "(parsed) shadeName",
           "entidad": "product",
-          "predicado": "semantic.subtype",
-          "dimension": "subtype",
+          "predicado": "official.shade",
+          "dimension": "type",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "TONO_POR_SEGMENTO_DE_TITULO v1",
-          "nota": "asume que el título separa el tono con un guion rodeado de espacios",
+          "nota": "parte el título por « - » y asume que lo de delante es el tono",
           "universo": 29,
           "conValor": 0,
           "cobertura": 0,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "NO_EMITIDO",
-          "razon": "0 de 29: esta fuente no aporta este predicado"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "0 de 29: nada sobre lo que declarar autoridad"
         },
         {
           "campo": "(parsed) line",
           "entidad": "product",
-          "predicado": "semantic.type",
+          "predicado": "official.line",
           "dimension": "type",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "NAIL_ES_PRODUCT_SEMANTICS v1",
-          "nota": "vocabulario en español sobre los tags",
+          "nota": "busca en los tags un vocabulario en español que fijamos nosotros",
           "universo": 29,
           "conValor": 0,
           "cobertura": 0,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "NO_EMITIDO",
-          "razon": "0 de 29: esta fuente no aporta este predicado"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "0 de 29: nada sobre lo que declarar autoridad"
         },
         {
           "campo": "(parsed) finish",
           "entidad": "product",
-          "predicado": "semantic.finish",
+          "predicado": "official.finish",
           "dimension": "finish",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "NAIL_ES_PRODUCT_SEMANTICS v1",
-          "nota": "adjetivos de acabado en español sobre los tags",
+          "nota": "igual que line, con adjetivos de acabado en español",
           "universo": 29,
           "conValor": 0,
           "cobertura": 0,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "NO_EMITIDO",
-          "razon": "0 de 29: esta fuente no aporta este predicado"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "0 de 29: nada sobre lo que declarar autoridad"
         },
         {
           "campo": "price",
@@ -1870,41 +1597,46 @@
           "predicado": "price.observed",
           "dimension": "price",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 136,
           "conValor": 136,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.4,
+            "policy_id": "a59ab9e6-c30c-41e5-9a05-475f345605ea",
             "source_role": "COMMERCIAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Observación de precio en el mercado de la fuente. Nunca es autoridad sobre el precio propio, y su comparabilidad depende de que el mercado coincida — que es un dato de la fuente, no una regla de autoridad."
+            "authority_level": "acceptable",
+            "authority_score": 0.85,
+            "rationale": "Official prices are authoritative only as captured commercial observations."
           },
-          "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "136 precios en USD, mercado US: otra moneda y otra estructura de costes, no comparables con Perú"
+        },
+        {
+          "campo": "available",
+          "entidad": "variant",
+          "predicado": "availability.observed",
+          "dimension": null,
+          "naturaleza": "LITERAL",
+          "universo": 136,
+          "conValor": 136,
+          "cobertura": 1,
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «availability.observed»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "primary_image_url",
           "entidad": "product",
-          "predicado": "media.image",
+          "predicado": "official.primary_image",
           "dimension": "media",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 29,
           "conValor": 29,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 1,
-            "source_role": "MEDIA",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official media are preferred for source media."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.primary_image»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "image_url",
@@ -1912,52 +1644,32 @@
           "predicado": "media.image",
           "dimension": "media",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 338,
           "conValor": 338,
           "cobertura": 1,
           "autoridadActual": {
+            "policy_id": "4117bbc9-a8fa-4afb-97df-6bccd3e4c5c7",
+            "source_role": "MEDIA",
             "authority_level": "preferred",
             "authority_score": 1,
-            "source_role": "MEDIA",
-            "capped": false,
-            "cap_reason": null,
             "rationale": "Official media are preferred for source media."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
-        },
-        {
-          "campo": "available",
-          "entidad": "variant",
-          "predicado": null,
-          "dimension": null,
-          "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "noEsClaim": true,
-          "nota": "ya modelado en catalog_reference_prices.external_availability; nunca es stock de Bellaroshe",
-          "universo": 136,
-          "conValor": 136,
-          "cobertura": 1,
-          "autoridadActual": null,
-          "destino": "NO_APPLICABLE",
-          "razon": "no se emite como claim: ya modelado en catalog_reference_prices.external_availability; nunca es stock de Bellaroshe"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "description",
           "entidad": "product",
-          "predicado": null,
+          "predicado": "official.description",
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "noEsClaim": true,
-          "nota": "texto de origen: va en source_excerpt, no como afirmación. Es la ENTRADA de la que se derivarían composición o uso",
+          "nota": "el texto es literal; extraer de él composición o uso ya sería INFERIDO y no está hecho",
           "universo": 29,
           "conValor": 27,
           "cobertura": 0.9310344827586207,
           "autoridadActual": null,
-          "destino": "NO_APPLICABLE",
-          "razon": "no se emite como claim: texto de origen: va en source_excerpt, no como afirmación. Es la ENTRADA de la que se derivarían composición o uso"
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.description»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "tags",
@@ -1965,14 +1677,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "bolsa sin vocabulario declarado: mezcla gama, tamaño, línea y promoción",
+          "nota": "bolsa de etiquetas sin vocabulario declarado: mezcla gama, tamaño, línea y promoción",
           "universo": 29,
           "conValor": 27,
           "cobertura": 0.9310344827586207,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; bolsa sin vocabulario declarado: mezcla gama, tamaño, línea y promoción"
+          "razon": "campo sin predicado; bolsa de etiquetas sin vocabulario declarado: mezcla gama, tamaño, línea y promoción"
         },
         {
           "campo": "handle",
@@ -1980,14 +1691,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "identificador de URL, no del producto",
           "universo": 29,
           "conValor": 29,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; identificador de URL, no del producto"
+          "razon": "campo sin predicado; identificador de URL, no del producto"
         },
         {
           "campo": "option1",
@@ -1995,14 +1705,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "el eje de variación no viene nombrado",
           "universo": 136,
           "conValor": 136,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; el eje de variación no viene nombrado"
+          "razon": "campo sin predicado; el eje de variación no viene nombrado"
         },
         {
           "campo": "width",
@@ -2010,14 +1719,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "píxeles de la imagen; NO es la dimensión dimensions del producto",
+          "nota": "píxeles de la imagen; NO es la dimensión «dimensions» del producto",
           "universo": 338,
           "conValor": 338,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; píxeles de la imagen; NO es la dimensión dimensions del producto"
+          "razon": "campo sin predicado; píxeles de la imagen; NO es la dimensión «dimensions» del producto"
         },
         {
           "campo": "height",
@@ -2025,14 +1733,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "ídem",
           "universo": 338,
           "conValor": 338,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; ídem"
+          "razon": "campo sin predicado; ídem"
         },
         {
           "campo": "image_position",
@@ -2040,14 +1747,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "orden de galería",
           "universo": 338,
           "conValor": 338,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; orden de galería"
+          "razon": "campo sin predicado; orden de galería"
         },
         {
           "campo": "published_at",
@@ -2055,14 +1761,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "fecha de publicación en la tienda",
           "universo": 29,
           "conValor": 29,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; fecha de publicación en la tienda"
+          "razon": "campo sin predicado; fecha de publicación en la tienda"
         },
         {
           "campo": "updated_at",
@@ -2070,14 +1775,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "última edición en la tienda",
           "universo": 29,
           "conValor": 29,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; última edición en la tienda"
+          "razon": "campo sin predicado; última edición en la tienda"
         },
         {
           "campo": "variant_count",
@@ -2085,14 +1789,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
           "nota": "recuento nuestro",
           "universo": 29,
           "conValor": 29,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; recuento nuestro"
+          "razon": "campo sin predicado; recuento nuestro"
         },
         {
           "campo": "image_count",
@@ -2100,14 +1803,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
           "nota": "recuento nuestro",
           "universo": 29,
           "conValor": 29,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; recuento nuestro"
+          "razon": "campo sin predicado; recuento nuestro"
         },
         {
           "campo": "confidence",
@@ -2115,14 +1817,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
-          "nota": "CONFIRMADO_OFICIAL lo escribimos nosotros",
+          "nota": "«CONFIRMADO_OFICIAL» lo escribimos nosotros; la tienda no publica su propia confianza",
           "universo": 29,
           "conValor": 29,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; CONFIRMADO_OFICIAL lo escribimos nosotros"
+          "razon": "campo sin predicado; «CONFIRMADO_OFICIAL» lo escribimos nosotros; la tienda no publica su propia confianza"
         },
         {
           "campo": "source_type",
@@ -2130,14 +1831,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
           "nota": "cómo lo capturamos",
           "universo": 29,
           "conValor": 29,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; cómo lo capturamos"
+          "razon": "campo sin predicado; cómo lo capturamos"
         },
         {
           "campo": "brand",
@@ -2145,14 +1845,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
-          "nota": "lo fija la campaña, no la ficha; vendor sí es de la fuente",
+          "nota": "lo fija la campaña al lanzarse, no la ficha; «vendor» sí es de la fuente",
           "universo": 29,
           "conValor": 29,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; lo fija la campaña, no la ficha; vendor sí es de la fuente"
+          "razon": "campo sin predicado; lo fija la campaña al lanzarse, no la ficha; «vendor» sí es de la fuente"
         }
       ]
     },
@@ -2165,23 +1864,15 @@
         {
           "campo": "sku",
           "entidad": "variant",
-          "predicado": "identity.manufacturer_sku",
+          "predicado": "official.sku",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 514,
           "conValor": 514,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 0.9,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "El SKU de fábrica manda dentro del espacio de nombres de su marca. Fuera de él no identifica nada: dos marcas pueden usar el mismo código para cosas distintas."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.sku»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "barcode",
@@ -2189,20 +1880,20 @@
           "predicado": "identity.gtin",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 514,
           "conValor": 0,
           "cobertura": 0,
           "autoridadActual": {
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
+            "source_role": "IDENTITY",
             "authority_level": "preferred",
             "authority_score": 1,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Un GTIN identifica el producto en cualquier catálogo del mundo. Es la única identidad que no depende de que dos fuentes escriban el nombre igual."
+            "rationale": "Official sources are preferred for declared identity."
           },
-          "destino": "NO_EMITIDO",
-          "razon": "0 de 514: esta fuente no aporta este predicado"
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "la clase concede «preferred» pero esta fuente publica 0 de 514: la autoridad sería vacía y la haría parecer una referencia que no es"
         },
         {
           "campo": "external_product_id",
@@ -2210,20 +1901,18 @@
           "predicado": "identity.source_external_id",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 513,
           "conValor": 513,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
             "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Es el id interno de la tienda. Sirve para volver a la ficha de la que salió el dato y para nada más: emparejar por él sería emparejar por número de fila."
+            "authority_level": "preferred",
+            "authority_score": 1,
+            "rationale": "Official sources are preferred for declared identity."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "external_variant_id",
@@ -2231,177 +1920,136 @@
           "predicado": "identity.source_external_id",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 514,
           "conValor": 514,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
             "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Es el id interno de la tienda. Sirve para volver a la ficha de la que salió el dato y para nada más: emparejar por él sería emparejar por número de fila."
+            "authority_level": "preferred",
+            "authority_score": 1,
+            "rationale": "Official sources are preferred for declared identity."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "title",
           "entidad": "product",
-          "predicado": "identity.name",
-          "dimension": "identity",
+          "predicado": "official.title",
+          "dimension": "type",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 513,
           "conValor": 513,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 1,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official sources are preferred for declared identity."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.title»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
+        },
+        {
+          "campo": "variant_title",
+          "entidad": "variant",
+          "predicado": "official.variant_title",
+          "dimension": "type",
+          "naturaleza": "LITERAL",
+          "universo": 514,
+          "conValor": 514,
+          "cobertura": 1,
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.variant_title»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "vendor",
           "entidad": "product",
-          "predicado": "identity.brand_declared",
+          "predicado": "official.vendor",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "etiqueta de tienda sin resolver: MASGLO, Masglo, Masglo Espana, bigen-usa.com, acryloveoficial",
           "universo": 513,
           "conValor": 513,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.6,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "La marca tal como la escribe la tienda, sin resolver. Medido en las seis fuentes: Masglo aparece como MASGLO, Masglo y Masglo España; Bigen como «bigen-usa.com»; Acrylove como «acryloveoficial». Es una etiqueta, no una entidad."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «acceptable» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.vendor»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "product_type",
           "entidad": "product",
-          "predicado": "semantic.type",
+          "predicado": "official.product_type",
           "dimension": "type",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "taxonomía de tienda, no canónica: 225 valores distintos en 1.395 fichas de Cherimoya",
           "universo": 513,
           "conValor": 0,
           "cobertura": 0,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.9,
-            "source_role": "TECHNICAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "NO_EMITIDO",
-          "razon": "0 de 513: esta fuente no aporta este predicado"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "0 de 513: nada sobre lo que declarar autoridad"
         },
         {
           "campo": "(parsed) presentation",
           "entidad": "product",
-          "predicado": "semantic.packaging",
+          "predicado": "official.presentation",
           "dimension": "packaging",
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
-          "regla": "PRESENTACION_CANTIDAD_UNIDAD v1",
-          "nota": "regex determinista y reversible sobre título, tipo y tags",
+          "nota": "regex de cantidad+unidad sobre título, tipo y tags",
           "universo": 513,
           "conValor": 103,
           "cobertura": 0.20077972709551656,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.9,
-            "source_role": "TECHNICAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «acceptable» y la evidencia lo respalda (20%)"
+          "autoridadActual": null,
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "supplemental",
+          "score": 0.3,
+          "razon": "extraído del texto por regla determinista, 20% de cobertura; por debajo de un literal porque depende de que la fuente escriba la unidad"
         },
         {
           "campo": "(parsed) shadeName",
           "entidad": "product",
-          "predicado": "semantic.subtype",
-          "dimension": "subtype",
+          "predicado": "official.shade",
+          "dimension": "type",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "TONO_POR_SEGMENTO_DE_TITULO v1",
-          "nota": "asume que el título separa el tono con un guion rodeado de espacios",
+          "nota": "parte el título por « - » y asume que lo de delante es el tono",
           "universo": 513,
           "conValor": 0,
           "cobertura": 0,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "NO_EMITIDO",
-          "razon": "0 de 513: esta fuente no aporta este predicado"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "0 de 513: nada sobre lo que declarar autoridad"
         },
         {
           "campo": "(parsed) line",
           "entidad": "product",
-          "predicado": "semantic.type",
+          "predicado": "official.line",
           "dimension": "type",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "NAIL_ES_PRODUCT_SEMANTICS v1",
-          "nota": "vocabulario en español sobre los tags",
+          "nota": "busca en los tags un vocabulario en español que fijamos nosotros",
           "universo": 513,
           "conValor": 3,
           "cobertura": 0.005847953216374269,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "supplemental por tope epistémico (DERIVED_INFERRED), 1% de cobertura con la regla NAIL_ES_PRODUCT_SEMANTICS v1; el tope es universal, no de esta fuente"
+          "autoridadActual": null,
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "inferido y solo resuelve el 1%: el vocabulario del parser no encaja con esta fuente"
         },
         {
           "campo": "(parsed) finish",
           "entidad": "product",
-          "predicado": "semantic.finish",
+          "predicado": "official.finish",
           "dimension": "finish",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "NAIL_ES_PRODUCT_SEMANTICS v1",
-          "nota": "adjetivos de acabado en español sobre los tags",
+          "nota": "igual que line, con adjetivos de acabado en español",
           "universo": 513,
           "conValor": 0,
           "cobertura": 0,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "NO_EMITIDO",
-          "razon": "0 de 513: esta fuente no aporta este predicado"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "0 de 513: nada sobre lo que declarar autoridad"
         },
         {
           "campo": "price",
@@ -2409,41 +2057,46 @@
           "predicado": "price.observed",
           "dimension": "price",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 514,
           "conValor": 514,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.4,
+            "policy_id": "a59ab9e6-c30c-41e5-9a05-475f345605ea",
             "source_role": "COMMERCIAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Observación de precio en el mercado de la fuente. Nunca es autoridad sobre el precio propio, y su comparabilidad depende de que el mercado coincida — que es un dato de la fuente, no una regla de autoridad."
+            "authority_level": "acceptable",
+            "authority_score": 0.85,
+            "rationale": "Official prices are authoritative only as captured commercial observations."
           },
-          "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "514 precios en MXN, mercado MX: otra moneda y otra estructura de costes, no comparables con Perú"
+        },
+        {
+          "campo": "available",
+          "entidad": "variant",
+          "predicado": "availability.observed",
+          "dimension": null,
+          "naturaleza": "LITERAL",
+          "universo": 514,
+          "conValor": 514,
+          "cobertura": 1,
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «availability.observed»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "primary_image_url",
           "entidad": "product",
-          "predicado": "media.image",
+          "predicado": "official.primary_image",
           "dimension": "media",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 513,
           "conValor": 511,
           "cobertura": 0.9961013645224172,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 1,
-            "source_role": "MEDIA",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official media are preferred for source media."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.primary_image»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "image_url",
@@ -2451,52 +2104,32 @@
           "predicado": "media.image",
           "dimension": "media",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 1115,
           "conValor": 1115,
           "cobertura": 1,
           "autoridadActual": {
+            "policy_id": "4117bbc9-a8fa-4afb-97df-6bccd3e4c5c7",
+            "source_role": "MEDIA",
             "authority_level": "preferred",
             "authority_score": 1,
-            "source_role": "MEDIA",
-            "capped": false,
-            "cap_reason": null,
             "rationale": "Official media are preferred for source media."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
-        },
-        {
-          "campo": "available",
-          "entidad": "variant",
-          "predicado": null,
-          "dimension": null,
-          "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "noEsClaim": true,
-          "nota": "ya modelado en catalog_reference_prices.external_availability; nunca es stock de Bellaroshe",
-          "universo": 514,
-          "conValor": 514,
-          "cobertura": 1,
-          "autoridadActual": null,
-          "destino": "NO_APPLICABLE",
-          "razon": "no se emite como claim: ya modelado en catalog_reference_prices.external_availability; nunca es stock de Bellaroshe"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "description",
           "entidad": "product",
-          "predicado": null,
+          "predicado": "official.description",
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "noEsClaim": true,
-          "nota": "texto de origen: va en source_excerpt, no como afirmación. Es la ENTRADA de la que se derivarían composición o uso",
+          "nota": "el texto es literal; extraer de él composición o uso ya sería INFERIDO y no está hecho",
           "universo": 513,
           "conValor": 513,
           "cobertura": 1,
           "autoridadActual": null,
-          "destino": "NO_APPLICABLE",
-          "razon": "no se emite como claim: texto de origen: va en source_excerpt, no como afirmación. Es la ENTRADA de la que se derivarían composición o uso"
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.description»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "tags",
@@ -2504,14 +2137,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "bolsa sin vocabulario declarado: mezcla gama, tamaño, línea y promoción",
+          "nota": "bolsa de etiquetas sin vocabulario declarado: mezcla gama, tamaño, línea y promoción",
           "universo": 513,
           "conValor": 423,
           "cobertura": 0.8245614035087719,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; bolsa sin vocabulario declarado: mezcla gama, tamaño, línea y promoción"
+          "razon": "campo sin predicado; bolsa de etiquetas sin vocabulario declarado: mezcla gama, tamaño, línea y promoción"
         },
         {
           "campo": "handle",
@@ -2519,14 +2151,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "identificador de URL, no del producto",
           "universo": 513,
           "conValor": 513,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; identificador de URL, no del producto"
+          "razon": "campo sin predicado; identificador de URL, no del producto"
         },
         {
           "campo": "option1",
@@ -2534,14 +2165,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "el eje de variación no viene nombrado",
           "universo": 514,
           "conValor": 514,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; el eje de variación no viene nombrado"
+          "razon": "campo sin predicado; el eje de variación no viene nombrado"
         },
         {
           "campo": "width",
@@ -2549,14 +2179,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "píxeles de la imagen; NO es la dimensión dimensions del producto",
+          "nota": "píxeles de la imagen; NO es la dimensión «dimensions» del producto",
           "universo": 1115,
           "conValor": 1115,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; píxeles de la imagen; NO es la dimensión dimensions del producto"
+          "razon": "campo sin predicado; píxeles de la imagen; NO es la dimensión «dimensions» del producto"
         },
         {
           "campo": "height",
@@ -2564,14 +2193,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "ídem",
           "universo": 1115,
           "conValor": 1115,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; ídem"
+          "razon": "campo sin predicado; ídem"
         },
         {
           "campo": "image_position",
@@ -2579,14 +2207,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "orden de galería",
           "universo": 1115,
           "conValor": 1115,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; orden de galería"
+          "razon": "campo sin predicado; orden de galería"
         },
         {
           "campo": "published_at",
@@ -2594,14 +2221,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "fecha de publicación en la tienda",
           "universo": 513,
           "conValor": 513,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; fecha de publicación en la tienda"
+          "razon": "campo sin predicado; fecha de publicación en la tienda"
         },
         {
           "campo": "updated_at",
@@ -2609,14 +2235,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "última edición en la tienda",
           "universo": 513,
           "conValor": 513,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; última edición en la tienda"
+          "razon": "campo sin predicado; última edición en la tienda"
         },
         {
           "campo": "variant_count",
@@ -2624,14 +2249,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
           "nota": "recuento nuestro",
           "universo": 513,
           "conValor": 513,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; recuento nuestro"
+          "razon": "campo sin predicado; recuento nuestro"
         },
         {
           "campo": "image_count",
@@ -2639,14 +2263,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
           "nota": "recuento nuestro",
           "universo": 513,
           "conValor": 513,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; recuento nuestro"
+          "razon": "campo sin predicado; recuento nuestro"
         },
         {
           "campo": "confidence",
@@ -2654,14 +2277,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
-          "nota": "CONFIRMADO_OFICIAL lo escribimos nosotros",
+          "nota": "«CONFIRMADO_OFICIAL» lo escribimos nosotros; la tienda no publica su propia confianza",
           "universo": 513,
           "conValor": 513,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; CONFIRMADO_OFICIAL lo escribimos nosotros"
+          "razon": "campo sin predicado; «CONFIRMADO_OFICIAL» lo escribimos nosotros; la tienda no publica su propia confianza"
         },
         {
           "campo": "source_type",
@@ -2669,14 +2291,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
           "nota": "cómo lo capturamos",
           "universo": 513,
           "conValor": 513,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; cómo lo capturamos"
+          "razon": "campo sin predicado; cómo lo capturamos"
         },
         {
           "campo": "brand",
@@ -2684,14 +2305,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
-          "nota": "lo fija la campaña, no la ficha; vendor sí es de la fuente",
+          "nota": "lo fija la campaña al lanzarse, no la ficha; «vendor» sí es de la fuente",
           "universo": 513,
           "conValor": 513,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; lo fija la campaña, no la ficha; vendor sí es de la fuente"
+          "razon": "campo sin predicado; lo fija la campaña al lanzarse, no la ficha; «vendor» sí es de la fuente"
         }
       ]
     },
@@ -2704,23 +2324,15 @@
         {
           "campo": "sku",
           "entidad": "variant",
-          "predicado": "identity.manufacturer_sku",
+          "predicado": "official.sku",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 948,
           "conValor": 948,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 0.9,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "El SKU de fábrica manda dentro del espacio de nombres de su marca. Fuera de él no identifica nada: dos marcas pueden usar el mismo código para cosas distintas."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.sku»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "barcode",
@@ -2728,20 +2340,20 @@
           "predicado": "identity.gtin",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 948,
           "conValor": 0,
           "cobertura": 0,
           "autoridadActual": {
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
+            "source_role": "IDENTITY",
             "authority_level": "preferred",
             "authority_score": 1,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Un GTIN identifica el producto en cualquier catálogo del mundo. Es la única identidad que no depende de que dos fuentes escriban el nombre igual."
+            "rationale": "Official sources are preferred for declared identity."
           },
-          "destino": "NO_EMITIDO",
-          "razon": "0 de 948: esta fuente no aporta este predicado"
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "la clase concede «preferred» pero esta fuente publica 0 de 948: la autoridad sería vacía y la haría parecer una referencia que no es"
         },
         {
           "campo": "external_product_id",
@@ -2749,20 +2361,18 @@
           "predicado": "identity.source_external_id",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 1035,
           "conValor": 1035,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
             "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Es el id interno de la tienda. Sirve para volver a la ficha de la que salió el dato y para nada más: emparejar por él sería emparejar por número de fila."
+            "authority_level": "preferred",
+            "authority_score": 1,
+            "rationale": "Official sources are preferred for declared identity."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "external_variant_id",
@@ -2770,177 +2380,134 @@
           "predicado": "identity.source_external_id",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 948,
           "conValor": 948,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
+            "policy_id": "f62622a4-61ba-404e-a21d-41fc0dc6183a",
             "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Es el id interno de la tienda. Sirve para volver a la ficha de la que salió el dato y para nada más: emparejar por él sería emparejar por número de fila."
+            "authority_level": "preferred",
+            "authority_score": 1,
+            "rationale": "Official sources are preferred for declared identity."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "title",
           "entidad": "product",
-          "predicado": "identity.name",
-          "dimension": "identity",
+          "predicado": "official.title",
+          "dimension": "type",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 1035,
           "conValor": 1035,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 1,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official sources are preferred for declared identity."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.title»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
+        },
+        {
+          "campo": "variant_title",
+          "entidad": "variant",
+          "predicado": "official.variant_title",
+          "dimension": "type",
+          "naturaleza": "LITERAL",
+          "universo": 948,
+          "conValor": 948,
+          "cobertura": 1,
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.variant_title»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "vendor",
           "entidad": "product",
-          "predicado": "identity.brand_declared",
+          "predicado": "official.vendor",
           "dimension": "identity",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "etiqueta de tienda sin resolver: MASGLO, Masglo, Masglo Espana, bigen-usa.com, acryloveoficial",
           "universo": 1035,
           "conValor": 1035,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.6,
-            "source_role": "IDENTITY",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "La marca tal como la escribe la tienda, sin resolver. Medido en las seis fuentes: Masglo aparece como MASGLO, Masglo y Masglo España; Bigen como «bigen-usa.com»; Acrylove como «acryloveoficial». Es una etiqueta, no una entidad."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «acceptable» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.vendor»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "product_type",
           "entidad": "product",
-          "predicado": "semantic.type",
+          "predicado": "official.product_type",
           "dimension": "type",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "taxonomía de tienda, no canónica: 225 valores distintos en 1.395 fichas de Cherimoya",
           "universo": 1035,
           "conValor": 1035,
           "cobertura": 1,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.9,
-            "source_role": "TECHNICAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «acceptable» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.product_type»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "(parsed) presentation",
           "entidad": "product",
-          "predicado": "semantic.packaging",
+          "predicado": "official.presentation",
           "dimension": "packaging",
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
-          "regla": "PRESENTACION_CANTIDAD_UNIDAD v1",
-          "nota": "regex determinista y reversible sobre título, tipo y tags",
+          "nota": "regex de cantidad+unidad sobre título, tipo y tags",
           "universo": 1035,
           "conValor": 584,
           "cobertura": 0.5642512077294686,
-          "autoridadActual": {
-            "authority_level": "acceptable",
-            "authority_score": 0.9,
-            "source_role": "TECHNICAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «acceptable» y la evidencia lo respalda (56%)"
+          "autoridadActual": null,
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "acceptable",
+          "score": 0.6,
+          "razon": "extraído del texto por regla determinista, 56% de cobertura; por debajo de un literal porque depende de que la fuente escriba la unidad"
         },
         {
           "campo": "(parsed) shadeName",
           "entidad": "product",
-          "predicado": "semantic.subtype",
-          "dimension": "subtype",
+          "predicado": "official.shade",
+          "dimension": "type",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "TONO_POR_SEGMENTO_DE_TITULO v1",
-          "nota": "asume que el título separa el tono con un guion rodeado de espacios",
+          "nota": "parte el título por « - » y asume que lo de delante es el tono",
           "universo": 1035,
           "conValor": 12,
           "cobertura": 0.011594202898550725,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "supplemental por tope epistémico (DERIVED_INFERRED), 1% de cobertura con la regla TONO_POR_SEGMENTO_DE_TITULO v1; el tope es universal, no de esta fuente"
+          "autoridadActual": null,
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "inferido y solo resuelve el 1%: el vocabulario del parser no encaja con esta fuente"
         },
         {
           "campo": "(parsed) line",
           "entidad": "product",
-          "predicado": "semantic.type",
+          "predicado": "official.line",
           "dimension": "type",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "NAIL_ES_PRODUCT_SEMANTICS v1",
-          "nota": "vocabulario en español sobre los tags",
+          "nota": "busca en los tags un vocabulario en español que fijamos nosotros",
           "universo": 1035,
           "conValor": 34,
           "cobertura": 0.03285024154589372,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "HEREDA",
-          "razon": "supplemental por tope epistémico (DERIVED_INFERRED), 3% de cobertura con la regla NAIL_ES_PRODUCT_SEMANTICS v1; el tope es universal, no de esta fuente"
+          "autoridadActual": null,
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "inferido y solo resuelve el 3%: el vocabulario del parser no encaja con esta fuente"
         },
         {
           "campo": "(parsed) finish",
           "entidad": "product",
-          "predicado": "semantic.finish",
+          "predicado": "official.finish",
           "dimension": "finish",
           "naturaleza": "INFERIDO",
-          "epistemico": "DERIVED_INFERRED",
-          "regla": "NAIL_ES_PRODUCT_SEMANTICS v1",
-          "nota": "adjetivos de acabado en español sobre los tags",
+          "nota": "igual que line, con adjetivos de acabado en español",
           "universo": 1035,
           "conValor": 0,
           "cobertura": 0,
-          "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.35,
-            "source_role": "TECHNICAL",
-            "capped": true,
-            "cap_reason": "acceptable topado a supplemental: la clase epistémica es DERIVED_INFERRED, así que el valor lo produce nuestra regla y no la fuente",
-            "rationale": "Official semantic source claims are acceptable only as declared, non-canonical knowledge."
-          },
-          "destino": "NO_EMITIDO",
-          "razon": "0 de 1035: esta fuente no aporta este predicado"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "0 de 1035: nada sobre lo que declarar autoridad"
         },
         {
           "campo": "price",
@@ -2948,41 +2515,46 @@
           "predicado": "price.observed",
           "dimension": "price",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 948,
           "conValor": 948,
           "cobertura": 1,
           "autoridadActual": {
-            "authority_level": "supplemental",
-            "authority_score": 0.4,
+            "policy_id": "a59ab9e6-c30c-41e5-9a05-475f345605ea",
             "source_role": "COMMERCIAL",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Observación de precio en el mercado de la fuente. Nunca es autoridad sobre el precio propio, y su comparabilidad depende de que el mercado coincida — que es un dato de la fuente, no una regla de autoridad."
+            "authority_level": "acceptable",
+            "authority_score": 0.85,
+            "rationale": "Official prices are authoritative only as captured commercial observations."
           },
-          "destino": "HEREDA",
-          "razon": "la clase concede «supplemental» y la evidencia lo respalda (100%)"
+          "destino": "REQUIERE_ESPECIFICA",
+          "nivelPropuesto": "prohibited",
+          "score": 0,
+          "razon": "948 precios en MXN, mercado MX: otra moneda y otra estructura de costes, no comparables con Perú"
+        },
+        {
+          "campo": "available",
+          "entidad": "variant",
+          "predicado": "availability.observed",
+          "dimension": null,
+          "naturaleza": "LITERAL",
+          "universo": 948,
+          "conValor": 948,
+          "cobertura": 1,
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «availability.observed»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "primary_image_url",
           "entidad": "product",
-          "predicado": "media.image",
+          "predicado": "official.primary_image",
           "dimension": "media",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 1035,
           "conValor": 1034,
           "cobertura": 0.9990338164251208,
-          "autoridadActual": {
-            "authority_level": "preferred",
-            "authority_score": 1,
-            "source_role": "MEDIA",
-            "capped": false,
-            "cap_reason": null,
-            "rationale": "Official media are preferred for source media."
-          },
-          "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
+          "autoridadActual": null,
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.primary_image»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "image_url",
@@ -2990,52 +2562,32 @@
           "predicado": "media.image",
           "dimension": "media",
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "universo": 1050,
           "conValor": 1050,
           "cobertura": 1,
           "autoridadActual": {
+            "policy_id": "4117bbc9-a8fa-4afb-97df-6bccd3e4c5c7",
+            "source_role": "MEDIA",
             "authority_level": "preferred",
             "authority_score": 1,
-            "source_role": "MEDIA",
-            "capped": false,
-            "cap_reason": null,
             "rationale": "Official media are preferred for source media."
           },
           "destino": "HEREDA",
-          "razon": "la clase concede «preferred» y la evidencia lo respalda (100%)"
-        },
-        {
-          "campo": "available",
-          "entidad": "variant",
-          "predicado": null,
-          "dimension": null,
-          "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "noEsClaim": true,
-          "nota": "ya modelado en catalog_reference_prices.external_availability; nunca es stock de Bellaroshe",
-          "universo": 948,
-          "conValor": 948,
-          "cobertura": 1,
-          "autoridadActual": null,
-          "destino": "NO_APPLICABLE",
-          "razon": "no se emite como claim: ya modelado en catalog_reference_prices.external_availability; nunca es stock de Bellaroshe"
+          "razon": "la clase «official» ya concede «preferred» y la evidencia lo respalda (100%)"
         },
         {
           "campo": "description",
           "entidad": "product",
-          "predicado": null,
+          "predicado": "official.description",
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "noEsClaim": true,
-          "nota": "texto de origen: va en source_excerpt, no como afirmación. Es la ENTRADA de la que se derivarían composición o uso",
+          "nota": "el texto es literal; extraer de él composición o uso ya sería INFERIDO y no está hecho",
           "universo": 1035,
           "conValor": 557,
           "cobertura": 0.5381642512077295,
           "autoridadActual": null,
-          "destino": "NO_APPLICABLE",
-          "razon": "no se emite como claim: texto de origen: va en source_excerpt, no como afirmación. Es la ENTRADA de la que se derivarían composición o uso"
+          "destino": "CARECE",
+          "razon": "ningún patrón registrado casa con «official.description»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente"
         },
         {
           "campo": "tags",
@@ -3043,14 +2595,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "bolsa sin vocabulario declarado: mezcla gama, tamaño, línea y promoción",
+          "nota": "bolsa de etiquetas sin vocabulario declarado: mezcla gama, tamaño, línea y promoción",
           "universo": 1035,
           "conValor": 862,
           "cobertura": 0.8328502415458937,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; bolsa sin vocabulario declarado: mezcla gama, tamaño, línea y promoción"
+          "razon": "campo sin predicado; bolsa de etiquetas sin vocabulario declarado: mezcla gama, tamaño, línea y promoción"
         },
         {
           "campo": "handle",
@@ -3058,14 +2609,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "identificador de URL, no del producto",
           "universo": 1035,
           "conValor": 1035,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; identificador de URL, no del producto"
+          "razon": "campo sin predicado; identificador de URL, no del producto"
         },
         {
           "campo": "option1",
@@ -3073,14 +2623,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "el eje de variación no viene nombrado",
           "universo": 948,
           "conValor": 948,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; el eje de variación no viene nombrado"
+          "razon": "campo sin predicado; el eje de variación no viene nombrado"
         },
         {
           "campo": "width",
@@ -3088,14 +2637,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
-          "nota": "píxeles de la imagen; NO es la dimensión dimensions del producto",
+          "nota": "píxeles de la imagen; NO es la dimensión «dimensions» del producto",
           "universo": 1050,
           "conValor": 1050,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; píxeles de la imagen; NO es la dimensión dimensions del producto"
+          "razon": "campo sin predicado; píxeles de la imagen; NO es la dimensión «dimensions» del producto"
         },
         {
           "campo": "height",
@@ -3103,14 +2651,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "ídem",
           "universo": 1050,
           "conValor": 1050,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; ídem"
+          "razon": "campo sin predicado; ídem"
         },
         {
           "campo": "image_position",
@@ -3118,14 +2665,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "orden de galería",
           "universo": 1050,
           "conValor": 1050,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; orden de galería"
+          "razon": "campo sin predicado; orden de galería"
         },
         {
           "campo": "published_at",
@@ -3133,14 +2679,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "fecha de publicación en la tienda",
           "universo": 1035,
           "conValor": 1035,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; fecha de publicación en la tienda"
+          "razon": "campo sin predicado; fecha de publicación en la tienda"
         },
         {
           "campo": "updated_at",
@@ -3148,14 +2693,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "LITERAL",
-          "epistemico": "OBSERVATION_LITERAL",
           "nota": "última edición en la tienda",
           "universo": 1035,
           "conValor": 1035,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; última edición en la tienda"
+          "razon": "campo sin predicado; última edición en la tienda"
         },
         {
           "campo": "variant_count",
@@ -3163,14 +2707,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
           "nota": "recuento nuestro",
           "universo": 1035,
           "conValor": 1035,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; recuento nuestro"
+          "razon": "campo sin predicado; recuento nuestro"
         },
         {
           "campo": "image_count",
@@ -3178,14 +2721,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "NORMALIZADO",
-          "epistemico": "NORMALIZED_SOURCE_CLAIM",
           "nota": "recuento nuestro",
           "universo": 1035,
           "conValor": 1035,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; recuento nuestro"
+          "razon": "campo sin predicado; recuento nuestro"
         },
         {
           "campo": "confidence",
@@ -3193,14 +2735,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
-          "nota": "CONFIRMADO_OFICIAL lo escribimos nosotros",
+          "nota": "«CONFIRMADO_OFICIAL» lo escribimos nosotros; la tienda no publica su propia confianza",
           "universo": 1035,
           "conValor": 948,
           "cobertura": 0.9159420289855073,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; CONFIRMADO_OFICIAL lo escribimos nosotros"
+          "razon": "campo sin predicado; «CONFIRMADO_OFICIAL» lo escribimos nosotros; la tienda no publica su propia confianza"
         },
         {
           "campo": "source_type",
@@ -3208,14 +2749,13 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
           "nota": "cómo lo capturamos",
           "universo": 1035,
           "conValor": 1035,
           "cobertura": 1,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; cómo lo capturamos"
+          "razon": "campo sin predicado; cómo lo capturamos"
         },
         {
           "campo": "brand",
@@ -3223,33 +2763,15 @@
           "predicado": null,
           "dimension": null,
           "naturaleza": "ANOTACION_PROPIA",
-          "epistemico": null,
-          "nota": "lo fija la campaña, no la ficha; vendor sí es de la fuente",
+          "nota": "lo fija la campaña al lanzarse, no la ficha; «vendor» sí es de la fuente",
           "universo": 1035,
           "conValor": 948,
           "cobertura": 0.9159420289855073,
           "autoridadActual": null,
           "destino": "UNMAPPED",
-          "razon": "campo sin predicado canónico; lo fija la campaña, no la ficha; vendor sí es de la fuente"
+          "razon": "campo sin predicado; lo fija la campaña al lanzarse, no la ficha; «vendor» sí es de la fuente"
         }
       ]
-    }
-  ],
-  "contradicciones": [
-    {
-      "titulo": "identity.* concede «preferred» tanto al GTIN como al id interno de la tienda",
-      "detalle": "identidad-guardas.ts ordena GTIN 100 y SOURCE_EXTERNAL_ID 50 justamente porque un id de Shopify solo significa algo dentro de esa tienda. La tabla de autoridad los iguala con el mismo patrón identity.*.",
-      "arreglo": "separar identity.gtin de identity.source_external_id en las reglas de clase"
-    },
-    {
-      "titulo": "price.* concede «acceptable» a las seis, en cinco monedas distintas",
-      "detalle": "La regla de clase no puede saber el mercado. Un precio de Masglo España en euros llega con la misma autoridad que uno de Cherimoya Perú en soles.",
-      "arreglo": "override por fuente según mercado; es el caso claro de excepción legítima"
-    },
-    {
-      "titulo": "Los derivados del parser viajan indistinguibles de los campos literales",
-      "detalle": "official.line y official.finish salen de un vocabulario en español fijado por nosotros. Rinden 53% y 33% en Masglo, 99% y 79% en Admiss, y 0% en las otras cuatro. Casos a cero: 9.",
-      "arreglo": "marcar la naturaleza en la observación y no dejar que un INFERIDO herede autoridad de LITERAL"
     }
   ]
 }

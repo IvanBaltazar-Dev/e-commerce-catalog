@@ -180,7 +180,7 @@ async function resolveSource() {
   let source = must(
     await admin
       .from("catalog_sources")
-      .select("id, source_key, name, authority, adapter, base_url, brand_id, is_active")
+      .select("id, source_key, name, authority, adapter, base_url, brand_id, is_active, metadata")
       .eq("source_key", sourceKey)
       .single(),
     "catalog source",
@@ -205,7 +205,7 @@ async function resolveSource() {
     source = must(await admin.from("catalog_sources")
       .update({ brand_id: brand.id })
       .eq("id", source.id)
-      .select("id, source_key, name, authority, adapter, base_url, brand_id, is_active")
+      .select("id, source_key, name, authority, adapter, base_url, brand_id, is_active, metadata")
       .single(), "bind source brand");
   }
   return { source, brand };
@@ -876,7 +876,15 @@ async function ingestReferences({ source, brand, capture, run, scope, records })
   }
   await upsertBatches("catalog_observations", observations, "observation_key", { ignoreDuplicates: true });
   await upsertBatches("catalog_reference_prices", priceRows, "price_key", { ignoreDuplicates: true });
-  await upsertBatches("catalog_reference_media", mediaRows, "media_key");
+  // La llave natural de un medio es (a qué apunta, qué URL), no media_key.
+  //
+  // media_key se construye a partir de referenceKey, y referenceKey cambió de
+  // formato: al reejecutar, el upsert generaba una llave nueva, no encontraba
+  // conflicto por ella e intentaba insertar, chocando con el índice único real
+  // catalog_reference_media_target_url_idx. Es el mismo fallo que en
+  // catalog_reference_products, y la misma lección: apuntar el ON CONFLICT a lo
+  // que de verdad identifica la fila, no a la etiqueta derivada.
+  await upsertBatches("catalog_reference_media", mediaRows, "target_ref,remote_url");
   const semantics = await ingestOfficialSemantics({
     source, brand, capture, run, productByExternalId,
   });
