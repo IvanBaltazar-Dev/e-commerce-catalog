@@ -20,5 +20,9 @@ for i in $(seq 1 "$max"); do
   echo "── pasada $i: $antes → $despues (+$((despues-antes))) · salida $codigo ──"
   [ "$codigo" = "0" ] && { echo "COMPLETA y persistida en la pasada $i"; exit 0; }
   [ "$despues" = "$antes" ] && { echo "pasada sin ganancia: techo de la fuente en $despues"; exit 1; }
+  # Enfriamiento. El limitador es acumulativo: seguir pidiendo justo después de
+  # una pasada solo consigue que la siguiente rinda peor. Esperar es más rápido
+  # que insistir, por poco intuitivo que suene.
+  if [ "$i" != "$max" ]; then echo "   enfriando 10 min…"; sleep 600; fi
 done
 echo "agotadas las $max pasadas"; exit 1

@@ -50,7 +50,16 @@ const ACEPTAR_INCOMPLETA = process.argv.includes("--aceptar-incompleta");
 // Descartado por A/B: el User-Agent no influye — 12 de 12 con el nuestro y con
 // uno de navegador.
 const CONCURRENCIA = 2;
-const PAUSA_MS = 1600;
+const PAUSA_MS = 2200;
+
+// Añadido después de comerme el bloqueo dos veces: el limitador es ACUMULATIVO.
+// Con la cuota llena, 2 hilos a 1.400 ms daban 17 de 20. Después de unas cuantas
+// tandas de pruebas, las mismas URLs a 3.000 ms daban 4 de 20 — y devolvían 400,
+// no 404, así que no eran fichas muertas sino estrangulamiento.
+//
+// O sea que el ritmo instantáneo no es lo único que cuenta: importa cuánto se ha
+// pedido en la última hora. De ahí 2.200 ms en vez de los 1.400 «óptimos» y de
+// ahí el enfriamiento entre pasadas, que sale más barato que insistir.
 const UA = "BellarosheCatalogResearch/1.0";
 
 const TIENDAS = {
