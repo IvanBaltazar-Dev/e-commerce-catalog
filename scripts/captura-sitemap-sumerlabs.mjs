@@ -32,15 +32,25 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const APLICAR = process.argv.includes("--aplicar");
 const ACEPTAR_INCOMPLETA = process.argv.includes("--aceptar-incompleta");
-// Medido tres veces, no supuesto. Con 4 peticiones en paralelo fallaba el 81%
-// (2.095 de 2.583). Secuencial a 320 ms seguía fallando el 39%. Secuencial a
-// 1 s: 35 de 37 correctas en dos muestras, y las 2 restantes eran 400 reales.
+// Medido, nunca supuesto. El host limita por DOS cosas a la vez y hasta no
+// separarlas cada ajuste empeoraba el anterior:
 //
-// Descartado por A/B en el camino: el User-Agent no influye — 12 de 12 tanto
-// con el nuestro como con uno de navegador. Es un limitador por ritmo
-// sostenido: tolera una ráfaga corta y luego estrangula.
-const CONCURRENCIA = 1;
-const PAUSA_MS = 1100;
+//   4 hilos ·  120 ms → fallaba el 81% (2.095 de 2.583)
+//   1 hilo  ·  320 ms → fallaba el 39%
+//   1 hilo  · 1100 ms → 17 de 20 · 1,68 s/ficha
+//   2 hilos · 2200 ms → 18 de 20 · 1,40 s/ficha
+//   3 hilos · 3300 ms →  0 de 20 · muro, por espaciado que vaya
+//   2 hilos · 1400 ms → 17 de 20 · 1,12 s/ficha
+//
+// Con tres hilos no pasa nada aunque se espere muchísimo, así que hay un tope
+// duro de simultaneidad en 2. Y por debajo de ese tope, dos hilos van MÁS
+// rápido que uno: la espera es por hilo, el ritmo agregado sale igual, y
+// mientras uno espera el otro absorbe la latencia de red.
+//
+// Descartado por A/B: el User-Agent no influye — 12 de 12 con el nuestro y con
+// uno de navegador.
+const CONCURRENCIA = 2;
+const PAUSA_MS = 1600;
 const UA = "BellarosheCatalogResearch/1.0";
 
 const TIENDAS = {
@@ -125,7 +135,11 @@ let hechas = 0;
 // tres reintentos caían dentro de la misma ventana estrangulada y fallaban los
 // tres. Ahora la espera crece de verdad y da tiempo a que el cubo se rellene.
 async function traer(url) {
-  const esperas = [2000, 6000, 15000];
+  // Una sola reespera, y corta. La escalera de 2 s + 6 s + 15 s costaba hasta
+  // 23 s por URL muerta y era justo lo que hundía el ritmo medio a 3,7 s/ficha.
+  // Insistir aquí ya no hace falta: el rastreo es reanudable, así que lo que
+  // falle en esta pasada lo recoge la siguiente, cuando el cubo esté lleno.
+  const esperas = [2500];
   for (let intento = 0; intento < esperas.length + 1; intento += 1) {
     try {
       const r = await fetch(url, { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(30000) });

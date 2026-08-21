@@ -79,10 +79,24 @@ for (const r of registros) {
   for (const codigo of codigos) {
     const norm = normalizarCodigo(codigo);
     if (!norm) continue;
-    evidencias.push({
+    // Disponible y publicado son cosas distintas, y las dos son ciertas a la vez.
+    //
+    // El buscador de la tienda indexa 649 productos; su sitemap publica 2.583.
+    // No se contradicen: solo entra en el índice lo que está disponible. En la
+    // muestra, 23 de 97 fichas tenían disponible=true — el 24%, que es
+    // exactamente 649/2.583.
+    //
+    // Un producto agotado sigue probando que ese operador lo vende: el código
+    // existe, tiene nombre, precio y foto. Lo que ya no prueba es vigencia. Por
+    // eso se emiten DOS evidencias, no una sustituyendo a la otra: la de quién
+    // lo publica y la de en qué estado está.
+    const tipos = [clase.tipo];
+    if (p.available === false) tipos.push("CURRENTLY_UNAVAILABLE");
+
+    for (const tipo of tipos) evidencias.push({
       normalized_code: norm,
       observed_code: String(codigo),
-      evidence_type: clase.tipo,
+      evidence_type: tipo,
       source_id: r.source_id,
       snapshot_id: r.snapshot_id,
       source_record_id: r.id,
