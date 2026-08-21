@@ -50,16 +50,19 @@ const ACEPTAR_INCOMPLETA = process.argv.includes("--aceptar-incompleta");
 // Descartado por A/B: el User-Agent no influye — 12 de 12 con el nuestro y con
 // uno de navegador.
 const CONCURRENCIA = 2;
-const PAUSA_MS = 2200;
+const PAUSA_MS = 1600;
 
-// Añadido después de comerme el bloqueo dos veces: el limitador es ACUMULATIVO.
-// Con la cuota llena, 2 hilos a 1.400 ms daban 17 de 20. Después de unas cuantas
-// tandas de pruebas, las mismas URLs a 3.000 ms daban 4 de 20 — y devolvían 400,
-// no 404, así que no eran fichas muertas sino estrangulamiento.
+// Aviso para quien venga a «arreglar» esto viendo fallos: NO midas mientras el
+// rastreador corre. Me costó dos horas aprenderlo.
 //
-// O sea que el ritmo instantáneo no es lo único que cuenta: importa cuánto se ha
-// pedido en la última hora. De ahí 2.200 ms en vez de los 1.400 «óptimos» y de
-// ahí el enfriamiento entre pasadas, que sale más barato que insistir.
+// Con el rastreo en marcha lancé muestras con curl para diagnosticar y salían 16
+// de 20 en error 400. Di por hecho que el host había escalado el bloqueo por
+// volumen acumulado, bajé el ritmo y añadí enfriamientos. Todo falso: el
+// rastreador iba en ese mismo momento a 95 de 100.
+//
+// Mis peticiones de diagnóstico eran la TERCERA conexión simultánea, que es
+// exactamente la condición que ya había demostrado que tumba el 100%. La
+// medición se rompía a sí misma, y encima culpaba al host.
 const UA = "BellarosheCatalogResearch/1.0";
 
 const TIENDAS = {

@@ -23,6 +23,9 @@ for i in $(seq 1 "$max"); do
   # Enfriamiento. El limitador es acumulativo: seguir pidiendo justo después de
   # una pasada solo consigue que la siguiente rinda peor. Esperar es más rápido
   # que insistir, por poco intuitivo que suene.
-  if [ "$i" != "$max" ]; then echo "   enfriando 10 min…"; sleep 600; fi
+  # Enfriamiento corto entre pasadas: no porque el limitador sea acumulativo (eso
+  # resultó ser un diagnóstico equivocado), sino para que las URLs que fallaron
+  # no se reintenten en el mismo instante en que la cola aún va llena.
+  if [ "$i" != "$max" ]; then echo "   enfriando 2 min…"; sleep 120; fi
 done
 echo "agotadas las $max pasadas"; exit 1
