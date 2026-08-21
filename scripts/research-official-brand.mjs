@@ -17,6 +17,11 @@ import {
 } from "../src/lib/catalog-intelligence/official-semantic-normalizer.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+// Súbela cuando cambie qué se registra o cómo se clasifica una observación. Al
+// subirla se emiten observaciones nuevas y las anteriores quedan como historia,
+// que es lo que exige que sean inmutables.
+const CONTRATO_OBSERVACION = "v2-epistemico";
 const { env, isLocal } = loadSupabaseScriptEnv({
   rootDir: ROOT,
   scriptName: "research-official-brand",
@@ -173,7 +178,7 @@ function addObservation(rows, input) {
   // La clase epistémica entra en la llave: semantic.type declarado por la tienda
   // y semantic.type deducido de los tags son dos observaciones distintas sobre el
   // mismo predicado, y fundirlas perdería justo la que hay que poder descartar.
-  rows.push(observationRow({ ...input, key: `official-observation-v1:${input.referenceKey}:${input.predicate}:${input.epistemic ?? "LIT"}:${material}` }));
+  rows.push(observationRow({ ...input, key: `official-observation-${CONTRATO_OBSERVACION}:${input.referenceKey}:${input.predicate}:${input.epistemic ?? "LIT"}:${material}` }));
 }
 
 async function resolveSource() {
@@ -373,23 +378,30 @@ async function resolveSnapshot({ source, capture }) {
 }
 
 async function loadRecords(snapshotId) {
-  const rows = must(
-    await admin.from("catalog_source_records")
+  // Paginado. Estaba con .range(0, 999) y PostgREST corta ahí: para MC Nails, con
+  // 2.069 registros, el mapa salía con la mitad y los productos que faltaban
+  // reventaban después con «Cannot read properties of undefined». Bigen funcionaba
+  // solo porque cabía por debajo del tope, que es la peor forma de estar roto:
+  // parece que funciona hasta que la fuente crece.
+  //
+  // El helper selectAll existía desde el principio; había cuatro llamadas que lo
+  // esquivaban.
+  const rows = await selectAll(
+    () => admin.from("catalog_source_records")
       .select("id, entity_type, external_id, external_parent_id, sku, barcode, source_url, primary_image_url")
-      .eq("snapshot_id", snapshotId)
-      .range(0, 999),
+      .eq("snapshot_id", snapshotId),
     "source records",
   );
   return new Map(rows.map((row) => [`${row.entity_type}:${row.external_id}`, row]));
 }
 
 async function existingReferences(sourceId) {
-  const products = must(await admin.from("catalog_reference_products")
+  const products = await selectAll(() => admin.from("catalog_reference_products")
     .select("id, reference_key, primary_external_id, content_fingerprint, presence_status")
-    .eq("primary_source_id", sourceId).range(0, 999), "existing reference products");
-  const variants = must(await admin.from("catalog_reference_variants")
+    .eq("primary_source_id", sourceId), "existing reference products");
+  const variants = await selectAll(() => admin.from("catalog_reference_variants")
     .select("id, reference_key, primary_external_id, content_fingerprint, presence_status")
-    .eq("primary_source_id", sourceId).range(0, 999), "existing reference variants");
+    .eq("primary_source_id", sourceId), "existing reference variants");
   return {
     products: new Map(products.map((row) => [row.reference_key, row])),
     variants: new Map(variants.map((row) => [row.reference_key, row])),
@@ -440,7 +452,7 @@ async function ingestOfficialSemantics({ source, brand, capture, run, productByE
   const termByKey = new Map(terms.map((term) => [`${term.dimension}:${term.code}`, term]));
 
   const observationRows = extracted.map(({ reference, claim }) => ({
-    observation_key: `official-semantic-observation-v1:${reference.referenceKey}:${claim.dimension}:${claim.code}:${claim.evidenceFingerprint}`,
+    observation_key: `official-semantic-observation-${CONTRATO_OBSERVACION}:${reference.referenceKey}:${claim.dimension}:${claim.code}:${claim.evidenceFingerprint}`,
     source_record_id: reference.record.id,
     research_run_id: run.id,
     reference_product_id: reference.id,
@@ -461,11 +473,23 @@ async function ingestOfficialSemantics({ source, brand, capture, run, productByE
       metadata: claim.metadata,
     },
     observed_at: capture.capturedAt,
-    extraction_method: "official_api",
+    // Estas afirmaciones no vienen en un campo de la ficha: las extrae un
+    // normalizador del texto libre de la descripción y los tags. Entraban como
+    // «official_api» y sin clase epistémica, así que llegaban indistinguibles de
+    // un campo que la tienda sí publica — 9.418 observaciones en esa situación.
+    extraction_method: "rule_inference",
     extractor: OFFICIAL_SEMANTIC_NORMALIZER_VERSION,
     confidence: claim.confidence,
     metadata: {
       sourceKey: source.source_key,
+      // El vocabulario canónico del checkpoint, no uno paralelo. «source_claim»
+      // describía de quién es la afirmación; epistemic_class describe cómo la
+      // obtuvimos, que es lo que decide el tope de autoridad.
+      epistemic_class: "DERIVED_INFERRED",
+      dimension_code: claim.dimension,
+      rule_code: claim.ruleCode,
+      rule_version: OFFICIAL_SEMANTIC_NORMALIZER_VERSION,
+      derived_from: { field: claim.sourceField, excerpt: claim.sourceExcerpt },
       epistemicStatus: "source_claim",
       isCanonicalTechnicalFact: false,
       ruleCode: claim.ruleCode,
@@ -498,7 +522,7 @@ async function ingestOfficialSemantics({ source, brand, capture, run, productByE
 
   const now = new Date().toISOString();
   const links = extracted.map(({ reference, claim }) => {
-    const observationKey = `official-semantic-observation-v1:${reference.referenceKey}:${claim.dimension}:${claim.code}:${claim.evidenceFingerprint}`;
+    const observationKey = `official-semantic-observation-${CONTRATO_OBSERVACION}:${reference.referenceKey}:${claim.dimension}:${claim.code}:${claim.evidenceFingerprint}`;
     const observation = observationByKey.get(observationKey);
     const term = termByKey.get(`${claim.dimension}:${claim.code}`);
     if (!observation || !term) throw new Error(`No se resolvio el claim ${observationKey}.`);
@@ -766,9 +790,9 @@ async function ingestReferences({ source, brand, capture, run, scope, records })
     // tope de autoridad: la fuente manda sobre el texto que publica, no sobre lo
     // que nuestro parser concluya de él.
     addObservation(observations, { ...common, kind: "identity", predicate: "identity.name",
-      value: input.product.title, epistemic: "OBSERVATION_LITERAL" });
+      value: input.product.title, dimension: "identity", epistemic: "OBSERVATION_LITERAL" });
     addObservation(observations, { ...common, kind: "identity", predicate: "identity.brand_declared",
-      value: input.product.vendor, epistemic: "OBSERVATION_LITERAL",
+      value: input.product.vendor, dimension: "identity", epistemic: "OBSERVATION_LITERAL",
       // Sin resolver a entidad: la misma marca aparece como MASGLO, Masglo y
       // Masglo España, y Bigen como «bigen-usa.com». Resolverlo sería DERIVED.
       note: "etiqueta de tienda, no marca resuelta" });
@@ -780,7 +804,7 @@ async function ingestReferences({ source, brand, capture, run, scope, records })
     addObservation(observations, { ...common, kind: "type", predicate: "semantic.type",
       value: input.parsed.line, dimension: "type", epistemic: "DERIVED_INFERRED",
       rule: "NAIL_ES_PRODUCT_SEMANTICS", ruleVersion: 1, derivedFrom: { field: "tags", value: input.parsed.tags } });
-    addObservation(observations, { ...common, kind: "finish", predicate: "semantic.finish",
+    addObservation(observations, { ...common, kind: "type", predicate: "semantic.finish",
       value: input.parsed.finish, dimension: "finish", epistemic: "DERIVED_INFERRED",
       rule: "NAIL_ES_PRODUCT_SEMANTICS", ruleVersion: 1, derivedFrom: { field: "tags", value: input.parsed.tags } });
     addObservation(observations, { ...common, kind: "presentation", predicate: "semantic.packaging",
@@ -830,11 +854,11 @@ async function ingestReferences({ source, brand, capture, run, scope, records })
     // predicados distintos a propósito, porque identidad-guardas.ts ya los ordena
     // 90 y 50 y la autoridad tenía que decir lo mismo.
     addObservation(observations, { ...common, kind: "code", predicate: "identity.manufacturer_sku",
-      value: input.variant.sku || null, epistemic: "OBSERVATION_LITERAL" });
+      value: input.variant.sku || null, dimension: "identity", epistemic: "OBSERVATION_LITERAL" });
     addObservation(observations, { ...common, kind: "code", predicate: "identity.source_external_id",
-      value: input.variant.id ? String(input.variant.id) : null, epistemic: "OBSERVATION_LITERAL" });
+      value: input.variant.id ? String(input.variant.id) : null, dimension: "identity", epistemic: "OBSERVATION_LITERAL" });
     addObservation(observations, { ...common, kind: "code", predicate: "identity.gtin",
-      value: input.variant.barcode || null, epistemic: "OBSERVATION_LITERAL" });
+      value: input.variant.barcode || null, dimension: "identity", epistemic: "OBSERVATION_LITERAL" });
     addObservation(observations, { ...common, kind: "shade", predicate: "semantic.subtype",
       value: input.parsed.shadeName, dimension: "subtype", epistemic: "DERIVED_INFERRED",
       rule: "TONO_POR_SEGMENTO_DE_TITULO", ruleVersion: 1 });
@@ -935,12 +959,11 @@ async function attachEvidence({ source, capture, records, semanticObservationIds
     stance: "supports",
     notes: "Registro descubierto desde la raíz oficial y conservado en snapshot verificable.",
   }));
-  const existingItems = must(await admin.from("catalog_evidence_items")
+  const existingItems = await selectAll(() => admin.from("catalog_evidence_items")
     .select("source_record_id")
     .eq("evidence_set_id", evidence.id)
     .eq("stance", "supports")
-    .not("source_record_id", "is", null)
-    .range(0, 999), "evidence items lookup");
+    .not("source_record_id", "is", null), "evidence items lookup");
   const knownRecordIds = new Set(existingItems.map((item) => item.source_record_id));
   const missingItems = items.filter((item) => !knownRecordIds.has(item.source_record_id));
   if (missingItems.length) await insertBatches("catalog_evidence_items", missingItems);

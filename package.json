@@ -121,7 +121,9 @@
     "matriz:autoridad": "node --experimental-transform-types scripts/matriz-autoridad-propuesta.mjs",
     "test:matriz-autoridad": "node --experimental-transform-types scripts/test-matriz-autoridad.mjs",
     "mapeo:canonico": "node --experimental-transform-types scripts/mapeo-predicados-canonicos.mjs",
-    "test:resolucion-predicados": "node --experimental-transform-types scripts/test-resolucion-predicados.mjs"
+    "test:resolucion-predicados": "node --experimental-transform-types scripts/test-resolucion-predicados.mjs",
+    "clasificar:abc": "node --experimental-transform-types scripts/clasificar-excepciones-abc.mjs",
+    "gate:frontera-ingestion": "node --experimental-transform-types scripts/gate-frontera-ingestion.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",

@@ -40,7 +40,7 @@ async function fetchSurface(url, expectedType = null) {
   //
   // Un 429 y un 5xx son temporales por definición: se espera y se vuelve. Un 404
   // es una respuesta y se propaga tal cual, porque insistir no la cambia.
-  const esperas = [1500, 5000, 12000];
+  const esperas = [2000, 6000, 15000, 30000];
   let response = null, body = null;
   for (let intento = 0; intento <= esperas.length; intento += 1) {
     response = await fetch(url, {
@@ -142,7 +142,7 @@ async function fetchCollections(root, discoveredPath) {
   };
 }
 
-async function mapConcurrent(values, worker, concurrency = 3) {
+async function mapConcurrent(values, worker, concurrency = 2) {
   let cursor = 0;
   const output = new Array(values.length);
   await Promise.all(Array.from({ length: Math.min(concurrency, values.length) }, async () => {
