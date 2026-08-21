@@ -22,7 +22,7 @@
  *   node --experimental-transform-types scripts/captura-sitemap-sumerlabs.mjs revel --aplicar
  */
 import crypto from "node:crypto";
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
@@ -32,12 +32,15 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const APLICAR = process.argv.includes("--aplicar");
 const ACEPTAR_INCOMPLETA = process.argv.includes("--aceptar-incompleta");
-// Medido, no supuesto: con cuatro peticiones en paralelo fallaron 2.095 de
-// 2.583 URLs — el 81%. Secuencial con 300 ms de pausa da 8 de 8. El límite del
-// host es de CONCURRENCIA, no de ritmo, y acelerar en paralelo salía mucho más
-// lento que ir de una en una porque casi todo había que reintentarlo.
+// Medido tres veces, no supuesto. Con 4 peticiones en paralelo fallaba el 81%
+// (2.095 de 2.583). Secuencial a 320 ms seguía fallando el 39%. Secuencial a
+// 1 s: 35 de 37 correctas en dos muestras, y las 2 restantes eran 400 reales.
+//
+// Descartado por A/B en el camino: el User-Agent no influye — 12 de 12 tanto
+// con el nuestro como con uno de navegador. Es un limitador por ritmo
+// sostenido: tolera una ráfaga corta y luego estrangula.
 const CONCURRENCIA = 1;
-const PAUSA_MS = 320;
+const PAUSA_MS = 1100;
 const UA = "BellarosheCatalogResearch/1.0";
 
 const TIENDAS = {
@@ -118,30 +121,60 @@ const productos = [];
 const fallidas = [];
 let hechas = 0;
 
+// Las esperas de 400 ms no servían de nada contra un limitador por ritmo: los
+// tres reintentos caían dentro de la misma ventana estrangulada y fallaban los
+// tres. Ahora la espera crece de verdad y da tiempo a que el cubo se rellene.
 async function traer(url) {
-  for (let intento = 1; intento <= 3; intento += 1) {
+  const esperas = [2000, 6000, 15000];
+  for (let intento = 0; intento < esperas.length + 1; intento += 1) {
     try {
-      const r = await fetch(url, { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(25000) });
+      const r = await fetch(url, { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(30000) });
       if (r.ok) return await r.text();
-      await espera(400 * intento);
-    } catch { await espera(400 * intento); }
+      // Un 404 es una respuesta correcta: la ficha ya no existe. Reintentarlo
+      // solo gasta cuota que necesitan las que sí están vivas.
+      if (r.status === 404) return null;
+    } catch { /* red: se reintenta igual */ }
+    if (intento < esperas.length) await espera(esperas[intento]);
   }
   return null;
 }
 
-const cola = [...urls];
+// El intento anterior murió a las 500 URLs y se perdió una hora entera de
+// rastreo, porque todo vivía en memoria hasta el final. Ahora cada ficha se
+// escribe en cuanto se obtiene y una corrida nueva salta lo ya hecho.
+//
+// Solo se guardan los aciertos: los fallos deben reintentarse en la siguiente
+// pasada, que es justamente lo que convierte varias corridas cortas en una
+// captura completa.
+const CACHE = path.join(ROOT, "outputs", "cache", `sitemap-${CLAVE}`);
+mkdirSync(CACHE, { recursive: true });
+const ficheroDe = (u) => path.join(CACHE, u.split("/").pop().replace(/[^w.-]/g, "_").slice(0, 120) + ".json");
+
+let reusados = 0;
+const pendientes = [];
+for (const u of urls) {
+  const fp = ficheroDe(u);
+  if (existsSync(fp)) {
+    try { productos.push(JSON.parse(readFileSync(fp, "utf8"))); reusados += 1; continue; }
+    catch { /* fichero corrupto: se vuelve a pedir */ }
+  }
+  pendientes.push(u);
+}
+if (reusados) console.log(`   ${reusados} fichas ya estaban en caché · quedan ${pendientes.length}`);
+
+const cola = [...pendientes];
 await Promise.all(Array.from({ length: CONCURRENCIA }, async () => {
   for (;;) {
     const url = cola.shift();
     if (!url) return;
     const html = await traer(url);
     hechas += 1;
-    if (hechas % 250 === 0) console.log(`   ${hechas}/${declaredTotal} · capturados ${productos.length} · fallidos ${fallidas.length}`);
+    if (hechas % 100 === 0) console.log(`   ${hechas}/${pendientes.length} pedidas · capturadas ${productos.length} · fallidas ${fallidas.length}`);
     if (!html) { fallidas.push(url); continue; }
     const p = extraerProducto(html);
     if (!p) { fallidas.push(url); continue; }
     const d = desmontar(p.description, p.name);
-    productos.push({
+    const registro = {
       externalId: p.id, url,
       nombre: (p.name ?? "").trim() || (p.description ?? "").split("\n")[0].trim(),
       descripcionRaw: p.description ?? null,
@@ -151,7 +184,9 @@ await Promise.all(Array.from({ length: CONCURRENCIA }, async () => {
       categoriaFuente: p.category ?? null,
       imagenes: Array.isArray(p.images) ? p.images.filter((u) => /^https?:\/\//.test(u)) : [],
       ...d
-    });
+    };
+    productos.push(registro);
+    writeFileSync(ficheroDe(url), JSON.stringify(registro), "utf8");
     await espera(PAUSA_MS);
   }
 }));
