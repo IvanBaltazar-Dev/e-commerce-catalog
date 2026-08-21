@@ -31,8 +31,12 @@ import { clasificarCierre, discrepanciaDeTotal, expandirCodigos } from "../src/l
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const APLICAR = process.argv.includes("--aplicar");
-const CONCURRENCIA = 4;
-const PAUSA_MS = 120;
+// Medido, no supuesto: con cuatro peticiones en paralelo fallaron 2.095 de
+// 2.583 URLs — el 81%. Secuencial con 300 ms de pausa da 8 de 8. El límite del
+// host es de CONCURRENCIA, no de ritmo, y acelerar en paralelo salía mucho más
+// lento que ir de una en una porque casi todo había que reintentarlo.
+const CONCURRENCIA = 1;
+const PAUSA_MS = 320;
 const UA = "BellarosheCatalogResearch/1.0";
 
 const TIENDAS = {
