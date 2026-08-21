@@ -33,6 +33,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
+import { clasificarCierre, puedePromoverseComoCompleta } from "../src/lib/catalog-intelligence/captura-contratos.ts";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const APLICAR = process.argv.includes("--aplicar");
@@ -121,6 +122,9 @@ console.log("Capturando catálogo REVEL…");
 // Por eso solo se acepta el final cuando una respuesta CORRECTA viene vacía.
 const REINTENTOS = 4;
 let fallosSeguidos = 0;
+// Cómo terminó el recorrido: solo una respuesta CORRECTA y vacía cierra bien.
+let terminoLimpio = false;
+let terminoPorTope = false;
 
 for (;;) {
   const url = `${BASE}${RUTA}${pagina > 1 ? `?page=${pagina}` : ""}`;
@@ -152,11 +156,11 @@ for (;;) {
 
   fallosSeguidos = 0;
   const productos = extraerProductos(html);
-  if (!productos.length) { console.log(`   página ${pagina}: respuesta correcta y vacía — fin real del catálogo`); break; }
+  if (!productos.length) { terminoLimpio = true; console.log(`   página ${pagina}: respuesta correcta y vacía — fin real del catálogo`); break; }
   paginas.push({ pagina, url, productos, contentHash: sha(html) });
   if (pagina % 5 === 0) console.log(`   ${pagina} páginas · ${paginas.reduce((a, p) => a + p.productos.length, 0)} productos…`);
   pagina += 1;
-  if (pagina > 60) { console.log("   tope de seguridad a 60 páginas"); break; }
+  if (pagina > 60) { terminoPorTope = true; console.log("   tope de seguridad a 60 páginas"); break; }
   await espera(PAUSA_MS);
 }
 
@@ -170,6 +174,22 @@ if (paginasFallidas.length) {
 const crudos = paginas.flatMap((p) => p.productos);
 const porId = new Map(crudos.map((p) => [p.id, p]));
 const productos = [...porId.values()];
+
+// El cierre se clasifica, no se supone. Una corrida solo puede promoverse como
+// el catálogo entero si demuestra que llegó al final; cualquier otra cosa queda
+// marcada y visible.
+const cierre = clasificarCierre({
+  declaredTotal: null,
+  itemsCaptured: productos.length,
+  pagesCompleted: paginas.length,
+  failedPages: paginasFallidas,
+  terminoPorVacioCorrecto: terminoLimpio,
+  terminoPorTope: terminoPorTope
+});
+console.log(`\nCierre de la captura: ${cierre.closure} — ${cierre.closure_reason}`);
+if (!puedePromoverseComoCompleta(cierre.closure)) {
+  console.log(`  Esta captura NO debe promoverse como el catálogo completo.`);
+}
 
 const normalizados = productos.map((p) => {
   const d = desmontarDescripcion(p.description);
@@ -251,7 +271,21 @@ const { data: snap, error: errSnap } = await db.from("catalog_source_snapshots")
   product_count: productos.length,
   variant_count: 0,
   image_count: normalizados.reduce((a, p) => a + p.imagenes.length, 0),
-  metadata: { paginas: paginas.length, ruta: RUTA }
+  // El contrato de captura, completo. Sin esto, una corrida que trajera 640 de
+  // 698 quedaría indistinguible de un catálogo que encogió — y son cosas
+  // opuestas: la primera es un fallo nuestro, la segunda un hecho de la fuente.
+  metadata: {
+    ruta: RUTA,
+    declared_total: null,   // Sumerlabs no publica un total; si algún día lo hace, aquí va
+    pages_expected: paginas.length + paginasFallidas.length,
+    pages_completed: paginas.length,
+    items_captured: productos.length,
+    first_page: paginas.length ? paginas[0].pagina : null,
+    last_page: paginas.length ? paginas[paginas.length - 1].pagina : null,
+    failed_pages: paginasFallidas,
+    captured_at: capturadoEn,
+    ...cierre
+  }
 }).select("id").single();
 if (errSnap) throw new Error(`catalog_source_snapshots: ${errSnap.message}`);
 

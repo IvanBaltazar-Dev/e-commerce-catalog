@@ -33,6 +33,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
+import { expandirCodigos } from "../src/lib/catalog-intelligence/captura-contratos.ts";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
@@ -89,15 +90,10 @@ function desmontar(linea) {
   // Una línea puede declarar varios códigos: «SH-607,608» son dos fichas
   // distintas, y «LA-302,306,309,310,311» son cinco. Perderlos sería perder
   // exactamente la identidad que se vino a buscar.
-  const codigos = new Set();
-  for (const m of sinNso.matchAll(/\b([A-Z]{2,4})-?\s?(\d{2,4})((?:\s?,\s?\d{2,4})*)/gi)) {
-    const prefijo = m[1].toUpperCase();
-    codigos.add(`${prefijo}-${m[2]}`);
-    for (const extra of (m[3] ?? "").split(",").map((x) => x.trim()).filter(Boolean)) {
-      codigos.add(`${prefijo}-${extra}`);
-    }
-  }
-  for (const m of sinNso.matchAll(/#\s?(\d{4,8})/g)) codigos.add(`#${m[1]}`);
+  // El parser de códigos compuestos es pieza compartida: entiende listas
+  // —«SH-607,608»— y rangos —«SH-642 AL 647»—, y no inventa expansiones cuando
+  // el texto no es inequívoco.
+  const codigos = expandirCodigos(sinNso);
 
   const lote = (bruto.match(/LOTE\s*:?\s*([A-Z0-9-]{4,20})/i) ?? [])[1] ?? null;
   const pack = (bruto.match(/BOX\s*X?\s*(\d+)\s*(?:PCS|PZAS|UNID)?/i) ?? [])[1] ?? null;
@@ -108,7 +104,7 @@ function desmontar(linea) {
 
   return {
     descripcionRaw: bruto,
-    codigos: [...codigos],
+    codigos,
     notificacion: nso ? nso.toUpperCase() : null,
     lote,
     unidadesPorBox: pack ? Number(pack) : null,
@@ -153,7 +149,11 @@ for (;;) {
   const texto = aTexto(html);
   const lineas = texto.split("\n")
     .map((l) => l.replace(/\s+/g, " ").trim())
-    .filter((l) => /NSO|LOTE|BOX X|KG/i.test(l) && l.length > 60);
+    // La primera versión exigía NSO o LOTE y por eso la partida 96 —brochas y
+    // cepillos, 90 registros declarados— devolvía CERO: una brocha no lleva
+    // registro sanitario. Lo que identifica una fila es su FORMA: aduana, año,
+    // cantidad, descripción y país separados por barras.
+    .filter((l) => l.length > 60 && (l.match(/\|/g) ?? []).length >= 4 && /\b(19|20)\d{2}\b/.test(l));
 
   if (!lineas.length) { sinDatos += 1; if (sinDatos >= 2) break; }
   else sinDatos = 0;
