@@ -115,7 +115,8 @@
     "media:campaign": "node scripts/media-campaign.mjs --env .env.supabase.local",
     "checkpoint:certify": "node scripts/checkpoint-certify.mjs --env .env.supabase.local",
     "test:identidad-guardas": "node --experimental-transform-types scripts/test-identidad-guardas.mjs",
-    "test:captura-contratos": "node --experimental-transform-types scripts/test-captura-contratos.mjs"
+    "test:captura-contratos": "node --experimental-transform-types scripts/test-captura-contratos.mjs",
+    "test:gate-cierre": "node scripts/test-gate-cierre.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",

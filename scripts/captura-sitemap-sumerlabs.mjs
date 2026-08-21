@@ -22,7 +22,7 @@
  *   node --experimental-transform-types scripts/captura-sitemap-sumerlabs.mjs revel --aplicar
  */
 import crypto from "node:crypto";
-import { readFileSync, writeFileSync, mkdirSync, existsSync, unlinkSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, unlinkSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
@@ -170,23 +170,47 @@ let hechas = 0;
 // Las esperas de 400 ms no servían de nada contra un limitador por ritmo: los
 // tres reintentos caían dentro de la misma ventana estrangulada y fallaban los
 // tres. Ahora la espera crece de verdad y da tiempo a que el cubo se rellene.
+// Devuelve el DESENLACE, no solo el contenido. «null» servía mientras el cierre
+// se calculaba con un contador, pero un null no distingue entre una ficha que ya
+// no existe y una petición estrangulada, y esa diferencia es justo la que decide
+// si la campaña puede declararse completa.
 async function traer(url) {
-  // Una sola reespera, y corta. La escalera de 2 s + 6 s + 15 s costaba hasta
-  // 23 s por URL muerta y era justo lo que hundía el ritmo medio a 3,7 s/ficha.
-  // Insistir aquí ya no hace falta: el rastreo es reanudable, así que lo que
-  // falle en esta pasada lo recoge la siguiente, cuando el cubo esté lleno.
   const esperas = [2500];
+  let ultimoEstado = null, ultimoError = null, intentos = 0;
   for (let intento = 0; intento < esperas.length + 1; intento += 1) {
+    intentos += 1;
     try {
       const r = await fetch(url, { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(30000) });
-      if (r.ok) return await r.text();
-      // Un 404 es una respuesta correcta: la ficha ya no existe. Reintentarlo
-      // solo gasta cuota que necesitan las que sí están vivas.
-      if (r.status === 404) return null;
-    } catch { /* red: se reintenta igual */ }
+      ultimoEstado = r.status;
+      if (r.ok) return { outcome: "CAPTURED", html: await r.text(), status: r.status, intentos };
+      // La fuente afirma que no está, y le creemos. Es una respuesta, no un fallo:
+      // reintentarla solo gasta cuota que necesitan las URLs vivas.
+      if (r.status === 404 || r.status === 410) {
+        return { outcome: "VALID_ABSENCE", status: r.status, intentos, errorClass: null };
+      }
+      // 4xx que no es ausencia: la URL está mal formada o vetada. No mejora
+      // reintentando, así que se clasifica y se cierra.
+      if (r.status >= 400 && r.status < 500 && r.status !== 408 && r.status !== 429) {
+        return { outcome: "PERMANENT_ERROR", status: r.status, intentos, errorClass: `HTTP_${r.status}` };
+      }
+    } catch (e) { ultimoError = String(e?.name || e).slice(0, 120); }
     if (intento < esperas.length) await espera(esperas[intento]);
   }
-  return null;
+  // Estrangulamiento, 5xx o red: puede recuperarse en otra pasada, así que la
+  // campaña queda EXPLÍCITAMENTE incompleta hasta que se recupere.
+  return {
+    outcome: "TEMPORARY_ERROR_PENDING", status: ultimoEstado, intentos,
+    errorClass: ultimoEstado ? `HTTP_${ultimoEstado}` : (ultimoError ? `RED_${ultimoError}` : "SIN_RESPUESTA"),
+    errorDetail: ultimoError
+  };
+}
+
+// El libro mayor: una fila por URL descubierta, con su desenlace. Se rellena
+// durante el rastreo y se persiste al final, para que el cierre pueda demostrarse
+// sumando filas en vez de creerle a un contador.
+const libro = new Map();
+function anotar(url, fila) {
+  libro.set(url, { url, url_sha256: sha(url), ...fila });
 }
 
 // El intento anterior murió a las 500 URLs y se perdió una hora entera de
@@ -247,7 +271,15 @@ let reusados = 0;
 const pendientes = [];
 for (const u of urls) {
   const ficha = leerFicha(u);                  // lanza si el fichero es de otra URL
-  if (ficha) { productos.push(ficha); reusados += 1; continue; }
+  if (ficha) {
+    productos.push(ficha); reusados += 1;
+    anotar(u, {
+      outcome: "CAPTURED", attempts: 1, artifact_sha256: sha(u),
+      artifact_bytes: statSync(ficheroDe(u)).size,
+      metadata: { origen: "cache", pasada: "reutilizada" }
+    });
+    continue;
+  }
   pendientes.push(u);
 }
 if (reusados) console.log(`   ${reusados} fichas ya estaban en caché · quedan ${pendientes.length}`);
@@ -257,12 +289,32 @@ await Promise.all(Array.from({ length: CONCURRENCIA }, async () => {
   for (;;) {
     const url = cola.shift();
     if (!url) return;
-    const html = await traer(url);
+    const res = await traer(url);
     hechas += 1;
     if (hechas % 100 === 0) console.log(`   ${hechas}/${pendientes.length} pedidas · capturadas ${productos.length} · fallidas ${fallidas.length}`);
-    if (!html) { fallidas.push(url); continue; }
+    if (res.outcome !== "CAPTURED") {
+      fallidas.push(url);
+      anotar(url, {
+        outcome: res.outcome, http_status: res.status ?? null, attempts: res.intentos,
+        error_class: res.errorClass ?? null, error_detail: res.errorDetail ?? null
+      });
+      await espera(PAUSA_MS);
+      continue;
+    }
+    const html = res.html;
     const p = extraerProducto(html);
-    if (!p) { fallidas.push(url); continue; }
+    // Respondió 200 pero el HTML no trae producto: la página existe y no es una
+    // ficha. Eso es un error permanente de forma, no un fallo de red.
+    if (!p) {
+      fallidas.push(url);
+      anotar(url, {
+        outcome: "PERMANENT_ERROR", http_status: res.status, attempts: res.intentos,
+        error_class: "SIN_PRODUCTO_EN_HTML",
+        error_detail: "respondió 200 pero el HTML no contiene la ficha esperada"
+      });
+      await espera(PAUSA_MS);
+      continue;
+    }
     const d = desmontar(p.description, p.name);
     const registro = {
       externalId: p.id, url,
@@ -277,6 +329,11 @@ await Promise.all(Array.from({ length: CONCURRENCIA }, async () => {
     };
     productos.push(registro);
     escribirFicha(url, registro);
+    anotar(url, {
+      outcome: "CAPTURED", http_status: res.status, attempts: res.intentos,
+      artifact_sha256: sha(url), artifact_bytes: statSync(ficheroDe(url)).size,
+      metadata: { origen: "red" }
+    });
     await espera(PAUSA_MS);
   }
 }));
@@ -322,19 +379,10 @@ if (!APLICAR) { console.log(`\nSin persistir. Añade --aplicar.`); process.exit(
 // De los 36, veinte aparecieron en cuanto se miró el catálogo completo.
 //
 // Por eso persistir una captura parcial tiene que ser un acto deliberado.
-if (!puedePromoverseComoCompleta(cierre.closure)) {
-  if (!ACEPTAR_INCOMPLETA) {
-    console.error(
-      "\nNo se persiste: el cierre es " + cierre.closure + ", no COMPLETE.\n" +
-      "Los " + unicos.length + " productos capturados son observaciones válidas, pero este\n" +
-      "catálogo no puede servir para afirmar que un código NO existe.\n" +
-      "Si aun así los quieres como evidencia parcial: --aceptar-incompleta"
-    );
-    process.exit(1);
-  }
-  console.log("\n⚠ Persistiendo captura " + cierre.closure + " por petición explícita.");
-  console.log("  Sirve como evidencia de presencia; NO para concluir ausencias.");
-}
+// El gate se aplica más abajo, cuando el libro mayor está escrito: hasta
+// entonces no hay con qué demostrar nada. Lo que sí puede decidirse ya es que
+// una campaña sin ninguna URL descubierta no tiene sentido persistir.
+if (!urls.length) { console.error("El sitemap no devolvió ninguna URL."); process.exit(1); }
 
 const { data: fuente, error: eF } = await db.from("catalog_sources").upsert({
   source_key: TIENDA.sourceKey, name: TIENDA.nombre,
@@ -393,4 +441,62 @@ for (let i = 0; i < registros.length; i += 300) {
   escritos += Math.min(300, registros.length - i);
   if (escritos % 1200 === 0 || escritos === registros.length) console.log(`   registros: ${escritos}/${registros.length}`);
 }
-console.log(`\nFuente ${TIENDA.sourceKey} · snapshot ${snapshotId} · ${escritos} registros`);
+// ── El libro mayor ──────────────────────────────────────────────────────────
+// Se escribe SIEMPRE, complete o no. Una campaña incompleta con su libro escrito
+// es reanudable y auditable; una sin libro solo deja un número sin respaldo.
+const filasLibro = [...libro.values()].map((l) => ({
+  snapshot_id: snapshotId, source_id: fuente.id,
+  url: l.url, url_sha256: l.url_sha256, outcome: l.outcome,
+  http_status: l.http_status ?? null, error_class: l.error_class ?? null,
+  error_detail: l.error_detail ?? null, attempts: l.attempts ?? 1,
+  first_attempt_at: capturadoEn, last_attempt_at: new Date().toISOString(),
+  artifact_sha256: l.artifact_sha256 ?? null, artifact_bytes: l.artifact_bytes ?? null,
+  metadata: l.metadata ?? {}
+}));
+
+// Toda URL descubierta tiene que aparecer. Si el bucle dejó alguna sin anotar es
+// un fallo del rastreador, no de la fuente, y hay que verlo — no rellenarlo por
+// defecto, que es justo como se perdieron 441 URLs sin que nada lo dijera.
+const sinAnotar = urls.filter((u) => !libro.has(u));
+if (sinAnotar.length) {
+  console.error(`\n${sinAnotar.length} URLs descubiertas se quedaron sin anotar en el libro.`);
+  console.error(`Es un fallo del rastreador: toda URL descubierta debe salir con desenlace.`);
+  console.error(`Ejemplo: ${sinAnotar[0]}`);
+  process.exit(3);
+}
+
+for (let i = 0; i < filasLibro.length; i += 400) {
+  const { error } = await db.from("capture_url_ledger")
+    .upsert(filasLibro.slice(i, i + 400), { onConflict: "snapshot_id,url_sha256" });
+  if (error) throw new Error(`capture_url_ledger: ${error.message}`);
+}
+console.log(`\nLibro mayor: ${filasLibro.length} URLs con desenlace`);
+
+const { data: auditoria, error: eA } = await db
+  .from("capture_closure_audit_v1").select("*").eq("snapshot_id", snapshotId).single();
+if (eA) throw new Error(`auditoría de cierre: ${eA.message}`);
+
+console.log(`   descubiertas ${auditoria.descubiertas} = intentadas ${auditoria.intentadas}`);
+console.log(`   capturadas ${auditoria.capturadas} + ausencias ${auditoria.ausencias} + permanentes ${auditoria.permanentes} + pendientes ${auditoria.pendientes}`);
+console.log(`   colisiones de artefacto: ${auditoria.colisiones_de_artefacto}`);
+console.log(`   declarado por la fuente: ${auditoria.declarado_por_la_fuente ?? "sin dato"}`);
+
+const estadoCierre = auditoria.puede_declararse_completa ? "COMPLETE" : "INCOMPLETE_CAPTURE";
+await db.from("catalog_source_snapshots").update({
+  metadata: {
+    via: "sitemap", declared_total: declaredTotal, captured_at: capturadoEn,
+    ...cierre, ...disc,
+    items_captured: unicos.length, failed_pages: fallidas.length,
+    closure: estadoCierre, closure_reason: auditoria.motivo, closure_audit: auditoria
+  }
+}).eq("id", snapshotId);
+
+if (!auditoria.puede_declararse_completa) {
+  console.error(`\nCIERRE: ${estadoCierre} — ${auditoria.motivo}`);
+  console.error(`Los ${auditoria.capturadas} productos capturados son observaciones válidas,`);
+  console.error(`pero esta campaña no puede sostener que un código NO exista.`);
+  process.exit(1);
+}
+
+console.log(`\nCIERRE: COMPLETE — toda URL descubierta tiene desenlace, ningún artefacto compartido.`);
+console.log(`Fuente ${TIENDA.sourceKey} · snapshot ${snapshotId} · ${escritos} registros`);
