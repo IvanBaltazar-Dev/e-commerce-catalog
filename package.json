@@ -116,7 +116,10 @@
     "checkpoint:certify": "node scripts/checkpoint-certify.mjs --env .env.supabase.local",
     "test:identidad-guardas": "node --experimental-transform-types scripts/test-identidad-guardas.mjs",
     "test:captura-contratos": "node --experimental-transform-types scripts/test-captura-contratos.mjs",
-    "test:gate-cierre": "node scripts/test-gate-cierre.mjs"
+    "test:gate-cierre": "node scripts/test-gate-cierre.mjs",
+    "inventario:predicados": "node --experimental-transform-types scripts/inventario-predicados.mjs",
+    "matriz:autoridad": "node --experimental-transform-types scripts/matriz-autoridad-propuesta.mjs",
+    "test:matriz-autoridad": "node --experimental-transform-types scripts/test-matriz-autoridad.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",
