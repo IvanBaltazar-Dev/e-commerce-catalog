@@ -22,7 +22,7 @@
  *   node --experimental-transform-types scripts/captura-sitemap-sumerlabs.mjs revel --aplicar
  */
 import crypto from "node:crypto";
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, unlinkSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
@@ -79,6 +79,30 @@ const TIENDAS = {
     operador: "Droguería Bellaspa Import E.I.R.L.", ruc: "20522264904"
   }
 };
+// Cerrojo. Dos rastreadores a la vez son cuatro conexiones simultáneas, y a
+// partir de tres el host rechaza el 100%: no se reparten el trabajo, se anulan.
+//
+// Pasó tres veces seguidas y siempre igual — parar la tarea mataba el bash pero
+// no al node hijo, así que el siguiente arranque se montaba encima del anterior.
+// Desde fuera se veía como «el host nos ha bloqueado» y desde dentro cada
+// proceso creía ir solo. Un fichero con el PID lo corta en seco.
+const CLAVE_TIENDA = args[0] ?? "bellespa";
+const CERROJO = path.join(ROOT, "outputs", `.rastreo-${CLAVE_TIENDA}.lock`);
+function vivo(pid) { try { process.kill(pid, 0); return true; } catch { return false; } }
+if (existsSync(CERROJO)) {
+  const previo = Number(readFileSync(CERROJO, "utf8").trim());
+  if (previo && previo !== process.pid && vivo(previo)) {
+    console.error(`Ya hay un rastreo de ${CLAVE_TIENDA} en marcha (PID ${previo}).`);
+    console.error(`Dos a la vez se estorban: el host corta a partir de 3 conexiones.`);
+    process.exit(2);
+  }
+}
+mkdirSync(path.join(ROOT, "outputs"), { recursive: true });
+writeFileSync(CERROJO, String(process.pid), "utf8");
+for (const señal of ["exit", "SIGINT", "SIGTERM"]) {
+  process.on(señal, () => { try { unlinkSync(CERROJO); } catch {} if (señal !== "exit") process.exit(1); });
+}
+
 const CLAVE = args[0] ?? "bellespa";
 const TIENDA = TIENDAS[CLAVE];
 if (!TIENDA) { console.error(`Tiendas: ${Object.keys(TIENDAS).join(", ")}`); process.exit(1); }
