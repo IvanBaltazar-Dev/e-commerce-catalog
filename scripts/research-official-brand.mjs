@@ -772,7 +772,20 @@ async function ingestReferences({ source, brand, capture, run, scope, records })
     addObservation(observations, { ...common, kind: "presentation", predicate: "official.presentation", value: input.parsed.presentation });
     const amount = Number.parseFloat(input.variant.price);
     if (Number.isFinite(amount)) {
-      const priceFingerprint = contentHash({ amount, currency: "COP", availability: availability(input.variant.available) });
+      // La moneda sale de la fuente, no de una constante. Estuvo quemada a "COP"
+      // aquí y a PEN en la tabla, y el resultado fue que 2.011 precios de cinco
+      // países se guardaron como soles: los 3.900–15.900 de Admiss son pesos
+      // colombianos, y leídos como soles convierten un producto de S/15 en uno
+      // de S/15.900. El importe estaba bien; la etiqueta, no.
+      const moneda = source.metadata?.currency;
+      if (!moneda) {
+        throw new Error(
+          `${source.source_key} no declara moneda en catalog_sources.metadata.currency.
+` +
+          `Un precio sin mercado no es interpretable: declárala antes de capturar.`
+        );
+      }
+      const priceFingerprint = contentHash({ amount, currency: moneda, availability: availability(input.variant.available) });
       priceRows.push({
         price_key: `official-price-v1:${input.referenceKey}:${priceFingerprint}`,
         research_run_id: run.id,
@@ -780,7 +793,7 @@ async function ingestReferences({ source, brand, capture, run, scope, records })
         reference_variant_id: reference.id,
         source_id: source.id,
         source_record_id: input.record.id,
-        currency: "COP",
+        currency: moneda,
         amount,
         presentation: input.parsed.presentation,
         external_availability: availability(input.variant.available),

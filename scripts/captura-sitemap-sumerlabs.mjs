@@ -208,16 +208,46 @@ mkdirSync(CACHE, { recursive: true });
 //
 // Un hash no tiene esa clase de fallo: no depende de qué caracteres traiga el
 // slug ni de recortarlo a lo ancho.
-const ficheroDe = (u) => path.join(CACHE, sha(u).slice(0, 32) + ".json");
+// El nombre de caché es el SHA-256 COMPLETO de la URL. Nada de saneados ni de
+// recortes: un saneado ya falló una vez —quedó /[^w.-]/g en vez de /[^\w.-]/g y
+// convirtió los nombres en «--________-_____.json»— y 2.583 URLs se sobrescribieron
+// hasta quedar en 2.142 ficheros sin que nada lo denunciara.
+//
+// El hash resuelve el nombre. Lo que NO resuelve es la pérdida silenciosa, así que
+// va aparte: cada ficha guarda su url y, antes de escribir, se comprueba que el
+// fichero que hay (si lo hay) sea de esta misma URL. Si no lo es, se para la
+// campaña. Una colisión de SHA-256 es imposible en la práctica, pero un fichero
+// reaprovechado de otra corrida o una migración a medias sí ocurren, y ese es
+// exactamente el fallo que no debe volver a pasar por silencio.
+const ficheroDe = (u) => path.join(CACHE, sha(u) + ".json");
+
+function leerFicha(url) {
+  const fp = ficheroDe(url);
+  if (!existsSync(fp)) return null;
+  let ficha;
+  try { ficha = JSON.parse(readFileSync(fp, "utf8")); }
+  catch { return null; }                       // corrupta: se vuelve a pedir
+  if (ficha?.url && ficha.url !== url) {
+    throw new Error(
+      `COLISIÓN DE CACHÉ en ${path.basename(fp)}\n` +
+      `  el fichero dice ser de ${ficha.url}\n` +
+      `  y se está leyendo como ${url}\n` +
+      `La campaña se detiene: una sobrescritura silenciosa invalida el cierre.`
+    );
+  }
+  return ficha;
+}
+
+function escribirFicha(url, registro) {
+  leerFicha(url);                              // si hay fichero de otra URL, lanza
+  writeFileSync(ficheroDe(url), JSON.stringify({ ...registro, url }), "utf8");
+}
 
 let reusados = 0;
 const pendientes = [];
 for (const u of urls) {
-  const fp = ficheroDe(u);
-  if (existsSync(fp)) {
-    try { productos.push(JSON.parse(readFileSync(fp, "utf8"))); reusados += 1; continue; }
-    catch { /* fichero corrupto: se vuelve a pedir */ }
-  }
+  const ficha = leerFicha(u);                  // lanza si el fichero es de otra URL
+  if (ficha) { productos.push(ficha); reusados += 1; continue; }
   pendientes.push(u);
 }
 if (reusados) console.log(`   ${reusados} fichas ya estaban en caché · quedan ${pendientes.length}`);
@@ -246,7 +276,7 @@ await Promise.all(Array.from({ length: CONCURRENCIA }, async () => {
       ...d
     };
     productos.push(registro);
-    writeFileSync(ficheroDe(url), JSON.stringify(registro), "utf8");
+    escribirFicha(url, registro);
     await espera(PAUSA_MS);
   }
 }));
