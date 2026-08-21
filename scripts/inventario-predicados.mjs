@@ -59,67 +59,67 @@ async function todas(tabla, select, filtro = (q) => q, orden = "id") {
   return filas;
 }
 
-// ── El mapa campo→predicado, escrito a mano y a propósito ───────────────────
-// No se deduce del nombre del campo. «width» de una imagen son píxeles y la
-// dimensión «dimensions» del sistema semántico son medidas del producto: un
-// mapeo automático por parecido de nombre las habría fundido.
+// El mapa campo→predicado CANÓNICO. Ya no hay predicados de crawler aquí.
 //
-// predicado: null significa UNMAPPED_SOURCE_FIELD. No se inventa dimensión para
-// acomodarlo — se reporta y se decide después, que es una decisión distinta.
+// «official.*» era el namespace del adaptador, no vocabulario: «official» no es
+// ninguna de las 22 dimensiones registradas. Darle autoridad habría creado dos
+// vocabularios en paralelo, y detrás shopify.sku, woocommerce.sku, pdf.sku.
+//
+// Cada fila lleva además su clase epistémica, porque la autoridad se topa por
+// ella: la fuente manda sobre el texto que publica, no sobre lo que nuestro
+// parser concluya de ese texto.
+//
+// predicado: null significa que el campo NO debe emitirse como claim. No es un
+// hueco: es que no toda observación es una afirmación.
 const MAPA = [
   // ── identidad ─────────────────────────────────────────────────────────────
-  { campo: "sku",                 entidad: "variant", predicado: "official.sku",           dimension: "identity",  naturaleza: "LITERAL" },
-  { campo: "barcode",             entidad: "variant", predicado: "identity.gtin",          dimension: "identity",  naturaleza: "LITERAL" },
-  { campo: "external_product_id", entidad: "product", predicado: "identity.source_external_id", dimension: "identity", naturaleza: "LITERAL" },
-  { campo: "external_variant_id", entidad: "variant", predicado: "identity.source_external_id", dimension: "identity", naturaleza: "LITERAL" },
+  { campo: "sku",     entidad: "variant", predicado: "identity.manufacturer_sku", dimension: "identity", naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL" },
+  { campo: "barcode", entidad: "variant", predicado: "identity.gtin",             dimension: "identity", naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL" },
+  { campo: "external_product_id", entidad: "product", predicado: "identity.source_external_id", dimension: "identity", naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL" },
+  { campo: "external_variant_id", entidad: "variant", predicado: "identity.source_external_id", dimension: "identity", naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL" },
+  { campo: "title",   entidad: "product", predicado: "identity.name",             dimension: "identity", naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL" },
+  { campo: "vendor",  entidad: "product", predicado: "identity.brand_declared",   dimension: "identity", naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL",
+    nota: "etiqueta de tienda sin resolver: MASGLO, Masglo, Masglo Espana, bigen-usa.com, acryloveoficial" },
 
-  // ── denominación ──────────────────────────────────────────────────────────
-  { campo: "title",         entidad: "product", predicado: "official.title",        dimension: "type",     naturaleza: "LITERAL" },
-  { campo: "variant_title", entidad: "variant", predicado: "official.variant_title", dimension: "type",    naturaleza: "LITERAL" },
-  { campo: "vendor",        entidad: "product", predicado: "official.vendor",       dimension: "identity", naturaleza: "LITERAL" },
-  { campo: "product_type",  entidad: "product", predicado: "official.product_type", dimension: "type",     naturaleza: "LITERAL" },
+  // ── semántica declarada por la fuente ─────────────────────────────────────
+  { campo: "product_type", entidad: "product", predicado: "semantic.type", dimension: "type", naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL",
+    nota: "taxonomía de tienda, no canónica: 225 valores distintos en 1.395 fichas de Cherimoya" },
 
-  // ── derivados del texto: NO son campos de la fuente ───────────────────────
-  { campo: "(parsed) presentation", entidad: "product", predicado: "official.presentation", dimension: "packaging", naturaleza: "NORMALIZADO",
-    nota: "regex de cantidad+unidad sobre título, tipo y tags" },
-  { campo: "(parsed) shadeName", entidad: "product", predicado: "official.shade", dimension: "type", naturaleza: "INFERIDO",
-    nota: "parte el título por « - » y asume que lo de delante es el tono" },
-  { campo: "(parsed) line", entidad: "product", predicado: "official.line", dimension: "type", naturaleza: "INFERIDO",
-    nota: "busca en los tags un vocabulario en español que fijamos nosotros" },
-  { campo: "(parsed) finish", entidad: "product", predicado: "official.finish", dimension: "finish", naturaleza: "INFERIDO",
-    nota: "igual que line, con adjetivos de acabado en español" },
+  // ── conclusiones de NUESTRO parser, con su regla y su versión ─────────────
+  { campo: "(parsed) presentation", entidad: "product", predicado: "semantic.packaging", dimension: "packaging", naturaleza: "NORMALIZADO", epistemico: "NORMALIZED_SOURCE_CLAIM",
+    regla: "PRESENTACION_CANTIDAD_UNIDAD v1", nota: "regex determinista y reversible sobre título, tipo y tags" },
+  { campo: "(parsed) shadeName", entidad: "product", predicado: "semantic.subtype", dimension: "subtype", naturaleza: "INFERIDO", epistemico: "DERIVED_INFERRED",
+    regla: "TONO_POR_SEGMENTO_DE_TITULO v1", nota: "asume que el título separa el tono con un guion rodeado de espacios" },
+  { campo: "(parsed) line", entidad: "product", predicado: "semantic.type", dimension: "type", naturaleza: "INFERIDO", epistemico: "DERIVED_INFERRED",
+    regla: "NAIL_ES_PRODUCT_SEMANTICS v1", nota: "vocabulario en español sobre los tags" },
+  { campo: "(parsed) finish", entidad: "product", predicado: "semantic.finish", dimension: "finish", naturaleza: "INFERIDO", epistemico: "DERIVED_INFERRED",
+    regla: "NAIL_ES_PRODUCT_SEMANTICS v1", nota: "adjetivos de acabado en español sobre los tags" },
 
-  // ── comercial ─────────────────────────────────────────────────────────────
-  { campo: "price",     entidad: "variant", predicado: "price.observed",   dimension: "price", naturaleza: "LITERAL" },
-  { campo: "available", entidad: "variant", predicado: "availability.observed", dimension: null, naturaleza: "LITERAL" },
+  // ── comercial y medios ────────────────────────────────────────────────────
+  { campo: "price", entidad: "variant", predicado: "price.observed", dimension: "price", naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL" },
+  { campo: "primary_image_url", entidad: "product", predicado: "media.image", dimension: "media", naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL" },
+  { campo: "image_url", entidad: "image", predicado: "media.image", dimension: "media", naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL" },
 
-  // ── medios ────────────────────────────────────────────────────────────────
-  { campo: "primary_image_url", entidad: "product", predicado: "official.primary_image", dimension: "media", naturaleza: "LITERAL" },
-  { campo: "image_url",         entidad: "image",   predicado: "media.image",            dimension: "media", naturaleza: "LITERAL" },
-
-  // ── texto libre: literal como TEXTO, nunca como composición ───────────────
-  { campo: "description", entidad: "product", predicado: "official.description", dimension: null, naturaleza: "LITERAL",
-    nota: "el texto es literal; extraer de él composición o uso ya sería INFERIDO y no está hecho" },
-  { campo: "tags", entidad: "product", predicado: null, dimension: null, naturaleza: "LITERAL",
-    nota: "bolsa de etiquetas sin vocabulario declarado: mezcla gama, tamaño, línea y promoción" },
+  // ── observaciones que NO son claims ───────────────────────────────────────
+  { campo: "available", entidad: "variant", predicado: null, dimension: null, naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL",
+    noEsClaim: true, nota: "ya modelado en catalog_reference_prices.external_availability; nunca es stock de Bellaroshe" },
+  { campo: "description", entidad: "product", predicado: null, dimension: null, naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL",
+    noEsClaim: true, nota: "texto de origen: va en source_excerpt, no como afirmación. Es la ENTRADA de la que se derivarían composición o uso" },
 
   // ── sin predicado: se reportan, no se acomodan ────────────────────────────
-  { campo: "handle",        entidad: "product", predicado: null, dimension: null, naturaleza: "LITERAL", nota: "identificador de URL, no del producto" },
-  { campo: "option1",       entidad: "variant", predicado: null, dimension: null, naturaleza: "LITERAL", nota: "el eje de variación no viene nombrado" },
-  { campo: "width",         entidad: "image",   predicado: null, dimension: null, naturaleza: "LITERAL", nota: "píxeles de la imagen; NO es la dimensión «dimensions» del producto" },
-  { campo: "height",        entidad: "image",   predicado: null, dimension: null, naturaleza: "LITERAL", nota: "ídem" },
-  { campo: "image_position",entidad: "image",   predicado: null, dimension: null, naturaleza: "LITERAL", nota: "orden de galería" },
-  { campo: "published_at",  entidad: "product", predicado: null, dimension: null, naturaleza: "LITERAL", nota: "fecha de publicación en la tienda" },
-  { campo: "updated_at",    entidad: "product", predicado: null, dimension: null, naturaleza: "LITERAL", nota: "última edición en la tienda" },
-  { campo: "variant_count", entidad: "product", predicado: null, dimension: null, naturaleza: "NORMALIZADO", nota: "recuento nuestro" },
-  { campo: "image_count",   entidad: "product", predicado: null, dimension: null, naturaleza: "NORMALIZADO", nota: "recuento nuestro" },
-
-  // ── anotaciones NUESTRAS que no son observación de la fuente ──────────────
-  { campo: "confidence",  entidad: "product", predicado: null, dimension: null, naturaleza: "ANOTACION_PROPIA",
-    nota: "«CONFIRMADO_OFICIAL» lo escribimos nosotros; la tienda no publica su propia confianza" },
-  { campo: "source_type", entidad: "product", predicado: null, dimension: null, naturaleza: "ANOTACION_PROPIA", nota: "cómo lo capturamos" },
-  { campo: "brand",       entidad: "product", predicado: null, dimension: null, naturaleza: "ANOTACION_PROPIA",
-    nota: "lo fija la campaña al lanzarse, no la ficha; «vendor» sí es de la fuente" },
+  { campo: "tags",          entidad: "product", predicado: null, dimension: null, naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL", nota: "bolsa sin vocabulario declarado: mezcla gama, tamaño, línea y promoción" },
+  { campo: "handle",        entidad: "product", predicado: null, dimension: null, naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL", nota: "identificador de URL, no del producto" },
+  { campo: "option1",       entidad: "variant", predicado: null, dimension: null, naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL", nota: "el eje de variación no viene nombrado" },
+  { campo: "width",         entidad: "image",   predicado: null, dimension: null, naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL", nota: "píxeles de la imagen; NO es la dimensión dimensions del producto" },
+  { campo: "height",        entidad: "image",   predicado: null, dimension: null, naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL", nota: "ídem" },
+  { campo: "image_position",entidad: "image",   predicado: null, dimension: null, naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL", nota: "orden de galería" },
+  { campo: "published_at",  entidad: "product", predicado: null, dimension: null, naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL", nota: "fecha de publicación en la tienda" },
+  { campo: "updated_at",    entidad: "product", predicado: null, dimension: null, naturaleza: "LITERAL", epistemico: "OBSERVATION_LITERAL", nota: "última edición en la tienda" },
+  { campo: "variant_count", entidad: "product", predicado: null, dimension: null, naturaleza: "NORMALIZADO", epistemico: "NORMALIZED_SOURCE_CLAIM", nota: "recuento nuestro" },
+  { campo: "image_count",   entidad: "product", predicado: null, dimension: null, naturaleza: "NORMALIZADO", epistemico: "NORMALIZED_SOURCE_CLAIM", nota: "recuento nuestro" },
+  { campo: "confidence",    entidad: "product", predicado: null, dimension: null, naturaleza: "ANOTACION_PROPIA", epistemico: null, nota: "CONFIRMADO_OFICIAL lo escribimos nosotros" },
+  { campo: "source_type",   entidad: "product", predicado: null, dimension: null, naturaleza: "ANOTACION_PROPIA", epistemico: null, nota: "cómo lo capturamos" },
+  { campo: "brand",         entidad: "product", predicado: null, dimension: null, naturaleza: "ANOTACION_PROPIA", epistemico: null, nota: "lo fija la campaña, no la ficha; vendor sí es de la fuente" },
 ];
 
 const { data: fuentes } = await db.from("catalog_sources")
@@ -132,10 +132,10 @@ const registros = await todas("catalog_source_records",
 
 // ── Autoridad hoy vigente para cada predicado, preguntándoselo al resolutor ──
 const predicados = [...new Set(MAPA.filter((m) => m.predicado).map((m) => m.predicado))];
-async function autoridadDe(sourceId, predicado, dimension) {
-  const { data, error } = await db.rpc("resolve_catalog_source_authority_v1", {
-    p_source_id: sourceId, p_predicate: predicado,
-    p_source_field: "*", p_dimension_code: dimension
+async function autoridadDe(sourceId, predicado, dimension, epistemico) {
+  const { data, error } = await db.rpc("resolve_authority_with_epistemics_v1", {
+    p_source_id: sourceId, p_predicate: predicado, p_source_field: "*",
+    p_dimension_code: dimension, p_epistemic_class: epistemico ?? "OBSERVATION_LITERAL"
   });
   if (error) throw new Error(`resolver: ${error.message}`);
   return data?.[0] ?? null;
@@ -184,7 +184,7 @@ for (const clave of FUENTES) {
       }).length;
     }
     const cobertura = universo.length ? conValor / universo.length : 0;
-    const auth = m.predicado ? await autoridadDe(id, m.predicado, m.dimension) : null;
+    const auth = m.predicado ? await autoridadDe(id, m.predicado, m.dimension, m.epistemico) : null;
     filas.push({ ...m, universo: universo.length, conValor, cobertura, autoridadActual: auth });
   }
   salida.push({ fuente: clave, mercado: f.metadata?.market ?? null, moneda: f.metadata?.currency ?? null, clase: f.authority, filas, rendimientoParsed });

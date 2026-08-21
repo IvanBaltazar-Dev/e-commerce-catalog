@@ -41,67 +41,39 @@ function veredicto(fila, fuente) {
   const pct = Math.round(fila.cobertura * 100);
   const auth = fila.autoridadActual;
 
+  // Hay observaciones que no son afirmaciones. La descripción es el texto del
+  // que se derivarían composición o uso, y la disponibilidad ya viaja con el
+  // precio. Emitirlas como claim confundiría el insumo con la conclusión.
+  if (fila.noEsClaim) {
+    return { destino: "NO_APPLICABLE", razon: `no se emite como claim: ${fila.nota}` };
+  }
+
   if (!fila.predicado) {
-    return { destino: "UNMAPPED", razon: `campo sin predicado; ${fila.nota ?? "sin equivalencia en el vocabulario registrado"}` };
+    return { destino: "UNMAPPED", razon: `campo sin predicado canónico; ${fila.nota ?? "sin equivalencia en el vocabulario registrado"}` };
   }
 
-  // Un predicado sobre el que la fuente no publica nada. La regla de clase puede
-  // decir «preferred» y ser cierta en abstracto y vacía en la práctica: declara
-  // autoridad sobre algo que esta fuente nunca aporta.
+  // La fuente no publica esto. No hace falta ninguna regla: no hay nada que
+  // gobernar. Antes lo contaba como excepción y era ruido — una política sobre
+  // un predicado que la fuente nunca emite no gobierna nada.
   if (fila.conValor === 0) {
+    return { destino: "NO_EMITIDO", razon: `0 de ${fila.universo}: esta fuente no aporta este predicado` };
+  }
+
+  if (!auth) {
+    return { destino: "CARECE", razon: `ningún patrón registrado casa con «${fila.predicado}» (${pct}% de cobertura)` };
+  }
+
+  // Lo que el contrato universal ya resuelve NO es una excepción de fuente. El
+  // tope epistémico se aplica a las seis por igual: un DERIVED_INFERRED baja a
+  // supplemental venga de donde venga, sin una sola regla por marca.
+  if (auth.capped) {
     return {
-      destino: auth ? "REQUIERE_ESPECIFICA" : "CARECE",
-      nivelPropuesto: "prohibited", score: 0,
-      razon: auth
-        ? `la clase concede «${auth.authority_level}» pero esta fuente publica 0 de ${fila.universo}: la autoridad sería vacía y la haría parecer una referencia que no es`
-        : `0 de ${fila.universo}: nada sobre lo que declarar autoridad`
+      destino: "HEREDA",
+      razon: `${auth.authority_level} por tope epistémico (${fila.epistemico}), ${pct}% de cobertura con la regla ${fila.regla ?? "declarada"}; el tope es universal, no de esta fuente`
     };
   }
 
-  // Los derivados no son observaciones de la fuente: los fabrica nuestro parser.
-  // Su autoridad describe el rendimiento del parser SOBRE esta fuente, y por eso
-  // no puede heredarse de una clase.
-  if (fila.naturaleza === "INFERIDO") {
-    const rinde = fila.cobertura >= UMBRAL_DERIVADO;
-    return {
-      destino: "REQUIERE_ESPECIFICA",
-      nivelPropuesto: rinde ? "supplemental" : "prohibited",
-      score: rinde ? 0.35 : 0,
-      razon: rinde
-        ? `inferido por nuestro parser con ${pct}% de acierto en esta fuente; suplementario porque el valor es nuestro, no suyo`
-        : `inferido y solo resuelve el ${pct}%: el vocabulario del parser no encaja con esta fuente`
-    };
-  }
-
-  if (fila.naturaleza === "NORMALIZADO") {
-    return {
-      destino: "REQUIERE_ESPECIFICA",
-      nivelPropuesto: fila.cobertura >= UMBRAL_DERIVADO ? "acceptable" : "supplemental",
-      score: fila.cobertura >= UMBRAL_DERIVADO ? 0.6 : 0.3,
-      razon: `extraído del texto por regla determinista, ${pct}% de cobertura; por debajo de un literal porque depende de que la fuente escriba la unidad`
-    };
-  }
-
-  // Precio: literal y bien publicado, pero su valor depende del mercado. Una
-  // regla de clase no puede saber en qué moneda está.
-  if (fila.predicado === "price.observed") {
-    const mismoMercado = fuente.mercado === "PE";
-    return {
-      destino: "REQUIERE_ESPECIFICA",
-      nivelPropuesto: mismoMercado ? "supplemental" : "prohibited",
-      score: mismoMercado ? 0.45 : 0,
-      razon: mismoMercado
-        ? `${fila.conValor} precios en ${fuente.moneda}, mismo mercado (${fuente.mercado}): sirven para situar un rango, nunca para fijar precio propio`
-        : `${fila.conValor} precios en ${fuente.moneda}, mercado ${fuente.mercado}: otra moneda y otra estructura de costes, no comparables con Perú`
-    };
-  }
-
-  if (auth) return { destino: "HEREDA", razon: `la clase «official» ya concede «${auth.authority_level}» y la evidencia lo respalda (${pct}%)` };
-
-  return {
-    destino: "CARECE",
-    razon: `ningún patrón registrado casa con «${fila.predicado}»; le ocurre a las seis, así que es un hueco del fallback y no una excepción de esta fuente`
-  };
+  return { destino: "HEREDA", razon: `la clase concede «${auth.authority_level}» y la evidencia lo respalda (${pct}%)` };
 }
 
 const informe = [];
@@ -152,14 +124,15 @@ for (const s of informe) {
   const g = (d) => s.filas.filter((f) => f.destino === d);
   console.log(`\n\n── ${s.fuente} · mercado ${s.mercado ?? "?"} ──`);
   console.log(`   predicados observados: ${s.filas.filter((f) => f.predicado && f.conValor > 0).length}`);
-  console.log(`   heredan kind:official: ${g("HEREDA").length}   ·   requieren específica: ${g("REQUIERE_ESPECIFICA").length}   ·   carecen: ${g("CARECE").length}   ·   sin mapping: ${g("UNMAPPED").length}`);
+  console.log(`   heredan el contrato: ${g("HEREDA").length}   ·   requieren específica: ${g("REQUIERE_ESPECIFICA").length}   ·   carecen: ${g("CARECE").length}`);
+  console.log(`   no emitidos por la fuente: ${g("NO_EMITIDO").length}   ·   no son claim: ${g("NO_APPLICABLE").length}   ·   sin mapping: ${g("UNMAPPED").length}`);
 
-  for (const [titulo, lista] of [["HEREDA", g("HEREDA")], ["REQUIERE AUTORIDAD ESPECÍFICA", g("REQUIERE_ESPECIFICA")], ["CARECE DE AUTORIDAD", g("CARECE")]]) {
+  for (const [titulo, lista] of [["HEREDA EL CONTRATO", g("HEREDA")], ["REQUIERE AUTORIDAD ESPECÍFICA", g("REQUIERE_ESPECIFICA")], ["CARECE DE AUTORIDAD", g("CARECE")], ["NO EMITIDO POR LA FUENTE", g("NO_EMITIDO")], ["NO ES CLAIM", g("NO_APPLICABLE")]]) {
     if (!lista.length) continue;
     console.log(`\n   ${titulo}`);
     for (const f of lista) {
       const nivel = f.nivelPropuesto ? ` → ${f.nivelPropuesto}` : "";
-      console.log(`     ${f.predicado.padEnd(30)} ${String(Math.round(f.cobertura * 100) + "%").padStart(5)}${nivel}`);
+      console.log(`     ${(f.predicado ?? f.campo).padEnd(30)} ${String(Math.round(f.cobertura * 100) + "%").padStart(5)}${nivel}`);
       console.log(`       ${f.razon}`);
     }
   }

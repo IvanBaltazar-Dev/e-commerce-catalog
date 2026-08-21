@@ -124,7 +124,16 @@ function variantUrl(source, product, variant) {
   return url.toString();
 }
 
-function observationRow({ key, sourceRecordId, runId, subject, kind, predicate, value, observedAt, metadata = {} }) {
+function observationRow({
+  key, sourceRecordId, runId, subject, kind, predicate, value, observedAt, metadata = {},
+  // Procedencia de la conclusión. Sin esto, un valor que produjo nuestro regex
+  // llega indistinguible de uno que publicó la fuente, y la autoridad no puede
+  // toparse por clase epistémica porque no sabe qué clase es.
+  epistemic = "OBSERVATION_LITERAL", dimension = null, rule = null, ruleVersion = null,
+  derivedFrom = null, role = null, note = null,
+}) {
+  const esDerivado = epistemic === "DERIVED_INFERRED";
+  const esNormalizado = epistemic === "NORMALIZED_SOURCE_CLAIM";
   const row = {
     observation_key: key,
     source_record_id: sourceRecordId,
@@ -134,10 +143,22 @@ function observationRow({ key, sourceRecordId, runId, subject, kind, predicate, 
     observation_kind: kind,
     predicate,
     observed_at: observedAt,
-    extraction_method: "official_api",
-    extractor: "shopify-official-discovery-v1",
-    confidence: 1,
-    metadata,
+    // El método ya no es siempre «official_api»: lo que sale de un regex nuestro
+    // no lo trajo la API, lo dedujimos del texto que sí trajo.
+    extraction_method: esDerivado ? "rule_inference" : esNormalizado ? "rule_normalization" : "official_api",
+    extractor: rule ? `${rule}-v${ruleVersion ?? 1}` : "shopify-official-discovery-v1",
+    // Una inferencia no puede entrar con confianza 1. La suya es la de su regla,
+    // que se mide aparte y varía del 0% al 99% según la fuente.
+    confidence: esDerivado ? 0.5 : esNormalizado ? 0.8 : 1,
+    metadata: {
+      ...metadata,
+      epistemic_class: epistemic,
+      ...(dimension ? { dimension_code: dimension } : {}),
+      ...(rule ? { rule_code: rule, rule_version: ruleVersion ?? 1 } : {}),
+      ...(derivedFrom ? { derived_from: derivedFrom } : {}),
+      ...(role ? { role } : {}),
+      ...(note ? { note } : {}),
+    },
   };
   if (typeof value === "string") row.value_text = value;
   else if (typeof value === "number") row.value_number = value;
@@ -148,8 +169,11 @@ function observationRow({ key, sourceRecordId, runId, subject, kind, predicate, 
 
 function addObservation(rows, input) {
   if (input.value === null || input.value === undefined || input.value === "") return;
-  const material = contentHash({ predicate: input.predicate, value: input.value });
-  rows.push(observationRow({ ...input, key: `official-observation-v1:${input.referenceKey}:${input.predicate}:${material}` }));
+  const material = contentHash({ predicate: input.predicate, value: input.value, epistemic: input.epistemic ?? "OBSERVATION_LITERAL" });
+  // La clase epistémica entra en la llave: semantic.type declarado por la tienda
+  // y semantic.type deducido de los tags son dos observaciones distintas sobre el
+  // mismo predicado, y fundirlas perdería justo la que hay que poder descartar.
+  rows.push(observationRow({ ...input, key: `official-observation-v1:${input.referenceKey}:${input.predicate}:${input.epistemic ?? "LIT"}:${material}` }));
 }
 
 async function resolveSource() {
@@ -729,14 +753,48 @@ async function ingestReferences({ source, brand, capture, run, scope, records })
       referenceKey: input.referenceKey,
       metadata: { sourceKey: source.source_key },
     };
-    addObservation(observations, { ...common, kind: "identity", predicate: "official.title", value: input.product.title });
-    addObservation(observations, { ...common, kind: "type", predicate: "official.product_type", value: input.product.product_type });
-    addObservation(observations, { ...common, kind: "type", predicate: "official.line", value: input.parsed.line });
-    addObservation(observations, { ...common, kind: "type", predicate: "official.finish", value: input.parsed.finish });
-    addObservation(observations, { ...common, kind: "presentation", predicate: "official.presentation", value: input.parsed.presentation });
-    addObservation(observations, { ...common, kind: "shade", predicate: "official.shade", value: input.parsed.shadeName });
+    // Predicados CANÓNICOS, no del namespace del crawler.
+    //
+    // Esto emitía official.title, official.sku, official.line… y «official» no es
+    // ninguna de las 22 dimensiones registradas: era el nombre del adaptador. El
+    // sistema de autoridad trabaja sobre identity.*, media.* y semantic.<dimensión>,
+    // así que nada de lo que salía de aquí resolvía contra ninguna regla. Y darle
+    // autoridad a official.* habría institucionalizado un segundo vocabulario, con
+    // shopify.sku, woocommerce.sku y pdf.sku detrás.
+    //
+    // Cada observación lleva además su clase epistémica, porque de ella depende el
+    // tope de autoridad: la fuente manda sobre el texto que publica, no sobre lo
+    // que nuestro parser concluya de él.
+    addObservation(observations, { ...common, kind: "identity", predicate: "identity.name",
+      value: input.product.title, epistemic: "OBSERVATION_LITERAL" });
+    addObservation(observations, { ...common, kind: "identity", predicate: "identity.brand_declared",
+      value: input.product.vendor, epistemic: "OBSERVATION_LITERAL",
+      // Sin resolver a entidad: la misma marca aparece como MASGLO, Masglo y
+      // Masglo España, y Bigen como «bigen-usa.com». Resolverlo sería DERIVED.
+      note: "etiqueta de tienda, no marca resuelta" });
+    addObservation(observations, { ...common, kind: "type", predicate: "semantic.type",
+      value: input.product.product_type, dimension: "type", epistemic: "OBSERVATION_LITERAL" });
+
+    // Derivados: conservan la regla, su versión y el texto del que salieron, para
+    // que la conclusión pueda rehacerse cuando la regla cambie.
+    addObservation(observations, { ...common, kind: "type", predicate: "semantic.type",
+      value: input.parsed.line, dimension: "type", epistemic: "DERIVED_INFERRED",
+      rule: "NAIL_ES_PRODUCT_SEMANTICS", ruleVersion: 1, derivedFrom: { field: "tags", value: input.parsed.tags } });
+    addObservation(observations, { ...common, kind: "finish", predicate: "semantic.finish",
+      value: input.parsed.finish, dimension: "finish", epistemic: "DERIVED_INFERRED",
+      rule: "NAIL_ES_PRODUCT_SEMANTICS", ruleVersion: 1, derivedFrom: { field: "tags", value: input.parsed.tags } });
+    addObservation(observations, { ...common, kind: "presentation", predicate: "semantic.packaging",
+      value: input.parsed.presentation, dimension: "packaging", epistemic: "NORMALIZED_SOURCE_CLAIM",
+      rule: "PRESENTACION_CANTIDAD_UNIDAD", ruleVersion: 1,
+      derivedFrom: { field: "title+product_type+tags", value: input.product.title } });
+    addObservation(observations, { ...common, kind: "shade", predicate: "semantic.subtype",
+      value: input.parsed.shadeName, dimension: "subtype", epistemic: "DERIVED_INFERRED",
+      rule: "TONO_POR_SEGMENTO_DE_TITULO", ruleVersion: 1,
+      derivedFrom: { field: "title", value: input.product.title } });
+
     const imageUrl = input.product.images?.[0]?.src ?? null;
-    addObservation(observations, { ...common, kind: "remote_image", predicate: "official.primary_image", value: imageUrl });
+    addObservation(observations, { ...common, kind: "remote_image", predicate: "media.image",
+      value: imageUrl, dimension: "media", epistemic: "OBSERVATION_LITERAL", role: "primary" });
     for (const [position, image] of (input.product.images ?? []).entries()) {
       mediaRows.push({
         media_key: `official-media-v1:${input.referenceKey}:${contentHash(image.src)}`,
@@ -767,9 +825,22 @@ async function ingestReferences({ source, brand, capture, run, scope, records })
       referenceKey: input.referenceKey,
       metadata: { sourceKey: source.source_key },
     };
-    addObservation(observations, { ...common, kind: "code", predicate: "official.sku", value: input.variant.sku || null });
-    addObservation(observations, { ...common, kind: "shade", predicate: "official.shade", value: input.parsed.shadeName });
-    addObservation(observations, { ...common, kind: "presentation", predicate: "official.presentation", value: input.parsed.presentation });
+    // El SKU de fábrica manda dentro del espacio de nombres de su marca y no
+    // fuera; el id interno de la tienda no identifica nada fuera de ella. Son
+    // predicados distintos a propósito, porque identidad-guardas.ts ya los ordena
+    // 90 y 50 y la autoridad tenía que decir lo mismo.
+    addObservation(observations, { ...common, kind: "code", predicate: "identity.manufacturer_sku",
+      value: input.variant.sku || null, epistemic: "OBSERVATION_LITERAL" });
+    addObservation(observations, { ...common, kind: "code", predicate: "identity.source_external_id",
+      value: input.variant.id ? String(input.variant.id) : null, epistemic: "OBSERVATION_LITERAL" });
+    addObservation(observations, { ...common, kind: "code", predicate: "identity.gtin",
+      value: input.variant.barcode || null, epistemic: "OBSERVATION_LITERAL" });
+    addObservation(observations, { ...common, kind: "shade", predicate: "semantic.subtype",
+      value: input.parsed.shadeName, dimension: "subtype", epistemic: "DERIVED_INFERRED",
+      rule: "TONO_POR_SEGMENTO_DE_TITULO", ruleVersion: 1 });
+    addObservation(observations, { ...common, kind: "presentation", predicate: "semantic.packaging",
+      value: input.parsed.presentation, dimension: "packaging", epistemic: "NORMALIZED_SOURCE_CLAIM",
+      rule: "PRESENTACION_CANTIDAD_UNIDAD", ruleVersion: 1 });
     const amount = Number.parseFloat(input.variant.price);
     if (Number.isFinite(amount)) {
       // La moneda sale de la fuente, no de una constante. Estuvo quemada a "COP"

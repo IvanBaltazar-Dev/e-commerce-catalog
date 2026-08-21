@@ -119,7 +119,9 @@
     "test:gate-cierre": "node scripts/test-gate-cierre.mjs",
     "inventario:predicados": "node --experimental-transform-types scripts/inventario-predicados.mjs",
     "matriz:autoridad": "node --experimental-transform-types scripts/matriz-autoridad-propuesta.mjs",
-    "test:matriz-autoridad": "node --experimental-transform-types scripts/test-matriz-autoridad.mjs"
+    "test:matriz-autoridad": "node --experimental-transform-types scripts/test-matriz-autoridad.mjs",
+    "mapeo:canonico": "node --experimental-transform-types scripts/mapeo-predicados-canonicos.mjs",
+    "test:resolucion-predicados": "node --experimental-transform-types scripts/test-resolucion-predicados.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",

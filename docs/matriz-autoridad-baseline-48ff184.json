@@ -1,14 +1,4 @@
 {
-  "congelada_en": "sin fecha: se sella con la huella, no con el reloj",
-  "huella": "1d5f5735cc75faae71db91b3974a418e5ac1da71f8b6326a29b10b38c08f2805",
-  "fuentes": 6,
-  "excepciones_propuestas": 0,
-  "huecos_de_clase": [],
-  "contradicciones": [
-    "identity.* concede «preferred» tanto al GTIN como al id interno de la tienda",
-    "price.* concede «acceptable» a las seis, en cinco monedas distintas",
-    "Los derivados del parser viajan indistinguibles de los campos literales"
-  ],
   "informe": [
     {
       "fuente": "masglo-es-official",
@@ -3243,6 +3233,23 @@
           "razon": "campo sin predicado canónico; lo fija la campaña, no la ficha; vendor sí es de la fuente"
         }
       ]
+    }
+  ],
+  "contradicciones": [
+    {
+      "titulo": "identity.* concede «preferred» tanto al GTIN como al id interno de la tienda",
+      "detalle": "identidad-guardas.ts ordena GTIN 100 y SOURCE_EXTERNAL_ID 50 justamente porque un id de Shopify solo significa algo dentro de esa tienda. La tabla de autoridad los iguala con el mismo patrón identity.*.",
+      "arreglo": "separar identity.gtin de identity.source_external_id en las reglas de clase"
+    },
+    {
+      "titulo": "price.* concede «acceptable» a las seis, en cinco monedas distintas",
+      "detalle": "La regla de clase no puede saber el mercado. Un precio de Masglo España en euros llega con la misma autoridad que uno de Cherimoya Perú en soles.",
+      "arreglo": "override por fuente según mercado; es el caso claro de excepción legítima"
+    },
+    {
+      "titulo": "Los derivados del parser viajan indistinguibles de los campos literales",
+      "detalle": "official.line y official.finish salen de un vocabulario en español fijado por nosotros. Rinden 53% y 33% en Masglo, 99% y 79% en Admiss, y 0% en las otras cuatro. Casos a cero: 9.",
+      "arreglo": "marcar la naturaleza en la observación y no dejar que un INFERIDO herede autoridad de LITERAL"
     }
   ]
 }
