@@ -56,12 +56,44 @@ const CLASE_POR_FUENTE = {
   "bellespa-pe-sumerlabs": { tipo: "OTHER_DISTRIBUTOR", actor: "BELLESPA" },
   "datosperu-20551491278": { tipo: "TRADE_HISTORY", actor: "REVEL" },
   "datosperu-20522264904": { tipo: "TRADE_HISTORY", actor: "BELLESPA" },
-  "veritrade-pe-revel": { tipo: "TRADE_HISTORY", actor: "REVEL" }
+  "veritrade-pe-revel": { tipo: "TRADE_HISTORY", actor: "REVEL" },
+
+  // ── Las seis tiendas oficiales de marca ────────────────────────────────────
+  // Son CURRENT_CATALOG porque cada una es el catálogo vivo de su propia marca,
+  // no el de un revendedor. Pero llevan mercado, y eso no es decorativo: que un
+  // esmalte esté disponible en la tienda española de Masglo no dice absolutamente
+  // nada sobre su disponibilidad en Perú, y sin el mercado escrito al lado las
+  // dos afirmaciones se leen igual.
+  "masglo-es-official":    { tipo: "CURRENT_CATALOG", actor: "MASGLO",    mercado: "ES" },
+  "cherimoya-pe-official": { tipo: "CURRENT_CATALOG", actor: "CHERIMOYA", mercado: "PE" },
+  "admiss-co-official":    { tipo: "CURRENT_CATALOG", actor: "ADMISS",    mercado: "CO" },
+  "bigen-usa-official":    { tipo: "CURRENT_CATALOG", actor: "BIGEN",     mercado: "US" },
+  "acrylove-official":     { tipo: "CURRENT_CATALOG", actor: "ACRYLOVE",  mercado: "MX" },
+  "mc-nails-mx-official":  { tipo: "CURRENT_CATALOG", actor: "MC NAILS",  mercado: "MX" }
 };
+
+// De dónde sale el código según la fuente. No es lo mismo un catálogo mayorista
+// que mete el código dentro del nombre —«(CEL-829) ALICATE…»— que una tienda
+// Shopify que lo trae en su propio campo. Adivinar uno con las reglas del otro
+// es cómo se fabrican los códigos fantasma.
+function codigosDelRegistro(r, fuente) {
+  const p = r.payload ?? {};
+  const salida = [];
+  // Sumer y aduana: el código viene dentro del texto, ya extraído en captura.
+  const declarados = p.codigos_declarados ?? (p.codigo_observado ? [p.codigo_observado] : []);
+  for (const c of declarados) salida.push({ codigo: c, clase: "SUPPLIER_SKU" });
+  // Tiendas de marca: el SKU es un campo propio, y el código de barras otro.
+  // Se emiten por separado porque son clases distintas de identificador y no
+  // deben competir: un GTIN identifica el producto en cualquier catálogo del
+  // mundo, y un SKU solo dentro del espacio de nombres de quien lo emitió.
+  if (r.sku) salida.push({ codigo: r.sku, clase: "MANUFACTURER_SKU" });
+  if (r.barcode) salida.push({ codigo: r.barcode, clase: "GTIN" });
+  return salida;
+}
 
 const registros = await todas(
   "catalog_source_records",
-  "id, source_id, snapshot_id, entity_type, title, payload, captured_at"
+  "id, source_id, snapshot_id, entity_type, title, sku, barcode, payload, captured_at"
 );
 
 const evidencias = [];
@@ -75,8 +107,8 @@ for (const r of registros) {
 
   const p = r.payload ?? {};
   // Un registro de catálogo trae un código; uno aduanero puede traer varios.
-  const codigos = p.codigos_declarados ?? (p.codigo_observado ? [p.codigo_observado] : []);
-  for (const codigo of codigos) {
+  const codigos = codigosDelRegistro(r, fuente);
+  for (const { codigo, clase: claseIdentificador } of codigos) {
     const norm = normalizarCodigo(codigo);
     if (!norm) continue;
     // Disponible y publicado son cosas distintas, y las dos son ciertas a la vez.
@@ -109,6 +141,10 @@ for (const r of registros) {
       raw_text: (p.descripcion_raw ?? p.description ?? "").slice(0, 2000) || null,
       metadata: {
         fuente: fuente.source_key,
+        clase_identificador: claseIdentificador,
+        // El mercado viaja con la observación. Sin él, «disponible» es ambiguo:
+        // «disponible en Masglo España» no informa de nada sobre Perú.
+        mercado: clase.mercado ?? null,
         partida: p.partida ?? null,
         notificacion: p.notificacion_declarada ?? null,
         lote: p.lote ?? null,
