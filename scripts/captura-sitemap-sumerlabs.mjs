@@ -26,11 +26,12 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
-import { clasificarCierre, discrepanciaDeTotal, expandirCodigos } from "../src/lib/catalog-intelligence/captura-contratos.ts";
+import { clasificarCierre, discrepanciaDeTotal, puedePromoverseComoCompleta, expandirCodigos } from "../src/lib/catalog-intelligence/captura-contratos.ts";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const APLICAR = process.argv.includes("--aplicar");
+const ACEPTAR_INCOMPLETA = process.argv.includes("--aceptar-incompleta");
 // Medido, no supuesto: con cuatro peticiones en paralelo fallaron 2.095 de
 // 2.583 URLs — el 81%. Secuencial con 300 ms de pausa da 8 de 8. El límite del
 // host es de CONCURRENCIA, no de ritmo, y acelerar en paralelo salía mucho más
@@ -181,6 +182,34 @@ writeFileSync(salida, JSON.stringify({ capturadoEn, declaredTotal, ...cierre, ..
 console.log(`\n→ ${salida}`);
 
 if (!APLICAR) { console.log(`\nSin persistir. Añade --aplicar.`); process.exit(0); }
+
+// Una captura incompleta SÍ puede persistirse, pero nunca por defecto.
+//
+// La distinción que importa no es «datos buenos» contra «datos malos»: los 488
+// productos que sí se capturaron son 488 observaciones ciertas. Lo que una
+// captura incompleta no puede sostener es un razonamiento de AUSENCIA.
+//
+//   «vimos LA-139 en su catálogo»    → válido aunque falte el 80%
+//   «SH-168 no está en su catálogo»  → inválido si falta el 80%
+//
+// Y el embudo vive justamente de la segunda clase de afirmación: los «36 sin
+// resolver» eran ausencias medidas contra un catálogo al que le faltaba el 75%.
+// De los 36, veinte aparecieron en cuanto se miró el catálogo completo.
+//
+// Por eso persistir una captura parcial tiene que ser un acto deliberado.
+if (!puedePromoverseComoCompleta(cierre.closure)) {
+  if (!ACEPTAR_INCOMPLETA) {
+    console.error(
+      "\nNo se persiste: el cierre es " + cierre.closure + ", no COMPLETE.\n" +
+      "Los " + unicos.length + " productos capturados son observaciones válidas, pero este\n" +
+      "catálogo no puede servir para afirmar que un código NO existe.\n" +
+      "Si aun así los quieres como evidencia parcial: --aceptar-incompleta"
+    );
+    process.exit(1);
+  }
+  console.log("\n⚠ Persistiendo captura " + cierre.closure + " por petición explícita.");
+  console.log("  Sirve como evidencia de presencia; NO para concluir ausencias.");
+}
 
 const { data: fuente, error: eF } = await db.from("catalog_sources").upsert({
   source_key: TIENDA.sourceKey, name: TIENDA.nombre,
