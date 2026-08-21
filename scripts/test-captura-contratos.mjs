@@ -15,7 +15,7 @@
  */
 import assert from "node:assert/strict";
 
-const { clasificarCierre, puedePromoverseComoCompleta, expandirCodigos, normalizarCodigo } =
+const { clasificarCierre, puedePromoverseComoCompleta, expandirCodigos, normalizarCodigo, discrepanciaDeTotal } =
   await import("../src/lib/catalog-intelligence/captura-contratos.ts");
 
 // ── Cierre ────────────────────────────────────────────────────────────────
@@ -51,6 +51,7 @@ const faltan = clasificarCierre({
 });
 assert.equal(faltan.closure, "INCOMPLETE_CAPTURE",
   "si la fuente declara 698 y capturamos 640, falta algo aunque nada haya fallado");
+assert.equal(faltan.completion_reason, null, "una captura incompleta no tiene causa de cierre");
 
 assert.equal(clasificarCierre({
   declaredTotal: null, itemsCaptured: 0, pagesCompleted: 0,
@@ -62,6 +63,44 @@ assert.equal(clasificarCierre({
   failedPages: [], terminoPorVacioCorrecto: false, terminoPorTope: true,
 }).closure, "STOPPED_AT_LIMIT",
   "pararse en el tope no es haber terminado");
+
+// ── Conjunto estable: el caso de la partida 96 ────────────────────────────
+// DatosPerú no devuelve vacío al terminar: repite lo ya dado. Esperar una
+// página vacía es esperar algo que no llega, y por eso p96 se comió el tope de
+// 60 páginas y cerró como STOPPED_AT_LIMIT teniendo el dato completo.
+const estable = clasificarCierre({
+  declaredTotal: 90, itemsCaptured: 91, pagesCompleted: 60,
+  failedPages: [], terminoPorVacioCorrecto: false, terminoPorTope: true,
+  paginasSinNovedad: 17,
+});
+assert.equal(estable.closure, "COMPLETE",
+  "si dejó de traer novedades, había terminado aunque después chocara con el tope");
+assert.equal(estable.completion_reason, "STABLE_REPEATING_SET");
+
+// Dos páginas sin novedad no bastan: podría ser una laguna, no el final.
+const dudoso = clasificarCierre({
+  declaredTotal: null, itemsCaptured: 40, pagesCompleted: 12,
+  failedPages: [], terminoPorVacioCorrecto: false, terminoPorTope: true,
+  paginasSinNovedad: 2,
+});
+assert.equal(dudoso.closure, "STOPPED_AT_LIMIT",
+  "dos páginas sin novedad no demuestran que el conjunto esté cerrado");
+
+// Cada cierre completo dice POR QUÉ lo es.
+assert.equal(completa.completion_reason, "END_OF_PAGINATION");
+assert.equal(clasificarCierre({
+  declaredTotal: 499, itemsCaptured: 500, pagesCompleted: 43,
+  failedPages: [], terminoPorVacioCorrecto: false, terminoPorTope: false,
+  paginasSinNovedad: 0,
+}).completion_reason, "DECLARED_TOTAL_REACHED");
+
+// ── El total declarado no manda sobre lo observado ────────────────────────
+// El perfil decía 90 y observamos 91. No se «corrige» 91 a 90: se registra.
+const disc = discrepanciaDeTotal(90, 91);
+assert.equal(disc.declared_total_mismatch, true);
+assert.equal(disc.declared_total_delta, 1);
+assert.equal(discrepanciaDeTotal(null, 91).declared_total_mismatch, false,
+  "sin total declarado no hay discrepancia que registrar");
 
 // ── Códigos compuestos ────────────────────────────────────────────────────
 assert.deepEqual(expandirCodigos("SH-607,608").sort(), ["SH-607", "SH-608"]);

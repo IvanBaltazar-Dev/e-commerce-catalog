@@ -25,8 +25,8 @@
  *   ya sabemos que los sistemas de código cruzan marcas.
  *
  * Uso:
- *   node scripts/campana-revel-sumerlabs.mjs             (captura y resume)
- *   node scripts/campana-revel-sumerlabs.mjs --aplicar   (persiste)
+ *   node scripts/campana-revel-sumerlabs.mjs revel
+ *   node scripts/campana-revel-sumerlabs.mjs bellespa --aplicar
  */
 import crypto from "node:crypto";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -37,7 +37,29 @@ import { clasificarCierre, puedePromoverseComoCompleta } from "../src/lib/catalo
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const APLICAR = process.argv.includes("--aplicar");
-const BASE = "https://tiendaenperu-revelonline98g.sumerlabs.com";
+const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+const TIENDAS = {
+  revel: {
+    base: "https://tiendaenperu-revelonline98g.sumerlabs.com",
+    sourceKey: "revel-pe-sumerlabs",
+    nombre: "REVE'L Professional · catálogo mayorista del operador peruano",
+    operador: "REVE'L Cosmetics Import Export E.I.R.L.",
+    ruc: "20551491278"
+  },
+  bellespa: {
+    base: "https://bellespacosmetics.sumerlabs.com",
+    sourceKey: "bellespa-pe-sumerlabs",
+    nombre: "BELLESPA Cosmetics · catálogo mayorista del operador peruano",
+    operador: "Droguería Bellaspa Import E.I.R.L.",
+    ruc: "20522264904"
+  }
+};
+const TIENDA = TIENDAS[args[0] ?? "revel"];
+if (!TIENDA) {
+  console.error(`Tienda desconocida. Disponibles: ${Object.keys(TIENDAS).join(", ")}`);
+  process.exit(1);
+}
+const BASE = TIENDA.base;
 const RUTA = "/todos-los-productos";
 const PAUSA_MS = 1200;
 const UA = "BellarosheCatalogResearch/1.0";
@@ -111,7 +133,7 @@ const capturadoEn = new Date().toISOString();
 const paginas = [];
 let pagina = 1;
 
-console.log("Capturando catálogo REVEL…");
+console.log(`Capturando catálogo de ${args[0] ?? "revel"} · ${BASE}…`);
 // Un HTTP 400 a mitad de recorrido NO es el fin del catálogo. La primera versión
 // de esto lo trató como tal, paró en la página 15 y reportó 336 productos como
 // si fueran todos — cuando las páginas 15 y 16 respondían 200 al pedirlas
@@ -205,6 +227,11 @@ const normalizados = productos.map((p) => {
     // La categoría de la fuente se guarda como es, con emoji y con sus
     // duplicados. Es un hecho sobre cómo ELLOS ordenan, no sobre qué es.
     categoriaFuente: p.category ?? null,
+    // Qué marca dice el nombre del producto. BELLESPA publica productos REVE'L y
+    // REVE'L publica productos BELLESPA: quién lo vende y de quién es no
+    // coinciden, y colapsarlos perdería justo la distribución cruzada.
+    marcaEnNombre: (((p.name ?? "") + " " + (p.description ?? ""))
+      .match(/\b(REVE[`´']?L|BELLESPA)\b/i) ?? [])[1]?.replace(/[`´']/g, "'").toUpperCase() ?? null,
     imagenes: Array.isArray(p.images) ? p.images.filter((u) => /^https?:\/\//.test(u)) : [],
     ...d
   };
@@ -231,9 +258,9 @@ for (const [s, n] of [...sistemas].sort((a, b) => b[1] - a[1]).slice(0, 12)) con
 console.log(`\nCategorías de la fuente: ${categorias.size}  (se guardan como suyas, no como nuestras)`);
 
 mkdirSync(path.join(ROOT, "outputs"), { recursive: true });
-writeFileSync(path.join(ROOT, "outputs", "campana-revel.json"),
+writeFileSync(path.join(ROOT, "outputs", `campana-sumerlabs-${args[0] ?? "revel"}.json`),
   JSON.stringify({ capturadoEn, paginas: paginas.length, productos: normalizados }, null, 2), "utf8");
-console.log(`\n→ outputs/campana-revel.json`);
+console.log(`\n→ outputs/campana-sumerlabs-${args[0] ?? "revel"}.json`);
 
 if (!APLICAR) {
   console.log(`\nCaptura sin persistir. Añade --aplicar para registrar fuente y source_records.`);
@@ -242,8 +269,8 @@ if (!APLICAR) {
 
 // ── Persistencia ────────────────────────────────────────────────────────────
 const { data: fuente, error: errFuente } = await db.from("catalog_sources").upsert({
-  source_key: "revel-pe-sumerlabs",
-  name: "REVE'L Professional · catálogo mayorista del operador peruano",
+  source_key: TIENDA.sourceKey,
+  name: TIENDA.nombre,
   // Canal propio de quien opera la marca en Perú: manda sobre código, nombre
   // comercial, precio y disponibilidad. No sobre fabricante ni composición.
   authority: "first_party_commercial",
@@ -252,10 +279,10 @@ const { data: fuente, error: errFuente } = await db.from("catalog_sources").upse
   is_active: true,
   metadata: {
     canal: "sumerlabs",
-    operadorDeclarado: "REVE'L Cosmetics Import Export E.I.R.L.",
+    operadorDeclarado: TIENDA.operador,
     // Aportado por investigación externa, no por esta captura: se marca como tal
     // para que nadie lo tome por un hecho verificado desde la fuente.
-    rucAportadoPorInvestigacion: "20551491278",
+    rucAportadoPorInvestigacion: TIENDA.ruc,
     corroboracionPendiente: "RUC y titularidad de marca no verificados desde esta fuente"
   }
 }, { onConflict: "source_key" }).select("id").single();
@@ -298,7 +325,7 @@ const registros = normalizados.map((p) => ({
   source_url: p.url,
   captured_at: capturadoEn,
   payload: {
-    brand: "REVEL",
+    brand: null,   // se observa del nombre, no se asume de la tienda
     source_type: "sumer_ssr",
     confidence: "OBSERVADO_CANAL_PRIMERA_PARTE",
     external_product_id: p.externalId,
@@ -309,6 +336,7 @@ const registros = normalizados.map((p) => ({
     description: p.descripcionRaw,
     product_type: p.categoriaFuente,
     source_category: p.categoriaFuente,
+    marca_en_nombre: p.marcaEnNombre,
     codigo_observado: p.codigoObservado,
     unidades_por_box: p.unidadesPorBox,
     unidades_por_cajon: p.unidadesPorCajon,
@@ -331,6 +359,6 @@ for (let i = 0; i < registros.length; i += 300) {
   console.log(`   registros: ${escritos}/${registros.length}`);
 }
 
-console.log(`\nFuente registrada: revel-pe-sumerlabs`);
+console.log(`\nFuente registrada: ${TIENDA.sourceKey}`);
 console.log(`Snapshot ${snap.id} · ${escritos} source_records`);
 console.log(`Siguiente: promover-universo-referencia.mjs --aplicar`);

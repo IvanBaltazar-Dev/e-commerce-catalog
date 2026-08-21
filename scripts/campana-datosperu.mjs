@@ -33,7 +33,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
-import { expandirCodigos } from "../src/lib/catalog-intelligence/captura-contratos.ts";
+import { expandirCodigos, clasificarCierre, discrepanciaDeTotal } from "../src/lib/catalog-intelligence/captura-contratos.ts";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
@@ -123,6 +123,17 @@ const fallidas = [];
 let pagina = 1;
 let sinDatos = 0;
 
+// DatosPerú no devuelve una página vacía al terminar: entra en un bucle
+// repitiendo lo que ya dio. Esperar el vacío es esperar algo que no llega, y por
+// eso la partida 96 se comió el tope de 60 páginas teniendo el dato completo.
+//
+// Lo que sí se puede observar es que el CONJUNTO deja de crecer.
+const huellasVistas = new Set();
+let paginasSinNovedad = 0;
+let terminoPorVacioCorrecto = false;
+let terminoPorTope = false;
+const UMBRAL_ESTABILIDAD = 3;
+
 for (;;) {
   const url = urlDe(pagina);
   let html = null;
@@ -155,13 +166,31 @@ for (;;) {
     // cantidad, descripción y país separados por barras.
     .filter((l) => l.length > 60 && (l.match(/\|/g) ?? []).length >= 4 && /\b(19|20)\d{2}\b/.test(l));
 
-  if (!lineas.length) { sinDatos += 1; if (sinDatos >= 2) break; }
-  else sinDatos = 0;
+  if (!lineas.length) {
+    sinDatos += 1;
+    if (sinDatos >= 2) { terminoPorVacioCorrecto = true; break; }
+  } else sinDatos = 0;
 
-  paginas.push({ pagina, url, lineas, contentHash: sha(html) });
+  // Cuántas declaraciones de esta página no habíamos visto nunca.
+  let nuevasAqui = 0;
+  for (const l of lineas) {
+    const huella = sha(l).slice(0, 24);
+    if (!huellasVistas.has(huella)) { huellasVistas.add(huella); nuevasAqui += 1; }
+  }
+  if (nuevasAqui === 0) {
+    paginasSinNovedad += 1;
+    if (paginasSinNovedad >= UMBRAL_ESTABILIDAD) {
+      console.log(`   página ${pagina}: ${paginasSinNovedad} páginas seguidas sin nada nuevo — conjunto estable`);
+      break;
+    }
+  } else {
+    paginasSinNovedad = 0;
+  }
+
+  paginas.push({ pagina, url, lineas, contentHash: sha(html), nuevasAqui });
   if (pagina % 5 === 0) console.log(`   ${pagina} páginas · ${paginas.reduce((a, p) => a + p.lineas.length, 0)} líneas…`);
   pagina += 1;
-  if (pagina > 60) break;
+  if (pagina > 60) { terminoPorTope = true; break; }
   await espera(PAUSA_MS);
 }
 
@@ -169,6 +198,20 @@ const declaraciones = paginas.flatMap((p) => p.lineas.map((l) => ({ ...desmontar
 const porHuella = new Map();
 for (const d of declaraciones) porHuella.set(sha(d.descripcionRaw).slice(0, 24), d);
 const unicas = [...porHuella.values()];
+
+const cierre = clasificarCierre({
+  // DatosPerú publica el total en el perfil de la empresa, no en la página de
+  // partida. Se deja en null aquí y se contrasta aparte: una cifra que no está
+  // en la misma página no puede tratarse como si lo estuviera.
+  declaredTotal: null,
+  itemsCaptured: unicas.length,
+  pagesCompleted: paginas.length,
+  failedPages: fallidas,
+  terminoPorVacioCorrecto,
+  terminoPorTope,
+  paginasSinNovedad,
+  umbralEstabilidad: UMBRAL_ESTABILIDAD
+});
 
 const codigos = new Set();
 for (const d of unicas) for (const c of d.codigos) codigos.add(c.toUpperCase());
@@ -179,7 +222,8 @@ for (const d of unicas) {
   for (const c of d.codigos) nsos.get(d.notificacion).add(c.toUpperCase());
 }
 
-console.log(`\nPáginas capturadas: ${paginas.length}`);
+console.log(`\nCierre: ${cierre.closure}${cierre.completion_reason ? ` (${cierre.completion_reason})` : ""} — ${cierre.closure_reason}`);
+console.log(`Páginas capturadas: ${paginas.length}`);
 if (fallidas.length) console.log(`⚠ páginas que fallaron: ${fallidas.join(", ")} — la captura NO está completa`);
 console.log(`Declaraciones únicas: ${unicas.length}`);
 console.log(`  con código:       ${unicas.filter((d) => d.codigos.length).length}`);
@@ -203,6 +247,7 @@ const salida = path.join(ROOT, "outputs", `datosperu-${RUC}-p${PARTIDA}.json`);
 writeFileSync(salida, JSON.stringify({
   ruc: RUC, partida: PARTIDA, capturadoEn: new Date().toISOString(),
   paginas: paginas.length, paginasFallidas: fallidas,
+  paginasSinNovedad, ...cierre,
   declaraciones: unicas
 }, null, 2), "utf8");
 console.log(`\n→ ${salida}`);
@@ -230,7 +275,19 @@ let { data: snap, error: errSnap } = await db.from("catalog_source_snapshots").i
   started_at: new Date().toISOString(), completed_at: new Date().toISOString(),
   http_status: 200, content_hash: hashGlobal,
   product_count: unicas.length, variant_count: 0, image_count: 0,
-  metadata: { paginas: paginas.length, paginasFallidas: fallidas, partida: PARTIDA }
+  metadata: {
+    partida: PARTIDA,
+    declared_total: null,
+    pages_expected: paginas.length + fallidas.length,
+    pages_completed: paginas.length,
+    items_captured: unicas.length,
+    first_page: paginas.length ? paginas[0].pagina : null,
+    last_page: paginas.length ? paginas[paginas.length - 1].pagina : null,
+    failed_pages: fallidas,
+    pages_without_new_records: paginasSinNovedad,
+    ...cierre,
+    ...discrepanciaDeTotal(null, unicas.length)
+  }
 }).select("id").single();
 
 let snapshotId = snap?.id ?? null;

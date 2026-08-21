@@ -15,7 +15,7 @@
  */
 
 export type CierreDeCaptura =
-  /** Se llegó al final esperado y se demostró. */
+  /** Se llegó al final y se puede explicar por qué. */
   | "COMPLETE"
   /** Faltan páginas: hubo fallos que no se pudieron recuperar. */
   | "INCOMPLETE_CAPTURE"
@@ -23,6 +23,19 @@ export type CierreDeCaptura =
   | "SOURCE_UNAVAILABLE"
   /** Se paró por el tope de seguridad, no por haber terminado. */
   | "STOPPED_AT_LIMIT";
+
+/**
+ * Por qué se considera completa. Un cierre sin causa no es una conclusión, es
+ * una suposición con nombre bonito.
+ *
+ *   END_OF_PAGINATION    la fuente devolvió una página correcta y vacía
+ *   DECLARED_TOTAL_REACHED  se alcanzó el total que la propia fuente declara
+ *   STABLE_REPEATING_SET seguía respondiendo, pero ya no traía nada nuevo
+ */
+export type CausaDeCierre =
+  | "END_OF_PAGINATION"
+  | "DECLARED_TOTAL_REACHED"
+  | "STABLE_REPEATING_SET";
 
 export interface ContratoDeCaptura {
   /** Lo que la fuente DICE que tiene, cuando lo publica. Null si no lo dice. */
@@ -58,32 +71,92 @@ export function clasificarCierre(entrada: {
   failedPages: number[];
   terminoPorVacioCorrecto: boolean;
   terminoPorTope: boolean;
-}): { closure: CierreDeCaptura; closure_reason: string } {
+  /**
+   * Páginas correctas seguidas que no aportaron ni una declaración nueva.
+   * DatosPerú no devuelve vacío al terminar: entra en un bucle repitiendo lo
+   * que ya dio. Esperar una página vacía ahí es esperar algo que no va a llegar,
+   * y por eso la partida 96 se comió el tope de 60 páginas.
+   */
+  paginasSinNovedad?: number;
+  /** Cuántas hacen falta para dar el conjunto por estable. */
+  umbralEstabilidad?: number;
+}): { closure: CierreDeCaptura; closure_reason: string; completion_reason: CausaDeCierre | null } {
+  const sinNovedad = entrada.paginasSinNovedad ?? 0;
+  const umbral = entrada.umbralEstabilidad ?? 3;
+
   if (entrada.pagesCompleted === 0) {
-    return { closure: "SOURCE_UNAVAILABLE", closure_reason: "ninguna página respondió" };
+    return { closure: "SOURCE_UNAVAILABLE", closure_reason: "ninguna página respondió", completion_reason: null };
   }
   if (entrada.failedPages.length) {
     return {
       closure: "INCOMPLETE_CAPTURE",
       closure_reason: `${entrada.failedPages.length} página(s) sin recuperar: ${entrada.failedPages.join(", ")}`,
+      completion_reason: null,
     };
   }
-  if (entrada.terminoPorTope) {
-    return { closure: "STOPPED_AT_LIMIT", closure_reason: "se alcanzó el tope de seguridad de páginas" };
+
+  // El conjunto estable se evalúa ANTES que el tope: si el recorrido dejó de
+  // traer novedades y luego chocó con el límite, lo que ocurrió de verdad es
+  // que había terminado.
+  if (sinNovedad >= umbral) {
+    return {
+      closure: "COMPLETE",
+      closure_reason: `${sinNovedad} páginas correctas seguidas sin una sola declaración nueva`,
+      completion_reason: "STABLE_REPEATING_SET",
+    };
   }
+
+  // El déficit contra el total declarado se comprueba ANTES que el final feliz
+  // de la paginación. Si la fuente dice 698 y trajimos 640, no importa que la
+  // última página viniera vacía: sabemos que falta algo, y la paginación pudo
+  // romperse antes de tiempo. Quedarse con COMPLETE ahí sería declarar entero un
+  // catálogo que la propia fuente dice más grande.
+  //
+  // Al revés no: 91 observados contra 90 declarados NO es déficit. El total
+  // declarado puede estar desactualizado o contar con otra granularidad, y
+  // «corregir» 91 a 90 descartaría una observación real para cuadrar con una
+  // cifra de menor autoridad. Eso se registra como discrepancia, no se resuelve.
   if (entrada.declaredTotal != null && entrada.itemsCaptured < entrada.declaredTotal) {
     return {
       closure: "INCOMPLETE_CAPTURE",
       closure_reason: `la fuente declara ${entrada.declaredTotal} y se capturaron ${entrada.itemsCaptured}`,
+      completion_reason: null,
     };
   }
-  if (!entrada.terminoPorVacioCorrecto) {
+
+  if (entrada.terminoPorTope) {
+    return { closure: "STOPPED_AT_LIMIT", closure_reason: "se alcanzó el tope de seguridad de páginas", completion_reason: null };
+  }
+
+  if (entrada.terminoPorVacioCorrecto) {
+    return { closure: "COMPLETE", closure_reason: "la fuente devolvió una página correcta y vacía", completion_reason: "END_OF_PAGINATION" };
+  }
+
+  if (entrada.declaredTotal != null) {
     return {
-      closure: "INCOMPLETE_CAPTURE",
-      closure_reason: "el recorrido no terminó en una respuesta correcta y vacía",
+      closure: "COMPLETE",
+      closure_reason: `se alcanzó el total declarado por la fuente (${entrada.declaredTotal})`,
+      completion_reason: "DECLARED_TOTAL_REACHED",
     };
   }
-  return { closure: "COMPLETE", closure_reason: "se llegó al final del recorrido" };
+
+  return {
+    closure: "INCOMPLETE_CAPTURE",
+    closure_reason: "el recorrido no terminó por ninguna causa verificable",
+    completion_reason: null,
+  };
+}
+
+/**
+ * La discrepancia con el total declarado se registra, no se resuelve. 90 contra
+ * 91 es un hecho sobre las dos fuentes, y quien lo lea decidirá cuál pesa más.
+ */
+export function discrepanciaDeTotal(declarado: number | null, observado: number) {
+  if (declarado == null) return { declared_total_mismatch: false, declared_total_delta: null };
+  return {
+    declared_total_mismatch: declarado !== observado,
+    declared_total_delta: observado - declarado,
+  };
 }
 
 /** Solo una captura COMPLETE puede promoverse como si fuera el catálogo entero. */
