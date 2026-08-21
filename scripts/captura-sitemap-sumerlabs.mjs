@@ -198,7 +198,17 @@ async function traer(url) {
 // captura completa.
 const CACHE = path.join(ROOT, "outputs", "cache", `sitemap-${CLAVE}`);
 mkdirSync(CACHE, { recursive: true });
-const ficheroDe = (u) => path.join(CACHE, u.split("/").pop().replace(/[^w.-]/g, "_").slice(0, 120) + ".json");
+// El nombre de caché se saca de un hash de la URL, no de una versión saneada del
+// slug. La versión saneada ya me falló una vez: escribí /[^w.-]/g en vez de
+// /[^\w.-]/g —perdí una barra invertida al generar el parche— y el sanitizador
+// pasó a sustituir todo salvo la letra «w», el punto y el guion. Los nombres
+// quedaban en «--________-_____-____.json» y URLs distintas colisionaban en el
+// mismo fichero, sobrescribiéndose. 2.583 URLs entraron en 2.142 ficheros y el
+// rastreo dio por hecho que había terminado.
+//
+// Un hash no tiene esa clase de fallo: no depende de qué caracteres traiga el
+// slug ni de recortarlo a lo ancho.
+const ficheroDe = (u) => path.join(CACHE, sha(u).slice(0, 32) + ".json");
 
 let reusados = 0;
 const pendientes = [];
