@@ -125,7 +125,8 @@
     "clasificar:abc": "node --experimental-transform-types scripts/clasificar-excepciones-abc.mjs",
     "gate:frontera-ingestion": "node --experimental-transform-types scripts/gate-frontera-ingestion.mjs",
     "campana:woocommerce": "node --experimental-transform-types scripts/campana-woocommerce.mjs",
-    "test:superseded": "node scripts/test-superseded.mjs"
+    "test:superseded": "node scripts/test-superseded.mjs",
+    "detectar:plataformas": "node --experimental-transform-types scripts/detectar-plataformas.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",
