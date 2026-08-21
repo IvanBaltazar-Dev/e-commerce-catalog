@@ -37,6 +37,32 @@ function cargarCatalogo(fichero, etiqueta, tipo) {
   const set = new Set(j.productos.map((p) => normalizarCodigo(p.codigoObservado)).filter(Boolean));
   capas.push({ etiqueta, tipo, set });
 }
+
+// Publicado y disponible no son lo mismo, y hasta ahora se estaban mezclando.
+//
+// El buscador de la tienda declaraba 649 productos y su sitemap 2.583. No se
+// contradecían: el índice solo recoge lo disponible. Sobre una muestra de 97
+// fichas, 23 tenían disponible=true — el 24%, que es 649/2.583 clavado.
+//
+// La captura vieja pasaba por el buscador, así que el embudo estaba midiendo
+// contra el 25% del catálogo y llamando «no encontrado» a todo lo agotado. Un
+// producto agotado prueba perfectamente que ese operador lo vende: tiene código,
+// nombre, precio y foto. Lo que no prueba es vigencia, y por eso va en su propia
+// capa en vez de mezclarse con lo vivo.
+function cargarSitemap(fichero, etiqueta, tipoDisponible) {
+  if (!fs.existsSync(fichero)) return;
+  const j = JSON.parse(fs.readFileSync(fichero, "utf8"));
+  const vivos = new Set(), agotados = new Set();
+  for (const p of j.productos) {
+    const c = normalizarCodigo(p.codigoObservado);
+    if (!c) continue;
+    (p.disponible === false ? agotados : vivos).add(c);
+  }
+  // Un código agotado en una ficha y vivo en otra cuenta como vivo.
+  for (const c of vivos) agotados.delete(c);
+  if (vivos.size) capas.push({ etiqueta: `${etiqueta} · disponible`, tipo: tipoDisponible, set: vivos });
+  if (agotados.size) capas.push({ etiqueta: `${etiqueta} · agotado`, tipo: "CURRENTLY_UNAVAILABLE", set: agotados });
+}
 function cargarAduana(fichero, etiqueta) {
   const j = JSON.parse(fs.readFileSync(fichero, "utf8"));
   const set = new Set(j.declaraciones.flatMap((d) => d.codigos).map(normalizarCodigo).filter(Boolean));
@@ -46,6 +72,8 @@ function cargarAduana(fichero, etiqueta) {
 cargarCatalogo("outputs/campana-sumerlabs-revel.json", "catálogo REVE'L", "CURRENT_CATALOG");
 cargarCatalogo("outputs/campana-revel.json", "catálogo REVE'L", "CURRENT_CATALOG");
 cargarCatalogo("outputs/campana-sumerlabs-bellespa.json", "catálogo BELLESPA", "OTHER_DISTRIBUTOR");
+cargarSitemap("outputs/sitemap-sumerlabs-revel.json", "sitemap REVE'L", "CURRENT_CATALOG");
+cargarSitemap("outputs/sitemap-sumerlabs-bellespa.json", "sitemap BELLESPA", "OTHER_DISTRIBUTOR");
 
 for (const f of fs.readdirSync("outputs").sort()) {
   if (!f.startsWith("datosperu-")) continue;
@@ -56,7 +84,7 @@ for (const f of fs.readdirSync("outputs").sort()) {
 }
 
 // Vigente primero, después historia; dentro de cada grupo, la más grande antes.
-const orden = { CURRENT_CATALOG: 0, OTHER_DISTRIBUTOR: 1, TRADE_HISTORY: 2 };
+const orden = { CURRENT_CATALOG: 0, OTHER_DISTRIBUTOR: 1, CURRENTLY_UNAVAILABLE: 2, TRADE_HISTORY: 3 };
 capas.sort((a, b) => (orden[a.tipo] - orden[b.tipo]) || (b.set.size - a.set.size));
 
 const universo = new Set();
@@ -95,6 +123,7 @@ function estado(evs) {
   const tipos = new Set(evs.map((e) => e.tipo));
   if (tipos.has("CURRENT_CATALOG")) return "IDENTIFIED_CURRENT";
   if (tipos.has("OTHER_DISTRIBUTOR")) return "IDENTIFIED_EXTERNAL";
+  if (tipos.has("CURRENTLY_UNAVAILABLE")) return "IDENTIFIED_UNAVAILABLE";
   if (tipos.has("TRADE_HISTORY")) return "IDENTIFIED_HISTORICAL";
   return "IDENTIFIED_BUT_SCOPE_UNKNOWN";
 }
@@ -107,7 +136,7 @@ for (const c of objetivo) {
 }
 
 console.log(`\n${"═".repeat(70)}\nESTADO\n${"═".repeat(70)}`);
-for (const e of ["IDENTIFIED_CURRENT", "IDENTIFIED_EXTERNAL", "IDENTIFIED_HISTORICAL", "UNRESOLVED"]) {
+for (const e of ["IDENTIFIED_CURRENT", "IDENTIFIED_EXTERNAL", "IDENTIFIED_UNAVAILABLE", "IDENTIFIED_HISTORICAL", "UNRESOLVED"]) {
   const l = porEstado.get(e) ?? [];
   if (!l.length) continue;
   console.log(`\n   ${String(l.length).padStart(3)}  ${e}`);
