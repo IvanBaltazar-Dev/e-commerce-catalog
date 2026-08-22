@@ -61,3 +61,4 @@ backups/
 .next-prototype/
 
 outputs/.rastreo-*.lock
+outputs/imagenes-referencia/

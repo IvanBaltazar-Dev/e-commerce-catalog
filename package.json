@@ -133,7 +133,10 @@
     "poner-en-circulacion": "node --experimental-transform-types scripts/poner-en-circulacion.mjs",
     "aplicar:enriquecimiento": "node --experimental-transform-types scripts/aplicar-enriquecimiento.mjs",
     "test:enriquecimiento": "node scripts/test-enriquecimiento-sobrevive.mjs",
-    "pasada:huecos": "node --experimental-transform-types scripts/pasada-huecos.mjs"
+    "pasada:huecos": "node --experimental-transform-types scripts/pasada-huecos.mjs",
+    "congelar:consolidado": "node --experimental-transform-types scripts/congelar-consolidado.mjs",
+    "clasificar:huecos": "node --experimental-transform-types scripts/clasificar-huecos.mjs",
+    "descargar:imagenes": "node --experimental-transform-types scripts/descargar-imagenes-referencia.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",

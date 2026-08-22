@@ -1,0 +1,44 @@
+{
+  "huella": "ddd11d4bd3ef32c562c7d2483c92e8603a5ede423a77e5dc0f20b6913b377286",
+  "resumen": {
+    "fuentes": 6,
+    "productos": 3415,
+    "variantes_vigentes": 2391,
+    "variantes_con_sku": 2386,
+    "variantes_con_gtin": 283,
+    "precios_vigentes": 5512,
+    "imagenes": 6453,
+    "imagenes_de_variante": 331,
+    "enriquecimiento": 295
+  },
+  "invariantes": {
+    "retiradas_circulando": 0,
+    "precios_retirados_circulando": 0,
+    "canonizaciones": 0,
+    "politicas_por_fuente": 0,
+    "stock": 0
+  },
+  "nota": "Huella sobre identidades, no sobre recuentos: un total puede ser correcto y faltar identidades, y eso ya pasó al paginar sin orden estable.",
+  "material_por_bloque": {
+    "productos": {
+      "n": 3415,
+      "huella": "14c95aefe308a962bb4d2a89f6775248a7d256ef02a5b4b0f7fe6505b78e05e1"
+    },
+    "variantes": {
+      "n": 2391,
+      "huella": "ccd725fe954d80f6a3390aa5c145f108b06c70f959f5ae04480d85da14760c06"
+    },
+    "precios": {
+      "n": 5512,
+      "huella": "2ba7d53660dee1abb8f0dfe6c18f8588af923625ddf9005621e8d2547bf459b1"
+    },
+    "medios": {
+      "n": 6453,
+      "huella": "ef279e27508fa9ceba269cb6bd6f64a837a9546051e3978c88375f44ad197559"
+    },
+    "enriquecimiento": {
+      "n": 295,
+      "huella": "8b3332b5784649b6e502eb8ba562867c0c4f33270e7977f868ad19e325015ad3"
+    }
+  }
+}
