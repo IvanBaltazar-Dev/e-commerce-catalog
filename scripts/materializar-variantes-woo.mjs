@@ -44,7 +44,7 @@ const { data: snap } = await db.from("catalog_source_snapshots")
 
 const variaciones = await leerTodo({
   consulta: () => db.from("catalog_source_records")
-    .select("id, external_id, external_parent_id, title, source_url, payload")
+    .select("id, external_id, external_parent_id, title, source_url, primary_image_url, payload")
     .eq("snapshot_id", snap.id).eq("entity_type", "variant"),
   orden: ["id"], clave: (r) => r.external_id, nombre: "variaciones woo",
 });
@@ -74,7 +74,26 @@ for (const v of variaciones) {
   const ref = referenciaPorExterno.get(idPadre);
   if (!ref) { huerfanas.push(v.external_id); continue; }
   const prod = productoPorExterno.get(v.external_parent_id);
-  const ejes = v.payload?.attributes ?? [];
+  // Los atributos vienen con dos formas según de dónde salió la variación: del
+  // listado del producto padre («name»/«value») o de su ficha completa, donde el
+  // valor está en terms[0]. Se acepta cualquiera de las dos sin preferir ninguna.
+  let ejes = (v.payload?.attributes ?? []).map((a) => ({
+    name: a.name ?? null,
+    value: a.value ?? a.terms?.[0]?.name ?? null,
+  })).filter((a) => a.name && a.value);
+
+  // Cuando la variación viene de ?type=variation, attributes llega vacío y el eje
+  // está en el campo «variation» como cadena: «Colores: Plomo 06», «TONOS: NUDE
+  // COFFEE». No es una convención que asumamos nosotros: es la propia API
+  // rindiendo nombre y valor, así que partirla es NORMALIZACIÓN y no inferencia.
+  // Se conserva la cadena cruda al lado para poder rehacerlo si cambia el formato.
+  if (!ejes.length && v.payload?.variation) {
+    ejes = String(v.payload.variation).split(",").map((trozo) => {
+      const i = trozo.indexOf(":");
+      if (i < 0) return null;
+      return { name: trozo.slice(0, i).trim(), value: trozo.slice(i + 1).trim() };
+    }).filter((a) => a && a.name && a.value);
+  }
   // El nombre de la variante lo forma su eje, que es lo que la distingue de sus
   // hermanas. «Base Cushion · Tonos 001» y no «Base Cushion» repetido seis veces.
   const etiquetaEjes = ejes.map((a) => `${a.name}: ${a.value}`).join(" · ");
@@ -91,6 +110,12 @@ for (const v of variaciones) {
     // El eje va en shade_name solo si la fuente lo llama tono; si no, se queda en
     // metadata. Meter «Medidas: 46cm» en shade_name sería inventar.
     shade_name: ejes.find((a) => /^tono/i.test(a.name ?? ""))?.value ?? null,
+    // La ficha completa de la variación SÍ trae SKU, precio e imagen propios; el
+    // listado del producto padre no. Se recogen cuando están, y cuando no, se
+    // queda a null en vez de heredar los del padre: heredarlos haría creer que la
+    // variación tiene código propio cuando no lo tiene.
+    sku: v.payload?.sku || null,
+    primary_image_url: v.primary_image_url ?? null,
     source_url: v.source_url,
     identity_fingerprint: sha({ producto: ref.id, externo }),
     content_fingerprint: sha({ externo, ejes }),
@@ -98,6 +123,8 @@ for (const v of variaciones) {
     metadata: {
       origen: "woocommerce_store_api",
       ejes,
+      ejes_crudo: v.payload?.variation ?? null,
+      ejes_regla: (v.payload?.attributes ?? []).length ? "attributes estructurados" : "EJE_DESDE_VARIATION v1",
       materializado_por: "materializar-variantes-woo",
       // Deja constancia de que estas sustituyen a las retiradas, sin revivirlas.
       sustituye_a: "las 1.395 variantes aplanadas retiradas en 0152",

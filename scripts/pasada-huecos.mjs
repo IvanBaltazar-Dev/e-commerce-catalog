@@ -166,6 +166,18 @@ for (let i = 0; i < registros.length; i += 100) {
 }
 console.log(`\n  registros de variación escritos: ${registros.length}`);
 
+// Los medios exigen run: es una puesta en circulación, no una captura.
+const { data: runMedio, error: eRunMedio } = await db.from("catalog_research_runs").insert({
+  run_key: `pasada-huecos-medios:${snap.id}`,
+  run_kind: "targeted", actor_kind: "system", actor_label: "pasada-huecos",
+  input_fingerprint: sha({ medios: mediosNuevos.length }),
+  scope: { proposito: "imagenes de variante realmente distintas de la del padre" },
+}).select("id").single();
+if (eRunMedio && !/duplicate|unique/i.test(eRunMedio.message)) throw new Error(`run: ${eRunMedio.message}`);
+const runMedioId = runMedio?.id ?? (await db.from("catalog_research_runs").select("id")
+  .eq("run_key", `pasada-huecos-medios:${snap.id}`).single()).data.id;
+for (const m of mediosNuevos) { m.first_seen_run_id = runMedioId; m.last_seen_run_id = runMedioId; }
+
 for (let i = 0; i < mediosNuevos.length; i += 100) {
   const { error } = await db.from("catalog_reference_media")
     .upsert(mediosNuevos.slice(i, i + 100), { onConflict: "target_ref,remote_url", ignoreDuplicates: true });
