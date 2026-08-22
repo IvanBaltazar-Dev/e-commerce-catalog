@@ -8,6 +8,8 @@ import { catalogResearchStorageRoot } from "./lib/catalog-research-paths.mjs";
 import { loadSupabaseScriptEnv } from "./lib/supabase-script-env.mjs";
 import {
   discoverShopifyOfficialCatalog,
+  ejesDeclarados,
+  ejesDeVariacion,
   normalizeOfficialText,
   parseOfficialProduct,
 } from "../src/lib/catalog-intelligence/shopify-official-adapter.mjs";
@@ -306,13 +308,30 @@ async function createRun({ source, brand, capture, previous }) {
   return { run, scope, sourceState };
 }
 
+/**
+ * La huella del snapshot mezcla el contenido de la tienda CON nuestro contrato de
+ * extracción.
+ *
+ * Con solo el contenido, mejorar el extractor no llegaba nunca a los datos: la
+ * tienda no había cambiado, la huella coincidía, el snapshot se reutilizaba y el
+ * bloque que construye los registros se saltaba entero. Se descubrió al añadir
+ * los ejes de variación: el código era correcto y las 136 variantes de Bigen
+ * seguían sin eje, porque nunca se reescribieron.
+ *
+ * Súbelo cuando cambie QUÉ se extrae o cómo se estructura. Es el equivalente de
+ * CONTRATO_OBSERVACION para la capa de captura.
+ */
+const CONTRATO_EXTRACCION = "v2-ejes-de-variacion";
+const huellaDeCaptura = (capture) =>
+  contentHash({ contenido: capture.contentFingerprint, contrato: CONTRATO_EXTRACCION });
+
 async function resolveSnapshot({ source, capture }) {
   const existing = must(
     await admin
       .from("catalog_source_snapshots")
       .select("id, content_hash, raw_storage_path")
       .eq("source_id", source.id)
-      .eq("content_hash", capture.contentFingerprint)
+      .eq("content_hash", huellaDeCaptura(capture))
       .in("status", ["succeeded", "partial"])
       .maybeSingle(),
     "snapshot lookup",
@@ -323,7 +342,7 @@ async function resolveSnapshot({ source, capture }) {
     source_id: source.id,
     status: "running",
     started_at: capture.capturedAt,
-    content_hash: capture.contentFingerprint,
+    content_hash: huellaDeCaptura(capture),
     raw_storage_path: capture.storage.storageReference,
     product_count: capture.counts.products,
     variant_count: capture.counts.variants,
@@ -384,6 +403,10 @@ async function resolveSnapshot({ source, capture }) {
           available: variant.available,
           position: variant.position,
           optionValues: [variant.option1, variant.option2, variant.option3].filter(Boolean),
+          // El valor con su eje. optionValues se conserva por compatibilidad,
+          // pero es justo lo que no se puede mirar a solas: «Natural Black» sin
+          // saber que es un Shade no identifica nada.
+          optionAxes: ejesDeVariacion(product, variant),
           updatedAt: variant.updated_at,
           rawReference,
         },
@@ -638,6 +661,10 @@ async function ingestReferences({ source, brand, capture, run, scope, records })
         level: "REFERENCE_LIGHT",
         metadata: {
           handle: product.handle,
+          // Qué ejes declara el producto, ya sin el «Title / Default Title» que
+          // Shopify inventa. Permite distinguir «no varía» de «varía y no lo
+          // capturamos», que antes eran indistinguibles.
+          ejesDeclarados: ejesDeclarados(product),
           finish: parsed.finish,
           gamut: parsed.gamut,
           tags: parsed.tags,
@@ -706,6 +733,7 @@ async function ingestReferences({ source, brand, capture, run, scope, records })
           metadata: {
             officialTitle: variant.title,
             optionValues: [variant.option1, variant.option2, variant.option3].filter(Boolean),
+            optionAxes: ejesDeVariacion(input.product, variant),
             rawStorageReference: capture.storage.storageReference,
           },
         },

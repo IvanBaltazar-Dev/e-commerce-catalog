@@ -320,6 +320,41 @@ export function normalizeOfficialText(value) {
     .trim();
 }
 
+
+/**
+ * Los ejes de variación, con su nombre.
+ *
+ * Shopify publica los nombres en product.options[] y los valores en
+ * variant.option1/2/3, emparejados por posición. Se estaban guardando solo los
+ * valores, así que un tono llegaba como «Natural Black» — un texto suelto del
+ * que después había que adivinar de qué eje era. Con el nombre delante es
+ * «Shade: Natural Black», que es un dato y no una conjetura.
+ *
+ * Cuando una tienda no tiene ejes reales, Shopify inventa igualmente una opción
+ * llamada «Title» con el valor «Default Title». Eso no es estructura: contarlo
+ * como tal haría parecer que las cuatro tiendas que modelan cada tono como
+ * producto suelto tienen variaciones, y no las tienen.
+ */
+export function ejesDeVariacion(product, variant) {
+  const nombres = (product?.options ?? []).map((o) => o?.name ?? null);
+  const valores = [variant?.option1, variant?.option2, variant?.option3];
+  const ejes = [];
+  for (let i = 0; i < valores.length; i += 1) {
+    const valor = valores[i];
+    if (valor === null || valor === undefined || valor === "") continue;
+    if (String(valor).trim().toLowerCase() === "default title") continue;
+    ejes.push({ eje: nombres[i] ?? null, valor: String(valor) });
+  }
+  return ejes;
+}
+
+/** Los ejes declarados por el producto, ya sin el «Title» de relleno. */
+export function ejesDeclarados(product) {
+  return (product?.options ?? [])
+    .filter((o) => !(o?.values ?? []).every((v) => String(v).trim().toLowerCase() === "default title"))
+    .map((o) => ({ nombre: o?.name ?? null, valores: (o?.values ?? []).map(String) }));
+}
+
 export function parseOfficialProduct(product) {
   const tags = Array.isArray(product.tags) ? product.tags.map(String) : [];
   const searchable = [product.title, product.product_type, ...tags].join(" ");
