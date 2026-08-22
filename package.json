@@ -128,7 +128,9 @@
     "test:superseded": "node scripts/test-superseded.mjs",
     "detectar:plataformas": "node --experimental-transform-types scripts/detectar-plataformas.mjs",
     "test:contrato-extraccion": "node scripts/test-contrato-extraccion.mjs",
-    "materializar:variantes-woo": "node --experimental-transform-types scripts/materializar-variantes-woo.mjs"
+    "materializar:variantes-woo": "node --experimental-transform-types scripts/materializar-variantes-woo.mjs",
+    "consolidacion:global": "node --experimental-transform-types scripts/consolidacion-global.mjs",
+    "poner-en-circulacion": "node --experimental-transform-types scripts/poner-en-circulacion.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",
